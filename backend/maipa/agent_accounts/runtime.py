@@ -3,11 +3,14 @@ import asyncio
 import json
 from pathlib import Path
 import shutil
-import tempfile
 
 from django.conf import settings
 
 from backend.maipa.acp import AcpClient, AcpError, Scope
+from backend.maipa.worker_capsule import WorkerCapsule
+from backend.maipa.windows_sandbox import WindowsSandbox
+from backend.maipa.workspace.models import Membership
+from .models import AgentAccount
 
 PACKAGE = "@particle-academy/prism-acp"
 VERSION = "0.24.1"
@@ -44,10 +47,10 @@ def installed_runtime():
         raise TransportUnavailable("Agent runtime unavailable") from None
 
 
-async def _check(command, profile):
+async def _check(command, profile, launcher):
     scope = Scope(profile["user_id"], profile["account_id"])
     client = AcpClient(command, scope, Path(profile["workspace"]),
-        env={"MAIPA_ACP_PROFILE": json.dumps(profile)}, timeout=15)
+        env={"MAIPA_ACP_PROFILE": json.dumps(profile)}, timeout=15, launcher=launcher)
     await client.start()
     try:
         result = await client.initialize(scope)
@@ -61,28 +64,40 @@ async def _check(command, profile):
         await client.close()
     if client.returncode != 0:
         raise ValueError("Host exit")
+    if launcher.process.isolation != "windows-appcontainer" or launcher.process.job_empty is not True:
+        raise ValueError("Worker stop unverified")
+    return {"isolation": "windows-appcontainer", "job_empty": True, "provider_sessions": 0}
+
+
+def _authority(account):
+    # Preserve the original caller's immutable owner/provider binding. Refreshing
+    # an object and silently adopting a newly assigned owner would be escalation.
+    exists = AgentAccount.objects.filter(pk=account.pk, owner_id=account.owner_id,
+        provider=account.provider, enabled=True, owner__is_active=True).exists()
+    member = Membership.objects.filter(user_id=account.owner_id, enabled=True,
+        role__in=("administrator", "preparer"), installation__slot=1).first()
+    if not exists or member is None:
+        raise TransportUnavailable("Agent transport unavailable")
+    return str(member.installation_id)
 
 
 def probe_transport(account):
     installed_runtime()
     try:
+        installation = _authority(account)
         node = settings.ACP_NODE_EXECUTABLE or shutil.which("node")
         if not node or not Path(node).is_absolute():
             raise ValueError("Node unavailable")
-        root = Path(settings.ACP_CHECK_ROOT)
-        if not root.is_absolute() or root.is_symlink():
-            raise ValueError("Invalid check directory")
-        root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        root = root.resolve(strict=True)
-        # Only a freshly minted, confined temporary directory is cleaned up.
-        with tempfile.TemporaryDirectory(prefix="transport-", dir=root) as directory:
-            base = Path(directory).resolve(strict=True)
-            if base.parent != root or base.is_symlink():
-                raise ValueError("Invalid temporary directory")
-            for name in ("workspace", "home", "supervisor"):
-                (base / name).mkdir(mode=0o700)
-            profile = {"user_id": str(account.owner_id), "account_id": str(account.pk), "provider": account.provider,
-                "workspace": str(base / "workspace"), "home": str(base / "home"), "supervisor_directory": str(base / "supervisor")}
-            asyncio.run(_check([node, str(Path(settings.ACP_RUNTIME_ROOT) / "host.mjs")], profile))
+        scope = Scope(str(account.owner_id), str(account.pk))
+        with WorkerCapsule(settings.ACP_CHECK_ROOT, settings.ACP_RUNTIME_ROOT, node, scope, account.provider) as capsule:
+            # Recheck after preparation and before creating any worker process.
+            if _authority(account) != installation:
+                raise TransportUnavailable("Agent transport unavailable")
+            with WindowsSandbox(scope, capsule.base, writable=(capsule.workspace, capsule.home),
+                    readonly=(capsule.code, capsule.supervisor), installation_id=installation) as sandbox:
+                verdict = asyncio.run(_check(capsule.command, capsule.profile, sandbox))
+            if not sandbox.profile_removed or _authority(account) != installation:
+                raise TransportUnavailable("Agent transport unavailable")
+        return verdict
     except (OSError, ValueError, RuntimeError, AcpError, AttributeError, TypeError, RecursionError):
         raise TransportUnavailable("Agent transport unavailable") from None

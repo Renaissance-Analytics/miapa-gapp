@@ -25,6 +25,10 @@ def session_state(request):
         return method_not_allowed("GET")
     if not request.user.is_authenticated or not request.user.is_active:
         return error("authentication_required", 401)
+    from .workspace.policy import authorize
+    _, denied = authorize(request, "workspace.read")
+    if denied is not None:
+        return denied
     return JsonResponse({"user": {"id": str(request.user.pk)}, "csrf_token": get_token(request)})
 
 

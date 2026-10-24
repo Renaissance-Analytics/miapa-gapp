@@ -1,4 +1,4 @@
-import { readFileSync, lstatSync, realpathSync } from "node:fs";
+import { readFileSync, lstatSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -20,7 +20,10 @@ export function validateProfile(value) {
     if (typeof path !== "string" || !isAbsolute(path) || lstatSync(path).isSymbolicLink() || !lstatSync(path).isDirectory()) {
       throw new Error("Invalid worker directory");
     }
-    result[key] = realpathSync(path);
+    // The trusted Python launcher verifies every physical path component
+    // before applying the container ACL. The worker can inspect the assigned
+    // leaf, but cannot walk unrelated server/system parent directories.
+    result[key] = resolve(path);
   }
   return Object.freeze(result);
 }

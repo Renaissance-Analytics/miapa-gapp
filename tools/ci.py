@@ -16,7 +16,8 @@ import time
 STAGES = ("alignment", "dependencies", "static", "backend", "frontend", "migrations", "build", "browser")
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_CASES = ("anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
-                 "mobile-panels", "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
+                 "mobile-panels", "real-login-and-server-role", "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
+                 "logout-and-viewer-denial",
                  "no-uncaught-exceptions", "owned-browser-cleanup")
 
 
@@ -166,7 +167,13 @@ class Commands:
         elif stage == "backend":
             target = self.artifacts / "backend.json"
             target.unlink(missing_ok=True)
-            self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)])
+            try:
+                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)])
+            except ValueError:
+                from tools.alignment import discovered_test_ids
+                from tools.backend_reporting import failure_evidence
+                return failure_evidence(json.loads(target.read_text(encoding="utf-8")) if target.is_file() else None,
+                    discovered_test_ids(self.root))
             value = {"returncode": 0, **json.loads(target.read_text(encoding="utf-8"))}
         elif stage == "frontend":
             self.command([self.node, "node_modules/typescript/bin/tsc", "-p", "tsconfig.test.json"], cwd=self.frontend)

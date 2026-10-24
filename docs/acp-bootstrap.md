@@ -32,8 +32,10 @@ are not OS data isolation or an exclusive MCP allowlist. Inherited provider
 settings/plugins/MCP still need acceptance. No HTTP route or composer can start
 provider sessions. Authenticated transport checks only initialize and stop the
 host with zero providers; see [account transport](agent-account-transport.md).
-Provisioning and an actual OS/account boundary must be
-implemented and tested before exposing provider sessions to application users.
+The actual zero-provider transport now runs under the app-owned
+[Windows boundary](windows-worker-isolation.md). Provider provisioning and
+actual provider CLI/network/IPC acceptance inside that boundary remain required
+before exposing provider sessions to application users.
 
 Each client worker belongs to one user/account. Application session handles are
 random and separate from ACP-local IDs. Owned new/prompt/cancel/update methods

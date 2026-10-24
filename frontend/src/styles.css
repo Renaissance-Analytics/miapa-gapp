@@ -68,6 +68,11 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .workspace-principles p { font-size: 11px; margin-bottom: 0; }
 .retry-button { margin: 16px 0 0; background: var(--accent); color: var(--on-accent); border-color: transparent; }
 .privacy-note { color: var(--muted); font-size: 11px; margin-top: 22px; }
+.sign-in-form { display: grid; gap: 18px; max-width: 360px; margin-top: 28px; }
+.sign-in-submit { justify-self: start; background: var(--accent); color: var(--on-accent); }
+.auth-message { color: var(--error) !important; margin: 0; font-size: 12px; }
+.session-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.sign-out-controls { display: flex; align-items: center; gap: 8px; font-size: 11px; }
 .work-footer { display: flex; justify-content: space-between; gap: 16px; padding: 18px 32px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
 .build-updates { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .build-version { font: 10px ui-monospace, monospace; }

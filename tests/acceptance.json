@@ -505,6 +505,359 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P01-AUTH",
+      "risk": "Login can leak credentials, accept forged identity, permit brute force or retain invalidated session authority.",
+      "scenarios": [
+        {
+          "id": "P01-AUTH.csrf",
+          "kind": "positive",
+          "given": "An anonymous same-origin browser",
+          "when": "GET the CSRF bootstrap",
+          "then": "Return only an uncached nonempty CSRF token, without a redirect or private identity.",
+          "tests": [
+            "tests.test_workspace_auth.LoginSurfaceTests.test_anonymous_csrf_bootstrap_is_minimal_and_uncached"
+          ]
+        },
+        {
+          "id": "P01-AUTH.login",
+          "kind": "positive",
+          "given": "A provisioned active member and existing browser session",
+          "when": "Authenticate with a real password and then logout",
+          "then": "Rotate session and CSRF authority; bind the correct user; logout invalidates a captured old session cookie.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_real_login_rotates_session_and_csrf_and_logout_invalidates_old_cookie"
+          ]
+        },
+        {
+          "id": "P01-AUTH.methods",
+          "kind": "negative",
+          "given": "A login read, missing token or foreign origin",
+          "when": "Attempt authentication",
+          "then": "Refuse GET with 405/Allow POST and no redirect; reject CSRF/origin failures with 403 without authenticating.",
+          "tests": [
+            "tests.test_workspace_auth.LoginSurfaceTests.test_login_read_is_refused_without_redirect",
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_login_requires_csrf_same_origin_and_post"
+          ]
+        },
+        {
+          "id": "P01-AUTH.credentials",
+          "kind": "negative",
+          "given": "Unknown, wrong-password, inactive or unprovisioned users",
+          "when": "Attempt a real login",
+          "then": "Return identical generic 401 invalid_credentials with no authenticated session.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_invalid_inactive_and_unprovisioned_login_are_identical"
+          ]
+        },
+        {
+          "id": "P01-AUTH.schema",
+          "kind": "negative",
+          "given": "Malformed, duplicate-key, role/tenant-forged or overbudget JSON",
+          "when": "POST login",
+          "then": "Reject invalid schema with 400 and overbudget payloads with 413; create no authenticated session.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_login_refuses_identity_role_duplicates_malformed_and_overbudget_payloads"
+          ]
+        },
+        {
+          "id": "P01-AUTH.switch",
+          "kind": "negative",
+          "given": "An already authenticated principal",
+          "when": "Try to login as another principal",
+          "then": "Return 409 already_signed_in and retain the original identity.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_login_cannot_replace_an_already_authenticated_principal"
+          ]
+        },
+        {
+          "id": "P01-AUTH.budget",
+          "kind": "negative",
+          "given": "Five wrong-password attempts using fresh browser sessions",
+          "when": "Try a sixth login with the correct password",
+          "then": "Return 429 login_rate_limited with Retry-After 900 and persist no plaintext username in the attempt budget.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_login_attempt_budget_is_shared_across_sessions_and_contains_no_plaintext"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-SCOPE",
+      "risk": "Client hints, roles or stale membership can cross installation/user authority and expose another user account history.",
+      "scenarios": [
+        {
+          "id": "P01-SCOPE.install",
+          "kind": "positive",
+          "given": "A provisioned preparer and forged user/tenant/role hints",
+          "when": "Read workspace context and attempt another install row",
+          "then": "Return the server installation and preparer permission oracle; database rejects a second installation.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_install_and_role_come_from_server_and_second_install_is_refused"
+          ]
+        },
+        {
+          "id": "P01-SCOPE.users",
+          "kind": "positive",
+          "given": "Two users logged in with real passwords and one private account/history",
+          "when": "Read each user account and transport history",
+          "then": "Administrator sees no foreign account and receives generic 404 for foreign history; original owner retains their history.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_two_authenticated_users_cannot_read_foreign_accounts_or_history"
+          ]
+        },
+        {
+          "id": "P01-SCOPE.role",
+          "kind": "negative",
+          "given": "A viewer with their own account and forged administrator hints",
+          "when": "POST a transport check",
+          "then": "Return 403 permission_denied with no created check; own account metadata remains readable.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_viewer_cannot_start_transport_check_or_escalate_role"
+          ]
+        },
+        {
+          "id": "P01-SCOPE.revoked",
+          "kind": "negative",
+          "given": "A logged-in member whose membership is disabled server-side",
+          "when": "Read session, workspace or provider accounts without logging in again",
+          "then": "Every protected read returns generic 403 workspace_access_denied immediately.",
+          "tests": [
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_membership_revocation_takes_effect_on_existing_session"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-PROVISION",
+      "risk": "Unprovisioned/passwordless principals could gain workspace authority or a setup process could replace passwords.",
+      "scenarios": [
+        {
+          "id": "P01-PROVISION.valid",
+          "kind": "positive",
+          "given": "A trusted console operator and an existing active password user",
+          "when": "Grant explicit administrator membership",
+          "then": "Persist the explicit enabled role under the sole installation without changing or storing a plaintext password.",
+          "tests": [
+            "tests.test_workspace_provisioning.WorkspaceProvisioningTests.test_console_grants_explicit_role_to_existing_password_user"
+          ]
+        },
+        {
+          "id": "P01-PROVISION.refuse",
+          "kind": "negative",
+          "given": "Unknown, inactive or passwordless users",
+          "when": "Attempt console provisioning",
+          "then": "Refuse all candidates without creating an installation or membership.",
+          "tests": [
+            "tests.test_workspace_provisioning.WorkspaceProvisioningTests.test_unknown_inactive_and_passwordless_users_get_no_membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-PROXY",
+      "risk": "Genie HTTPS termination can reject legitimate login; broad origin or forwarded-header trust could weaken CSRF.",
+      "scenarios": [
+        {
+          "id": "P01-PROXY.genie",
+          "kind": "positive",
+          "given": "Explicit local Genie mode with maipa.gen in exact allowed hosts",
+          "when": "Load the real settings and authenticate with HTTPS Origin over loopback HTTP proxy transport",
+          "then": "Trust exactly https://maipa.gen and authenticate the correct member with CSRF; no forwarded-header trust is required.",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_genie_local_mode_trusts_only_its_exact_https_origin",
+            "tests.test_workspace_auth.WorkspaceAuthTests.test_genie_https_origin_login_works_over_the_loopback_proxy_transport"
+          ]
+        },
+        {
+          "id": "P01-PROXY.closed",
+          "kind": "negative",
+          "given": "Production mode or an unrelated local hostname",
+          "when": "Load settings",
+          "then": "No automatic Genie CSRF trusted origin is added.",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_genie_origin_trust_is_absent_for_production_or_other_local_hosts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-WORKER",
+      "risk": "A provider process or detached descendant could read server/other-user data, mutate trusted code, outlive its owner or execute under stale account authority.",
+      "scenarios": [
+        {
+          "id": "P01-WORKER.access",
+          "kind": "positive",
+          "given": "Existing synthetic assigned, foreign-user, server and public-code files, plus an unrestricted control",
+          "when": "Run a real Node worker and its real Node descendant under native isolation",
+          "then": "Both restricted processes read assigned/public code but receive EACCES/EPERM for foreign/server files; assigned writes work, code writes fail; job empty and profile removed.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_real_worker_and_descendant_can_access_only_their_assigned_files"
+          ]
+        },
+        {
+          "id": "P01-WORKER.stop",
+          "kind": "negative",
+          "given": "An actual running root and detached Node descendant, with process handles opened before termination",
+          "when": "Kill the worker or its owning server process",
+          "then": "Both observed process handles become signalled, without killing arbitrary PIDs; native job empties and profile is cleaned after death.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_kill_ends_the_actual_root_and_detached_descendant",
+            "tests.test_worker_isolation.WorkerIsolationTests.test_server_process_death_closes_the_job_and_ends_its_descendant"
+          ]
+        },
+        {
+          "id": "P01-WORKER.scope",
+          "kind": "negative",
+          "given": "A foreign immutable user/account scope or overlapping writable parent/public-code layout",
+          "when": "Attempt a native launch",
+          "then": "Refuse before any child starts; a writable root cannot contain immutable runtime code.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_foreign_scope_and_writable_code_overlap_are_refused_before_spawn"
+          ]
+        },
+        {
+          "id": "P01-WORKER.host",
+          "kind": "positive",
+          "given": "A valid server-owned member/provider account and installed published Prism ACP package",
+          "when": "Execute the actual application transport check",
+          "then": "Return real Windows AppContainer verification, empty native job and zero provider sessions, after published-host initialization/shutdown.",
+          "tests": [
+            "tests.test_agent_accounts.AgentAccountTests.test_actual_transport_has_verified_appcontainer_and_empty_job"
+          ]
+        },
+        {
+          "id": "P01-WORKER.revoked",
+          "kind": "negative",
+          "given": "An account object captured before membership revocation or reassignment",
+          "when": "Call the real transport function",
+          "then": "Refuse revoked membership and stale original-owner authority before launching a worker.",
+          "tests": [
+            "tests.test_agent_accounts.AgentAccountTests.test_stale_reassigned_or_revoked_account_cannot_launch_a_worker"
+          ]
+        },
+        {
+          "id": "P01-WORKER.write-deadline",
+          "kind": "negative",
+          "given": "An actual isolated Node process keeps running without reading its native input pipe",
+          "when": "Send a 64KiB ACP request with a 0.2 second deadline",
+          "then": "The application deadline ends the blocked write with its fixed AcpError before the 3 second test watchdog; the native job is empty and its profile is removed.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_blocked_native_write_expires_and_leaves_an_empty_job"
+          ]
+        },
+        {
+          "id": "P01-WORKER.environment-revoke",
+          "kind": "negative",
+          "given": "Parent process carries synthetic secret and runtime injection variables, and one actual worker runs under an immutable scope",
+          "when": "Inspect the real child environment, try foreign revocation, then revoke its own scope",
+          "then": "No forbidden variable is inherited; foreign revocation fails without ending the observed process; own-scope revocation ends its handle and empties the native job.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_native_environment_is_filtered_and_scope_revocation_ends_worker"
+          ]
+        },
+        {
+          "id": "P01-WORKER.two-users",
+          "kind": "positive",
+          "given": "Two distinct user/account AppContainers with both private workspace ACLs present and a shared immutable runtime",
+          "when": "Launch both real workers and their Node descendants, then observe both root handles alive",
+          "then": "Each root and descendant reads its own file and shared code but receives permission denial for the other assigned workspace and synthetic server file; both live handles end and jobs/profiles clean up.",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_two_live_user_workers_cannot_read_each_others_assigned_files"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-CAPSULE",
+      "risk": "Private server files or patched runtime bytes could be staged; junctions or cleanup could escape the owned worker root.",
+      "scenarios": [
+        {
+          "id": "P01-CAPSULE.bytes",
+          "kind": "positive",
+          "given": "The installed actual published ACP runtime and Node binary, plus an unrelated synthetic file beside the owned worker root",
+          "when": "Prepare and close a real runtime capsule",
+          "then": "Every staged package/host/manifest byte and Node binary matches the unchanged source; supervisor exists, writable directories start empty; cleanup removes only the owned child.",
+          "tests": [
+            "tests.test_worker_capsule.WorkerCapsuleTests.test_deploys_exact_runtime_bytes_and_removes_only_its_owned_directory"
+          ]
+        },
+        {
+          "id": "P01-CAPSULE.reparse",
+          "kind": "negative",
+          "given": "An actual freshly created Windows junction points at a synthetic target",
+          "when": "Use the junction as runtime or a worker-root ancestor",
+          "then": "Refuse before creating files in the target; remove the junction itself after the test.",
+          "tests": [
+            "tests.test_worker_capsule.WorkerCapsuleTests.test_runtime_and_writable_root_junctions_are_refused"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BACKEND-REPORT",
+      "risk": "An opaque hosted backend failure can stall diagnosis; printing raw exceptions can disclose private paths, data or credentials.",
+      "scenarios": [
+        {
+          "id": "K06-BACKEND-REPORT.known",
+          "kind": "positive",
+          "given": "A known reviewed test raises a native error with a fixed phase/code and a private message",
+          "when": "Build public failure evidence",
+          "then": "Retain the known test identifier, allowlisted phase/code and bounded exception kinds; exclude every exception message.",
+          "tests": [
+            "tests.test_backend_reporting.BackendReportingTests.test_known_test_and_native_phase_are_retained_without_exception_text"
+          ]
+        },
+        {
+          "id": "K06-BACKEND-REPORT.unknown",
+          "kind": "negative",
+          "given": "An unknown identifier, private metadata, cyclic exception context or untrusted extra report fields",
+          "when": "Collect result and CI failure metadata",
+          "then": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
+          "tests": [
+            "tests.test_backend_reporting.BackendReportingTests.test_unknown_test_exception_metadata_and_cycles_are_bounded_and_redacted",
+            "tests.test_backend_reporting.BackendReportingTests.test_real_test_result_keeps_failure_and_collects_only_safe_evidence",
+            "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BROWSER-START",
+      "risk": "A native browser may need Windows startup paths absent in scrubbed CI; diagnostics must not leak credentials or raw browser text.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-START.paths",
+          "kind": "positive",
+          "given": "A scrubbed CI environment plus OS-resolved startup paths, private credentials and injection flags",
+          "when": "Build the dedicated browser child environment",
+          "then": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-START.code",
+          "kind": "positive",
+          "given": "A fixed browser-launch phase/state with numeric exit and allowlisted spawn code, plus private stderr",
+          "when": "Build public launch-failure evidence",
+          "then": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-START.reject",
+          "kind": "negative",
+          "given": "Private/unknown state/code metadata and a boolean masquerading as an exit number",
+          "when": "Build public launch evidence",
+          "then": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded"
+          ]
+        }
+      ]
     }
   ]
 }

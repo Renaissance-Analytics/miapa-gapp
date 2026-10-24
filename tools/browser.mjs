@@ -7,8 +7,9 @@ import { setTimeout as delay } from "node:timers/promises";
 import { ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false;
+let startupEvidence = {}, launchState = "starting", launchExit;
 process.on("uncaughtException", () => {
-  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified }));
+  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence }));
   process.exitCode = 1;
 });
 
@@ -29,9 +30,9 @@ const child = spawn(binary, ["--headless=new", "--no-first-run", "--no-default-b
   "--disable-extensions", "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"],
   { windowsHide: true, stdio: "ignore" });
 let closed = false;
-child.on("exit", () => { closed = true; });
+child.on("exit", code => { closed = true; launchExit = code; launchState = "exited"; });
 let launchError;
-child.on("error", error => { launchError = error; });
+child.on("error", error => { launchError = error; launchState = "spawn_error"; });
 let debugOrigin, socket, evidence;
 const pending = new Map();
 let sequence = 0;
@@ -70,6 +71,7 @@ try {
     if (launchError || closed) throw Error("Native browser launch failed");
     return existsSync(join(profile, "DevToolsActivePort"));
   }, "native browser");
+  launchState = "devtools_file";
   const [port, browserPath] = readFileSync(join(profile, "DevToolsActivePort"), "utf8").trim().split(/\r?\n/);
   assert.match(port, /^\d{1,5}$/);
   assert.ok(+port > 0 && +port < 65536);
@@ -133,11 +135,33 @@ try {
   await click("Conversation");
   await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), "mobile conversation");
   record("mobile-panels");
-  phase = "authenticated_scope";
-  await command("Network.setCookie", { name: "sessionid", value: fixture.cookie, url: fixture.origin, httpOnly: true, sameSite: "Lax" });
+  phase = "login";
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
+  async function fill(id, value) {
+    assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
+    await command("Input.insertText", { text: value });
+  }
+  async function login(username) {
+    await fill("maipa-username", username);
+    await fill("maipa-password", fixture.password);
+    await click("Sign in");
+    await until(() => evaluate("document.body.innerText.includes('Signed in')"), "real authenticated workspace");
+    if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
+  }
+  await fill("maipa-username", fixture.username);
+  await fill("maipa-password", "synthetic-incorrect-password");
+  await click("Sign in");
+  await until(() => evaluate("document.querySelector('.auth-message')?.textContent.includes('could not sign you in')"), "generic failed login");
+  assert.equal(await evaluate("document.getElementById('maipa-password').value"), "");
   await command("Page.reload");
-  await until(() => evaluate("document.body.innerText.includes('Signed in')"), "synthetic authenticated workspace");
+  await until(() => evaluate("!!document.getElementById('maipa-username')"), "login form");
+  await login(fixture.username);
+  const workspace = await evaluate("(async()=>{const r=await fetch('/api/workspace/');return {status:r.status,body:await r.json()};})()");
+  assert.equal(workspace.status, 200); assert.equal(workspace.body.role, "preparer");
+  assert.ok(workspace.body.permissions.includes("agent.transport.check"));
+  record("real-login-and-server-role");
+  phase = "authenticated_scope";
   const owned = await evaluate(`(async () => {const s=await (await fetch('/api/session/')).json(); const r=await fetch('/api/agent/accounts/'); return {session:s,accounts:await r.json()};})()`);
   assert.equal(owned.session.user.id, fixture.user_id);
   assert.ok(JSON.stringify(owned.accounts).includes(fixture.account_id));
@@ -155,12 +179,33 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
+  phase = "logout_viewer";
+  await click("Sign out");
+  await until(() => evaluate("!!document.getElementById('maipa-username')"), "logged-out password form");
+  assert.equal(await evaluate("(async()=> (await fetch('/api/session/')).status)()"), 401);
+  if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
+  await login(fixture.viewer_username);
+  const viewer = await evaluate(`(async()=>{const s=await (await fetch('/api/session/')).json();
+    const role=await (await fetch('/api/workspace/?role=administrator')).json();
+    const denied=await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.foreign_account_id)}+'/transport-checks/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Role':'administrator'},body:'{}'});
+    const history=await (await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.foreign_account_id)}+'/transport-checks/')).json();
+    const foreign=await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.account_id)}+'/transport-checks/');
+    return {role:role.role,denied:denied.status,error:await denied.json(),history,foreign:foreign.status};})()`);
+  assert.equal(viewer.role, "viewer"); assert.equal(viewer.denied, 403);
+  assert.deepEqual(viewer.error, { error: { code: "permission_denied" } });
+  assert.deepEqual(viewer.history, { checks: [] }); assert.equal(viewer.foreign, 404);
+  record("logout-and-viewer-denial");
   phase = "browser_exceptions";
   assert.equal(exceptions.length, 0, "No uncaught browser exceptions");
   record("no-uncaught-exceptions");
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
+  if (phase === "browser_launch") {
+    startupEvidence = { startup_state: launchState };
+    if (Number.isInteger(launchExit) && launchExit >= -(2 ** 31) && launchExit < 2 ** 32) startupEvidence.launch_exit = launchExit;
+    if (["ENOENT", "EACCES", "EPERM", "EINVAL", "ENOMEM", "UNKNOWN"].includes(launchError?.code)) startupEvidence.launch_error = launchError.code;
+  }
   throw error;
 } finally {
   phase = "cleanup";

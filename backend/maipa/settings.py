@@ -21,6 +21,7 @@ if not ALLOWED_HOSTS or any("*" in host or "://" in host or "/" in host for host
     raise ImproperlyConfigured("Set exact MAIPA_ALLOWED_HOSTS names; wildcard hosts are forbidden.")
 
 INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions",
+                  "backend.maipa.workspace.apps.WorkspaceConfig",
                   "backend.maipa.agent_accounts.apps.AgentAccountsConfig"]
 MIDDLEWARE = [
     "backend.maipa.middleware.ApiCachePolicyMiddleware",
@@ -46,6 +47,9 @@ SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = not LOCAL_DEV
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax"
+# Genie terminates HTTPS before the explicit local loopback server. Trust only
+# this application's exact public origin; never trust arbitrary proxy headers.
+CSRF_TRUSTED_ORIGINS = ["https://maipa.gen"] if LOCAL_DEV and "maipa.gen" in ALLOWED_HOSTS else []
 CSRF_FAILURE_VIEW = "backend.maipa.api.csrf_failure"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
