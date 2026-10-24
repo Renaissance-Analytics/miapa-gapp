@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-6",
+    "label": "Development update 6",
+    "cards": [
+      { "title": "Browser checks before updates", "description": "The development checks now exercise the built workspace in a separate browser, including appearance, mobile panels, release notes and private agent connection checks. Live provider setup, conversations and accounting workflows are still being built." }
+    ]
+  },
+  {
     "id": "development-5",
     "label": "Development update 5",
     "cards": [

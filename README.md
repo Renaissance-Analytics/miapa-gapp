@@ -113,6 +113,12 @@ build-identity contract. Keep these notes current as application work progresses
 
 ## Delivery boundaries
 
+The shared bootstrap pipeline is now `tools.ci`: see [CI checks](docs/ci.md)
+for locked environment preparation, alignment-first stage ordering, candidate
+evidence and the final isolated native-browser check. The GitHub workflow calls
+this same entrypoint on Windows2025. Hosted execution remains pending initial
+approved source publication; a local report does not imply hosted success.
+
 The backend includes an application-owned Python ACP client and a Node host
 using exact published Prism ACP0.24.1. Immutable user/account scope, fixed
 workspace/home profiles, opaque application session handles and bounded streams

@@ -800,6 +800,126 @@
       "decision": "aligned",
       "reason": "An account is reassigned to a second authenticated owner, who must receive no prior requester's check records; this requires stored requester identity beyond current account ownership.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.positive",
+      "test": "tests.test_ci.CiTests.test_complete_run_binds_identity_and_browser_is_last",
+      "scenario_sha256": "8a4c1b28bfef556176a2644de8bb667248a8b2e7fffb7e68561e39cf17621922",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "A complete unchanged candidate passes in alignment-first/browser-last order with exact build evidence",
+      "decision": "aligned",
+      "reason": "Asserts a literal independent eight-stage sequence, preserved candidate identity and matching final browser build.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_alignment_failure_prevents_all_later_work",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "A failing first gate must leave the execution trace containing alignment only.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_failure_at_every_stage_stops_later_effects",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Injects each of eight failures and asserts no later command was called.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_empty_skipped_failed_or_missing_test_evidence_cannot_pass",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Zero, skipped, failed, mismatched and missing counts with exit zero must stop at backend.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_browser_missing_cleanup_or_wrong_build_cannot_pass",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Independently corrupts cleanup, browser identity, exact build and checks; every apparently successful child must fail.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_source_change_even_after_browser_invalidates_candidate",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Changes only source digest at the last boundary and requires failure after the browser, without accepting an earlier snapshot.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_command_exception_and_unstructured_success_fail_closed",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Missing results, boolean exit codes and exceptions cannot green or reflect private diagnostics.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-CLOSURE.positive",
+      "test": "tests.test_ci_dependencies.DependencyCheckTests.test_accepts_exact_registry_install_and_integrity_covered_optional_bundle",
+      "scenario_sha256": "83762d42b0e0a6d56fdd52231e53aa1304123d8bf19c7cf835d7c3df49b88a02",
+      "source_sha256": "89a9db11577158e310bd606ff91700b61122d2da19f6b09b33ab1727eeb50e71",
+      "expected_observation": "Exact installed closure with integrity-covered optional bundles passes",
+      "decision": "aligned",
+      "reason": "Accepts a fixed registry install plus an absent optional bundled child whose direct parent has integrity; catches the actual preexisting Tailwind bundled-lock false rejection.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-CLOSURE.negative",
+      "test": "tests.test_ci_dependencies.DependencyCheckTests.test_bundle_marker_without_verified_parent_is_refused",
+      "scenario_sha256": "2c9675efff550cbb67b65b49d8ddbcb1bf8aade057f803fed8353c9990d9279b",
+      "source_sha256": "89a9db11577158e310bd606ff91700b61122d2da19f6b09b33ab1727eeb50e71",
+      "expected_observation": "Unapproved installed packages, unverified bundles and unsafe dependency inputs fail",
+      "decision": "aligned",
+      "reason": "An attacker cannot waive integrity with an inBundle flag at the top level.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-CLOSURE.negative",
+      "test": "tests.test_ci_dependencies.DependencyCheckTests.test_extra_installed_package_or_wrong_version_is_refused",
+      "scenario_sha256": "2c9675efff550cbb67b65b49d8ddbcb1bf8aade057f803fed8353c9990d9279b",
+      "source_sha256": "89a9db11577158e310bd606ff91700b61122d2da19f6b09b33ab1727eeb50e71",
+      "expected_observation": "Unapproved installed packages, unverified bundles and unsafe dependency inputs fail",
+      "decision": "aligned",
+      "reason": "An installed undeclared package must fail even when all expected dependencies exist; mismatched installed version must fail too.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-CLOSURE.negative",
+      "test": "tests.test_ci_dependencies.DependencyCheckTests.test_missing_required_unpinned_or_foreign_registry_dependency_is_refused",
+      "scenario_sha256": "2c9675efff550cbb67b65b49d8ddbcb1bf8aade057f803fed8353c9990d9279b",
+      "source_sha256": "89a9db11577158e310bd606ff91700b61122d2da19f6b09b33ab1727eeb50e71",
+      "expected_observation": "Unapproved installed packages, unverified bundles and unsafe dependency inputs fail",
+      "decision": "aligned",
+      "reason": "Missing nonoptional package, foreign registry URLs, absent integrity, links and range direct versions are independently refused; existing assertions retained and missing-install case added.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-PIPELINE.negative",
+      "test": "tests.test_ci.CiTests.test_missing_or_malformed_candidate_identity_prevents_execution",
+      "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+      "decision": "aligned",
+      "reason": "Missing identity, branch-name commit and unknown fingerprint must fail before any stage command; literal empty execution trace catches a false candidate pass.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e"
     }
   ]
 }

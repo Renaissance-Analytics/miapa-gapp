@@ -419,6 +419,66 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-PIPELINE",
+      "risk": "A partial, stale or exit-zero-only check could publish misleading all-green evidence.",
+      "scenarios": [
+        {
+          "id": "K06-PIPELINE.positive",
+          "kind": "positive",
+          "given": "A fixed bootstrap stage sequence with synthetic child evidence and exact candidate snapshots",
+          "when": "Execute all required gates or inject missing evidence, failures or source changes",
+          "then": "A complete unchanged candidate passes in alignment-first/browser-last order with exact build evidence",
+          "tests": [
+            "tests.test_ci.CiTests.test_complete_run_binds_identity_and_browser_is_last"
+          ]
+        },
+        {
+          "id": "K06-PIPELINE.negative",
+          "kind": "negative",
+          "given": "A fixed bootstrap stage sequence with synthetic child evidence and exact candidate snapshots",
+          "when": "Execute all required gates or inject missing evidence, failures or source changes",
+          "then": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+          "tests": [
+            "tests.test_ci.CiTests.test_alignment_failure_prevents_all_later_work",
+            "tests.test_ci.CiTests.test_failure_at_every_stage_stops_later_effects",
+            "tests.test_ci.CiTests.test_empty_skipped_failed_or_missing_test_evidence_cannot_pass",
+            "tests.test_ci.CiTests.test_browser_missing_cleanup_or_wrong_build_cannot_pass",
+            "tests.test_ci.CiTests.test_source_change_even_after_browser_invalidates_candidate",
+            "tests.test_ci.CiTests.test_command_exception_and_unstructured_success_fail_closed",
+            "tests.test_ci.CiTests.test_missing_or_malformed_candidate_identity_prevents_execution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-CLOSURE",
+      "risk": "Dependency checks could reject legitimate npm bundles or accept unapproved installed code and unsafe registries.",
+      "scenarios": [
+        {
+          "id": "K06-CLOSURE.positive",
+          "kind": "positive",
+          "given": "Synthetic exact manifest, npm lock and installed package directory",
+          "when": "Check ordinary/bundled published closure or inject extra, unpinned, mismatched or unsafe entries",
+          "then": "Exact installed closure with integrity-covered optional bundles passes",
+          "tests": [
+            "tests.test_ci_dependencies.DependencyCheckTests.test_accepts_exact_registry_install_and_integrity_covered_optional_bundle"
+          ]
+        },
+        {
+          "id": "K06-CLOSURE.negative",
+          "kind": "negative",
+          "given": "Synthetic exact manifest, npm lock and installed package directory",
+          "when": "Check ordinary/bundled published closure or inject extra, unpinned, mismatched or unsafe entries",
+          "then": "Unapproved installed packages, unverified bundles and unsafe dependency inputs fail",
+          "tests": [
+            "tests.test_ci_dependencies.DependencyCheckTests.test_bundle_marker_without_verified_parent_is_refused",
+            "tests.test_ci_dependencies.DependencyCheckTests.test_extra_installed_package_or_wrong_version_is_refused",
+            "tests.test_ci_dependencies.DependencyCheckTests.test_missing_required_unpinned_or_foreign_registry_dependency_is_refused"
+          ]
+        }
+      ]
     }
   ]
 }
