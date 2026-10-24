@@ -200,6 +200,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P02-INTAKE-UI",
+      "risk": "Intake forms could coerce unknown/false, overwrite stale facts, send forged authority or reflect private diagnostics.",
+      "scenarios": [
+        {
+          "id": "P02-INTAKE-UI.values",
+          "kind": "positive",
+          "given": "Known false, unknown, empty collections and forged extra draft fields",
+          "when": "Build the exact fact payload and human-readable text",
+          "then": "Retain false, force unknown to null, omit identity hints and render No/Unknown/None recorded distinctly",
+          "tests": [
+            "intake.test.mjs#intake preserves known false and explicit unknown without inferring tax status"
+          ]
+        },
+        {
+          "id": "P02-INTAKE-UI.write",
+          "kind": "positive",
+          "given": "A server CSRF token and real optimistic fact/evidence draft",
+          "when": "Send a fact save through the client adapter",
+          "then": "POST exact entity path/body/version with same-origin no-store redirect refusal and bounded signal",
+          "tests": [
+            "intake.test.mjs#fact saves send exact optimistic evidence through protected same-origin requests"
+          ]
+        },
+        {
+          "id": "P02-INTAKE-UI.errors",
+          "kind": "negative",
+          "given": "Invalid request, signed-out, denied, conflict, failure or malformed CSRF response",
+          "when": "Attempt a fact save",
+          "then": "Return only fixed safe states without changing draft version/value; malformed CSRF stops before write",
+          "tests": [
+            "intake.test.mjs#intake conflicts denial failures and invalid csrf expose only fixed states"
+          ]
+        },
+        {
+          "id": "P02-INTAKE-UI.read",
+          "kind": "negative",
+          "given": "Malformed records, path injection or failed/non-JSON transport",
+          "when": "Read intake state",
+          "then": "Reject malformed state generically and make no request for a supplied resource path",
+          "tests": [
+            "intake.test.mjs#intake reads reject malformed records and caller supplied resource paths"
+          ]
+        },
+        {
+          "id": "P02-INTAKE-UI.identity",
+          "kind": "positive",
+          "given": "A created engagement/entity and paged historical fact",
+          "when": "Create and read history through the adapter",
+          "then": "Retain separate engagement/entity/revision identities and exact bounded history cursor/value",
+          "tests": [
+            "intake.test.mjs#engagement creation and history retain separate entity and revision identities"
+          ]
+        }
+      ]
     }
   ]
 }

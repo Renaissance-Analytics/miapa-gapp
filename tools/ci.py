@@ -17,7 +17,7 @@ STAGES = ("alignment", "dependencies", "static", "backend", "frontend", "migrati
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_CASES = ("anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
                  "mobile-panels", "real-login-and-server-role", "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
-                 "logout-and-viewer-denial",
+                 "intake-facts-and-evidence", "intake-history-and-conflicts", "logout-and-viewer-denial", "intake-user-isolation",
                  "no-uncaught-exceptions", "owned-browser-cleanup")
 
 

@@ -1290,6 +1290,116 @@
       "decision": "aligned",
       "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
       "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.capture",
+      "test": "tests.test_intake.IntakeTests.test_typed_catalog_evidence_dates_and_multiple_entities_round_trip",
+      "scenario_sha256": "263cc33d5b13e6003fc1b0be618a4294b116916d83d86126a3bfc7429b111318",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Every exact value, false, reference and date round trips; entities remain separately identified",
+      "decision": "aligned",
+      "reason": "The fixed catalog oracle includes all fourteen fields, exact decimal strings, explicit false and evidence/date equality, plus a second real entity.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.unknown",
+      "test": "tests.test_intake.IntakeTests.test_false_is_known_and_unknown_requires_null_without_inference",
+      "scenario_sha256": "92b01464a61a07f9f399005f55860f209f57ee24fc66dc1d31601fa93d54fd6d",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "False remains known false; LLC populates neither tax classification nor elections; unknown uses null",
+      "decision": "aligned",
+      "reason": "Assertions compare actual boolean identity, exact unknown records and independent tax fields before and after an explicit unknown revision.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.temporal",
+      "test": "tests.test_intake.IntakeTests.test_effective_intervals_future_assertions_and_corrections_preserve_history",
+      "scenario_sha256": "9cf591744c3231b9b344020461d49408d0621166b2a15d489128178c51d51fa8",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Only effective assertions apply; half-open intervals select correct values and preserve original evidence and recorder",
+      "decision": "aligned",
+      "reason": "Exact day-before/day-at boundary values and all three ordered history values distinguish recorded time, effective time and destructive replacement.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.expiry",
+      "test": "tests.test_intake.IntakeTests.test_expired_assertion_has_no_implicit_carry_forward",
+      "scenario_sha256": "41f00b1358331083f4df792b29c3ff777f7822e838e5e8691915d21493a8c6c8",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "The expired value becomes unknown rather than implicitly carrying forward",
+      "decision": "aligned",
+      "reason": "An exact value followed by unknown at the exclusive boundary defeats naive last-value carry-forward.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.conflict",
+      "test": "tests.test_intake.IntakeTests.test_stale_write_is_atomic_and_original_revision_cannot_be_mutated",
+      "scenario_sha256": "41f496fb4f1b0b9145b104027dd3aa78a4c16644d7018f44495911019e8df232",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "409 conflict leaves one original revision and unchanged entity version; instance edits and deletes are refused",
+      "decision": "aligned",
+      "reason": "Database row counts/version and restored original value prove atomic conflict and immutable instance behavior, beyond response status.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.invalidate",
+      "test": "tests.test_intake.IntakeTests.test_changed_fact_invalidates_only_its_real_dependents",
+      "scenario_sha256": "3768bfdada756569094537e5a3ec4456bc150501e4b87d87586bcc5ab1727102",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Only the dependent legal conclusion becomes stale with invalidation time; currency conclusion remains current and original dependency survives",
+      "decision": "aligned",
+      "reason": "Real persisted dependencies and refresh_from_db verify durable invalidation and a same-entity unrelated-key control. Strengthened review: known false is accepted as an actual conclusion dependency; both unrelated currency and false-basis controls stay current after legal-form change.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.basis",
+      "test": "tests.test_intake.IntakeTests.test_conclusions_refuse_unknown_stale_foreign_and_inapplicable_basis",
+      "scenario_sha256": "b518b5cb16cfd403a6d1163b320420813f922f55b9a52febffa543fc10acebe3",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Every invalid dependency is refused and no conclusion is recorded",
+      "decision": "aligned",
+      "reason": "Each invalid basis invokes the real service and must raise its fixed InvalidFact; profile stays without affected conclusions. Strengthened review: exact total Conclusion row count is zero, including current records; a stale-count-only assertion would miss erroneous current inserts.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.schema",
+      "test": "tests.test_intake.IntakeTests.test_invalid_fact_schema_dates_values_and_evidence_make_no_changes",
+      "scenario_sha256": "c439974ca5b499a557728d315a0e9f880f187140b051088bdb6c859a67ba2e22",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "400 generic invalid_request for every case; no revision or entity version change",
+      "decision": "aligned",
+      "reason": "Twenty-one concrete malformed cases cover boolean confusion, date canonicalization, precise ownership totals, reference scope and exact zero-state persistence.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.scope",
+      "test": "tests.test_intake.IntakeTests.test_user_and_installation_hints_never_expose_foreign_engagements",
+      "scenario_sha256": "900804515c3d336553e3c06072e5cb0b2d012b676dbff95bca5660bd37211320",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Foreign list is empty and details/history/writes are generic404; owner retains access",
+      "decision": "aligned",
+      "reason": "Separate real sessions and same-install administrator control prove private ownership is checked on list, detail, history, fact and entity writes.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.authority",
+      "test": "tests.test_intake.IntakeTests.test_live_role_revocation_anonymous_csrf_and_forged_create_are_denied",
+      "scenario_sha256": "54d621a5e3aec7faeb81865acd81bf2f388641b17661f8312ed029b849bd5aed",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Viewer can read own records but cannot write; revocation/anonymous/CSRF/owner injection are denied without new records",
+      "decision": "aligned",
+      "reason": "Actual membership changes under the existing session exercise immediate server policy and real CSRF middleware, with persistent creation-count control.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE.bounded",
+      "test": "tests.test_intake.IntakeTests.test_bounded_json_reads_history_cursor_and_methods",
+      "scenario_sha256": "08b49965aead603b64cc65d1c809050f3b0a057b5387fe08b2de23667ef45799",
+      "source_sha256": "dea99181584bd977031079d12009994550a5348e8f5538d8ca7c70db63d5a2dd",
+      "expected_observation": "Requests fail generically with400/413/405; valid bounded cursor returns only older revisions",
+      "decision": "aligned",
+      "reason": "Concrete HTTP payloads and exact cursor revisions exercise parser limits, method refusal and valid pagination rather than merely malformed cases.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }
