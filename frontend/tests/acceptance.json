@@ -312,6 +312,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "BROWSER-CONNECTION-READINESS",
+      "risk": "A transient partial DevToolsActivePort file incorrectly fails required native browser startup.",
+      "scenarios": [
+        {
+          "id": "BROWSER-CONNECTION-READINESS.complete",
+          "kind": "positive",
+          "given": "An owned browser connection file written in separate chunks",
+          "when": "The complete loopback port and browser UUID record becomes available",
+          "then": "Return the exact validated port/path only after the final chunk is present.",
+          "tests": [
+            "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records"
+          ]
+        },
+        {
+          "id": "BROWSER-CONNECTION-READINESS.partial",
+          "kind": "negative",
+          "given": "Empty, partially written or malformed browser connection records",
+          "when": "Check readiness before connecting to the owned browser",
+          "then": "Keep waiting for partial records and refuse zero/out-of-range/address ports, foreign URLs and extra lines.",
+          "tests": [
+            "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records"
+          ]
+        }
+      ]
     }
   ]
 }

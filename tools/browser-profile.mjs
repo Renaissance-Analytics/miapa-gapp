@@ -13,3 +13,13 @@ export function ownedProfileRoot(profileRoot, temporaryRoot = tmpdir()) {
   assert.match(basename(parent), /^maipa-browser-fixture-[a-zA-Z0-9_-]+$/);
   return parent;
 }
+
+export function debuggingPort(contents) {
+  if (typeof contents !== 'string' || contents.length > 128) return null;
+  const lines = contents.trim().split(/\r?\n/);
+  if (lines.length !== 2) return null;
+  const [port, browserPath] = lines;
+  if (!/^[1-9]\d{0,4}$/.test(port) || +port > 65535 ||
+      !/^\/devtools\/browser\/[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(browserPath)) return null;
+  return { port, browserPath };
+}

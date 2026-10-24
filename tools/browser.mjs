@@ -4,7 +4,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { ownedProfileRoot } from "./browser-profile.mjs";
+import { debuggingPort, ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false;
 let startupEvidence = {}, launchState = "starting", launchExit;
@@ -89,12 +89,15 @@ async function select(id, value) {
   await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), 'native select change');
 }
 try {
-  await until(() => {
+  const { port, browserPath } = await until(() => {
     if (launchError || closed) throw Error("Native browser launch failed");
-    return existsSync(join(profile, "DevToolsActivePort"));
-  }, "native browser");
-  launchState = "devtools_file";
-  const [port, browserPath] = readFileSync(join(profile, "DevToolsActivePort"), "utf8").trim().split(/\r?\n/);
+    const file = join(profile, 'DevToolsActivePort');
+    if (!existsSync(file)) return false;
+    launchState = 'devtools_file';
+    // File creation can precede its final write. Never parse a partial record
+    // as a ready browser, or connect to an unvalidated endpoint.
+    return debuggingPort(readFileSync(file, 'utf8'));
+  }, "complete native browser connection record");
   assert.match(port, /^\d{1,5}$/);
   assert.ok(+port > 0 && +port < 65536);
   assert.match(browserPath, /^\/devtools\/browser\/[a-zA-Z0-9-]+$/);
