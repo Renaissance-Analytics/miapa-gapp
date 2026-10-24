@@ -46,7 +46,8 @@ test('browser connection readiness waits through partial file writes and rejects
       assert.equal(debuggingPort(invalid), null);
     }
   } finally {
-    assert.equal(ownedProfileRoot(root, parent), root);
+    assert.equal(statSync(ownedProfileRoot(root, parent), { bigint: true }).ino,
+      statSync(root, { bigint: true }).ino);
     rmSync(root, { recursive: true });
   }
 });

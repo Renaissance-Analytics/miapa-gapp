@@ -165,7 +165,7 @@
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "154f56a2f6340d3cfa749bc77571b66d7f6641f17efe1f2b359b2fcd4701fbee",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -175,7 +175,7 @@
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "154f56a2f6340d3cfa749bc77571b66d7f6641f17efe1f2b359b2fcd4701fbee",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -185,7 +185,7 @@
       "scenario": "K06-BROWSER-PARENT.negative",
       "test": "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name",
       "scenario_sha256": "be6b76702496764787dc0accc91f89eee8d1950edc6c723d8ab212441d14b6f1",
-      "source_sha256": "154f56a2f6340d3cfa749bc77571b66d7f6641f17efe1f2b359b2fcd4701fbee",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "A different physical parent or directory without the owned fixture prefix is rejected",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -334,21 +334,21 @@
     {
       "scenario": "BROWSER-CONNECTION-READINESS.complete",
       "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
-      "source_sha256": "154f56a2f6340d3cfa749bc77571b66d7f6641f17efe1f2b359b2fcd4701fbee",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "scenario_sha256": "12f570098f676e9c97be3792ee7712243c59226f804f82bb894fcc234baa5c82",
       "expected_observation": "Return the exact validated port/path only after the final chunk is present.",
       "decision": "aligned",
-      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup.",
+      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup. Cleanup now checks the actual physical directory inode, matching the existing fixture tests and supporting Windows short-path aliases; readiness/refusal expectations remain unchanged.",
       "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
     },
     {
       "scenario": "BROWSER-CONNECTION-READINESS.partial",
       "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
-      "source_sha256": "154f56a2f6340d3cfa749bc77571b66d7f6641f17efe1f2b359b2fcd4701fbee",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "scenario_sha256": "6deee54f9e47acd29a899c1beb746b11d4fb14e6e38313bef0d36b8f7936bc97",
       "expected_observation": "Keep waiting for partial records and refuse zero/out-of-range/address ports, foreign URLs and extra lines.",
       "decision": "aligned",
-      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup.",
+      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup. Cleanup now checks the actual physical directory inode, matching the existing fixture tests and supporting Windows short-path aliases; readiness/refusal expectations remain unchanged.",
       "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
     }
   ]
