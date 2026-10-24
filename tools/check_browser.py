@@ -133,7 +133,9 @@ def main():
                 return json.loads(stdout)
             first_run = run_browser(base_data | {'first_run': True, 'setup_code': settings.LOCAL_SETUP_CODE_FILE.read_text(),
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
-            if first_run.get('cleanup') is not True:
+            if (first_run.get('cleanup') is not True or first_run.get('checks') != 5
+                    or first_run.get('scenarios') != ['local-first-run-admin', 'account-chat-resume-and-confirm',
+                        'first-run-stays-closed', 'no-uncaught-exceptions', 'owned-browser-cleanup']):
                 raise ValueError('First-run browser cleanup required')
             password = secrets.token_urlsafe(24)
             owner = get_user_model().objects.create_user(username='synthetic-browser-owner', password=password)
@@ -148,7 +150,11 @@ def main():
                 'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk)})
             if first_run.get('build_id') != evidence.get('build_id') or first_run.get('browser') != evidence.get('browser'):
                 raise ValueError('Browser fixture identity mismatch')
-            evidence['scenarios'] = list(dict.fromkeys(first_run['scenarios'] + evidence['scenarios']))
+            # Both processes independently prove exceptions/cleanup. Report those
+            # shared aggregate cases at the end with the ordinary fixture, while
+            # retaining actual first-run and ordinary case order and every case.
+            first_only = [case for case in first_run['scenarios'] if case not in evidence['scenarios']]
+            evidence['scenarios'] = first_only + evidence['scenarios']
             evidence['checks'] = len(evidence['scenarios'])
         finally:
             server.shutdown()

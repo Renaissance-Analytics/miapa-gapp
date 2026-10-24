@@ -4,7 +4,7 @@
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
     "tools/browser.mjs": "1a8d446c9fa83bbe590b72da5135f36980956ffcd0dcd2f5045a2a7e89492d75",
-    "tools/check_browser.py": "6ecc86dbdb3bd2195ed6cede6f0eba14c6a5b7637df3efdb68f8e6d9321e4991",
+    "tools/check_browser.py": "0f0b30d5522709de8784778e5421ca2147541b568d560b8d948408a762f6d04c",
     "tools/browser-profile.mjs": "81d4dbdcc7b848a29a198cb951313644b6fb19085ee4da895f5d436b387af753"
   },
   "cases": [
@@ -22,11 +22,6 @@
       "id": "first-run-stays-closed",
       "kind": "negative",
       "expected": "Actual logout after first-run returns the normal sign-in form, hides administrator creation and denies anonymous setup-chat reads401."
-    },
-    {
-      "id": "onboarding-user-isolation",
-      "kind": "negative",
-      "expected": "A different real signed-in preparer gets a fresh setup draft and cannot see the first administrator private setup reply."
     },
     {
       "id": "anonymous-authority-and-build",
@@ -57,6 +52,11 @@
       "id": "real-login-and-server-role",
       "kind": "positive",
       "expected": "Actual native input and pointer submission rejects an incorrect password with generic feedback, clears it, then authenticates the synthetic preparer and reads the exact server role/transport permission."
+    },
+    {
+      "id": "onboarding-user-isolation",
+      "kind": "negative",
+      "expected": "A different real signed-in preparer gets a fresh setup draft and cannot see the first administrator private setup reply."
     },
     {
       "id": "authenticated-account-scope",
