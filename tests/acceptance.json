@@ -1376,6 +1376,16 @@
           "tests": [
             "tests.test_workflow_authority.WorkflowAuthorityTests.test_financial_node_requires_separate_exact_approval_and_graph_edit_invalidates_it"
           ]
+        },
+        {
+          "id": "P03-WORKFLOW.agent_can_use_all_workflow_operations_without_financial_review_authority",
+          "kind": "positive",
+          "given": "A server-owned agent registration and separately issued action-specific workflow grants.",
+          "when": "agent can use all workflow operations without financial review authority",
+          "then": "A registered agent can receive exact grants for all eight nonfinancial workflow operations, including discovery/triage, while a financial reviewer grant still denies.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_agent_can_use_all_workflow_operations_without_financial_review_authority"
+          ]
         }
       ]
     },

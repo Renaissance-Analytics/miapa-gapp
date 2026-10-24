@@ -59,7 +59,8 @@ class AuthorityGrant(Immutable):
             models.CheckConstraint(condition=(models.Q(limit__isnull=True, currency__isnull=True)
                 | models.Q(limit__isnull=False, currency__isnull=False)), name='policy_grant_money_pair'),
             models.CheckConstraint(condition=(models.Q(agent__isnull=True)
-                | models.Q(duty__in=['preparer', 'executor'], can_delegate=False)), name='policy_agent_duty'),
+                | (models.Q(can_delegate=False) & (models.Q(duty__in=['preparer', 'executor'])
+                    | models.Q(duty='reviewer', action__in=['workflow.discover', 'workflow.triage'])))), name='policy_agent_duty'),
         ]
         indexes = [models.Index(fields=['entity', 'subject', 'action', 'duty'], name='policy_grant_lookup')]
 

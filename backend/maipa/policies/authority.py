@@ -186,7 +186,8 @@ def _validate_grant(entity, subject_id, agent_id, action, duty, starts_at, expir
     context = _actor(f'agent:{agent_id}' if agent_id else f'human:{subject_id}', entity.engagement.installation_id)
     require(context.user_id == subject_id and _current(context).role != 'viewer')
     if agent_id:
-        require(duty in ('preparer', 'executor') and not can_delegate)
+        require(not can_delegate and (duty in ('preparer', 'executor') or
+            (duty == 'reviewer' and action in ('workflow.discover', 'workflow.triage'))))
     if action in MONETARY:
         _money(limit); _currency(currency)
     else:

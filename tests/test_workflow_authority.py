@@ -142,3 +142,18 @@ class WorkflowAuthorityTests(TestCase):
         PolicyResource.objects.filter(pk=self.graph.pk).update(graph_revision='graph:8', revision=2)
         self.assertFalse(self.check(stage='resume', expected_revision=2, graph_revision='graph:8',
             authorization_id=row.pk, financial_snapshot=snapshot).allowed)
+
+    def test_agent_can_use_all_workflow_operations_without_financial_review_authority(self):
+        from backend.maipa.policies.models import AgentPrincipal
+        principal = AgentPrincipal.objects.create(user=self.user, installation=self.install,
+            reference='synthetic all-operation workflow agent', expires_at=self.now+timedelta(hours=1))
+        context = self.a.agent(self.user, principal.pk)
+        for operation in ('discover', 'create', 'edit', 'triage', 'run', 'resume', 'retry', 'cancel'):
+            with self.subTest(operation=operation):
+                self.assertFalse(self.check(operation, context=context).allowed)
+                self.grant(operation, agent_id=principal.pk)
+                self.assertTrue(self.check(operation, context=context).allowed)
+        with self.assertRaises(self.a.Denied):
+            self.a.provision_root(entity_id=self.entity.pk, subject_id=self.user.pk, agent_id=principal.pk,
+                action='ledger.post', duty='reviewer', starts_at=self.now-timedelta(hours=1),
+                expires_at=self.now+timedelta(hours=1), limit='100.0000', currency='USD', evidence='synthetic forbidden finance review')
