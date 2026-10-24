@@ -37,6 +37,7 @@ let debugOrigin, socket, evidence;
 const pending = new Map();
 let sequence = 0;
 const exceptions = [];
+const intakeListResponses = [];
 const passed = [];
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
 async function until(predicate, label) {
@@ -88,6 +89,8 @@ try {
   socket.addEventListener("message", event => {
     const message = JSON.parse(event.data);
     if (message.method === "Runtime.exceptionThrown") exceptions.push(true);
+    if (message.method === "Network.responseReceived" && message.params.response.url === `${fixture.origin}/api/intake/engagements/`)
+      intakeListResponses.push(message.params.response.status);
     if (message.id && pending.has(message.id)) {
       const entry = pending.get(message.id); pending.delete(message.id); clearTimeout(entry.timer);
       if (message.error) entry.reject(Error("CDP command rejected")); else entry.resolve(message.result);
@@ -193,7 +196,12 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
-  phase = "intake_facts";
+  phase = "intake_recovery";
+  await until(() => intakeListResponses.includes(503), "deliberate first intake read failure");
+  await until(() => evaluate("document.querySelector('.intake-card [role=alert]')?.textContent.includes('could not confirm')"), "honest initial-list error");
+  await click("Reload facts");
+  await until(() => intakeListResponses.includes(200), "actual Django engagement-list retry");
+  await until(() => evaluate("!document.querySelector('.intake-card [role=alert]')"), "recovered initial list");
   await until(() => evaluate("!!document.getElementById('intake-engagement-name')"), "new engagement form");
   await fill("intake-engagement-name", "Synthetic browser engagement");
   await fill("intake-entity-name", "Synthetic browser entity");
@@ -201,6 +209,24 @@ try {
   await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '0'"), "created entity");
   const clientEntityId = await evaluate("document.querySelector('[data-entity-id]').dataset.entityId");
   assert.match(clientEntityId, /^[0-9a-f-]{36}$/);
+  const secondEntity = await evaluate(`(async()=>{
+    const s=await(await fetch('/api/session/')).json();
+    const entity=await(await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/')).json();
+    const r=await fetch('/api/intake/engagements/'+entity.engagement_id+'/entities/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token},body:JSON.stringify({name:'Synthetic second browser entity'})});
+    return {status:r.status,body:await r.json()};})()`);
+  assert.equal(secondEntity.status, 201);
+  await click("Reload facts");
+  await until(() => evaluate("document.querySelector('.intake-card').getAttribute('aria-busy') === 'false' && document.getElementById('intake-entity').options.length === 2"), "external entity appears on list reload");
+  await select("intake-entity", secondEntity.body.id);
+  await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(secondEntity.body.id)}`), "second selected entity");
+  const responsesBefore = intakeListResponses.length;
+  await click("Reload facts");
+  await until(() => intakeListResponses.length > responsesBefore, "actual selected-entity list refresh");
+  await until(() => evaluate(`document.querySelector('.intake-card').getAttribute('aria-busy') === 'false' && document.getElementById('intake-entity').value === ${JSON.stringify(secondEntity.body.id)} && document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(secondEntity.body.id)}`), "list reload retains selected entity");
+  await select("intake-entity", clientEntityId);
+  await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(clientEntityId)}`), "first entity remains separately available");
+  record("intake-initial-load-recovery");
+  phase = "intake_facts";
   await select("intake-fact-key", "records_complete");
   await select("intake-knowledge", "known");
   await until(() => evaluate("!!document.getElementById('intake-recorded-value')"), "known boolean control");

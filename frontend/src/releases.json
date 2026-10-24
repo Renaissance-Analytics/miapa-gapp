@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-10",
+    "label": "Development update 10",
+    "cards": [
+      { "title": "Reload your client facts", "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity." }
+    ]
+  },
+  {
     "id": "development-9",
     "label": "Development update 9",
     "cards": [

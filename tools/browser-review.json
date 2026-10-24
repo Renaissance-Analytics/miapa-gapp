@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "bb2b6841c924f23a5913331f4f9ddbb9ee68cfac77e5ddf6861544305a9cb83f",
-    "tools/check_browser.py": "3ae97ca195c86299e2aee9d039b887b4a1592927774729b7ca5622b0852de309",
+    "tools/browser.mjs": "c4fb15f788ac38647ab31c1c293178bd195de197b113a922b6f4c37ab1ab0851",
+    "tools/check_browser.py": "21d0bf6e01b8ba6938b74fe9149957fb406a557505bcb5a284fb372c688cd0cf",
     "tools/browser-profile.mjs": "81d4dbdcc7b848a29a198cb951313644b6fb19085ee4da895f5d436b387af753"
   },
   "cases": [
@@ -49,6 +49,11 @@
       "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."
     },
     {
+      "id": "intake-initial-load-recovery",
+      "kind": "negative",
+      "expected": "Isolated WSGI fixture returns one deliberate503 for the initial intake list. Actual UI shows fixed failure, real pointer Reload facts triggers a separately observed200response from actual Django/auth/database, and clears the error. No success response or app state is faked. A separate authorized second-entity creation appears after actual list reload. Native selection moves to that entity; another observed list request, settled busy state, exact select value and profile identity prove reload retains it. Switching back preserves the original entity and all previous fact/history tests."
+    },
+    {
       "id": "intake-facts-and-evidence",
       "kind": "positive",
       "expected": "Real native input/pointer/native-select keyboard actions create a synthetic engagement/entity and record evidenced known false plus LLC. UI shows No/LLC while tax classification and elections stay Unknown."
@@ -79,10 +84,12 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Fourteen actual browser cases are required, preserving all eleven P01 cases. Fact history/dependency backend tests complement these UI cases. Complete accessibility, entity sharing/finance policies, live provider/runtime recovery and Q04-Q06 remain open; this is no MVP release.",
+  "limits": "Fifteen actual browser cases are required. Complete accessibility, detailed finance/entity policy, verified evidence ingestion, live providers/recovery and Q04-Q06 remain open.",
   "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
   "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
   "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes.",
   "startup_review": "All11actual browser cases and existing owned cleanup retained. Dedicated browser child receives only ambient tool/temp paths plus native OS-resolved startup paths, never credentials or runtime injection. Startup failure evidence freezes fixed state/known spawn code/numeric exit before cleanup, with no raw messages or stderr. Three new privacy/env tests observed red; hosted556931f already passed149tests but failed final browser_launch, so final browser acceptance is still mandatory.",
-  "p02_review": "Reviewed all retained11cases plus3independent intake cases. New navigation scrolls actual controls into view, retains focus/disabled checks, and uses native key/mouse input; native Select is driven with Home/ArrowDown over enabled published options, never a replaced widget or forced app state. Ctrl+A clears actual inputs before typed replacement. New cases compare real database-backed versions, false/unknown/tax independence, old/new evidence,409stale-write effects and two-user privacy after real session change. Separate authorized concurrent API mutation establishes the stale-form condition; it does not replace form submission. Only fixed public-safe failure phases were added. Original browser sandbox, fresh profile, private loopback debugger, server/worker checks and cleanup remain required."
+  "p02_review": "Reviewed all retained11cases plus3independent intake cases. New navigation scrolls actual controls into view, retains focus/disabled checks, and uses native key/mouse input; native Select is driven with Home/ArrowDown over enabled published options, never a replaced widget or forced app state. Ctrl+A clears actual inputs before typed replacement. New cases compare real database-backed versions, false/unknown/tax independence, old/new evidence,409stale-write effects and two-user privacy after real session change. Separate authorized concurrent API mutation establishes the stale-form condition; it does not replace form submission. Only fixed public-safe failure phases were added. Original browser sandbox, fresh profile, private loopback debugger, server/worker checks and cleanup remain required.",
+  "p02_recovery_review": "Observed code defect: list useEffect has empty dependencies; Reload facts only increments entity-read attempt, so an initial failed list never retries. New independent browser case records actual Network.responseReceived503then200, rather than accepting an error-banner clear as success. Failure injection exists only in the owned isolated WSGI fixture and returns no client data; every retry calls the unchanged real Django application. All14previous cases and native browser/worker/cleanup boundaries remain required. Run this red before the application correction.",
+  "p02_recovery_followthrough": "Reviewed the observed-red503/no-second-request defect and the application correction. Separate list attempt/pending state reruns only explicit list refresh, discards stale responses and retains a currently authorized selected ID. Profile-only save/conflict refresh does not reset the list. Busy controls prevent list/create/selection races. Extended actual browser acceptance verifies an independently created second entity appears and remains selected after another network-observed refresh; it does not accept a transient old profile as success because select value and settled busy state are checked together. All14previous cases remain required."
 }

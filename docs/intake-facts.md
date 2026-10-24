@@ -37,7 +37,14 @@ evidence and recorder metadata, with fifty rows per cursor page.
 Every write binds the entity's expected revision. A stale write returns409 and
 changes nothing. The form keeps ordinary invalid edits for correction; conflict
 or uncertain results require explicit reload and review before another save.
-No automatic retry can duplicate a fact revision. The first local-install
+No automatic retry can duplicate a fact revision.
+
+Reload facts explicitly refreshes both the engagement list and selected record,
+including after a failed first read. It retains the selected entity if still
+authorized. List loading is announced as busy; entity creation and selection wait
+for the list response to avoid racing stale list state against new records.
+
+The first local-install
 contract caps engagements per owner and entities per engagement at100, keeping
 complete initial lists bounded; rejected creation leaves no partial entity.
 

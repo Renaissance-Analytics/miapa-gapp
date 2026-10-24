@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_facts", "intake_history", "intake_scope", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -87,7 +87,23 @@ def main():
         Membership.objects.create(installation=installation, user=other, role="viewer")
         owned = AgentAccount.objects.create(owner=owner, provider="codex", label="Synthetic owned account")
         foreign = AgentAccount.objects.create(owner=other, provider="claude", label="Synthetic foreign account")
-        server = make_server("127.0.0.1", 0, get_wsgi_application(), handler_class=QuietHandler)
+        application = get_wsgi_application()
+        failed_initial_intake = False
+
+        def first_intake_failure(environ, start_response):
+            # One deliberate failure in this isolated fixture only. Every retry
+            # reaches actual Django/auth/database; no success response is faked.
+            nonlocal failed_initial_intake
+            if (not failed_initial_intake and environ.get("PATH_INFO") == "/api/intake/engagements/"
+                    and environ.get("REQUEST_METHOD") == "GET"):
+                failed_initial_intake = True
+                payload = b'{"error":{"code":"intake_unavailable"}}'
+                start_response("503 Service Unavailable", [("Content-Type", "application/json"),
+                    ("Cache-Control", "no-store"), ("Content-Length", str(len(payload)))])
+                return [payload]
+            return application(environ, start_response)
+
+        server = make_server("127.0.0.1", 0, first_intake_failure, handler_class=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
