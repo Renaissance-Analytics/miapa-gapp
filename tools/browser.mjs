@@ -347,6 +347,31 @@ try {
   await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '4'"), "honest conflict recovery");
   assert.equal(await evaluate("document.querySelector('[data-fact-key=legal_form] dd').textContent"), "Corporation");
   record("intake-history-and-conflicts");
+  phase = 'authority';
+  await click('Review authority');
+  await until(() => evaluate("document.querySelector('.authority-grant')?.textContent.includes('synthetic-browser-authority')"), 'actual scoped authority');
+  const authorityBefore = await evaluate(`(async()=> (await fetch('/api/policies/entities/'+${JSON.stringify(clientEntityId)}+'/')).json())()`);
+  assert.equal(authorityBefore.financial_execution_available, false);
+  assert.equal(authorityBefore.grants.length, 1);
+  assert.equal(authorityBefore.grants[0].current, true);
+  assert.equal(authorityBefore.grants[0].limit, '500.0000');
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=legal_form] dd').textContent"), 'Corporation');
+  const deniedRevocation = await evaluate(`(async()=> (await fetch('/api/policies/grants/'+${JSON.stringify(authorityBefore.grants[0].id)}+'/revoke/',
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reason:'synthetic missing csrf'})})).status)()`);
+  assert.equal(deniedRevocation, 403);
+  await fill('authority-reason-'+authorityBefore.grants[0].id, 'Synthetic browser withdrawal');
+  await click('Revoke authority');
+  await until(() => evaluate("document.querySelector('.authority-grant')?.textContent.includes('Revoked') && !document.querySelector('.authority-grant form')"), 'persisted revoked authority');
+  const authorityAfter = await evaluate(`(async()=> (await fetch('/api/policies/entities/'+${JSON.stringify(clientEntityId)}+'/')).json())()`);
+  assert.equal(authorityAfter.grants[0].current, false);
+  assert.ok(authorityAfter.grants[0].revoked_at);
+  assert.equal(authorityAfter.policy_version, authorityBefore.policy_version+1);
+  await select('intake-entity', secondEntity.body.id);
+  await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(secondEntity.body.id)}`), 'separate authority scope');
+  await click('Review authority');
+  await until(() => evaluate("document.querySelector('.authority-panel')?.textContent.includes('No financial or workflow authority is recorded')"), 'honest absent authority');
+  assert.equal(await evaluate("document.querySelector('.authority-panel').textContent.includes('synthetic-browser-authority')"), false);
+  record('client-authority-and-revocation');
   phase = "logout_viewer";
   await click("Sign out");
   await until(() => evaluate("!!document.getElementById('maipa-username')"), "logged-out password form");
@@ -368,9 +393,11 @@ try {
     const listed=await(await fetch('/api/intake/engagements/?role=administrator&tenant_id=foreign')).json();
     const entity=await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/');
     const history=await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/facts/legal_form/history/');
-    return {listed,entity:entity.status,history:history.status};})()`);
+    const authority=await fetch('/api/policies/entities/'+${JSON.stringify(clientEntityId)}+'/');
+    return {listed,entity:entity.status,history:history.status,authority:authority.status};})()`);
   assert.deepEqual(privateIntake.listed, {engagements:[]});
   assert.equal(privateIntake.entity, 404); assert.equal(privateIntake.history, 404);
+  assert.equal(privateIntake.authority, 404);
   assert.equal(await evaluate("document.body.innerText.includes('Synthetic browser entity') || document.body.innerText.includes('synthetic-browser-source-1')"), false);
   record("intake-user-isolation");
   }

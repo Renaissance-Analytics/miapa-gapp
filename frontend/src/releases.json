@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-12",
+    "label": "Development update 12",
+    "cards": [
+      { "title": "Review your client authority", "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built." }
+    ]
+  },
+  {
     "id": "development-11",
     "label": "Development update 11",
     "cards": [

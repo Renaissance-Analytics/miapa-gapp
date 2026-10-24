@@ -350,6 +350,56 @@
       "decision": "aligned",
       "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup. Cleanup now checks the actual physical directory inode, matching the existing fixture tests and supporting Windows short-path aliases; readiness/refusal expectations remain unchanged.",
       "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-CLIENT-AUTHORITY.1",
+      "test": "authority.test.mjs#authority reads preserve exact decimal evidence and current server scope",
+      "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
+      "scenario_sha256": "bb5cff1844c11e25b9801261111ea95d3bf27cbe4512f5182ed6596ae88b2ec3",
+      "expected_observation": "The exact scoped summary and decimal evidence survive a private bounded same-origin read.",
+      "decision": "aligned",
+      "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. The exact scoped summary and decimal evidence survive a private bounded same-origin read.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-CLIENT-AUTHORITY.2",
+      "test": "authority.test.mjs#authority rejects foreign scope malformed evidence and unexpected execution readiness",
+      "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
+      "scenario_sha256": "8dd44ad30f24b2afa35052747d26c718e78b75b884a32809d9924ca2c646493f",
+      "expected_observation": "Foreign entity identity, malformed grants, invented execution readiness and untrusted paths stay unavailable.",
+      "decision": "aligned",
+      "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. Foreign entity identity, malformed grants, invented execution readiness and untrusted paths stay unavailable.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-CLIENT-AUTHORITY.3",
+      "test": "authority.test.mjs#authority revocation sends only the reason through fresh csrf and does not invent success",
+      "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
+      "scenario_sha256": "685bfb0f563e4d27fe594c55c9fe49c853026908530ffc513e2607a7f42157ba",
+      "expected_observation": "Revocation sends only the reason with a fresh valid CSRF token and accepts only the exact revoked result.",
+      "decision": "aligned",
+      "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. Revocation sends only the reason with a fresh valid CSRF token and accepts only the exact revoked result.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-CLIENT-AUTHORITY.4",
+      "test": "authority.test.mjs#authority errors are fixed and uncertain mutation responses require reload",
+      "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
+      "scenario_sha256": "b2eddaf62aee396b4be785c8bb6699680d49a2a557066c0098a5a45490f06b10",
+      "expected_observation": "Server failures become fixed states; uncertain mutation bodies and invalid CSRF never become success.",
+      "decision": "aligned",
+      "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. Server failures become fixed states; uncertain mutation bodies and invalid CSRF never become success.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-CLIENT-AUTHORITY.5",
+      "test": "authority.test.mjs#authority pagination binds the exact server cursor and rejects invented paths",
+      "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
+      "scenario_sha256": "58dd3729e77f23beb92a5de7e02b9fa5d991f3214e88ce662701473c44af404b",
+      "expected_observation": "Pagination sends the exact valid cursor and never requests an invented path.",
+      "decision": "aligned",
+      "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. Pagination sends the exact valid cursor and never requests an invented path.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
     }
   ]
 }

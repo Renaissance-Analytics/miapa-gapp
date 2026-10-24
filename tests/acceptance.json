@@ -1136,6 +1136,366 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P03-AUTHORITY",
+      "risk": "Workspace or agent authority could be invented, widened, reused after change or silently mistaken for a completed financial operation.",
+      "scenarios": [
+        {
+          "id": "P03-AUTHORITY.exact_approved_authority_is_reused_and_audited_without_new_approval",
+          "kind": "positive",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "exact approved authority is reused and audited without new approval",
+          "then": "Two exact execution checks authorize, retain one approval, and append matching-hash audit decisions with grant identities.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_exact_approved_authority_is_reused_and_audited_without_new_approval"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.workspace_roles_contacts_and_superuser_cannot_invent_financial_authority",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "workspace roles contacts and superuser cannot invent financial authority",
+          "then": "Staff, superuser and workspace membership cannot prepare without explicit authority or execute unapproved work.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_workspace_roles_contacts_and_superuser_cannot_invent_financial_authority"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.changed_payload_action_actor_entity_record_and_graph_cannot_reuse_approval",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "changed payload action actor entity record and graph cannot reuse approval",
+          "then": "Changed scope, action, payload, actor, record, graph, evidence, amount or currency denies; the unchanged exact request still authorizes.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_changed_payload_action_actor_entity_record_and_graph_cannot_reuse_approval"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.current_entity_revision_and_membership_are_rechecked",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "current entity revision and membership are rechecked",
+          "then": "A changed persisted entity revision or a disabled reviewer invalidates previously approved execution.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_current_entity_revision_and_membership_are_rechecked"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.expired_future_and_revoked_grants_fail_and_history_survives",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "expired future and revoked grants fail and history survives",
+          "then": "Future, expired or revoked authority denies, while attestations and the undeletable revoked grant remain available.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_expired_future_and_revoked_grants_fail_and_history_survives"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.decimal_materiality_is_exact_bounded_and_currency_specific",
+          "kind": "positive",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "decimal materiality is exact bounded and currency specific",
+          "then": "The exact decimal limit succeeds; one ten-thousandth above it, currency mismatch and malformed amounts fail.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_decimal_materiality_is_exact_bounded_and_currency_specific"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.preparer_cannot_review_or_approve_own_work_even_with_grants",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "preparer cannot review or approve own work even with grants",
+          "then": "Explicit reviewer and approver grants cannot authorize the preparer to attest to their own work.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_preparer_cannot_review_or_approve_own_work_even_with_grants"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.approval_requires_review_and_exact_validity_not_just_approver_role",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "approval requires review and exact validity not just approver role",
+          "then": "Approval without an independent review and an empty validity interval both fail.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_approval_requires_review_and_exact_validity_not_just_approver_role"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.delegation_can_only_narrow_live_parent_and_cannot_self_grant",
+          "kind": "positive",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "delegation can only narrow live parent and cannot self grant",
+          "then": "A bounded child grant records its parent without onward delegation; escalation and self-grants fail, and parent revocation invalidates the child.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_delegation_can_only_narrow_live_parent_and_cannot_self_grant"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.unrelated_admin_cannot_revoke_or_delegate_and_foreign_installation_denies",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "unrelated admin cannot revoke or delegate and foreign installation denies",
+          "then": "An unrelated administrator cannot revoke another principal grant, and disabled membership invalidates it.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_unrelated_admin_cannot_revoke_or_delegate_and_foreign_installation_denies"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.unknown_actions_floats_oversized_payload_and_forged_context_fail_closed",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "unknown actions floats oversized payload and forged context fail closed",
+          "then": "Unknown actions, floating values, oversized payloads, identity hints, boolean revisions and forged actor dictionaries fail closed.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_unknown_actions_floats_oversized_payload_and_forged_context_fail_closed"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.agent_identity_is_server_registered_and_cannot_approve_or_impersonate",
+          "kind": "positive",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "agent identity is server registered and cannot approve or impersonate",
+          "then": "A live server-registered agent executes only its exact grant; human substitution, wrong ownership, agent approval grants and revoked agent identity deny.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_agent_identity_is_server_registered_and_cannot_approve_or_impersonate"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.policy_change_invalidates_previously_approved_decisions",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "policy change invalidates previously approved decisions",
+          "then": "A new grant changes the persisted policy version and invalidates an earlier approval.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_policy_change_invalidates_previously_approved_decisions"
+          ]
+        },
+        {
+          "id": "P03-AUTHORITY.authority_records_are_immutable_and_execution_is_still_disabled",
+          "kind": "negative",
+          "given": "Synthetic explicit entity authority and current server-owned principals, with the named boundary varied independently.",
+          "when": "authority records are immutable and execution is still disabled",
+          "then": "Authorization edits are refused and real protected execution remains unavailable even with valid policy evidence.",
+          "tests": [
+            "tests.test_authority.AuthorityTests.test_authority_records_are_immutable_and_execution_is_still_disabled"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03-WORKFLOW",
+      "risk": "Workflow scope, graph revisions and retry safety could be bypassed at later execution stages.",
+      "scenarios": [
+        {
+          "id": "P03-WORKFLOW.all_eight_operations_use_explicit_current_grants",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "all eight operations use explicit current grants",
+          "then": "All eight registered operations deny before a grant and allow after it; an unknown operation denies.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_all_eight_operations_use_explicit_current_grants"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.graph_run_job_log_and_checkpoint_retain_owner_entity_and_revision",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "graph run job log and checkpoint retain owner entity and revision",
+          "then": "All five resource kinds allow current owned discovery and deny another owner, a stale revision and a disabled graph parent.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_graph_run_job_log_and_checkpoint_retain_owner_entity_and_revision"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.revoked_queued_work_is_denied_at_node_and_resume",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "revoked queued work is denied at node and resume",
+          "then": "A grant permits dispatch, then revocation denies node and resume checks.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_revoked_queued_work_is_denied_at_node_and_resume"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.graph_edit_and_parent_scope_change_invalidate_child_snapshots",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "graph edit and parent scope change invalidate child snapshots",
+          "then": "Changing the persisted graph revision denies old graph and child requests; an exact new graph revision allows.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_graph_edit_and_parent_scope_change_invalidate_child_snapshots"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.unknown_result_cannot_authorize_unsafe_retry",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "unknown result cannot authorize unsafe retry",
+          "then": "Retry permits only not-started or verified-no-effect outcomes; uncertain, partial, completed and unknown stages deny.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_unknown_result_cannot_authorize_unsafe_retry"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.workflow_run_permission_never_implies_financial_node_authority",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "workflow run permission never implies financial node authority",
+          "then": "A valid workflow node check does not authorize a financial snapshot or invented financial authorization.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_workflow_run_permission_never_implies_financial_node_authority"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.registered_agent_uses_same_workflow_scope_and_revocation",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "registered agent uses same workflow scope and revocation",
+          "then": "Human grants do not transfer to an agent; an explicit agent grant allows, and revocation denies resume.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_registered_agent_uses_same_workflow_scope_and_revocation"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.resource_parent_entity_and_owner_cannot_be_laundered",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "resource parent entity and owner cannot be laundered",
+          "then": "A changed intermediate resource owner and a boolean revision both deny.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_resource_parent_entity_and_owner_cannot_be_laundered"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.financial_node_requires_separate_exact_approval_and_graph_edit_invalidates_it",
+          "kind": "positive",
+          "given": "Separate synthetic finance principals and grants plus an owned persisted graph.",
+          "when": "financial node requires separate exact approval and graph edit invalidates it",
+          "then": "A workflow grant alone denies a financial node; independent exact review and approval allow the policy check, and a changed persisted graph denies resume. Advancing the persisted resource revision alone also invalidates approval, even if the graph identifier is unchanged.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_financial_node_requires_separate_exact_approval_and_graph_edit_invalidates_it"
+          ]
+        },
+        {
+          "id": "P03-WORKFLOW.agent_can_use_all_workflow_operations_without_financial_review_authority",
+          "kind": "positive",
+          "given": "A server-owned agent registration and separately issued action-specific workflow grants.",
+          "when": "agent can use all workflow operations without financial review authority",
+          "then": "A registered agent can receive exact grants for all eight nonfinancial workflow operations, including discovery/triage, while a financial reviewer grant still denies.",
+          "tests": [
+            "tests.test_workflow_authority.WorkflowAuthorityTests.test_agent_can_use_all_workflow_operations_without_financial_review_authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03-HTTP",
+      "risk": "Browser hints, CSRF bypass or an administrator shortcut could expose or fabricate financial authority.",
+      "scenarios": [
+        {
+          "id": "P03-HTTP.anonymous_and_foreign_admin_cannot_read_private_authority",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "anonymous and foreign admin cannot read private authority",
+          "then": "Anonymous reads return401; a foreign administrator with forged hints gets404 without evidence disclosure.",
+          "tests": [
+            "tests.test_policy_http.PolicyHttpTests.test_anonymous_and_foreign_admin_cannot_read_private_authority"
+          ]
+        },
+        {
+          "id": "P03-HTTP.summary_is_current_private_and_does_not_claim_execution",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "summary is current private and does not claim execution",
+          "then": "An owned summary returns200/no-store, its exact current grant/materiality and financial execution unavailable.",
+          "tests": [
+            "tests.test_policy_http.PolicyHttpTests.test_summary_is_current_private_and_does_not_claim_execution"
+          ]
+        },
+        {
+          "id": "P03-HTTP.revocation_requires_csrf_and_applies_without_relogin",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "revocation requires csrf and applies without relogin",
+          "then": "Missing CSRF returns403; valid revocation returns200 and changes the same-session summary, with safe repeated withdrawal.",
+          "tests": [
+            "tests.test_policy_http.PolicyHttpTests.test_revocation_requires_csrf_and_applies_without_relogin"
+          ]
+        },
+        {
+          "id": "P03-HTTP.http_cannot_create_root_authority_or_choose_agent_identity",
+          "kind": "negative",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "http cannot create root authority or choose agent identity",
+          "then": "Root-style POST returns405, extra actor fields return400, and the original authority remains current.",
+          "tests": [
+            "tests.test_policy_http.PolicyHttpTests.test_http_cannot_create_root_authority_or_choose_agent_identity"
+          ]
+        },
+        {
+          "id": "P03-HTTP.delegation_is_narrowed_and_foreign_administrator_cannot_revoke",
+          "kind": "positive",
+          "given": "Synthetic persisted principals, grants and resources; actual server policy or CSRF-enforced HTTP requests.",
+          "when": "delegation is narrowed and foreign administrator cannot revoke",
+          "then": "A narrower delegation returns201 with parent identity, excess materiality returns403 and a foreign administrator cannot revoke the root.",
+          "tests": [
+            "tests.test_policy_http.PolicyHttpTests.test_delegation_is_narrowed_and_foreign_administrator_cannot_revoke"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03-OPERATOR",
+      "risk": "Root authority might appear without trusted provenance or survive withdrawal unnoticed.",
+      "scenarios": [
+        {
+          "id": "P03-OPERATOR.local_command_records_exact_root_and_retains_operator_revocation",
+          "kind": "positive",
+          "given": "Synthetic explicit command arguments and a current local member.",
+          "when": "local command records exact root and retains operator revocation",
+          "then": "A local command records the exact bounded root grant and authority reference without printing the reference; operator withdrawal preserves a revocation and both audit events.",
+          "tests": [
+            "tests.test_policy_operator.PolicyOperatorTests.test_local_command_records_exact_root_and_retains_operator_revocation"
+          ]
+        },
+        {
+          "id": "P03-OPERATOR.local_command_rejects_missing_principal_or_invalid_bounds_without_records",
+          "kind": "negative",
+          "given": "Synthetic explicit command arguments and a current local member.",
+          "when": "local command rejects missing principal or invalid bounds without records",
+          "then": "Missing principals, invalid amounts, absent provenance, unknown action, reversed validity and invalid currency all raise CommandError without creating grants.",
+          "tests": [
+            "tests.test_policy_operator.PolicyOperatorTests.test_local_command_rejects_missing_principal_or_invalid_bounds_without_records"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03-NONMONETARY",
+      "risk": "A protected nonmonetary operation might demand a fabricated amount or a monetary operation might omit its explicit limit.",
+      "scenarios": [
+        {
+          "id": "P03-NONMONETARY.nonmonetary_protected_actions_require_independent_exact_authority_without_money",
+          "kind": "positive",
+          "given": "Separate synthetic principals and explicit protected-action grants.",
+          "when": "nonmonetary protected actions require independent exact authority without money",
+          "then": "Period reopening, vendor detail changes, filing submission and report release policy checks require independent exact authority, allow explicit nonmonetary scope only after review/approval, and deny changed payloads.",
+          "tests": [
+            "tests.test_nonmonetary_authority.NonmonetaryAuthorityTests.test_nonmonetary_protected_actions_require_independent_exact_authority_without_money"
+          ]
+        },
+        {
+          "id": "P03-NONMONETARY.monetary_actions_cannot_omit_limits_or_invent_currency_for_nonmonetary_actions",
+          "kind": "negative",
+          "given": "Separate synthetic principals and explicit protected-action grants.",
+          "when": "monetary actions cannot omit limits or invent currency for nonmonetary actions",
+          "then": "Journal posting/payment grants cannot omit materiality and currency; a nonmonetary protected action cannot invent monetary scope.",
+          "tests": [
+            "tests.test_nonmonetary_authority.NonmonetaryAuthorityTests.test_monetary_actions_cannot_omit_limits_or_invent_currency_for_nonmonetary_actions"
+          ]
+        }
+      ]
     }
   ]
 }

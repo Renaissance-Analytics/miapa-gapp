@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Button, Card, DatePicker, Input, Select } from '@particle-academy/react-fancy';
+import { AuthorityPanel } from './AuthorityPanel.js';
 import { addEntity, CHOICES, createEngagement, FACT_KEYS, FACT_LABELS, formatFact, label, listEngagements,
   readEntity, readHistory, saveFact, type Engagement, type EntityProfile, type FactKey, type FactRevision,
   type FactValue, type Failure, type History } from './intake.js';
@@ -191,6 +192,7 @@ export function IntakeWorkspace() {
       onValueChange={next => { setEntityId(next); setMessage(''); }} />}
     {profile && <section className="intake-profile" aria-label="Client facts" data-entity-id={profile.id} data-entity-revision={profile.revision}>
       <h4>{profile.name}</h4>
+      <AuthorityPanel key={profile.id} entityId={profile.id} />
       <form className="intake-date-pair" onSubmit={event => { event.preventDefault(); setOn(dateInput); }}>
         <DatePicker id="intake-as-of" label="As of date" required value={dateInput} onValueChange={setDateInput} />
         <Button type="submit" variant="ghost">View facts</Button>
