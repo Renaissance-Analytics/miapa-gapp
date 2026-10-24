@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 const mode = process.argv[2];
 if (mode === "hang") {
-  const child = spawn(process.execPath, ["-e", "setInterval(()=>{},1000)"], { detached: true, windowsHide: true, stdio: "ignore" });
+  const child = spawn(process.execPath, ["-e", "setInterval(()=>{},1000)"], { detached: true, windowsHide: true, stdio: "inherit" });
   child.once("spawn", () => process.stdout.write(JSON.stringify({ descendant_pid: child.pid }) + "\n"));
   setInterval(() => {}, 1000);
 } else {
@@ -17,7 +17,7 @@ if (mode === "hang") {
   const script = "const fs=require('node:fs');console.log(JSON.stringify(JSON.parse(process.argv[1]).map(p=>{try{return fs.readFileSync(p,'utf8')==='synthetic-only'}catch(e){return e.code}})))";
   // Reuse the inherited anonymous output handle. Creating a fresh global
   // named pipe inside an AppContainer is a separate provider IPC contract.
-  const child = spawn(process.execPath, ["-e", script, JSON.stringify(paths)], { windowsHide: true, stdio: ["ignore", "inherit", "inherit"] });
+  const child = spawn(process.execPath, ["-e", script, JSON.stringify(paths)], { windowsHide: true, stdio: "inherit" });
   child.once("error", () => { process.exitCode = 1; });
   child.once("exit", code => {
     if (code !== 0) process.exitCode = 1;
