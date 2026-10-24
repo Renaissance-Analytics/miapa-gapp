@@ -450,6 +450,356 @@
       "decision": "aligned",
       "reason": "Blocking the Django import proves the early-return gate and settings guard precede app loading; no live database can be selected.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-DEV-SURFACE.built",
+      "test": "tests.test_development_surface.DevelopmentSurfaceTests.test_development_serves_built_shell_and_asset",
+      "scenario_sha256": "bbdd0335f5d3df745ece5f7d125720e66b52bc46ab6ee3e59f8b6d2928e18b52",
+      "source_sha256": "a0dbe74b400f25e52d9018b4a3c7a1ca2570f3ee452a829d5f51de700345f931",
+      "expected_observation": "Serve the exact built files; shell is not cached",
+      "decision": "aligned",
+      "reason": "Compares complete streamed content and cache policy; no customer records or generated secret is present in these fixtures.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-DEV-SURFACE.deny",
+      "test": "tests.test_development_surface.DevelopmentSurfaceTests.test_non_development_never_exposes_local_build",
+      "scenario_sha256": "e8221cf2208a4a73462bdbeb017b47f2960d78fb63f9ee6cf013d6ef8f04853a",
+      "source_sha256": "a0dbe74b400f25e52d9018b4a3c7a1ca2570f3ee452a829d5f51de700345f931",
+      "expected_observation": "Non-development and traversal return404 without private contents; missing build returns503",
+      "decision": "aligned",
+      "reason": "Exercises both surface denial and actual Django static safe-join refusal against an adjacent synthetic secret; missing prerequisites never look successful.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-DEV-SURFACE.deny",
+      "test": "tests.test_development_surface.DevelopmentSurfaceTests.test_missing_development_build_is_unavailable",
+      "scenario_sha256": "e8221cf2208a4a73462bdbeb017b47f2960d78fb63f9ee6cf013d6ef8f04853a",
+      "source_sha256": "a0dbe74b400f25e52d9018b4a3c7a1ca2570f3ee452a829d5f51de700345f931",
+      "expected_observation": "Non-development and traversal return404 without private contents; missing build returns503",
+      "decision": "aligned",
+      "reason": "Exercises both surface denial and actual Django static safe-join refusal against an adjacent synthetic secret; missing prerequisites never look successful.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-DEV-SURFACE.deny",
+      "test": "tests.test_development_surface.DevelopmentSurfaceTests.test_asset_traversal_cannot_read_private_runtime_file",
+      "scenario_sha256": "e8221cf2208a4a73462bdbeb017b47f2960d78fb63f9ee6cf013d6ef8f04853a",
+      "source_sha256": "a0dbe74b400f25e52d9018b4a3c7a1ca2570f3ee452a829d5f51de700345f931",
+      "expected_observation": "Non-development and traversal return404 without private contents; missing build returns503",
+      "decision": "aligned",
+      "reason": "Exercises both surface denial and actual Django static safe-join refusal against an adjacent synthetic secret; missing prerequisites never look successful.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-VERSION.public",
+      "test": "tests.test_build_version.BuildVersionTests.test_version_exposes_only_public_built_identity_without_caching",
+      "scenario_sha256": "a3208a81a49036cba4ad151bb53916841c2ac58c5e3cf9de1149eeb6d469115c",
+      "source_sha256": "cb136ef3e4668b48e238d7a2ed1c75b1159bf0fb8ccdf60de4e9f5f7d2b75eff",
+      "expected_observation": "200 with only the exact built hash and no-store; no extra manifest fields are exposed",
+      "decision": "aligned",
+      "reason": "Exact response equality and cache headers are asserted; the extra synthetic value must not be reflected.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-VERSION.refuse",
+      "test": "tests.test_build_version.BuildVersionTests.test_missing_or_invalid_metadata_never_claims_a_version_or_leaks_details",
+      "scenario_sha256": "7ef6f1e2981aa499dfa1f090d7107a50c231c4f65782e520ab9e40955596dd6a",
+      "source_sha256": "cb136ef3e4668b48e238d7a2ed1c75b1159bf0fb8ccdf60de4e9f5f7d2b75eff",
+      "expected_observation": "Invalid metadata returns generic503/no-store; writes return405 with Allow GET",
+      "decision": "aligned",
+      "reason": "Tests cover every bad metadata class including bool schema and path-like IDs, exact generic JSON/cache behavior and an explicit write refusal/Allow header.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-VERSION.refuse",
+      "test": "tests.test_build_version.BuildVersionTests.test_version_is_read_only",
+      "scenario_sha256": "7ef6f1e2981aa499dfa1f090d7107a50c231c4f65782e520ab9e40955596dd6a",
+      "source_sha256": "cb136ef3e4668b48e238d7a2ed1c75b1159bf0fb8ccdf60de4e9f5f7d2b75eff",
+      "expected_observation": "Invalid metadata returns generic503/no-store; writes return405 with Allow GET",
+      "decision": "aligned",
+      "reason": "Tests cover every bad metadata class including bool schema and path-like IDs, exact generic JSON/cache behavior and an explicit write refusal/Allow header.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.positive",
+      "test": "tests.test_acp_client.AcpClientTests.test_correlates_reversed_responses_and_negotiates_protocol",
+      "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Two requests finish in reverse wire order but retain independent exact values; initialize must negotiate protocol1.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.positive",
+      "test": "tests.test_acp_client.AcpClientTests.test_reads_updates_and_denies_permission_before_prompt_finishes",
+      "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Peer withholds turn completion until a permission cancellation and unsupported-method error arrive; exact returned update and empty second drain reject lost/duplicate/foreign routing.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.positive",
+      "test": "tests.test_acp_client.AcpClientTests.test_session_launch_uses_fixed_workspace_and_no_browser_mcp_configuration",
+      "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "The peer echoes the actual sent launch fields; exact equality requires the configured workspace and empty MCP list, plus a distinct application handle.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.positive",
+      "test": "tests.test_acp_client.AcpClientTests.test_shutdown_report_is_distinct_from_process_exit",
+      "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "An explicit exact shutdown verdict is required separately from the fixture's actual process exit checked by the common harness.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_foreign_user_or_account_cannot_send_or_read_session_data",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Foreign user and foreign account requests/reads must raise before routing; raw ACP IDs cannot authorize prompts, while the proper app handle must still complete a turn.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_bad_frames_fail_pending_requests_without_reflecting_provider_data",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Malformed, overbudget and exited peers must fail both pending requests with the same generic exception rather than leak provider stderr/data or leave a waiter hanging. Extended with duplicate object fields, boolean response IDs and unknown response IDs, all of which must fail both waiters generically.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_deadline_closes_connection_without_retry_or_late_authority",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "A hanging peer must fail at the deadline and refuse a subsequent new session; the harness verifies process termination. Initialization occurs before failure; a second initialize must reject, so stale cached capabilities cannot masquerade as a working connection.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_invalid_scope_and_relative_executable_are_refused_before_spawn",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Empty owner identity and a relative executable must be rejected before any child is started.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-HOST.positive",
+      "test": "tests.test_acp_host.AcpHostTests.test_real_entry_initializes_published_host_and_reports_zero_provider_shutdown",
+      "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
+      "source_sha256": "39db4f9f07d66532ce4c241f3308d91803335d0b8471d5fda010c8eed2815922",
+      "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
+      "decision": "aligned",
+      "reason": "Actual product entry prepares the published supervisor, serves initialization, reports the exact locked release, and explicitly returns a zero-provider shutdown verdict before clean process exit. It does not claim a live provider turn.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-HOST.positive",
+      "test": "tests.test_acp_host.AcpHostTests.test_python_host_published_codex_driver_session_and_stream_round_trip",
+      "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
+      "source_sha256": "39db4f9f07d66532ce4c241f3308d91803335d0b8471d5fda010c8eed2815922",
+      "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
+      "decision": "aligned",
+      "reason": "Actual Python pipes and product host construct the published CodexDriver over a synthetic in-memory transport; exact completion/chunk/messageId assertions test its standard protocol shape, with a foreign user refusal. No CLI/login/model call is implied.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-HOST.negative",
+      "test": "tests.test_acp_host.AcpHostTests.test_host_refuses_foreign_workspace_or_mcp_before_constructing_a_driver",
+      "scenario_sha256": "31f120918aec34c2e368ac0e9265cb7ca8bd5b851a88670e5aafcedd7b07471d",
+      "source_sha256": "39db4f9f07d66532ce4c241f3308d91803335d0b8471d5fda010c8eed2815922",
+      "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
+      "decision": "aligned",
+      "reason": "Foreign absolute workspace and explicit MCP configuration fail; exact sessions0 shutdown proves no driver was constructed. This checks the trusted profile boundary beyond response errors.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_worker_profile_must_match_account_user_and_fixed_workspace",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "Each otherwise valid trusted profile is mutated in exactly one owner/account/workspace field; constructor refusal must occur before spawning, catching accidental cross-account launch configuration.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_parent_secrets_and_runtime_injection_variables_are_not_inherited",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "A real subprocess reports only the names of prohibited inherited variables; exact empty equality proves removal, and the parent retains the exact synthetic values. No secret values are returned or logged.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-ACP-CLIENT.negative",
+      "test": "tests.test_acp_client.AcpClientTests.test_oversized_outgoing_request_is_refused_without_breaking_initialization",
+      "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
+      "source_sha256": "0ee2ad77041e579b67c28906c40c429138d37007e3a5176c04ba0bc26a46e5ea",
+      "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+      "decision": "aligned",
+      "reason": "An overbudget request must fail locally, then initialization still succeeds; this distinguishes safe preflight refusal from an actual protocol/connection failure.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.positive",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_list_uses_authenticated_owner_and_exposes_no_paths_or_login_claim",
+      "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Exact response equality admits only the authenticated user's active metadata; forged header/query identity, private labels and paths cannot alter or leak it. Runtime-installed and provider-ready are distinct.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.positive",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_actual_authenticated_transport_check_records_no_provider_readiness",
+      "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Actual CSRF-authenticated HTTP flow invokes the product Python/Node/published-host initialize path, stores the correct account/provider/completion and returns transport_verified with provider_ready false; owned history agrees. The persisted result must also pass Django's full schema/constraint validation, so SQLite's permissive varchar storage cannot hide a status-length mismatch. Stored requester FK must equal the actual authenticated user; fixtures now declare the original requester explicitly.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.positive",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_second_user_owns_a_real_transport_check_without_access_to_first_user_history",
+      "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "A second real authenticated test session creates its own actual transport check for Claude metadata; stored account ownership, inaccessible first-user history, and exact own-history IDs reject cross-user routing. Stored requester FK must equal the actual authenticated user; fixtures now declare the original requester explicitly.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_unknown_providers",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Separate atomic inserts require database rejection for duplicate owner/provider pairs and unrecognized providers, rather than relying on optional UI/model validation.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_anonymous_and_inactive_users_cannot_read_accounts_or_check_history",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Anonymous paths and inactive principal return exact unauthorized outcomes with no check created.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_foreign_disabled_and_missing_accounts_are_indistinguishable",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Both read and write attempts on foreign/disabled profiles and missing reads use the same generic not-found shape with no record/label leak.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_missing_csrf_and_foreign_origin_never_create_a_check",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Missing CSRF and a foreign origin must fail with csrf_failed before recording work or claiming an account cooldown. A mock observes the runtime boundary is never called, in addition to the unchanged response/record assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_client_cannot_supply_identity_profile_workspace_commands_or_mcp",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Each privileged input field in an otherwise small JSON request is refused; no check record can be created from browser-supplied configuration. A mock observes the runtime boundary is never called, in addition to the unchanged response/record assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_malformed_or_overbudget_check_bodies_are_rejected",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Wrong root types, broken JSON/NaN and an overbudget body return client errors without starting a check.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_account_cooldown_refuses_overlap_without_starting_or_recording_work",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "A recently claimed account returns exact429/Retry-After and creates no check, bounding worker/probe overlap. A mock observes the runtime boundary is never called, in addition to the unchanged response/record assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_broken_runtime_is_generic_and_history_stays_owned",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "A missing runtime returns generic503 without its private path; a foreign history record cannot appear in the owner's empty history.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_accounts_are_read_only_and_check_history_rejects_delete",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "Authenticated CSRF-valid unsupported writes are405 with exact Allow lists and no records created.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_failure_is_recorded_without_reflecting_diagnostics_or_claiming_login",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "A synthetic transport exception produces only a generic503, a completed unavailable record and provider_ready false in owned history; raw diagnostics are not returned.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-AUTHENTICATED-ACP.negative",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_reassigned_account_does_not_disclose_the_previous_requesters_history",
+      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
+      "source_sha256": "50646147fd763927041d6461fc1c194ae92546953eca33ba950610228418eaa9",
+      "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+      "decision": "aligned",
+      "reason": "An account is reassigned to a second authenticated owner, who must receive no prior requester's check records; this requires stored requester identity beyond current account ownership.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

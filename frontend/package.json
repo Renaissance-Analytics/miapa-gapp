@@ -1,0 +1,34 @@
+{
+  "name": "maipa-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "alignment": "node tools/alignment.mjs",
+    "check": "npm run alignment && npm test && npm run typecheck && npm run build",
+    "test": "tsc -p tsconfig.test.json && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@particle-academy/fancy-app-update": "0.7.0",
+    "@particle-academy/fancy-whats-new": "0.1.0",
+    "@particle-academy/react-fancy": "5.60.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "typescript": "5.9.3",
+    "vite": "6.4.5"
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "development-5",
+    "label": "Development update 5",
+    "cards": [
+      { "title": "Private agent connection checks", "description": "Agent account metadata and connection-check history now follow the signed-in user. Connection checks verify the installed transport without claiming that a provider is logged in. Live account setup and conversations are still being built." }
+    ]
+  },
+  {
+    "id": "development-4",
+    "label": "Development update 4",
+    "cards": [
+      { "title": "Agent connection foundation", "description": "The backend now connects Python to the published Prism ACP host, checks user and account ownership, and handles streamed replies and connection failures. Live conversations and provider account setup are still being built." }
+    ]
+  },
+  {
+    "id": "development-3",
+    "label": "Development update 3",
+    "cards": [
+      { "title": "Builds with a name", "description": "The footer now pairs the release name with its build number, so you can see exactly which update you are viewing. Maipa checks for newer builds every 30 seconds and when you return to the tab." }
+    ]
+  },
+  {
+    "id": "development-2",
+    "label": "Development update 2",
+    "cards": [
+      { "title": "Track app updates", "description": "Maipa now checks for a newer build and offers a refresh when one is available. You choose when to refresh." },
+      { "title": "What's new, whenever you need it", "description": "Use What's new beside the build number to reopen the latest changes. After refreshing, new release notes appear once in this browser for each signed-in account." }
+    ]
+  },
+  {
+    "id": "development-1",
+    "label": "Workspace foundation",
+    "cards": [
+      { "title": "A calm workspace, in both themes", "description": "Conversation and Work area stay together, with System, Light and Dark appearance choices. Your private workspace still requires sign-in; accounting and agent workflows are being built." }
+    ]
+  }
+]

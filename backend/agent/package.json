@@ -1,0 +1,8 @@
+{
+  "name": "maipa-agent-host",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "dependencies": { "@particle-academy/prism-acp": "0.24.1" }
+}

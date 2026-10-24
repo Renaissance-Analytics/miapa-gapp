@@ -5,6 +5,10 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+FRONTEND_DIST = BASE_DIR / "frontend/dist"
+ACP_RUNTIME_ROOT = BASE_DIR / "backend/agent"
+ACP_CHECK_ROOT = BASE_DIR / "runtime/acp-checks"
+ACP_NODE_EXECUTABLE = ""  # Resolved from the server PATH, never HTTP input.
 SECRET_KEY = os.environ.get("MAIPA_SECRET_KEY", "")
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured("Set MAIPA_SECRET_KEY to a private random value of at least 50 characters.")
@@ -16,7 +20,8 @@ if not ALLOWED_HOSTS and LOCAL_DEV:
 if not ALLOWED_HOSTS or any("*" in host or "://" in host or "/" in host for host in ALLOWED_HOSTS):
     raise ImproperlyConfigured("Set exact MAIPA_ALLOWED_HOSTS names; wildcard hosts are forbidden.")
 
-INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions"]
+INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions",
+                  "backend.maipa.agent_accounts.apps.AgentAccountsConfig"]
 MIDDLEWARE = [
     "backend.maipa.middleware.ApiCachePolicyMiddleware",
     "django.middleware.security.SecurityMiddleware",

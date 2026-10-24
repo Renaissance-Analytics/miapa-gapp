@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "@particle-academy/react-fancy/styles.css";
+@import "@particle-academy/react-fancy/dark-variant.css";
+@source "../node_modules/@particle-academy/react-fancy/dist";
+
+:root {
+  --canvas: #F6F7F5; --surface: #FFFFFF; --raised: #FFFFFF;
+  --ink: #1A2420; --muted: #5C6B64; --border: #E4E8E5; --control-border: #7B8C81;
+  --accent: #4F46E5; --on-accent: #FFFFFF; --positive: #047857; --review: #B45309; --error: #B91C1C;
+  --fancy-surface: #FFFFFF; --fancy-surface-dark: #18201D;
+  --fancy-surface-muted: #F6F7F5; --fancy-surface-muted-dark: #202B25;
+  --fancy-surface-hover: #EFF2EE; --fancy-surface-hover-dark: #26332B;
+  --fancy-border: #E4E8E5; --fancy-border-dark: #34443B;
+  --fancy-border-strong: #7B8C81; --fancy-border-strong-dark: #718478;
+  --fancy-input: #FFFFFF; --fancy-input-dark: #18201D;
+  --fancy-text: #1A2420; --fancy-text-dark: #E8EEE9;
+  --fancy-text-soft: #1A2420; --fancy-text-soft-dark: #E8EEE9;
+  --fancy-text-muted: #5C6B64; --fancy-text-muted-dark: #A7B5AB;
+  --fancy-text-faint: #5C6B64; --fancy-text-faint-dark: #A7B5AB;
+  --fancy-text-subtle: #5C6B64; --fancy-text-subtle-dark: #A7B5AB;
+  --fancy-focus: #4F46E5; --fancy-focus-dark: #A5B4FC;
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px; color: var(--ink); background: var(--canvas);
+}
+:root.dark, :root[data-theme="dark"] {
+  --canvas: #111714; --surface: #18201D; --raised: #202B25;
+  --ink: #E8EEE9; --muted: #A7B5AB; --border: #34443B; --control-border: #718478;
+  --accent: #A5B4FC; --on-accent: #171A2B; --positive: #6EE7B7; --review: #FCD34D; --error: #FCA5A5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, [role="separator"]:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.workspace { display: flex; flex-direction: column; height: 100dvh; min-height: 640px; }
+.app-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 11px; background: var(--accent); color: var(--on-accent); font-size: 29px; font-weight: 750; line-height: 1; }
+.brand h1 { font-size: 20px; font-weight: 750; letter-spacing: -0.6px; line-height: 1.2; margin: 0; }
+.brand p { margin: 3px 0 0; font-size: 11px; color: var(--muted); }
+.appearance { display: flex; gap: 3px; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--canvas); }
+.appearance button { color: var(--muted); min-height: 32px; border-radius: 7px; }
+.appearance button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px #00000012; }
+.workspace-panels { flex: 1; min-height: 0; }
+.workspace-panels > [role="separator"] { background: var(--control-border); }
+.agent-panel, .work-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.agent-panel { background: var(--surface); padding: 29px 25px 18px; }
+.eyebrow { display: block; color: var(--muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
+h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650; }
+.agent-empty { margin: auto 0; padding: 35px 4px; }
+.agent-mark { color: var(--accent); font-size: 45px; font-weight: 750; letter-spacing: -5px; }
+.agent-empty h3 { font-size: 23px; line-height: 1.45; letter-spacing: -0.8px; font-weight: 550; margin: 13px 0; }
+.agent-empty p, .agent-note { color: var(--muted); line-height: 1.8; font-size: 12px; }
+.agent-note { border-top: 1px solid var(--border); padding-top: 17px; font-size: 10px; margin: 0; }
+.work-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 29px 32px 23px; }
+.connection { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+.connection > span { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; }
+.work-content { flex: 1; padding: 20px 32px; overflow: auto; }
+.welcome-card { border-radius: 14px; max-width: 900px; box-shadow: 0 3px 12px #00000003; }
+.welcome-card [data-react-fancy-card-body] { padding: 34px; }
+.welcome-card h3 { font-size: clamp(24px, 2.2vw, 34px); font-weight: 500; letter-spacing: -1.1px; margin: 13px 0 17px; line-height: 1.25; }
+.welcome-card p { color: var(--muted); line-height: 1.8; max-width: 58ch; }
+.workspace-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 44px; border-top: 1px solid var(--border); padding-top: 27px; }
+.workspace-principles > div > span { display: block; color: var(--accent); font-size: 11px; font-family: ui-monospace, monospace; margin-bottom: 13px; }
+.workspace-principles strong { font-size: 12px; font-weight: 650; }
+.workspace-principles p { font-size: 11px; margin-bottom: 0; }
+.retry-button { margin: 16px 0 0; background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.privacy-note { color: var(--muted); font-size: 11px; margin-top: 22px; }
+.work-footer { display: flex; justify-content: space-between; gap: 16px; padding: 18px 32px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+.build-updates { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.build-version { font: 10px ui-monospace, monospace; }
+.build-updates button { color: var(--ink); }
+.update-notice { position: fixed; z-index: 1000; top: 96px; right: 20px; width: min(360px, calc(100vw - 32px)); padding: 18px; border: 1px solid var(--control-border); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 8px 30px #00000024; }
+.update-notice p { color: var(--muted); line-height: 1.7; margin-block: 8px 14px; }
+.update-notice > div { display: flex; gap: 8px; justify-content: flex-end; }
+.update-notice .refresh-build { background: var(--accent); color: var(--on-accent); }
+.mobile-panes { display: none; }
+@media (max-width: 1000px) {
+  .agent-panel { padding: 24px 18px; }
+  .agent-empty h3 { font-size: 19px; }
+  .work-content, .work-heading { padding-left: 22px; padding-right: 22px; }
+  .welcome-card [data-react-fancy-card-body] { padding: 25px; }
+  .workspace-principles { grid-template-columns: 1fr; gap: 22px; margin-top: 28px; }
+}
+@media (max-width: 700px) {
+  .workspace { min-height: 560px; }
+  .app-header { padding: 15px 16px; gap: 10px; }
+  .brand p { display: none; }
+  .brand h1 { font-size: 18px; }
+  .brand-mark { width: 30px; height: 30px; font-size: 24px; }
+  .appearance { gap: 0; }
+  .appearance button { padding-inline: 9px; }
+  .mobile-panes { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .mobile-panes button[aria-pressed="true"] { background: var(--canvas); color: var(--accent); }
+  .workspace-panels > [role="separator"] { display: none; }
+  .workspace-panels > :has(> [data-pane]) { flex: 1 !important; width: 100% !important; }
+  .show-work .workspace-panels > :has(> [data-pane="agent"]), .show-agent .workspace-panels > :has(> [data-pane="work"]) { display: none; }
+  .work-heading { padding-block: 22px; }
+  .work-content { padding-top: 8px; }
+  .work-footer { padding: 12px 16px; }
+  .work-footer > span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; } }

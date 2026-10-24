@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    {
+      "id": "K05-CLIENT-IDENTITY",
+      "risk": "Frontend may present forged/malformed or failed session state as authenticated.",
+      "scenarios": [
+        {
+          "id": "K05-CLIENT-IDENTITY.valid",
+          "kind": "positive",
+          "given": "The backend returns an authenticated string user ID",
+          "when": "Read the same-origin session",
+          "then": "Use same-origin credentials and no-store; retain only the string principal ID, never the CSRF token",
+          "tests": [
+            "workspace.test.mjs#session reads only the same-origin authenticated session with no-store"
+          ]
+        },
+        {
+          "id": "K05-CLIENT-IDENTITY.refuse",
+          "kind": "negative",
+          "given": "401, malformed/missing identity, 500 or network failure",
+          "when": "Read the session",
+          "then": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
+          "tests": [
+            "workspace.test.mjs#anonymous sessions stay signed out",
+            "workspace.test.mjs#malformed identity, server failures and network errors never claim authentication"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-APP-SHELL",
+      "risk": "The baseline could replace persistent panels, confuse users with invented finance data, or share theme preference across identities.",
+      "scenarios": [
+        {
+          "id": "K05-APP-SHELL.structure",
+          "kind": "positive",
+          "given": "An anonymous session in the approved A plus dark-mode shell",
+          "when": "Render the real React workspace to markup",
+          "then": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+          "tests": [
+            "workspace.test.mjs#workspace keeps two named panels and the published accessible splitter",
+            "workspace.test.mjs#workspace exposes System, Light and Dark choices without fake finance or provider controls",
+            "workspace.test.mjs#theme storage is separate for each authenticated user and the signed-out workspace"
+          ]
+        },
+        {
+          "id": "K05-APP-SHELL.recovery",
+          "kind": "negative",
+          "given": "Session availability fails",
+          "when": "Render the workspace",
+          "then": "Show Workspace unavailable and a recovery action with no private diagnostic/token content",
+          "tests": [
+            "workspace.test.mjs#failed session checks show recovery without leaking response details or showing data"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K04-FRONTEND-ALIGNMENT",
+      "risk": "Node test execution could run without reviewed acceptance or silently retain changed/skipped/unmapped coverage.",
+      "scenarios": [
+        {
+          "id": "K04-FRONTEND-ALIGNMENT.valid",
+          "kind": "positive",
+          "given": "Independent reviewed positive and negative Node fixtures",
+          "when": "Parse coverage before importing app/tests",
+          "then": "No alignment errors",
+          "tests": [
+            "alignment.test.mjs#frontend alignment accepts independent reviewed positive and negative fixtures"
+          ]
+        },
+        {
+          "id": "K04-FRONTEND-ALIGNMENT.invalid",
+          "kind": "negative",
+          "given": "Skipped tests, empty coverage, weakened source or a new unmapped test",
+          "when": "Parse coverage",
+          "then": "Reject each invalid state with a specific skip/requirements/source-changed/unmapped diagnostic",
+          "tests": [
+            "alignment.test.mjs#frontend alignment rejects missing coverage and skipped tests",
+            "alignment.test.mjs#frontend alignment rejects weakened tests and unrelated mappings after review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-UPDATE-SURFACE",
+      "risk": "Browser update tracking could invent an update on errors, expose private responses, share seen cursors, or omit a discoverable updates control.",
+      "scenarios": [
+        {
+          "id": "K05-UPDATE-SURFACE.visible",
+          "kind": "positive",
+          "given": "A valid public version, the installed release groups and two separate principals",
+          "when": "Check a build and render the update surface",
+          "then": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
+          "tests": [
+            "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
+            "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
+            "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert"
+          ]
+        },
+        {
+          "id": "K05-UPDATE-SURFACE.failure",
+          "kind": "negative",
+          "given": "Failed transport, non-JSON, 503 or invalid build IDs",
+          "when": "Check deployed version",
+          "then": "Reject with only Build check unavailable so the package does not announce an invented update",
+          "tests": [
+            "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-BUILD-IDENTITY",
+      "risk": "A constant or inconsistent version could hide backend/frontend changes, include runtime files, or mislabel release notes.",
+      "scenarios": [
+        {
+          "id": "K05-BUILD-IDENTITY.inputs",
+          "kind": "positive",
+          "given": "A fixture with backend, frontend, release notes and an excluded runtime file",
+          "when": "Generate identities across repeated inputs and independent source changes",
+          "then": "Produce stable64hex IDs across repeated builds/newlines/runtime changes, but a different ID for each backend/frontend/notes change",
+          "tests": [
+            "build-info.test.mjs#build identity is stable across repeated builds and checkout newlines but changes with backend frontend or notes"
+          ]
+        },
+        {
+          "id": "K05-BUILD-IDENTITY.invalid",
+          "kind": "negative",
+          "given": "Empty, duplicate, malformed or non-text release cards",
+          "when": "Generate build metadata",
+          "then": "Refuse each invalid release with Invalid release metadata",
+          "tests": [
+            "build-info.test.mjs#empty duplicate or malformed release metadata stops the build instead of generating a misleading release"
+          ]
+        }
+      ]
+    }
+  ]
+}
