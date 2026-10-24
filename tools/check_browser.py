@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_facts", "intake_history", "intake_scope", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):

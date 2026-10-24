@@ -22,6 +22,7 @@ if not ALLOWED_HOSTS or any("*" in host or "://" in host or "/" in host for host
 
 INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions",
                   "backend.maipa.workspace.apps.WorkspaceConfig",
+                  "backend.maipa.intake.apps.IntakeConfig",
                   "backend.maipa.agent_accounts.apps.AgentAccountsConfig"]
 MIDDLEWARE = [
     "backend.maipa.middleware.ApiCachePolicyMiddleware",

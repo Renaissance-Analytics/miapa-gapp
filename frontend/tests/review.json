@@ -230,6 +230,56 @@
       "decision": "aligned",
       "reason": "Fixed request paths/options/payloads and safe result states are checked independently. The markup assertions require actual labelled Fancy password controls. These adapter/markup tests do not replace the real browser/backend lifecycle.",
       "reviewer": "Maipa independent P01 frontend review; no external review claimed"
+    },
+    {
+      "scenario": "P02-INTAKE-UI.values",
+      "test": "intake.test.mjs#intake preserves known false and explicit unknown without inferring tax status",
+      "source_sha256": "fb4ab6a40d88ab368361b37e1cc9efac7c5c6b5b34d41e53f3733cc1cfc4de64",
+      "scenario_sha256": "7afc8bf42c806405c8c96e9077f421c60aa329baa1cfbcdda947b33b96f16bf6",
+      "expected_observation": "Retain false, force unknown to null, omit identity hints and render No/Unknown/None recorded distinctly",
+      "decision": "aligned",
+      "reason": "Exact payload keys and boolean identity prevent truthiness coercion or owner/role propagation.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE-UI.write",
+      "test": "intake.test.mjs#fact saves send exact optimistic evidence through protected same-origin requests",
+      "source_sha256": "fb4ab6a40d88ab368361b37e1cc9efac7c5c6b5b34d41e53f3733cc1cfc4de64",
+      "scenario_sha256": "c303399ab90e5fb6c3f9626d430f620d88995c106c6f8690f2efaf6efd71eaf7",
+      "expected_observation": "POST exact entity path/body/version with same-origin no-store redirect refusal and bounded signal",
+      "decision": "aligned",
+      "reason": "Both request paths, exact body, CSRF and all transport settings are asserted, with false retained in the parsed acknowledgement.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE-UI.errors",
+      "test": "intake.test.mjs#intake conflicts denial failures and invalid csrf expose only fixed states",
+      "source_sha256": "fb4ab6a40d88ab368361b37e1cc9efac7c5c6b5b34d41e53f3733cc1cfc4de64",
+      "scenario_sha256": "d4739b056c1aa8242aa5e13fe583c968f6a0b7b98d1969f472cde2ea793639d9",
+      "expected_observation": "Return only fixed safe states without changing draft version/value; malformed CSRF stops before write",
+      "decision": "aligned",
+      "reason": "Concrete HTTP status matrix uses private response text, confirms original draft values and one-call CSRF refusal.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE-UI.read",
+      "test": "intake.test.mjs#intake reads reject malformed records and caller supplied resource paths",
+      "source_sha256": "fb4ab6a40d88ab368361b37e1cc9efac7c5c6b5b34d41e53f3733cc1cfc4de64",
+      "scenario_sha256": "f2fb6e6475484a233929efad92fb735fc2cc9ed1763b318e4c75910436f142b9",
+      "expected_observation": "Reject malformed state generically and make no request for a supplied resource path",
+      "decision": "aligned",
+      "reason": "Exact unavailable states and zero-call invalid path assertion distinguish refusal from arbitrary URL fetching.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P02-INTAKE-UI.identity",
+      "test": "intake.test.mjs#engagement creation and history retain separate entity and revision identities",
+      "source_sha256": "fb4ab6a40d88ab368361b37e1cc9efac7c5c6b5b34d41e53f3733cc1cfc4de64",
+      "scenario_sha256": "3008a01520e945ab622b29bc0972c2b0a464ae6c665093f7b1824d1732853515",
+      "expected_observation": "Retain separate engagement/entity/revision identities and exact bounded history cursor/value",
+      "decision": "aligned",
+      "reason": "Exact creation body, returned object and history URL/id/value assertions preserve parent/entity/revision distinctions.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

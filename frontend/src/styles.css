@@ -108,3 +108,26 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
   .work-footer > span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; } }
+/* The intake surface stays within the persistent work panel. */
+.intake-card { width: 100%; min-width: 0; }
+.intake-card h3 { font-size: 1.4rem; margin: .35rem 0 1rem; }
+.intake-card h4 { font-size: 1.05rem; margin: 1.25rem 0 .75rem; }
+.intake-card p { color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
+.intake-heading { display: flex; justify-content: space-between; align-items: start; gap: .75rem; }
+.intake-form, .intake-profile { display: grid; gap: 1rem; }
+.intake-form { margin-top: 1rem; }
+.intake-create { margin: 1.25rem 0; padding: 1rem 0; border-top: 1px solid var(--border); }
+.intake-create summary { cursor: pointer; font-weight: 600; }
+.intake-date-pair { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
+.intake-date-pair > * { flex: 1 1 180px; }
+.intake-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.intake-facts { display: grid; gap: .25rem; margin: .5rem 0 1rem; }
+.intake-facts > div { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(100px, 1.4fr) auto; gap: .65rem; align-items: center; padding: .65rem 0; border-bottom: 1px solid var(--border); }
+.intake-facts dt { font-weight: 600; }
+.intake-facts dd { margin: 0; overflow-wrap: anywhere; }
+.intake-rows { display: grid; gap: 1rem; }
+.intake-rows fieldset { border: 1px solid var(--border); border-radius: .6rem; padding: 1rem; display: grid; gap: .75rem; min-width: 0; }
+.intake-history ol { list-style: none; padding: 0; max-height: 26rem; overflow: auto; }
+.intake-history li { padding: .85rem 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.intake-history li p { margin: .25rem 0; font-size: .85rem; }
+@media (max-width: 700px) { .intake-facts > div { grid-template-columns: 1fr auto; } .intake-facts dd { grid-column: 1; } .intake-facts button { grid-row: 1 / 3; grid-column: 2; } }

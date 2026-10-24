@@ -4,6 +4,7 @@ import { readSession, themeStorageKey, type SessionState } from "./api.js";
 import { BuildUpdates } from "./BuildUpdates.js";
 import { updatesStorageKey } from "./updates.js";
 import { SignInForm, SignOutButton } from "./Authentication.js";
+import { IntakeWorkspace } from "./IntakeWorkspace.js";
 
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const theme = useTheme();
@@ -54,7 +55,7 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
             {session.state === "authenticated" && <SignOutButton refresh={refresh} />}</div>
         </div>
         <div className="work-content">
-          <Card className="welcome-card" variant="outlined" sections="plain">
+          {session.state === "authenticated" ? <IntakeWorkspace key={session.userId} /> : <Card className="welcome-card" variant="outlined" sections="plain">
             <Card.Body><span className="eyebrow">A calm place to work</span>
               <h3>{failed ? "Workspace unavailable" : anonymous ? "Sign in to begin" : session.state === "checking" ? "Opening your workspace" : "Your financial work, together"}</h3>
               <p>{failed ? "We could not check your session. Try again to reconnect." : anonymous
@@ -66,8 +67,8 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
                 <div><span aria-hidden="true">02</span><strong>Review the proposal</strong><p>Know what is being changed before you approve it.</p></div>
                 <div><span aria-hidden="true">03</span><strong>Verify the outcome</strong><p>Clear results, with a record you can follow.</p></div></div>
             </Card.Body>
-          </Card>
-          <p className="privacy-note">No financial records are shown until your workspace access is established.</p>
+          </Card>}
+          {session.state !== "authenticated" && <p className="privacy-note">No financial records are shown until your workspace access is established.</p>}
         </div>
         <footer className="work-footer"><span>Maipa</span><BuildUpdates key={updatesStorageKey(session)} session={session} /></footer>
       </section>

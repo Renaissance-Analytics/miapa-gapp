@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-9",
+    "label": "Development update 9",
+    "cards": [
+      { "title": "Client facts with a history", "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save." }
+    ]
+  },
+  {
     "id": "development-8",
     "label": "Development update 8",
     "cards": [

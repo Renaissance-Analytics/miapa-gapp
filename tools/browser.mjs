@@ -61,7 +61,7 @@ function command(method, params = {}) {
   });
 }
 async function click(label) {
-  const point = await evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled) return null; const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`);
+  const point = await evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`);
   assert.ok(point, `Visible button ${label}`);
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
@@ -140,7 +140,21 @@ try {
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
   async function fill(id, value) {
     assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
+    await command("Input.dispatchKeyEvent", { type: "keyDown", key: "a", code: "KeyA", windowsVirtualKeyCode: 65, modifiers: 2 });
+    await command("Input.dispatchKeyEvent", { type: "keyUp", key: "a", code: "KeyA", windowsVirtualKeyCode: 65, modifiers: 2 });
     await command("Input.insertText", { text: value });
+  }
+  async function select(id, value) {
+    const steps = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
+      if (!field || field.tagName!=='SELECT' || field.disabled) return -1;
+      field.scrollIntoView({block:'center'}); field.focus();
+      return [...field.options].filter(o=>!o.disabled).findIndex(o=>o.value===${JSON.stringify(value)}); })()`);
+    assert.ok(steps >= 0, "Selectable recorded option");
+    for (const [key, code] of [["Home", 36], ...Array.from({length:steps},()=>["ArrowDown",40])]) {
+      await command("Input.dispatchKeyEvent", { type: "keyDown", key, windowsVirtualKeyCode: code });
+      await command("Input.dispatchKeyEvent", { type: "keyUp", key, windowsVirtualKeyCode: code });
+    }
+    await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), "native select change");
   }
   async function login(username) {
     await fill("maipa-username", username);
@@ -179,6 +193,61 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
+  phase = "intake_facts";
+  await until(() => evaluate("!!document.getElementById('intake-engagement-name')"), "new engagement form");
+  await fill("intake-engagement-name", "Synthetic browser engagement");
+  await fill("intake-entity-name", "Synthetic browser entity");
+  await click("Create engagement");
+  await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '0'"), "created entity");
+  const clientEntityId = await evaluate("document.querySelector('[data-entity-id]').dataset.entityId");
+  assert.match(clientEntityId, /^[0-9a-f-]{36}$/);
+  await select("intake-fact-key", "records_complete");
+  await select("intake-knowledge", "known");
+  await until(() => evaluate("!!document.getElementById('intake-recorded-value')"), "known boolean control");
+  await select("intake-recorded-value", "false");
+  await fill("intake-evidence-reference", "synthetic-browser-source-1");
+  await fill("intake-evidence-locator", "page 1");
+  await click("Save fact revision");
+  await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '1'"), "recorded known false");
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=records_complete] dd').textContent"), "No");
+  await select("intake-fact-key", "legal_form");
+  await select("intake-knowledge", "known");
+  await until(() => evaluate("!!document.getElementById('intake-recorded-value')"), "known legal-form control");
+  await select("intake-recorded-value", "llc");
+  await fill("intake-evidence-reference", "synthetic-browser-source-1");
+  await fill("intake-evidence-locator", "page 2");
+  await click("Save fact revision");
+  await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '2'"), "recorded LLC");
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=legal_form] dd').textContent"), "LLC");
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=tax_classification] dd').textContent"), "Unknown");
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=tax_elections] dd').textContent"), "Unknown");
+  record("intake-facts-and-evidence");
+  phase = "intake_history";
+  await select("intake-recorded-value", "corporation");
+  await fill("intake-evidence-reference", "synthetic-browser-correction-2");
+  await click("Save fact revision");
+  await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '3'"), "corrected legal form");
+  await until(() => evaluate("document.querySelectorAll('[aria-label=\"Fact history\"] li').length === 2"), "both historical assertions");
+  const historyValues = await evaluate("[...document.querySelectorAll('[aria-label=\"Fact history\"] li')].map(row=>row.innerText)");
+  assert.ok(historyValues[0].includes("Corporation") && historyValues[0].includes("synthetic-browser-correction-2"));
+  assert.ok(historyValues[1].includes("LLC") && historyValues[1].includes("synthetic-browser-source-1"));
+  const concurrent = await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();
+    const on=document.getElementById('intake-effective-from').value;
+    const r=await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/facts/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token},
+      body:JSON.stringify({key:'industry',knowledge:'known',value:'Synthetic concurrent fact',expected_revision:3,
+        effective_from:on,effective_to:null,evidence:{reference:'synthetic-concurrent-source',locator:'record 1',observed_on:on}})});
+    return {status:r.status,body:await r.json()};})()`);
+  assert.equal(concurrent.status, 201); assert.equal(concurrent.body.revision, 4);
+  await select("intake-recorded-value", "partnership");
+  await click("Save fact revision");
+  await until(() => evaluate("document.querySelector('[aria-label=\"Record client fact\"] [role=alert]')?.textContent.includes('This record changed')"), "stale-edit refusal");
+  assert.equal(await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='Save fact revision').disabled"), true);
+  const actual = await evaluate(`(async()=> (await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/')).json())()`);
+  assert.equal(actual.revision, 4); assert.equal(actual.facts.legal_form.value, "corporation");
+  await click("Reload current record");
+  await until(() => evaluate("document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '4'"), "honest conflict recovery");
+  assert.equal(await evaluate("document.querySelector('[data-fact-key=legal_form] dd').textContent"), "Corporation");
+  record("intake-history-and-conflicts");
   phase = "logout_viewer";
   await click("Sign out");
   await until(() => evaluate("!!document.getElementById('maipa-username')"), "logged-out password form");
@@ -195,6 +264,16 @@ try {
   assert.deepEqual(viewer.error, { error: { code: "permission_denied" } });
   assert.deepEqual(viewer.history, { checks: [] }); assert.equal(viewer.foreign, 404);
   record("logout-and-viewer-denial");
+  phase = "intake_scope";
+  const privateIntake = await evaluate(`(async()=>{
+    const listed=await(await fetch('/api/intake/engagements/?role=administrator&tenant_id=foreign')).json();
+    const entity=await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/');
+    const history=await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/facts/legal_form/history/');
+    return {listed,entity:entity.status,history:history.status};})()`);
+  assert.deepEqual(privateIntake.listed, {engagements:[]});
+  assert.equal(privateIntake.entity, 404); assert.equal(privateIntake.history, 404);
+  assert.equal(await evaluate("document.body.innerText.includes('Synthetic browser entity') || document.body.innerText.includes('synthetic-browser-source-1')"), false);
+  record("intake-user-isolation");
   phase = "browser_exceptions";
   assert.equal(exceptions.length, 0, "No uncaught browser exceptions");
   record("no-uncaught-exceptions");

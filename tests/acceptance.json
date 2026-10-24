@@ -858,6 +858,122 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P02-INTAKE",
+      "risk": "Inferred, stale, unscoped or overwritten client facts can contaminate later financial conclusions.",
+      "scenarios": [
+        {
+          "id": "P02-INTAKE.capture",
+          "kind": "positive",
+          "given": "A provisioned preparer and synthetic engagement with two entities",
+          "when": "Record every typed fact with evidence and dates",
+          "then": "Every exact value, false, reference and date round trips; entities remain separately identified",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_typed_catalog_evidence_dates_and_multiple_entities_round_trip"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.unknown",
+          "kind": "positive",
+          "given": "Unknown tax facts and a known false completeness assertion",
+          "when": "Record LLC legal form and later explicit unknown completeness",
+          "then": "False remains known false; LLC populates neither tax classification nor elections; unknown uses null",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_false_is_known_and_unknown_requires_null_without_inference"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.temporal",
+          "kind": "positive",
+          "given": "Bounded original assertion, future assertion and backdated correction",
+          "when": "Read boundary dates and stored history",
+          "then": "Only effective assertions apply; half-open intervals select correct values and preserve original evidence and recorder",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_effective_intervals_future_assertions_and_corrections_preserve_history"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.expiry",
+          "kind": "negative",
+          "given": "An assertion ends at an explicit exclusive date",
+          "when": "Read immediately before and at expiry",
+          "then": "The expired value becomes unknown rather than implicitly carrying forward",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_expired_assertion_has_no_implicit_carry_forward"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.conflict",
+          "kind": "negative",
+          "given": "An existing entity revision and captured fact row",
+          "when": "Submit stale version and attempt direct instance mutation/deletion",
+          "then": "409 conflict leaves one original revision and unchanged entity version; instance edits and deletes are refused",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_stale_write_is_atomic_and_original_revision_cannot_be_mutated"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.invalidate",
+          "kind": "positive",
+          "given": "Two real conclusion records depend on different known facts",
+          "when": "Append a replacement legal-form assertion",
+          "then": "Only the dependent legal conclusion becomes stale with invalidation time; currency conclusion remains current and original dependency survives",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_changed_fact_invalidates_only_its_real_dependents"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.basis",
+          "kind": "negative",
+          "given": "Stale, unknown, foreign, future-inapplicable or empty fact dependencies",
+          "when": "Attempt to record a current conclusion",
+          "then": "Every invalid dependency is refused and no conclusion is recorded",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_conclusions_refuse_unknown_stale_foreign_and_inapplicable_basis"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.schema",
+          "kind": "negative",
+          "given": "Invalid null/state/key/version/date/evidence/typed decimal/contact or forged-owner input",
+          "when": "Record an assertion",
+          "then": "400 generic invalid_request for every case; no revision or entity version change",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_invalid_fact_schema_dates_values_and_evidence_make_no_changes"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.scope",
+          "kind": "negative",
+          "given": "A preparer owns an engagement and another active user is administrator",
+          "when": "Read or mutate through forged owner/install/role hints",
+          "then": "Foreign list is empty and details/history/writes are generic404; owner retains access",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_user_and_installation_hints_never_expose_foreign_engagements"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.authority",
+          "kind": "negative",
+          "given": "Current role becomes viewer then membership is revoked; anonymous and cross-CSRF callers exist",
+          "when": "Read or attempt writes and forged creation",
+          "then": "Viewer can read own records but cannot write; revocation/anonymous/CSRF/owner injection are denied without new records",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_live_role_revocation_anonymous_csrf_and_forged_create_are_denied"
+          ]
+        },
+        {
+          "id": "P02-INTAKE.bounded",
+          "kind": "negative",
+          "given": "Malformed/duplicate/nonfinite/oversized JSON, unsupported methods and invalid temporal/cursor input",
+          "when": "Call real intake routes then paginate history",
+          "then": "Requests fail generically with400/413/405; valid bounded cursor returns only older revisions",
+          "tests": [
+            "tests.test_intake.IntakeTests.test_bounded_json_reads_history_cursor_and_methods"
+          ]
+        }
+      ]
     }
   ]
 }
