@@ -23,8 +23,27 @@ class BrowserFailure(Exception):
 
 def browser_failure_evidence(value):
     valid = isinstance(value, dict) and isinstance(value.get("reason"), str) and value["reason"] in BROWSER_PHASES
-    return {"checks": 0, "reason": value["reason"] if valid else "browser_process",
-            "cleanup": valid and value.get("cleanup") is True}
+    result = {"checks": 0, "reason": value["reason"] if valid else "browser_process",
+              "cleanup": valid and value.get("cleanup") is True}
+    if valid and value["reason"] == "browser_launch":
+        if value.get("startup_state") in ("starting", "spawn_error", "exited", "devtools_file"):
+            result["startup_state"] = value["startup_state"]
+        code = value.get("launch_exit")
+        if type(code) is int and -(2 ** 31) <= code < 2 ** 32:
+            result["launch_exit"] = code
+        if value.get("launch_error") in ("ENOENT", "EACCES", "EPERM", "EINVAL", "ENOMEM", "UNKNOWN"):
+            result["launch_error"] = value["launch_error"]
+    return result
+
+
+def browser_environment(ambient, windows_paths):
+    # Only OS startup paths cross into the browser helper. Its fresh profile
+    # and synthetic login travel through the existing owned fixture protocol.
+    allowed = {"PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "COMSPEC", "PATHEXT"}
+    result = {key.upper(): value for key, value in ambient.items() if key.upper() in allowed}
+    allowed_paths = {"SYSTEMROOT", "WINDIR", "SYSTEMDRIVE", "USERPROFILE", "LOCALAPPDATA", "APPDATA"}
+    result.update({key.upper(): value for key, value in windows_paths.items() if key.upper() in allowed_paths})
+    return result
 
 
 def save_result(value):
@@ -80,8 +99,10 @@ def main():
             node = shutil.which("node")
             if not node:
                 raise ValueError("Node prerequisite")
+            from backend.maipa.windows_sandbox import _Api, _windows_paths
+            environment = browser_environment(os.environ, _windows_paths(_Api()))
             process = subprocess.Popen([node, "tools/browser.mjs"], cwd=ROOT,
-                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment)
             try:
                 stdout, stderr = process.communicate(json.dumps(data), timeout=120)
             except subprocess.TimeoutExpired:

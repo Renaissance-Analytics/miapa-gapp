@@ -925,20 +925,20 @@
       "scenario": "K06-BROWSER-REPORT.positive",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only",
       "scenario_sha256": "1907a9996ddf96d8f091fc959601b749785d4609e22999fc4244717686f2fa9c",
-      "source_sha256": "d9f57c9d02936b10e089721cba03c74ae1195e79575f80060a88fed25c181d21",
+      "source_sha256": "f3590d2df3b2d61b80c3c021c69aaeeb46a6c38d455e7c30ae82114ad79f75ce",
       "expected_observation": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-REPORT.negative",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified",
       "scenario_sha256": "2e982f64e234ff77c55b4ddb529ddd75d95fec330ec399f164d7601c8fea3cc4",
-      "source_sha256": "d9f57c9d02936b10e089721cba03c74ae1195e79575f80060a88fed25c181d21",
+      "source_sha256": "f3590d2df3b2d61b80c3c021c69aaeeb46a6c38d455e7c30ae82114ad79f75ce",
       "expected_observation": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
@@ -1259,6 +1259,36 @@
       "expected_observation": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
       "decision": "aligned",
       "reason": "A cycle and private field fixtures assert bounded exact safe output; a real unittest result must still count its failure and remain unsuccessful. The report sanitizer preserves counts and allowlisted diagnostics while rejecting extra fields.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-START.paths",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials",
+      "scenario_sha256": "d6af91671984e09eaa533f35162efca937ea0846109d7b17d9e2409331711efd",
+      "source_sha256": "f3590d2df3b2d61b80c3c021c69aaeeb46a6c38d455e7c30ae82114ad79f75ce",
+      "expected_observation": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
+      "decision": "aligned",
+      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-START.code",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text",
+      "scenario_sha256": "71f48ef6984f2108db4f27c8f1b178cfa42700725a8dec758563938e62f1e573",
+      "source_sha256": "f3590d2df3b2d61b80c3c021c69aaeeb46a6c38d455e7c30ae82114ad79f75ce",
+      "expected_observation": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
+      "decision": "aligned",
+      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-START.reject",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded",
+      "scenario_sha256": "397520df2333b2e6654b56d863d33b7f353a7758b6fcc1afd199406936cdc8a9",
+      "source_sha256": "f3590d2df3b2d61b80c3c021c69aaeeb46a6c38d455e7c30ae82114ad79f75ce",
+      "expected_observation": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
+      "decision": "aligned",
+      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged.",
       "reviewer": "Maipa semantic acceptance review; no external review claimed"
     }
   ]

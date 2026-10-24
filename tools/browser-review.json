@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "b8486fa4ba7eef7b7aab7b6a29499fdcfecc2b1c7a401307c4b208e4646568fe",
-    "tools/check_browser.py": "d6d8671e425808fc67347da85a507ac42cf3401a9537bbe45d9f41b1ec687001",
+    "tools/browser.mjs": "56eb42b47b71a5877db043bd286205dab81d21e52eafd2cfff84376e57dc0c35",
+    "tools/check_browser.py": "483cdf3f563ad0e95ee4a0c0000c00d8a908bd279b15e86ff9c5d0b32a5dcd5e",
     "tools/browser-profile.mjs": "81d4dbdcc7b848a29a198cb951313644b6fb19085ee4da895f5d436b387af753"
   },
   "cases": [
@@ -64,8 +64,9 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Hashes preserve review, not semantic correctness. Actual login/logout/role/private-account browser acceptance is required on this candidate; live providers, complete accessibility, integrated OS worker isolation and full Q05/Q06 remain open.",
+  "limits": "Hashes preserve semantic review, not correctness. All11actual login/logout/role/private-account cases remain required. Native worker acceptance now has real process/file tests; live provider/private IPC and complete accessibility/Q05/Q06 remain open.",
   "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
   "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
-  "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes."
+  "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes.",
+  "startup_review": "All11actual browser cases and existing owned cleanup retained. Dedicated browser child receives only ambient tool/temp paths plus native OS-resolved startup paths, never credentials or runtime injection. Startup failure evidence freezes fixed state/known spawn code/numeric exit before cleanup, with no raw messages or stderr. Three new privacy/env tests observed red; hosted556931f already passed149tests but failed final browser_launch, so final browser acceptance is still mandatory."
 }

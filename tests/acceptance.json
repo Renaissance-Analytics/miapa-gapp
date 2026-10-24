@@ -822,6 +822,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-BROWSER-START",
+      "risk": "A native browser may need Windows startup paths absent in scrubbed CI; diagnostics must not leak credentials or raw browser text.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-START.paths",
+          "kind": "positive",
+          "given": "A scrubbed CI environment plus OS-resolved startup paths, private credentials and injection flags",
+          "when": "Build the dedicated browser child environment",
+          "then": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-START.code",
+          "kind": "positive",
+          "given": "A fixed browser-launch phase/state with numeric exit and allowlisted spawn code, plus private stderr",
+          "when": "Build public launch-failure evidence",
+          "then": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-START.reject",
+          "kind": "negative",
+          "given": "Private/unknown state/code metadata and a boolean masquerading as an exit number",
+          "when": "Build public launch evidence",
+          "then": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded"
+          ]
+        }
+      ]
     }
   ]
 }

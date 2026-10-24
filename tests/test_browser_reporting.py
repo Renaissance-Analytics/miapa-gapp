@@ -4,6 +4,29 @@ from tools.check_browser import browser_failure_evidence
 
 
 class BrowserReportingTests(unittest.TestCase):
+    def test_browser_startup_paths_are_resolved_without_inheriting_credentials(self):
+        from tools.check_browser import browser_environment
+        ambient = {"PATH": "synthetic-tools", "TEMP": "synthetic-temp", "TMP": "synthetic-temp",
+            "USERPROFILE": "synthetic-stale-profile", "MAIPA_SECRET_KEY": "synthetic-private-key",
+            "NODE_OPTIONS": "synthetic-private-injection", "OPENAI_API_KEY": "synthetic-private-token"}
+        paths = {"USERPROFILE": "synthetic-os-profile", "LOCALAPPDATA": "synthetic-os-local",
+            "APPDATA": "synthetic-os-roaming", "SYSTEMROOT": "synthetic-windows", "private": "synthetic-private-extra"}
+        self.assertEqual(browser_environment(ambient, paths), {"PATH": "synthetic-tools", "TEMP": "synthetic-temp",
+            "TMP": "synthetic-temp", "USERPROFILE": "synthetic-os-profile", "LOCALAPPDATA": "synthetic-os-local",
+            "APPDATA": "synthetic-os-roaming", "SYSTEMROOT": "synthetic-windows"})
+        self.assertEqual(ambient["MAIPA_SECRET_KEY"], "synthetic-private-key")
+
+    def test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text(self):
+        self.assertEqual(browser_failure_evidence({"reason": "browser_launch", "cleanup": True,
+            "startup_state": "exited", "launch_exit": 21, "launch_error": "EACCES", "stderr": "synthetic-private-path"}),
+            {"checks": 0, "reason": "browser_launch", "cleanup": True,
+             "startup_state": "exited", "launch_exit": 21, "launch_error": "EACCES"})
+
+    def test_untrusted_launch_metadata_and_boolean_exit_are_discarded(self):
+        result = browser_failure_evidence({"reason": "browser_launch", "cleanup": True,
+            "startup_state": "synthetic-private-state", "launch_exit": True, "launch_error": "synthetic-private-error"})
+        self.assertEqual(result, {"checks": 0, "reason": "browser_launch", "cleanup": True})
+
     def test_known_failure_preserves_stage_and_verified_cleanup_only(self):
         self.assertEqual(browser_failure_evidence({"reason": "profile_parent", "cleanup": True,
             "stdout": "synthetic private cookie", "path": "synthetic private home"}),

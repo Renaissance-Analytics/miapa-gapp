@@ -7,8 +7,9 @@ import { setTimeout as delay } from "node:timers/promises";
 import { ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false;
+let startupEvidence = {}, launchState = "starting", launchExit;
 process.on("uncaughtException", () => {
-  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified }));
+  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence }));
   process.exitCode = 1;
 });
 
@@ -29,9 +30,9 @@ const child = spawn(binary, ["--headless=new", "--no-first-run", "--no-default-b
   "--disable-extensions", "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"],
   { windowsHide: true, stdio: "ignore" });
 let closed = false;
-child.on("exit", () => { closed = true; });
+child.on("exit", code => { closed = true; launchExit = code; launchState = "exited"; });
 let launchError;
-child.on("error", error => { launchError = error; });
+child.on("error", error => { launchError = error; launchState = "spawn_error"; });
 let debugOrigin, socket, evidence;
 const pending = new Map();
 let sequence = 0;
@@ -70,6 +71,7 @@ try {
     if (launchError || closed) throw Error("Native browser launch failed");
     return existsSync(join(profile, "DevToolsActivePort"));
   }, "native browser");
+  launchState = "devtools_file";
   const [port, browserPath] = readFileSync(join(profile, "DevToolsActivePort"), "utf8").trim().split(/\r?\n/);
   assert.match(port, /^\d{1,5}$/);
   assert.ok(+port > 0 && +port < 65536);
@@ -199,6 +201,11 @@ try {
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
+  if (phase === "browser_launch") {
+    startupEvidence = { startup_state: launchState };
+    if (Number.isInteger(launchExit) && launchExit >= -(2 ** 31) && launchExit < 2 ** 32) startupEvidence.launch_exit = launchExit;
+    if (["ENOENT", "EACCES", "EPERM", "EINVAL", "ENOMEM", "UNKNOWN"].includes(launchError?.code)) startupEvidence.launch_error = launchError.code;
+  }
   throw error;
 } finally {
   phase = "cleanup";
