@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "requirements": [
+    {
+      "id": "K04-ALIGN",
+      "risk": "A green test run can conceal missing, stale, skipped or unrelated acceptance coverage.",
+      "scenarios": [
+        {
+          "id": "K04-ALIGN.valid",
+          "kind": "positive",
+          "given": "Reviewed positive and negative fixtures with exact assertions",
+          "when": "Check traceability",
+          "then": "No alignment errors",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_accepts_reviewed_positive_and_negative_cases",
+            "tests.test_alignment.AlignmentGateTests.test_ignores_methods_outside_testcase_classes"
+          ]
+        },
+        {
+          "id": "K04-ALIGN.empty",
+          "kind": "negative",
+          "given": "Missing or empty acceptance/test data",
+          "when": "Check traceability",
+          "then": "Reject missing manifests, empty requirements and empty discovered suites",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_rejects_missing_manifest",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_empty_requirements",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_empty_test_suite",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_malformed_json_without_crashing"
+          ]
+        },
+        {
+          "id": "K04-ALIGN.mapping",
+          "kind": "negative",
+          "given": "Absent negative coverage, imaginary tests, unmapped tests or duplicate identities",
+          "when": "Check traceability",
+          "then": "Reject incomplete or ambiguous scenario/test mappings",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_rejects_missing_negative_case",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_nonexistent_test",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_unmapped_real_test",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_duplicate_requirement_id"
+          ]
+        },
+        {
+          "id": "K04-ALIGN.skip",
+          "kind": "negative",
+          "given": "Required tests use skip decorators, runtime skip or expected failure",
+          "when": "Check traceability",
+          "then": "Reject every skipped or expected-failure required test",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_rejects_skipped_required_test",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_runtime_skip",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_expected_failure"
+          ]
+        },
+        {
+          "id": "K04-ALIGN.weakened",
+          "kind": "negative",
+          "given": "A test loses its assertion, becomes vacuous, or weakens an exact assertion after review",
+          "when": "Check traceability",
+          "then": "Reject absent/vacuous assertions or a stale source review",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_rejects_missing_assertion",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_vacuous_assertion_even_if_reviewed",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_weakened_assertion_without_new_review"
+          ]
+        },
+        {
+          "id": "K04-ALIGN.unrelated",
+          "kind": "negative",
+          "given": "Scenario mappings are swapped or the expected outcome is weakened after review",
+          "when": "Check traceability",
+          "then": "Reject missing/mismatched semantic review or a changed scenario",
+          "tests": [
+            "tests.test_alignment.AlignmentGateTests.test_rejects_unreviewed_unrelated_mapping",
+            "tests.test_alignment.AlignmentGateTests.test_rejects_changed_outcome_without_new_review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-HTTP",
+      "risk": "API failures can expose request details or an unhealthy API can appear available.",
+      "scenarios": [
+        {
+          "id": "K05-HTTP.liveness",
+          "kind": "positive",
+          "given": "No authenticated session or database access",
+          "when": "GET /api/health/",
+          "then": "200 with exactly status ok and Cache-Control no-store",
+          "tests": [
+            "tests.test_api.PublicApiTests.test_health_is_minimal_public_liveness"
+          ]
+        },
+        {
+          "id": "K05-HTTP.method",
+          "kind": "negative",
+          "given": "A caller attempts to mutate liveness",
+          "when": "POST /api/health/",
+          "then": "405 JSON method_not_allowed and Allow GET",
+          "tests": [
+            "tests.test_api.PublicApiTests.test_health_rejects_mutation"
+          ]
+        },
+        {
+          "id": "K05-HTTP.unknown",
+          "kind": "negative",
+          "given": "An unknown private-looking path or untrusted host",
+          "when": "Request the API",
+          "then": "Generic JSON 404 or 400 with no path/host reflection; errors are not cached",
+          "tests": [
+            "tests.test_api.PublicApiTests.test_unknown_api_returns_generic_json",
+            "tests.test_api.PublicApiTests.test_untrusted_host_is_rejected_without_reflection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-SESSION",
+      "risk": "A client could forge identity, read another user's session or mutate a session across origins.",
+      "scenarios": [
+        {
+          "id": "K05-SESSION.identity",
+          "kind": "positive",
+          "given": "Two synthetic Django users with separate authenticated sessions",
+          "when": "Read the session, including attempts to supply another identity",
+          "then": "The body identifies only the authenticated user as a string ID; sessions remain separate and responses private",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_session_uses_authenticated_identity_only",
+            "tests.test_api.SessionApiTests.test_users_have_separate_sessions"
+          ]
+        },
+        {
+          "id": "K05-SESSION.unauthorized",
+          "kind": "negative",
+          "given": "Anonymous, inactive or forged-cookie client",
+          "when": "Read /api/session/",
+          "then": "401 authentication_required without a CSRF bootstrap for anonymous clients",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_anonymous_session_is_unauthorized",
+            "tests.test_api.SessionApiTests.test_inactive_user_is_unauthorized",
+            "tests.test_api.SessionApiTests.test_forged_cookie_is_not_authentication"
+          ]
+        },
+        {
+          "id": "K05-SESSION.readonly",
+          "kind": "negative",
+          "given": "A signed-in user supplies valid CSRF for an unsupported session write",
+          "when": "POST /api/session/",
+          "then": "405 with Allow GET",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_session_rejects_write_method"
+          ]
+        },
+        {
+          "id": "K05-SESSION.logout",
+          "kind": "positive",
+          "given": "An authenticated session and valid same-origin CSRF token",
+          "when": "POST /api/session/logout/",
+          "then": "200 signed_out, no-store, and subsequent session read is 401",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_valid_same_origin_logout_invalidates_session"
+          ]
+        },
+        {
+          "id": "K05-SESSION.unsafe_logout",
+          "kind": "negative",
+          "given": "An authenticated session with absent CSRF, foreign origin, or GET",
+          "when": "Attempt logout",
+          "then": "403 CSRF failure or 405 method refusal, preserving the session",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_logout_requires_csrf_and_preserves_session_on_failure",
+            "tests.test_api.SessionApiTests.test_foreign_origin_cannot_logout",
+            "tests.test_api.SessionApiTests.test_get_cannot_logout"
+          ]
+        },
+        {
+          "id": "K05-SESSION.cookies",
+          "kind": "positive",
+          "given": "Secure configuration with authenticated session bootstrap",
+          "when": "Read /api/session/",
+          "then": "Secure/HttpOnly/SameSite cookies, nosniff and frame denial",
+          "tests": [
+            "tests.test_api.SessionApiTests.test_secure_cookie_defaults",
+            "tests.test_api.SessionApiTests.test_security_headers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-CONFIG",
+      "risk": "A host could start with missing secrets, permissive hosts, debug or insecure cookie defaults.",
+      "scenarios": [
+        {
+          "id": "K05-CONFIG.secure",
+          "kind": "positive",
+          "given": "A private synthetic key and exact production host",
+          "when": "Import settings in a fresh process",
+          "then": "Debug off, only the configured host, both cookies secure",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_production_uses_secure_cookies_and_debug_off"
+          ]
+        },
+        {
+          "id": "K05-CONFIG.local",
+          "kind": "positive",
+          "given": "An explicit local development opt-in and synthetic key",
+          "when": "Import settings without a host override",
+          "then": "Only loopback hosts, debug off and local HTTP cookie settings",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_explicit_local_mode_uses_loopback_http_only"
+          ]
+        },
+        {
+          "id": "K05-CONFIG.unsafe",
+          "kind": "negative",
+          "given": "A missing/short key, absent production hosts or wildcard host",
+          "when": "Import settings in a fresh process",
+          "then": "Startup fails with a generic configuration instruction and no key reflection",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_production_defaults_require_a_private_key",
+            "tests.test_configuration.ConfigurationTests.test_short_key_is_rejected_without_reflection",
+            "tests.test_configuration.ConfigurationTests.test_production_requires_explicit_hosts",
+            "tests.test_configuration.ConfigurationTests.test_wildcard_hosts_are_rejected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K04-ORDER",
+      "risk": "Passing a partial/empty/skipped test run or importing app code before alignment could make the gate misleading.",
+      "scenarios": [
+        {
+          "id": "K04-ORDER.pass",
+          "kind": "positive",
+          "given": "One successfully executed required test",
+          "when": "Classify the test result",
+          "then": "Exit code 0",
+          "tests": [
+            "tests.test_backend_checks.BackendCheckTests.test_successful_required_result_passes"
+          ]
+        },
+        {
+          "id": "K04-ORDER.incomplete",
+          "kind": "negative",
+          "given": "Zero execution, runtime skip or expected failure",
+          "when": "Classify the test result",
+          "then": "Exit code 1",
+          "tests": [
+            "tests.test_backend_checks.BackendCheckTests.test_empty_execution_is_failure",
+            "tests.test_backend_checks.BackendCheckTests.test_runtime_skip_or_expected_failure_is_failure"
+          ]
+        },
+        {
+          "id": "K04-ORDER.early",
+          "kind": "negative",
+          "given": "Misaligned coverage or non-test Django settings",
+          "when": "Run the scoped pipeline with Django import deliberately unavailable",
+          "then": "Return failure before importing Django or executing app tests",
+          "tests": [
+            "tests.test_backend_checks.BackendCheckTests.test_alignment_failure_stops_before_django_import",
+            "tests.test_backend_checks.BackendCheckTests.test_non_test_settings_are_refused_before_execution"
+          ]
+        }
+      ]
+    }
+  ]
+}

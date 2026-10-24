@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "reviews": [
+    {
+      "scenario": "K04-ALIGN.valid",
+      "test": "tests.test_alignment.AlignmentGateTests.test_accepts_reviewed_positive_and_negative_cases",
+      "scenario_sha256": "6f0323d73c3777ccf204661df52e7d3ad83e0bb6943beda245f5950b778d5433",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "No alignment errors",
+      "decision": "aligned",
+      "reason": "The valid pair asserts a sum of 5 and a ValueError for invalid input; an ordinary non-TestCase class must not create false coverage.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.valid",
+      "test": "tests.test_alignment.AlignmentGateTests.test_ignores_methods_outside_testcase_classes",
+      "scenario_sha256": "6f0323d73c3777ccf204661df52e7d3ad83e0bb6943beda245f5950b778d5433",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "No alignment errors",
+      "decision": "aligned",
+      "reason": "The valid pair asserts a sum of 5 and a ValueError for invalid input; an ordinary non-TestCase class must not create false coverage.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.empty",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_missing_manifest",
+      "scenario_sha256": "26c29c2ba3ca1a07986e5f970ecdedc4132e3a8e846a22987381ab2e2cb7c963",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing manifests, empty requirements and empty discovered suites",
+      "decision": "aligned",
+      "reason": "Each fixture removes one prerequisite and asserts the corresponding diagnostic, rather than merely accepting any error.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.empty",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_empty_requirements",
+      "scenario_sha256": "26c29c2ba3ca1a07986e5f970ecdedc4132e3a8e846a22987381ab2e2cb7c963",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing manifests, empty requirements and empty discovered suites",
+      "decision": "aligned",
+      "reason": "Each fixture removes one prerequisite and asserts the corresponding diagnostic, rather than merely accepting any error.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.empty",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_empty_test_suite",
+      "scenario_sha256": "26c29c2ba3ca1a07986e5f970ecdedc4132e3a8e846a22987381ab2e2cb7c963",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing manifests, empty requirements and empty discovered suites",
+      "decision": "aligned",
+      "reason": "Each fixture removes one prerequisite and asserts the corresponding diagnostic, rather than merely accepting any error.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.empty",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_malformed_json_without_crashing",
+      "scenario_sha256": "26c29c2ba3ca1a07986e5f970ecdedc4132e3a8e846a22987381ab2e2cb7c963",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing manifests, empty requirements and empty discovered suites",
+      "decision": "aligned",
+      "reason": "Each fixture removes one prerequisite and asserts the corresponding diagnostic, rather than merely accepting any error.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.mapping",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_missing_negative_case",
+      "scenario_sha256": "42aa6b509a9761a821848eb21b2f68834918b9ae264bef9ba06abcb7a4f568dc",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject incomplete or ambiguous scenario/test mappings",
+      "decision": "aligned",
+      "reason": "Named failure assertions distinguish missing negative risk coverage, nonexistent and unmapped tests, and duplicate requirements.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.mapping",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_nonexistent_test",
+      "scenario_sha256": "42aa6b509a9761a821848eb21b2f68834918b9ae264bef9ba06abcb7a4f568dc",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject incomplete or ambiguous scenario/test mappings",
+      "decision": "aligned",
+      "reason": "Named failure assertions distinguish missing negative risk coverage, nonexistent and unmapped tests, and duplicate requirements.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.mapping",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_unmapped_real_test",
+      "scenario_sha256": "42aa6b509a9761a821848eb21b2f68834918b9ae264bef9ba06abcb7a4f568dc",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject incomplete or ambiguous scenario/test mappings",
+      "decision": "aligned",
+      "reason": "Named failure assertions distinguish missing negative risk coverage, nonexistent and unmapped tests, and duplicate requirements.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.mapping",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_duplicate_requirement_id",
+      "scenario_sha256": "42aa6b509a9761a821848eb21b2f68834918b9ae264bef9ba06abcb7a4f568dc",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject incomplete or ambiguous scenario/test mappings",
+      "decision": "aligned",
+      "reason": "Named failure assertions distinguish missing negative risk coverage, nonexistent and unmapped tests, and duplicate requirements.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.skip",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_skipped_required_test",
+      "scenario_sha256": "84d99b305861b88002ea5bd96eb187140c5258a6808a1890b1c4ba280bbf832f",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject every skipped or expected-failure required test",
+      "decision": "aligned",
+      "reason": "All three supported skip forms are introduced separately and must produce skip-specific diagnostics.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.skip",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_runtime_skip",
+      "scenario_sha256": "84d99b305861b88002ea5bd96eb187140c5258a6808a1890b1c4ba280bbf832f",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject every skipped or expected-failure required test",
+      "decision": "aligned",
+      "reason": "All three supported skip forms are introduced separately and must produce skip-specific diagnostics.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.skip",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_expected_failure",
+      "scenario_sha256": "84d99b305861b88002ea5bd96eb187140c5258a6808a1890b1c4ba280bbf832f",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject every skipped or expected-failure required test",
+      "decision": "aligned",
+      "reason": "All three supported skip forms are introduced separately and must produce skip-specific diagnostics.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.weakened",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_missing_assertion",
+      "scenario_sha256": "2393e0c1a278f8af57818a4ec8902e965be969426ba27b257f26ca4ff9872c33",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject absent/vacuous assertions or a stale source review",
+      "decision": "aligned",
+      "reason": "The exact-to-non-null mutation must invalidate review; assertTrue(True) must fail even with a refreshed fixture hash. Hashing cannot judge newly reviewed weak assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.weakened",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_vacuous_assertion_even_if_reviewed",
+      "scenario_sha256": "2393e0c1a278f8af57818a4ec8902e965be969426ba27b257f26ca4ff9872c33",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject absent/vacuous assertions or a stale source review",
+      "decision": "aligned",
+      "reason": "The exact-to-non-null mutation must invalidate review; assertTrue(True) must fail even with a refreshed fixture hash. Hashing cannot judge newly reviewed weak assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.weakened",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_weakened_assertion_without_new_review",
+      "scenario_sha256": "2393e0c1a278f8af57818a4ec8902e965be969426ba27b257f26ca4ff9872c33",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject absent/vacuous assertions or a stale source review",
+      "decision": "aligned",
+      "reason": "The exact-to-non-null mutation must invalidate review; assertTrue(True) must fail even with a refreshed fixture hash. Hashing cannot judge newly reviewed weak assertions.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.unrelated",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_unreviewed_unrelated_mapping",
+      "scenario_sha256": "6fc13468e527a34ad2af2f87481c37a6f6f33301c27a68d51afc803e41150474",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing/mismatched semantic review or a changed scenario",
+      "decision": "aligned",
+      "reason": "Swapped unrelated mappings and changed then clauses invalidate the exact reviewed pair/scenario. A dishonest fresh review is outside what automation can prove.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ALIGN.unrelated",
+      "test": "tests.test_alignment.AlignmentGateTests.test_rejects_changed_outcome_without_new_review",
+      "scenario_sha256": "6fc13468e527a34ad2af2f87481c37a6f6f33301c27a68d51afc803e41150474",
+      "source_sha256": "eb93c9a1d443a2381ea189362661ae77a92233d341e7b5f1dabc23635808a454",
+      "expected_observation": "Reject missing/mismatched semantic review or a changed scenario",
+      "decision": "aligned",
+      "reason": "Swapped unrelated mappings and changed then clauses invalidate the exact reviewed pair/scenario. A dishonest fresh review is outside what automation can prove.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-HTTP.liveness",
+      "test": "tests.test_api.PublicApiTests.test_health_is_minimal_public_liveness",
+      "scenario_sha256": "302de2ab8fc3ee6899f0b1cf517fffb9470dc455c37b4d0ff565e12060ae3576",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "200 with exactly status ok and Cache-Control no-store",
+      "decision": "aligned",
+      "reason": "SimpleTestCase forbids database access; the entire body is compared to the independent minimal liveness contract.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-HTTP.method",
+      "test": "tests.test_api.PublicApiTests.test_health_rejects_mutation",
+      "scenario_sha256": "76b260afef8294bd2333f32267318cca26f5860c72363434ce3d3bfc1731d3e1",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "405 JSON method_not_allowed and Allow GET",
+      "decision": "aligned",
+      "reason": "Both method refusal and exact public error body/Allow header are asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-HTTP.unknown",
+      "test": "tests.test_api.PublicApiTests.test_unknown_api_returns_generic_json",
+      "scenario_sha256": "2c27d126eb3e396728a27491ccaa966437da40f53ad57d521b2baf2ed64a2b08",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "Generic JSON 404 or 400 with no path/host reflection; errors are not cached",
+      "decision": "aligned",
+      "reason": "Each status and exact generic body is compared; private path/host fragments must not appear.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-HTTP.unknown",
+      "test": "tests.test_api.PublicApiTests.test_untrusted_host_is_rejected_without_reflection",
+      "scenario_sha256": "2c27d126eb3e396728a27491ccaa966437da40f53ad57d521b2baf2ed64a2b08",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "Generic JSON 404 or 400 with no path/host reflection; errors are not cached",
+      "decision": "aligned",
+      "reason": "Each status and exact generic body is compared; private path/host fragments must not appear.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.identity",
+      "test": "tests.test_api.SessionApiTests.test_session_uses_authenticated_identity_only",
+      "scenario_sha256": "0376d5444219d05ab47e89b6daae1085193296fd516efd828cc5e3030745a49f",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "The body identifies only the authenticated user as a string ID; sessions remain separate and responses private",
+      "decision": "aligned",
+      "reason": "Exact user dictionaries and distinct IDs are asserted. Header/query spoofing cannot replace the authenticated principal. No roles/entity authorization completeness claimed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.identity",
+      "test": "tests.test_api.SessionApiTests.test_users_have_separate_sessions",
+      "scenario_sha256": "0376d5444219d05ab47e89b6daae1085193296fd516efd828cc5e3030745a49f",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "The body identifies only the authenticated user as a string ID; sessions remain separate and responses private",
+      "decision": "aligned",
+      "reason": "Exact user dictionaries and distinct IDs are asserted. Header/query spoofing cannot replace the authenticated principal. No roles/entity authorization completeness claimed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unauthorized",
+      "test": "tests.test_api.SessionApiTests.test_anonymous_session_is_unauthorized",
+      "scenario_sha256": "345d611eb956b96a3030bd4018150ba969226291ba41de60ba159dfbf684c18d",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "401 authentication_required without a CSRF bootstrap for anonymous clients",
+      "decision": "aligned",
+      "reason": "The three identity failures must remain unauthorized; no test grants identity from client input.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unauthorized",
+      "test": "tests.test_api.SessionApiTests.test_inactive_user_is_unauthorized",
+      "scenario_sha256": "345d611eb956b96a3030bd4018150ba969226291ba41de60ba159dfbf684c18d",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "401 authentication_required without a CSRF bootstrap for anonymous clients",
+      "decision": "aligned",
+      "reason": "The three identity failures must remain unauthorized; no test grants identity from client input.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unauthorized",
+      "test": "tests.test_api.SessionApiTests.test_forged_cookie_is_not_authentication",
+      "scenario_sha256": "345d611eb956b96a3030bd4018150ba969226291ba41de60ba159dfbf684c18d",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "401 authentication_required without a CSRF bootstrap for anonymous clients",
+      "decision": "aligned",
+      "reason": "The three identity failures must remain unauthorized; no test grants identity from client input.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.readonly",
+      "test": "tests.test_api.SessionApiTests.test_session_rejects_write_method",
+      "scenario_sha256": "bce17b87b1cb12748473a555304fa666421048b3270373412100524692e65d46",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "405 with Allow GET",
+      "decision": "aligned",
+      "reason": "A valid token isolates method handling from an earlier CSRF refusal.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.logout",
+      "test": "tests.test_api.SessionApiTests.test_valid_same_origin_logout_invalidates_session",
+      "scenario_sha256": "cbb60c59f2251396b917757f1cf33dfe031e72863e132b975b83c64aa7f99798",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "200 signed_out, no-store, and subsequent session read is 401",
+      "decision": "aligned",
+      "reason": "Verifies the outcome by a new request, beyond merely inspecting a successful logout response.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unsafe_logout",
+      "test": "tests.test_api.SessionApiTests.test_logout_requires_csrf_and_preserves_session_on_failure",
+      "scenario_sha256": "e03b56b52c5401157af003339d1916a963b11c69585ba499739e2d7485032067",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "403 CSRF failure or 405 method refusal, preserving the session",
+      "decision": "aligned",
+      "reason": "Each rejected request is followed by a successful session read to prove no state change occurred.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unsafe_logout",
+      "test": "tests.test_api.SessionApiTests.test_foreign_origin_cannot_logout",
+      "scenario_sha256": "e03b56b52c5401157af003339d1916a963b11c69585ba499739e2d7485032067",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "403 CSRF failure or 405 method refusal, preserving the session",
+      "decision": "aligned",
+      "reason": "Each rejected request is followed by a successful session read to prove no state change occurred.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.unsafe_logout",
+      "test": "tests.test_api.SessionApiTests.test_get_cannot_logout",
+      "scenario_sha256": "e03b56b52c5401157af003339d1916a963b11c69585ba499739e2d7485032067",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "403 CSRF failure or 405 method refusal, preserving the session",
+      "decision": "aligned",
+      "reason": "Each rejected request is followed by a successful session read to prove no state change occurred.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.cookies",
+      "test": "tests.test_api.SessionApiTests.test_secure_cookie_defaults",
+      "scenario_sha256": "5257e511c1b2a4f65bc85b56b287d15a2efd7d63756a58d5dc65f7ad868ae9ae",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "Secure/HttpOnly/SameSite cookies, nosniff and frame denial",
+      "decision": "aligned",
+      "reason": "Asserts concrete cookie attributes/settings and header values, without claiming deployment TLS/proxy readiness.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-SESSION.cookies",
+      "test": "tests.test_api.SessionApiTests.test_security_headers",
+      "scenario_sha256": "5257e511c1b2a4f65bc85b56b287d15a2efd7d63756a58d5dc65f7ad868ae9ae",
+      "source_sha256": "85f64cf1fbdc31dc5f1aac3b79b1aa858eb138050c5cf9186206e48293b5ba37",
+      "expected_observation": "Secure/HttpOnly/SameSite cookies, nosniff and frame denial",
+      "decision": "aligned",
+      "reason": "Asserts concrete cookie attributes/settings and header values, without claiming deployment TLS/proxy readiness.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.secure",
+      "test": "tests.test_configuration.ConfigurationTests.test_production_uses_secure_cookies_and_debug_off",
+      "scenario_sha256": "d61a78fdc42dfb04532cb59cfecdea30f0879a02da553b00ee235e2c14643989",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Debug off, only the configured host, both cookies secure",
+      "decision": "aligned",
+      "reason": "The complete safe settings projection is compared without printing any key or process environment.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.local",
+      "test": "tests.test_configuration.ConfigurationTests.test_explicit_local_mode_uses_loopback_http_only",
+      "scenario_sha256": "66801f97eae92142f735c9c31b42f9f6552981bd1460397cd3ebec1f56045551",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Only loopback hosts, debug off and local HTTP cookie settings",
+      "decision": "aligned",
+      "reason": "This checks the explicit local exception remains host-bounded; production listener/TLS acceptance is not claimed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.unsafe",
+      "test": "tests.test_configuration.ConfigurationTests.test_production_defaults_require_a_private_key",
+      "scenario_sha256": "900f001cf01e9943d78ddc5146b1a9fb1164c23b208a5a5bc0c2bbd9635918c6",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Startup fails with a generic configuration instruction and no key reflection",
+      "decision": "aligned",
+      "reason": "Each isolated subprocess must exit nonzero with the relevant diagnostic; short synthetic secret must not be echoed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.unsafe",
+      "test": "tests.test_configuration.ConfigurationTests.test_short_key_is_rejected_without_reflection",
+      "scenario_sha256": "900f001cf01e9943d78ddc5146b1a9fb1164c23b208a5a5bc0c2bbd9635918c6",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Startup fails with a generic configuration instruction and no key reflection",
+      "decision": "aligned",
+      "reason": "Each isolated subprocess must exit nonzero with the relevant diagnostic; short synthetic secret must not be echoed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.unsafe",
+      "test": "tests.test_configuration.ConfigurationTests.test_production_requires_explicit_hosts",
+      "scenario_sha256": "900f001cf01e9943d78ddc5146b1a9fb1164c23b208a5a5bc0c2bbd9635918c6",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Startup fails with a generic configuration instruction and no key reflection",
+      "decision": "aligned",
+      "reason": "Each isolated subprocess must exit nonzero with the relevant diagnostic; short synthetic secret must not be echoed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CONFIG.unsafe",
+      "test": "tests.test_configuration.ConfigurationTests.test_wildcard_hosts_are_rejected",
+      "scenario_sha256": "900f001cf01e9943d78ddc5146b1a9fb1164c23b208a5a5bc0c2bbd9635918c6",
+      "source_sha256": "6c05397883d44be0d8f112a4b31637f2341cbc39034eea624d6a4e94982ca3a3",
+      "expected_observation": "Startup fails with a generic configuration instruction and no key reflection",
+      "decision": "aligned",
+      "reason": "Each isolated subprocess must exit nonzero with the relevant diagnostic; short synthetic secret must not be echoed.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ORDER.pass",
+      "test": "tests.test_backend_checks.BackendCheckTests.test_successful_required_result_passes",
+      "scenario_sha256": "5456aaa54e2eafdc52e07fe27549835f54a60a51492b7cb5d97a9fb640c45858",
+      "source_sha256": "ef852748c0f386604abfd2a257724422901b33c13a8d2765cb666487e36fc217",
+      "expected_observation": "Exit code 0",
+      "decision": "aligned",
+      "reason": "A real unittest result with one executed test is the minimal passing case.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ORDER.incomplete",
+      "test": "tests.test_backend_checks.BackendCheckTests.test_empty_execution_is_failure",
+      "scenario_sha256": "7e98d3e271d52513dcfe9073984983f7976463d313fb0f3ed0d2cdc89ed919f8",
+      "source_sha256": "ef852748c0f386604abfd2a257724422901b33c13a8d2765cb666487e36fc217",
+      "expected_observation": "Exit code 1",
+      "decision": "aligned",
+      "reason": "The runner must reject each omission even though unittest normally permits skips/expected failures.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ORDER.incomplete",
+      "test": "tests.test_backend_checks.BackendCheckTests.test_runtime_skip_or_expected_failure_is_failure",
+      "scenario_sha256": "7e98d3e271d52513dcfe9073984983f7976463d313fb0f3ed0d2cdc89ed919f8",
+      "source_sha256": "ef852748c0f386604abfd2a257724422901b33c13a8d2765cb666487e36fc217",
+      "expected_observation": "Exit code 1",
+      "decision": "aligned",
+      "reason": "The runner must reject each omission even though unittest normally permits skips/expected failures.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ORDER.early",
+      "test": "tests.test_backend_checks.BackendCheckTests.test_alignment_failure_stops_before_django_import",
+      "scenario_sha256": "6adfc9e68ea8eced4ba6d7fd2a73717a623d5d93a73b5fa1a6d7fe6f3fb743ef",
+      "source_sha256": "ef852748c0f386604abfd2a257724422901b33c13a8d2765cb666487e36fc217",
+      "expected_observation": "Return failure before importing Django or executing app tests",
+      "decision": "aligned",
+      "reason": "Blocking the Django import proves the early-return gate and settings guard precede app loading; no live database can be selected.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-ORDER.early",
+      "test": "tests.test_backend_checks.BackendCheckTests.test_non_test_settings_are_refused_before_execution",
+      "scenario_sha256": "6adfc9e68ea8eced4ba6d7fd2a73717a623d5d93a73b5fa1a6d7fe6f3fb743ef",
+      "source_sha256": "ef852748c0f386604abfd2a257724422901b33c13a8d2765cb666487e36fc217",
+      "expected_observation": "Return failure before importing Django or executing app tests",
+      "decision": "aligned",
+      "reason": "Blocking the Django import proves the early-return gate and settings guard precede app loading; no live database can be selected.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    }
+  ]
+}
