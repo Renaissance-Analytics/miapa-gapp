@@ -1550,6 +1550,326 @@
       "decision": "aligned",
       "reason": "Actual thread barrier and real CSRF/session/database requests exercise locking; one clean retry is permitted only if both competing upgrades fail closed, then exact row counts and permanent 409 are required.",
       "reviewer": "Maipa independent security-boundary acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.exact_approved_authority_is_reused_and_audited_without_new_approval",
+      "test": "tests.test_authority.AuthorityTests.test_exact_approved_authority_is_reused_and_audited_without_new_approval",
+      "scenario_sha256": "cd9e60ed9442fbe1c87d9ab3e99acb9b86a8aed1d15d0e50ba36936f39707486",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Two exact execution checks authorize, retain one approval, and append matching-hash audit decisions with grant identities.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Two exact execution checks authorize, retain one approval, and append matching-hash audit decisions with grant identities.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.workspace_roles_contacts_and_superuser_cannot_invent_financial_authority",
+      "test": "tests.test_authority.AuthorityTests.test_workspace_roles_contacts_and_superuser_cannot_invent_financial_authority",
+      "scenario_sha256": "ffb4a029537ef7b17647a2dbb6f69c47af7e57615afb1ac0786edeef6fbc051c",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Staff, superuser and workspace membership cannot prepare without explicit authority or execute unapproved work.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Staff, superuser and workspace membership cannot prepare without explicit authority or execute unapproved work.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.changed_payload_action_actor_entity_record_and_graph_cannot_reuse_approval",
+      "test": "tests.test_authority.AuthorityTests.test_changed_payload_action_actor_entity_record_and_graph_cannot_reuse_approval",
+      "scenario_sha256": "e290ddaeac8d04cda095685886dc84ed5ff90173e9bacd2a0a8173e6d27fdb43",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Changed scope, action, payload, actor, record, graph, evidence, amount or currency denies; the unchanged exact request still authorizes.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Changed scope, action, payload, actor, record, graph, evidence, amount or currency denies; the unchanged exact request still authorizes.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.current_entity_revision_and_membership_are_rechecked",
+      "test": "tests.test_authority.AuthorityTests.test_current_entity_revision_and_membership_are_rechecked",
+      "scenario_sha256": "e18c4e4411f6afcb3911941fd2890360ebd28e937994f46603b0e13d9f19da56",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "A changed persisted entity revision or a disabled reviewer invalidates previously approved execution.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. A changed persisted entity revision or a disabled reviewer invalidates previously approved execution.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.expired_future_and_revoked_grants_fail_and_history_survives",
+      "test": "tests.test_authority.AuthorityTests.test_expired_future_and_revoked_grants_fail_and_history_survives",
+      "scenario_sha256": "6f5713ecce9498bf85193e8a0f04a27942bb4d5d9766c822ef1200cfb756b686",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Future, expired or revoked authority denies, while attestations and the undeletable revoked grant remain available.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Future, expired or revoked authority denies, while attestations and the undeletable revoked grant remain available.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.decimal_materiality_is_exact_bounded_and_currency_specific",
+      "test": "tests.test_authority.AuthorityTests.test_decimal_materiality_is_exact_bounded_and_currency_specific",
+      "scenario_sha256": "c9d677f0dc2cc9840417511e1e7ac24975c294d092748e490ec5f68a1088e83f",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "The exact decimal limit succeeds; one ten-thousandth above it, currency mismatch and malformed amounts fail.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. The exact decimal limit succeeds; one ten-thousandth above it, currency mismatch and malformed amounts fail.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.preparer_cannot_review_or_approve_own_work_even_with_grants",
+      "test": "tests.test_authority.AuthorityTests.test_preparer_cannot_review_or_approve_own_work_even_with_grants",
+      "scenario_sha256": "39e56d07f8d0d4c7762080ef92c08073b338351ce492cb6a1961e0e73227276d",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Explicit reviewer and approver grants cannot authorize the preparer to attest to their own work.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Explicit reviewer and approver grants cannot authorize the preparer to attest to their own work.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.approval_requires_review_and_exact_validity_not_just_approver_role",
+      "test": "tests.test_authority.AuthorityTests.test_approval_requires_review_and_exact_validity_not_just_approver_role",
+      "scenario_sha256": "1f008bed3d1e1be8926db4289f216add886dadbc4d88d232094f8754f9d73f61",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Approval without an independent review and an empty validity interval both fail.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Approval without an independent review and an empty validity interval both fail.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.delegation_can_only_narrow_live_parent_and_cannot_self_grant",
+      "test": "tests.test_authority.AuthorityTests.test_delegation_can_only_narrow_live_parent_and_cannot_self_grant",
+      "scenario_sha256": "7d7048354bd6e9de61e14003aeeb805ecb0ae2dcb282a22de1585024c3c7ff8d",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "A bounded child grant records its parent without onward delegation; escalation and self-grants fail, and parent revocation invalidates the child.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. A bounded child grant records its parent without onward delegation; escalation and self-grants fail, and parent revocation invalidates the child.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.unrelated_admin_cannot_revoke_or_delegate_and_foreign_installation_denies",
+      "test": "tests.test_authority.AuthorityTests.test_unrelated_admin_cannot_revoke_or_delegate_and_foreign_installation_denies",
+      "scenario_sha256": "3e75746c379d14f86ac79bbefc557526dd43befd6a3cb56afeff2351910531a8",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "An unrelated administrator cannot revoke another principal grant, and disabled membership invalidates it.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. An unrelated administrator cannot revoke another principal grant, and disabled membership invalidates it.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.unknown_actions_floats_oversized_payload_and_forged_context_fail_closed",
+      "test": "tests.test_authority.AuthorityTests.test_unknown_actions_floats_oversized_payload_and_forged_context_fail_closed",
+      "scenario_sha256": "fb5d6cb51bcaf0f65c2a78867488982559e40243c31ac268224f6010a73d5b0c",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Unknown actions, floating values, oversized payloads, identity hints, boolean revisions and forged actor dictionaries fail closed.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Unknown actions, floating values, oversized payloads, identity hints, boolean revisions and forged actor dictionaries fail closed.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.agent_identity_is_server_registered_and_cannot_approve_or_impersonate",
+      "test": "tests.test_authority.AuthorityTests.test_agent_identity_is_server_registered_and_cannot_approve_or_impersonate",
+      "scenario_sha256": "3f1a0bb3d7fe8881461e24cfdd3ee75ab544612d8b966c0f551ca676ae9abd99",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "A live server-registered agent executes only its exact grant; human substitution, wrong ownership, agent approval grants and revoked agent identity deny.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. A live server-registered agent executes only its exact grant; human substitution, wrong ownership, agent approval grants and revoked agent identity deny.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.policy_change_invalidates_previously_approved_decisions",
+      "test": "tests.test_authority.AuthorityTests.test_policy_change_invalidates_previously_approved_decisions",
+      "scenario_sha256": "b11c0d22c4cdaee96124e0eb19bf5109a0ac2718eb054139e3546c3658d13f59",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "A new grant changes the persisted policy version and invalidates an earlier approval.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. A new grant changes the persisted policy version and invalidates an earlier approval.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-AUTHORITY.authority_records_are_immutable_and_execution_is_still_disabled",
+      "test": "tests.test_authority.AuthorityTests.test_authority_records_are_immutable_and_execution_is_still_disabled",
+      "scenario_sha256": "3fca38d7dc598f72f05300223e8f5a2da5be89b0be83648e811fce5599f1bdde",
+      "source_sha256": "4d0d7c0e96d6c1fda9954d1036dbd59a456acc7b569efaf756841c499c9e570c",
+      "expected_observation": "Authorization edits are refused and real protected execution remains unavailable even with valid policy evidence.",
+      "decision": "aligned",
+      "reason": "Reviewed the fixture, actual persisted state changes and explicit allow/deny/history assertions against the independent P03 contract. Authorization edits are refused and real protected execution remains unavailable even with valid policy evidence.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.all_eight_operations_use_explicit_current_grants",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_all_eight_operations_use_explicit_current_grants",
+      "scenario_sha256": "e307ae8e6a2f4fe326407d6c42f1a46a52bc0664e54cacf724c2c815b4aaaa31",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "All eight registered operations deny before a grant and allow after it; an unknown operation denies.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. All eight registered operations deny before a grant and allow after it; an unknown operation denies.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.graph_run_job_log_and_checkpoint_retain_owner_entity_and_revision",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_graph_run_job_log_and_checkpoint_retain_owner_entity_and_revision",
+      "scenario_sha256": "25e730940980d43f5f80b50b2dbbe323098e2108db4aa18b032591312ddf5f21",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "All five resource kinds allow current owned discovery and deny another owner, a stale revision and a disabled graph parent.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. All five resource kinds allow current owned discovery and deny another owner, a stale revision and a disabled graph parent.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.revoked_queued_work_is_denied_at_node_and_resume",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_revoked_queued_work_is_denied_at_node_and_resume",
+      "scenario_sha256": "1ee223a3b2f9de592df62ebd3f497530a13e4ba560b9c1173adf9b07bc5ffa0d",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "A grant permits dispatch, then revocation denies node and resume checks.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. A grant permits dispatch, then revocation denies node and resume checks.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.graph_edit_and_parent_scope_change_invalidate_child_snapshots",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_graph_edit_and_parent_scope_change_invalidate_child_snapshots",
+      "scenario_sha256": "eefda44de9b1699f9025b18b1d2bb8255a97b08aab067e32da9d19e6548282db",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "Changing the persisted graph revision denies old graph and child requests; an exact new graph revision allows.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Changing the persisted graph revision denies old graph and child requests; an exact new graph revision allows.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.unknown_result_cannot_authorize_unsafe_retry",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_unknown_result_cannot_authorize_unsafe_retry",
+      "scenario_sha256": "193b4be257def7b908f04d6571d49dd7259595aa7aeeb42c8be98dd377df3e99",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "Retry permits only not-started or verified-no-effect outcomes; uncertain, partial, completed and unknown stages deny.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Retry permits only not-started or verified-no-effect outcomes; uncertain, partial, completed and unknown stages deny.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.workflow_run_permission_never_implies_financial_node_authority",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_workflow_run_permission_never_implies_financial_node_authority",
+      "scenario_sha256": "2b0faa614e40122d54585586b603ca9e8a33f019384776c8cfa683d8632b11f3",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "A valid workflow node check does not authorize a financial snapshot or invented financial authorization.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. A valid workflow node check does not authorize a financial snapshot or invented financial authorization.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.registered_agent_uses_same_workflow_scope_and_revocation",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_registered_agent_uses_same_workflow_scope_and_revocation",
+      "scenario_sha256": "ad292f3493ecd0802ad1e870101945f1b147a22a8ba3c97646df01f70c55b180",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "Human grants do not transfer to an agent; an explicit agent grant allows, and revocation denies resume.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Human grants do not transfer to an agent; an explicit agent grant allows, and revocation denies resume.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.resource_parent_entity_and_owner_cannot_be_laundered",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_resource_parent_entity_and_owner_cannot_be_laundered",
+      "scenario_sha256": "487a862e0c08c320b7ba341120e4de5fcd97a976894ebb9001fee3b9dfae0e85",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "expected_observation": "A changed intermediate resource owner and a boolean revision both deny.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. A changed intermediate resource owner and a boolean revision both deny.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-HTTP.anonymous_and_foreign_admin_cannot_read_private_authority",
+      "test": "tests.test_policy_http.PolicyHttpTests.test_anonymous_and_foreign_admin_cannot_read_private_authority",
+      "scenario_sha256": "8c36d2c5b899d5330060741382a49d3bdf75ca6e6c9f6a38d708068f16a0ac32",
+      "source_sha256": "6f9d6266ac3f6861be717a559d5d4af3ada6bfaa642a75ec918ccd76d477fcbb",
+      "expected_observation": "Anonymous reads return401; a foreign administrator with forged hints gets404 without evidence disclosure.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Anonymous reads return401; a foreign administrator with forged hints gets404 without evidence disclosure.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-HTTP.summary_is_current_private_and_does_not_claim_execution",
+      "test": "tests.test_policy_http.PolicyHttpTests.test_summary_is_current_private_and_does_not_claim_execution",
+      "scenario_sha256": "b29769d83227f100d7843be36a6c1bc38eb897ea5ae41bc2d841576b7748fcbf",
+      "source_sha256": "6f9d6266ac3f6861be717a559d5d4af3ada6bfaa642a75ec918ccd76d477fcbb",
+      "expected_observation": "An owned summary returns200/no-store, its exact current grant/materiality and financial execution unavailable.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. An owned summary returns200/no-store, its exact current grant/materiality and financial execution unavailable.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-HTTP.revocation_requires_csrf_and_applies_without_relogin",
+      "test": "tests.test_policy_http.PolicyHttpTests.test_revocation_requires_csrf_and_applies_without_relogin",
+      "scenario_sha256": "717dfe68c1909de5de2109664a906bffc82623aab030a89d00165d6e9a163441",
+      "source_sha256": "6f9d6266ac3f6861be717a559d5d4af3ada6bfaa642a75ec918ccd76d477fcbb",
+      "expected_observation": "Missing CSRF returns403; valid revocation returns200 and changes the same-session summary, with safe repeated withdrawal.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Missing CSRF returns403; valid revocation returns200 and changes the same-session summary, with safe repeated withdrawal.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-HTTP.http_cannot_create_root_authority_or_choose_agent_identity",
+      "test": "tests.test_policy_http.PolicyHttpTests.test_http_cannot_create_root_authority_or_choose_agent_identity",
+      "scenario_sha256": "eb4dd06b817bf24587379638d4e090547c6b173f888ff8dc83e02ad58de7e062",
+      "source_sha256": "6f9d6266ac3f6861be717a559d5d4af3ada6bfaa642a75ec918ccd76d477fcbb",
+      "expected_observation": "Root-style POST returns405, extra actor fields return400, and the original authority remains current.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. Root-style POST returns405, extra actor fields return400, and the original authority remains current.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-HTTP.delegation_is_narrowed_and_foreign_administrator_cannot_revoke",
+      "test": "tests.test_policy_http.PolicyHttpTests.test_delegation_is_narrowed_and_foreign_administrator_cannot_revoke",
+      "scenario_sha256": "7b59304a562a308c8cfcfeead6ca0d2aa34ff77b15c395a7a2ebab3d86bb3bf9",
+      "source_sha256": "6f9d6266ac3f6861be717a559d5d4af3ada6bfaa642a75ec918ccd76d477fcbb",
+      "expected_observation": "A narrower delegation returns201 with parent identity, excess materiality returns403 and a foreign administrator cannot revoke the root.",
+      "decision": "aligned",
+      "reason": "Reviewed persisted state mutations and exact positive/negative assertions against the independent requirement. A narrower delegation returns201 with parent identity, excess materiality returns403 and a foreign administrator cannot revoke the root.",
+      "reviewer": "Maipa semantic acceptance review; independent outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-OPERATOR.local_command_records_exact_root_and_retains_operator_revocation",
+      "test": "tests.test_policy_operator.PolicyOperatorTests.test_local_command_records_exact_root_and_retains_operator_revocation",
+      "source_sha256": "f8db76e44030067f7c1b0ec629067e26e7c734c28059e4705b22b01a0ad1c9d1",
+      "scenario_sha256": "e1defe3f3318f19c9ecd13054e869f6513a1b80990d0c2c56eb44e9432e71709",
+      "expected_observation": "A local command records the exact bounded root grant and authority reference without printing the reference; operator withdrawal preserves a revocation and both audit events.",
+      "decision": "aligned",
+      "reason": "Reviewed real call_command boundaries and independently asserted persisted values, empty-on-failure and audit history. A local command records the exact bounded root grant and authority reference without printing the reference; operator withdrawal preserves a revocation and both audit events.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-OPERATOR.local_command_rejects_missing_principal_or_invalid_bounds_without_records",
+      "test": "tests.test_policy_operator.PolicyOperatorTests.test_local_command_rejects_missing_principal_or_invalid_bounds_without_records",
+      "source_sha256": "f8db76e44030067f7c1b0ec629067e26e7c734c28059e4705b22b01a0ad1c9d1",
+      "scenario_sha256": "c07dfe98331045c1ce3f3c618a5b945ed10c87d6179439889b08f32ea7517b6f",
+      "expected_observation": "Missing principals, invalid amounts, absent provenance, unknown action, reversed validity and invalid currency all raise CommandError without creating grants.",
+      "decision": "aligned",
+      "reason": "Reviewed real call_command boundaries and independently asserted persisted values, empty-on-failure and audit history. Missing principals, invalid amounts, absent provenance, unknown action, reversed validity and invalid currency all raise CommandError without creating grants.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-WORKFLOW.financial_node_requires_separate_exact_approval_and_graph_edit_invalidates_it",
+      "test": "tests.test_workflow_authority.WorkflowAuthorityTests.test_financial_node_requires_separate_exact_approval_and_graph_edit_invalidates_it",
+      "source_sha256": "621281e5835665aa5e2ebc2d13cb80ba3921a65dbb5beb6e434a9a102e8a3e71",
+      "scenario_sha256": "119a552c5410c0c42839755d1060a2f2267761b931dbf8c3128899dfe8f9e15f",
+      "expected_observation": "A workflow grant alone denies a financial node; independent exact review and approval allow the policy check, and a changed persisted graph denies resume. Advancing the persisted resource revision alone also invalidates approval, even if the graph identifier is unchanged.",
+      "decision": "aligned",
+      "reason": "Reviewed the actual grant separation, initially absent attestations, exact approved check and persisted graph edit. The eight prior test bodies are byte-identical. This proves the policy contract, not actual Fancy Flow execution. Additional reviewed negative assertion advances only resource revision, supplies that current revision to the workflow checker and requires the old financial approval to deny. All previous test lines are unchanged.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-NONMONETARY.nonmonetary_protected_actions_require_independent_exact_authority_without_money",
+      "test": "tests.test_nonmonetary_authority.NonmonetaryAuthorityTests.test_nonmonetary_protected_actions_require_independent_exact_authority_without_money",
+      "source_sha256": "a9958878861a9631c924d1be833ec72159ce2e3b7243659b84d5e22e1e806d64",
+      "scenario_sha256": "6c1e36b294e2835fed56fdea78377bf4b2ff3d6d0273d7f71a73dabf50db8a3f",
+      "expected_observation": "Period reopening, vendor detail changes, filing submission and report release policy checks require independent exact authority, allow explicit nonmonetary scope only after review/approval, and deny changed payloads.",
+      "decision": "aligned",
+      "reason": "Reviewed all four independently protected nonmonetary actions, initially missing approval, exact approved result and changed payload, plus missing monetary scope rejections. No actual finance dispatch is claimed.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P03-NONMONETARY.monetary_actions_cannot_omit_limits_or_invent_currency_for_nonmonetary_actions",
+      "test": "tests.test_nonmonetary_authority.NonmonetaryAuthorityTests.test_monetary_actions_cannot_omit_limits_or_invent_currency_for_nonmonetary_actions",
+      "source_sha256": "a9958878861a9631c924d1be833ec72159ce2e3b7243659b84d5e22e1e806d64",
+      "scenario_sha256": "08d228893ad6404a41a2df462220b39f729501c3d1d7aa07a98478dab70eaccd",
+      "expected_observation": "Journal posting/payment grants cannot omit materiality and currency; a nonmonetary protected action cannot invent monetary scope.",
+      "decision": "aligned",
+      "reason": "Reviewed all four independently protected nonmonetary actions, initially missing approval, exact approved result and changed payload, plus missing monetary scope rejections. No actual finance dispatch is claimed.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
     }
   ]
 }

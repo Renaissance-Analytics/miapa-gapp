@@ -338,6 +338,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P03-CLIENT-AUTHORITY",
+      "risk": "The client could widen identity, fabricate authority readiness or retry an uncertain mutation.",
+      "scenarios": [
+        {
+          "id": "P03-CLIENT-AUTHORITY.1",
+          "kind": "positive",
+          "given": "Synthetic authority responses and captured request options.",
+          "when": "authority reads preserve exact decimal evidence and current server scope",
+          "then": "The exact scoped summary and decimal evidence survive a private bounded same-origin read.",
+          "tests": [
+            "authority.test.mjs#authority reads preserve exact decimal evidence and current server scope"
+          ]
+        },
+        {
+          "id": "P03-CLIENT-AUTHORITY.2",
+          "kind": "negative",
+          "given": "Synthetic authority responses and captured request options.",
+          "when": "authority rejects foreign scope malformed evidence and unexpected execution readiness",
+          "then": "Foreign entity identity, malformed grants, invented execution readiness and untrusted paths stay unavailable.",
+          "tests": [
+            "authority.test.mjs#authority rejects foreign scope malformed evidence and unexpected execution readiness"
+          ]
+        },
+        {
+          "id": "P03-CLIENT-AUTHORITY.3",
+          "kind": "positive",
+          "given": "Synthetic authority responses and captured request options.",
+          "when": "authority revocation sends only the reason through fresh csrf and does not invent success",
+          "then": "Revocation sends only the reason with a fresh valid CSRF token and accepts only the exact revoked result.",
+          "tests": [
+            "authority.test.mjs#authority revocation sends only the reason through fresh csrf and does not invent success"
+          ]
+        },
+        {
+          "id": "P03-CLIENT-AUTHORITY.4",
+          "kind": "negative",
+          "given": "Synthetic authority responses and captured request options.",
+          "when": "authority errors are fixed and uncertain mutation responses require reload",
+          "then": "Server failures become fixed states; uncertain mutation bodies and invalid CSRF never become success.",
+          "tests": [
+            "authority.test.mjs#authority errors are fixed and uncertain mutation responses require reload"
+          ]
+        },
+        {
+          "id": "P03-CLIENT-AUTHORITY.5",
+          "kind": "positive",
+          "given": "Synthetic authority responses and captured request options.",
+          "when": "authority pagination binds the exact server cursor and rejects invented paths",
+          "then": "Pagination sends the exact valid cursor and never requests an invented path.",
+          "tests": [
+            "authority.test.mjs#authority pagination binds the exact server cursor and rejects invented paths"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -5,6 +5,7 @@ from .agent_accounts import views as agent_accounts
 from .workspace import views as workspace
 from .workspace import setup_views
 from .intake import views as intake
+from .policies import views as policies
 
 urlpatterns = [
     path("", development.shell, name="development-shell"),
@@ -17,6 +18,9 @@ urlpatterns = [
     path("api/workspace/", workspace.workspace_state, name="workspace"),
     path('api/setup/', setup_views.first_run, name='first-run'),
     path('api/onboarding/', setup_views.account_setup, name='account-onboarding'),
+    path('api/policies/entities/<uuid:entity_id>/', policies.entity_authority, name='entity-authority'),
+    path('api/policies/grants/<uuid:grant_id>/revoke/', policies.revoke_grant, name='authority-revoke'),
+    path('api/policies/grants/<uuid:grant_id>/delegate/', policies.delegate_grant, name='authority-delegate'),
     path("api/intake/engagements/", intake.engagements, name="intake-engagements"),
     path("api/intake/engagements/<uuid:engagement_id>/entities/", intake.entities, name="intake-entities"),
     path("api/intake/entities/<uuid:entity_id>/", intake.entity, name="intake-entity"),

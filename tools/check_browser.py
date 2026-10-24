@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "first_run", "setup_chat", "setup_isolation", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -85,11 +85,27 @@ def main():
         application = get_wsgi_application()
         failed_initial_intake = False
         enable_intake_failure = False
+        seeded_authority = False
 
         def first_intake_failure(environ, start_response):
             # One deliberate failure in this isolated fixture only. Every retry
             # reaches actual Django/auth/database; no success response is faked.
-            nonlocal failed_initial_intake
+            nonlocal failed_initial_intake, seeded_authority
+            if (enable_intake_failure and not seeded_authority and environ.get('REQUEST_METHOD') == 'GET'
+                    and environ.get('PATH_INFO', '').startswith('/api/policies/entities/')):
+                # Trusted operator fixture record only, never a production route.
+                # The response still comes from actual Django/auth/database policy.
+                from datetime import timedelta
+                from django.utils import timezone
+                from backend.maipa.intake.models import Entity
+                from backend.maipa.policies.authority import provision_root
+                entity = Entity.objects.filter(name='Synthetic browser entity', engagement__owner=owner).first()
+                if entity is not None and environ['PATH_INFO'] == f'/api/policies/entities/{entity.pk}/':
+                    now = timezone.now()
+                    provision_root(entity_id=entity.pk, subject_id=owner.pk, action='ledger.post', duty='approver',
+                        starts_at=now-timedelta(minutes=5), expires_at=now+timedelta(days=1),
+                        limit='500.0000', currency='USD', evidence='synthetic-browser-authority')
+                    seeded_authority = True
             if (enable_intake_failure and not failed_initial_intake and environ.get("PATH_INFO") == "/api/intake/engagements/"
                     and environ.get("REQUEST_METHOD") == "GET"):
                 failed_initial_intake = True

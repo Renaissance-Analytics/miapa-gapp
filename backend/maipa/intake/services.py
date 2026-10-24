@@ -7,6 +7,8 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from backend.maipa.workspace.policy import membership
+from backend.maipa.policies.access import intake_member
+from backend.maipa.policies.authority import Denied
 from .models import Conclusion, Engagement, Entity, FactDependency, FactRevision
 from .schema import InvalidFact, assertion, fields, require, text
 
@@ -25,12 +27,10 @@ class RevisionConflict(Exception):
 
 
 def scope(user, write=False):
-    member = membership(user)
-    if member is None:
-        raise ScopeDenied('workspace_access_denied')
-    if write and member.role not in ('administrator', 'preparer'):
-        raise ScopeDenied()
-    return member
+    try:
+        return intake_member(user, write)
+    except Denied:
+        raise ScopeDenied('workspace_access_denied' if membership(user) is None else 'permission_denied') from None
 
 
 def owned_engagements(user, write=False):

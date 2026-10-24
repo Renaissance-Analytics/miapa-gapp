@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "4d29d6702bd86d7dd0c10ddfa17643913144fa9bf7ff58367f27ef61bacd0c93",
-    "tools/check_browser.py": "0f0b30d5522709de8784778e5421ca2147541b568d560b8d948408a762f6d04c",
+    "tools/browser.mjs": "660b1c71ae9e707f560b9ebcb67bce0333ac7ea628f9f4e8dd087fbdaa9f1925",
+    "tools/check_browser.py": "92745855e5aec5a0535b0563b07d64395db44e617454d67bb7a84de489fcbd6b",
     "tools/browser-profile.mjs": "2b9359117968655cf8b6b7d4818a947cdc9f2742ec7aa95ccd98e763e3bc524d"
   },
   "cases": [
@@ -84,6 +84,11 @@
       "expected": "Real form correction preserves both old/new values and evidence in history. A separate authorized server write advances the entity; stale form save gets fixed conflict and disables retries. Server retains the prior legal form; explicit reload shows the current revision."
     },
     {
+      "id": "client-authority-and-revocation",
+      "kind": "positive",
+      "expected": "Actual pointer opens scoped authority provisioned only by the isolated trusted operator fixture. The UI and actual Django summary preserve its exact500.0000USD limit and unavailable execution. Missing CSRF denies withdrawal; native reason entry and pointer revocation persist an inactive grant, revocation time and incremented policy version without relogin. Facts remain unchanged. Native selection of a different entity shows honest absent authority and no reference from the first entity."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -91,7 +96,7 @@
     {
       "id": "intake-user-isolation",
       "kind": "negative",
-      "expected": "After real logout and another user password login, forged role/install hints return empty engagement list; first-user entity/history are404 and its private values/evidence are absent from the rendered UI."
+      "expected": "After real logout and another user password login, forged role/install hints return empty engagement list; first-user entity/history are404 and its private values/evidence are absent from the rendered UI. The first user authority summary also returns404."
     },
     {
       "id": "no-uncaught-exceptions",
@@ -104,7 +109,7 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Fifteen actual browser cases are required. Complete accessibility, detailed finance/entity policy, verified evidence ingestion, live providers/recovery and Q04-Q06 remain open.",
+  "limits": "Twenty actual browser cases are required. P03 verifies reusable server authority and the current lifecycle UI; actual financial operations, Fancy Flow execution/bridge/agent integration, live providers, complete accessibility and Q04-Q06 remain open.",
   "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
   "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
   "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes.",
@@ -114,5 +119,6 @@
   "p02_recovery_followthrough": "Reviewed the observed-red503/no-second-request defect and the application correction. Separate list attempt/pending state reruns only explicit list refresh, discards stale responses and retains a currently authorized selected ID. Profile-only save/conflict refresh does not reset the list. Busy controls prevent list/create/selection races. Extended actual browser acceptance verifies an independently created second entity appears and remains selected after another network-observed refresh; it does not accept a transient old profile as success because select value and settled busy state are checked together. All14previous cases remain required.",
   "onboarding_review": "Independent empty-install browser runs before fixture preparer/viewer seeding, through actual Django/SQLite/password/session/CSRF and published Fancy controls. Browser process/profile cleanup is required for both runs; identity and exact union of cases are checked. Original 15 scenarios and deliberate initial-list503->Django200 recovery retained. Shared native fill/select helpers are moved unchanged in behavior. No credentials, cookie or code bytes enter success report.",
   "readiness_review": "Hosted push40119727113 failed during browser_launch with devtools_file after all188tests/build checks passed; PR40119729994 succeeded. Startup formerly assumed file existence meant complete contents. The runner now polls under the same deadline until a validated full port/browser UUID record exists; malformed/partial records cannot select an endpoint. An actual partial-file-write regression test covers readiness and refusal; original ownership, scoped debugger, process cleanup and all19 browser cases are unchanged. No automatic retry of failed app scenarios.",
-  "readiness_cleanup_review": "The added partial-write test now follows the existing physical-directory identity cleanup guard instead of comparing path strings, preserving Windows short-name/case aliases without weakening ownership or deleting a different directory. All endpoint assertions and19browser cases retained. Hosted fef016f runs stopped at frontend, with155backend tests green; those diagnostic records remain."
+  "readiness_cleanup_review": "The added partial-write test now follows the existing physical-directory identity cleanup guard instead of comparing path strings, preserving Windows short-name/case aliases without weakening ownership or deleting a different directory. All endpoint assertions and19browser cases retained. Hosted fef016f runs stopped at frontend, with155backend tests green; those diagnostic records remain.",
+  "p03_review": "Reviewed every added native input, pointer action, current Django response assertion and scope switch. The isolated fixture provisions one explicit synthetic grant in its owned temporary database and delegates all responses to actual Django; production has no fixture route or seeded authority. All nineteen previous cases remain in their original relative order. Intake-user-isolation now additionally asserts authority404. Browser phases remain an explicit sanitized allowlist. No fake successful response, app-state injection or waived case. Existing cleanup and first-run independence remain unchanged."
 }
