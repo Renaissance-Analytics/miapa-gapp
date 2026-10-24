@@ -49,3 +49,21 @@ The frontend lock and all existing versions/integrities are unchanged.
 PHP's Packagist release is
 unrelated. No standalone Uvicorn, psycopg, Playwright or rejected infrastructure
 proposal was adopted. No packages were patched, vendored or forked.
+
+P04 adds published `fancy-screens`0.7.1 and `agent-integrations`0.47.1,
+their shared `fancy-doc-commons`0.4.0 / `fancy-auto-common`0.2.0 closure,
+and the screen package's `zustand`5.0.16 peer. All five tarballs match primary
+npm registry SHA512 identities; all 24/330/9/18/52 installed published files,
+respectively, match their archives. No install lifecycle scripts ran. The
+registry/API contracts and relevant screen/MCP/undo runtime entries were reviewed
+before adoption. No optional unrelated surface peers were installed. Existing
+166 lock entries retain their versions, URLs and integrities; npm only reclassifies
+the already-installed React types/csstype from dev to devOptional for the peer
+closure. The resulting lock has 171 non-root entries. Public npm audit reports
+zero known advisories, which does not establish complete package safety.
+
+The app imports the scoped MCP and screens bridge entries. It does not import
+the broad agent-integrations root, open a relay, or grant filesystem/network
+capabilities. Only the existing approved React/Fancy peers execute. The
+host-side schema and per-mount tool checks are described in
+[persistent-workspace.md](persistent-workspace.md).

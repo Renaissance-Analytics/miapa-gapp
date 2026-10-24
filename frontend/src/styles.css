@@ -58,6 +58,10 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .connection { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
 .connection > span { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; }
 .work-content { flex: 1; padding: 20px 32px; overflow: auto; }
+.layout-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 11px; margin-bottom: 14px; }
+.work-view-controls { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 18px; }
+.work-view-controls button[aria-pressed="true"] { background: var(--surface); color: var(--accent); }
+.work-view-stack { display: grid; gap: 18px; }
 .welcome-card { border-radius: 14px; max-width: 900px; box-shadow: 0 3px 12px #00000003; }
 .welcome-card [data-react-fancy-card-body] { padding: 34px; }
 .welcome-card h3 { font-size: clamp(24px, 2.2vw, 34px); font-weight: 500; letter-spacing: -1.1px; margin: 13px 0 17px; line-height: 1.25; }

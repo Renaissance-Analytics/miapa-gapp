@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "660b1c71ae9e707f560b9ebcb67bce0333ac7ea628f9f4e8dd087fbdaa9f1925",
-    "tools/check_browser.py": "92745855e5aec5a0535b0563b07d64395db44e617454d67bb7a84de489fcbd6b",
+    "tools/browser.mjs": "45d5ffe6b6293a7698d4a23aec0d4808753671a9533cb2d3844ad453a40ee4a3",
+    "tools/check_browser.py": "9f4173daf65f7afb33b5cb52f6095c403bf5624a6c67a79c5f427ac54e0161b8",
     "tools/browser-profile.mjs": "2b9359117968655cf8b6b7d4818a947cdc9f2742ec7aa95ccd98e763e3bc524d"
   },
   "cases": [
@@ -74,6 +74,16 @@
       "expected": "Isolated WSGI fixture returns one deliberate503 for the initial intake list. Actual UI shows fixed failure, real pointer Reload facts triggers a separately observed200response from actual Django/auth/database, and clears the error. No success response or app state is faked. A separate authorized second-entity creation appears after actual list reload. Native selection moves to that entity; another observed list request, settled busy state, exact select value and profile identity prove reload retains it. Switching back preserves the original entity and all previous fact/history tests."
     },
     {
+      "id": "persistent-chat-work-views",
+      "kind": "positive",
+      "expected": "Actual native typing leaves an unsent setup reply. Pointer navigation between published guide/facts screens and mobile panels preserves the exact conversation/composer DOM nodes and value. Facts remain reachable through the real authorized server."
+    },
+    {
+      "id": "layout-gestures-conflict-recovery",
+      "kind": "negative",
+      "expected": "Actual keyboard and pointer gestures persist 3300 then approximately3700 basis points with exact rendered/server agreement. A separate authorized concurrent write saves3500. Stale native gesture gets conflict, disables resize and preserves the winner; explicit pointer reload restores35percent."
+    },
+    {
       "id": "intake-facts-and-evidence",
       "kind": "positive",
       "expected": "Real native input/pointer/native-select keyboard actions create a synthetic engagement/entity and record evidenced known false plus LLC. UI shows No/LLC while tax classification and elections stay Unknown."
@@ -99,6 +109,16 @@
       "expected": "After real logout and another user password login, forged role/install hints return empty engagement list; first-user entity/history are404 and its private values/evidence are absent from the rendered UI. The first user authority summary also returns404."
     },
     {
+      "id": "layout-user-isolation-and-login",
+      "kind": "negative",
+      "expected": "Viewer login starts at its independent28percent, native End persists45percent, signed-out layout resets28percent, and real preparer login plus page reload restores its own35percent."
+    },
+    {
+      "id": "layout-fresh-browser-restore",
+      "kind": "positive",
+      "expected": "A third native browser process uses a fresh owned profile with no prior cookie/storage. Real password login restores the same private35percent server layout. Its own exception/cleanup evidence is independently required."
+    },
+    {
       "id": "no-uncaught-exceptions",
       "kind": "positive",
       "expected": "No uncaught JavaScript exceptions during the actual app interactions."
@@ -109,7 +129,7 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Twenty actual browser cases are required. P03 verifies reusable server authority and the current lifecycle UI; actual financial operations, Fancy Flow execution/bridge/agent integration, live providers, complete accessibility and Q04-Q06 remain open.",
+  "limits": "Twenty-four actual native-browser cases are required. General live ACP conversations, provider provisioning, durable custom-view authoring, financial execution, Fancy Flow integration and Q04-Q06 remain open.",
   "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
   "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
   "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes.",
@@ -120,5 +140,7 @@
   "onboarding_review": "Independent empty-install browser runs before fixture preparer/viewer seeding, through actual Django/SQLite/password/session/CSRF and published Fancy controls. Browser process/profile cleanup is required for both runs; identity and exact union of cases are checked. Original 15 scenarios and deliberate initial-list503->Django200 recovery retained. Shared native fill/select helpers are moved unchanged in behavior. No credentials, cookie or code bytes enter success report.",
   "readiness_review": "Hosted push40119727113 failed during browser_launch with devtools_file after all188tests/build checks passed; PR40119729994 succeeded. Startup formerly assumed file existence meant complete contents. The runner now polls under the same deadline until a validated full port/browser UUID record exists; malformed/partial records cannot select an endpoint. An actual partial-file-write regression test covers readiness and refusal; original ownership, scoped debugger, process cleanup and all19 browser cases are unchanged. No automatic retry of failed app scenarios.",
   "readiness_cleanup_review": "The added partial-write test now follows the existing physical-directory identity cleanup guard instead of comparing path strings, preserving Windows short-name/case aliases without weakening ownership or deleting a different directory. All endpoint assertions and19browser cases retained. Hosted fef016f runs stopped at frontend, with155backend tests green; those diagnostic records remain.",
-  "p03_review": "Reviewed every added native input, pointer action, current Django response assertion and scope switch. The isolated fixture provisions one explicit synthetic grant in its owned temporary database and delegates all responses to actual Django; production has no fixture route or seeded authority. All nineteen previous cases remain in their original relative order. Intake-user-isolation now additionally asserts authority404. Browser phases remain an explicit sanitized allowlist. No fake successful response, app-state injection or waived case. Existing cleanup and first-run independence remain unchanged."
+  "p03_review": "Reviewed every added native input, pointer action, current Django response assertion and scope switch. The isolated fixture provisions one explicit synthetic grant in its owned temporary database and delegates all responses to actual Django; production has no fixture route or seeded authority. All nineteen previous cases remain in their original relative order. Intake-user-isolation now additionally asserts authority404. Browser phases remain an explicit sanitized allowlist. No fake successful response, app-state injection or waived case. Existing cleanup and first-run independence remain unchanged.",
+  "p04_review": "Reviewed all four new actual-browser scenarios against the independent P04 acceptance. All twenty previous cases retain relative order and assertions. No success response, session, React state or package is faked. DOM references are fixture observations only; typing, pointer, keyboard and media transitions operate the real app. Saved widths are verified through actual Django/SQLite; a separate real authorized API write establishes the conflict. A third owned browser proves cross-profile server persistence. All three processes require no uncaught exceptions, exact build/browser identity and owned cleanup before aggregation. New diagnostic phases remain a fixed public-safe allowlist. General live model acceptance is not claimed.",
+  "p04_pointer_review": "The first full development candidate passed242tests/119static but failed final pointer persistence with native server width3300/revision1 unchanged; cleanup passed. The corrected fixture uses an integer point inside the one-pixel separator, proves actual elementFromPoint hit, moves the real pointer there, and supplies pressed left-button state throughout the drag. No app event/state or backend success is fabricated. All24actual browser cases then pass. Fixed numeric-only synthetic pointer diagnostics remain local failure context; public report still contains only an allowlisted phase/cleanup. Server revision/value and conflict assertions are unchanged; full candidate CI remains required."
 }

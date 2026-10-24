@@ -16,12 +16,17 @@
     "test": "tsc -p tsconfig.test.json && node --test tests/*.test.mjs"
   },
   "dependencies": {
+    "@particle-academy/agent-integrations": "0.47.1",
     "@particle-academy/fancy-app-update": "0.7.0",
+    "@particle-academy/fancy-auto-common": "0.2.0",
+    "@particle-academy/fancy-doc-commons": "0.4.0",
+    "@particle-academy/fancy-screens": "0.7.1",
     "@particle-academy/fancy-whats-new": "0.1.0",
     "@particle-academy/react-fancy": "5.60.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "tailwindcss": "4.3.3"
+    "tailwindcss": "4.3.3",
+    "zustand": "5.0.16"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

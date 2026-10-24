@@ -400,6 +400,96 @@
       "decision": "aligned",
       "reason": "Reviewed actual returned states, exact request scope/options and malformed boundaries; transport fixtures do not prove browser behavior. Pagination sends the exact valid cursor and never requests an invented path.",
       "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT-CLIENT.read",
+      "test": "layout.test.mjs#saved layout reads are bounded same-origin and bound to the expected user",
+      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "scenario_sha256": "9a5082a4601fe3f3b26354f698b81895f6de7d5537533d7cebce954db5d111af",
+      "expected_observation": "Accept only a bounded exact valid snapshot from the same-origin current principal",
+      "decision": "aligned",
+      "reason": "Checks credentials, redirect policy, deadline and exact parsed snapshot. Wrong owner, fields, bounds, types, MIME, failures and oversized responses cannot produce ready.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT-CLIENT.write",
+      "test": "layout.test.mjs#layout writes use fresh CSRF identity and exact revision and verify the acknowledged change",
+      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "scenario_sha256": "41ae7bdae21cc447f17535b9620b8a142c92018e1113ffef43ead9685e4b11e4",
+      "expected_observation": "Use fresh CSRF, scoped identity and expected revision and accept only the exact acknowledged next snapshot",
+      "decision": "aligned",
+      "reason": "Captures both actual requests and exact mutation body. Wrong owner, layout ID, revision or saved width cannot be accepted as success; a conflict is explicit.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT-CLIENT.uncertain",
+      "test": "layout.test.mjs#layout gesture state saves once and unknown outcome requires an explicit reread",
+      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "scenario_sha256": "880171021a2f55812af7f50af3c42567e3c8f1b23e81feca27cc63db5a2d2820",
+      "expected_observation": "Make only one mutation and preserve the unsaved width with unavailable state until explicit reread",
+      "decision": "aligned",
+      "reason": "The production controller is exercised with a lost transport acknowledgement; the count proves no blind retry and reread restores server state.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT-CLIENT.identity",
+      "test": "layout.test.mjs#stale loads and disposed identities cannot publish another users saved width",
+      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "scenario_sha256": "bedf96276bd0d9ae6b682f534873e22b33d677552e56eb5557a08f91ec89a4d9",
+      "expected_observation": "Ignore stale publications and never display the other principals width",
+      "decision": "aligned",
+      "reason": "Deferred promises control response order. Asserts the winning width, no post-disposal notifications and failure for a cookie-principal mismatch.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT-CLIENT.inflight",
+      "test": "layout.test.mjs#a pending commit locks further writes and stale acknowledgements after reload are ignored",
+      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "scenario_sha256": "22f769b55c01c9bb8d74d386116d7fa17210940df9375fde3a75a8d04943095b",
+      "expected_observation": "Lock overlapping writes and ignore the stale mutation response",
+      "decision": "aligned",
+      "reason": "Counts real client calls while a mutation promise is pending and checks the final server-read width survives a late otherwise-valid acknowledgement.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-WORK-VIEWS.composition",
+      "test": "user-panel.test.mjs#published screen bridge creates navigates updates and removes bounded work views",
+      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "scenario_sha256": "a46c2bfa0f07925f9aa51202b25a8052a67d26350b99dede65a3f9c7b2aed364",
+      "expected_observation": "The controlled active view and schema change through actual package tools and the real panel renders a Fancy screen",
+      "decision": "aligned",
+      "reason": "Calls the real published bridge rather than a fake dispatcher; compares active ID and full schema, then renders the product component and verifies Fancy screen markup.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-WORK-VIEWS.validation",
+      "test": "user-panel.test.mjs#schema validation rejects arbitrary code bindings unsafe props and unbounded documents",
+      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "scenario_sha256": "622c0dd1121262fd646063d9f9af4a8290f3e7f62d2ecee47984fb3db6fa57f7",
+      "expected_observation": "Reject the document before rendering while accepting a registered bounded composition",
+      "decision": "aligned",
+      "reason": "Tests code/URL surfaces, dangerous props, identity mass assignment, large strings, duplicate handles and duplicate fact surfaces; the valid document is compared exactly.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-WORK-VIEWS.isolation",
+      "test": "user-panel.test.mjs#invalid bridge changes preserve the current catalog and never gain another principals views",
+      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "scenario_sha256": "f8aa9125aa60f12b4257780f0176550d3089b1e8532315e6f70f9148251b3104",
+      "expected_observation": "Invalid operations preserve the complete catalog, other users cannot enumerate or select the view, and disposed tools are withdrawn",
+      "decision": "aligned",
+      "reason": "Compares the full before/after state after every rejection and checks the other instance remains at its two builtins; old-session calls must reject after disposal. Added direct checks that published undo/history cannot select a foreign agent identity, unknown owner arguments are refused, and disposal withdraws all tools including the shared undo tools. Security review adds own JSON __proto__ and constructor argument names: neither is a declared tool property, so both must return isError and preserve state. This observed red catches inherited Object.prototype membership checks rather than an authorization bypass.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-WORK-VIEWS.bounds",
+      "test": "user-panel.test.mjs#accepted schema is copied and view quotas and reserved builtins remain enforced",
+      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "scenario_sha256": "bfa0ca7f801bbe8c941b2122fe085ed3f8921094675928bc3539d3c0b7fa09ef",
+      "expected_observation": "The accepted schema remains unchanged and the rejected ninth view changes no state",
+      "decision": "aligned",
+      "reason": "Mutates the original nested note, fills all six generated slots, and compares the full catalog after overflow. Builtin protection is also exercised by the isolation case.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

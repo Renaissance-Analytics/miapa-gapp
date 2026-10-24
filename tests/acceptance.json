@@ -1496,6 +1496,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P04-LAYOUT",
+      "risk": "Browser-only or unscoped layout writes can lose preferences, cross account boundaries or overwrite a concurrent saved gesture.",
+      "scenarios": [
+        {
+          "id": "P04-LAYOUT.durable",
+          "kind": "positive",
+          "given": "An active preparer with an unsaved default layout",
+          "when": "Save 33.75 percent and sign out, then open an independent authenticated session",
+          "then": "The same private layout identity returns revision one and 3375 basis points without cache",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_personal_width_survives_logout_and_an_independent_session"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.isolation",
+          "kind": "negative",
+          "given": "A saved owner layout and a viewer cookie in the same tab",
+          "when": "Submit the old layout identity, then save the viewers own layout",
+          "then": "Reject the stale identity without changing either layout or the viewers role",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_other_user_and_old_tab_cannot_replace_each_others_layout"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.concurrency",
+          "kind": "negative",
+          "given": "Two gestures refer to the same server revision",
+          "when": "Save the maximum width, replay the old revision, then reread and save the minimum",
+          "then": "Only the first write wins until reread and the second accepted write has revision two",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_revision_conflict_preserves_the_winner_and_requires_reread"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.validation",
+          "kind": "negative",
+          "given": "A known unchanged layout",
+          "when": "Submit out-of-range, noninteger widths, invalid revisions or owner/role/install hints",
+          "then": "Every invalid request is rejected and the exact saved layout remains unchanged",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_invalid_widths_identity_hints_and_revision_types_do_not_write"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.json",
+          "kind": "negative",
+          "given": "A known unchanged layout",
+          "when": "Submit malformed duplicate-key nonfinite oversized JSON or omit the layout identity",
+          "then": "Reject invalid bodies or mismatched identity without mutating the saved snapshot",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_strict_bounded_json_and_missing_identity_never_update_layout"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.access",
+          "kind": "negative",
+          "given": "An active session with a layout",
+          "when": "Write without CSRF or from a foreign origin, revoke membership, or use an unsupported method",
+          "then": "CSRF and membership deny reads or writes immediately and unsupported methods cannot mutate layout",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_live_membership_authentication_csrf_and_method_guards_apply"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -1,12 +1,17 @@
 {
   "schema": 1,
-  "review": "Django exception and verified published Fancy starter/Prism closure; changes require renewed semantic and supply-chain review.",
+  "review": "Explicit Django exception and reviewed published Fancy/Prism closure, including P04 bounded screen/MCP composition and declared Zustand peer; versions/integrities verified without install scripts. Changes require renewed review.",
   "inputs": {
     "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
-    "frontend/package.json": "23f9a7285f475628745e6e2b8522dddd0ab11d9b41e34e3c5edeb694837c552e",
-    "frontend/package-lock.json": "e04829d715e540caeaa7201f05e14c82443fe91471902db66b00b6c4d2c791fc",
+    "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
+    "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
     "backend/agent/package.json": "983cc7ad80f8b1781c91bbb01a72094ec61c2e2934971dfa116cd9fa3ed40ec5",
     "backend/agent/package-lock.json": "ee997a00c85bd5ca9218487598aca03abd301003a0c770ad943ed2649545701c"
   },
-  "python": {"django": "5.2.18", "asgiref": "3.13.0", "sqlparse": "0.6.0", "tzdata": "2026.5"}
+  "python": {
+    "django": "5.2.18",
+    "asgiref": "3.13.0",
+    "sqlparse": "0.6.0",
+    "tzdata": "2026.5"
+  }
 }

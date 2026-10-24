@@ -57,3 +57,18 @@ class AccountOnboarding(models.Model):
 
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_setup_revision')]
+
+
+class WorkspaceLayout(models.Model):
+    """Personal presentation only; its identity binds writes across cookie changes."""
+    identity = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    installation = models.ForeignKey(Installation, on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    split_basis_points = models.PositiveSmallIntegerField(default=2800)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_layout_revision'),
+            models.CheckConstraint(condition=models.Q(split_basis_points__gte=2200, split_basis_points__lte=4500), name='workspace_layout_bounds'),
+        ]
