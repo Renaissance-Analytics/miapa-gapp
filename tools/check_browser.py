@@ -11,6 +11,26 @@ import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 ROOT = Path(__file__).resolve().parents[1]
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
+                  "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
+                  "authenticated_scope", "transport_csrf", "browser_exceptions", "cleanup"}
+
+
+class BrowserFailure(Exception):
+    def __init__(self, evidence):
+        self.evidence = evidence
+
+
+def browser_failure_evidence(value):
+    valid = isinstance(value, dict) and isinstance(value.get("reason"), str) and value["reason"] in BROWSER_PHASES
+    return {"checks": 0, "reason": value["reason"] if valid else "browser_process",
+            "cleanup": valid and value.get("cleanup") is True}
+
+
+def save_result(value):
+    target = ROOT / "artifacts/ci/browser-result.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(value), encoding="utf-8")
 
 
 class QuietHandler(WSGIRequestHandler):
@@ -71,7 +91,11 @@ def main():
                 artifact = ROOT / "artifacts/ci/browser-failure.log"
                 artifact.parent.mkdir(parents=True, exist_ok=True)
                 artifact.write_text(stderr, encoding="utf-8")
-                raise ValueError("Browser assertions or cleanup failed")
+                try:
+                    failure = json.loads(stdout)
+                except ValueError:
+                    failure = None
+                raise BrowserFailure(browser_failure_evidence(failure))
             evidence = json.loads(stdout)
         finally:
             server.shutdown()
@@ -80,12 +104,15 @@ def main():
             connections.close_all()
         if thread.is_alive():
             raise ValueError("Fixture cleanup failed")
+        save_result(evidence)
         print(json.dumps(evidence))
 
 
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        print("Browser acceptance or prerequisite FAIL", file=sys.stderr)
+    except Exception as error:
+        evidence = error.evidence if isinstance(error, BrowserFailure) else browser_failure_evidence(None)
+        save_result(evidence)
+        print(json.dumps(evidence))
         raise SystemExit(1)

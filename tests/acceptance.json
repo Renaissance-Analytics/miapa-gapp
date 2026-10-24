@@ -479,6 +479,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-BROWSER-REPORT",
+      "risk": "Hosted diagnostics could leak child paths/cookies or mistake malformed cleanup evidence for verified cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-REPORT.positive",
+          "kind": "positive",
+          "given": "Child failure metadata containing a fixed stage code or arbitrary diagnostic fields",
+          "when": "Create public-safe failure evidence",
+          "then": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-REPORT.negative",
+          "kind": "negative",
+          "given": "Child failure metadata containing a fixed stage code or arbitrary diagnostic fields",
+          "when": "Create public-safe failure evidence",
+          "then": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified"
+          ]
+        }
+      ]
     }
   ]
 }

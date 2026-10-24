@@ -160,6 +160,36 @@
       "decision": "aligned",
       "reason": "Each invalid fixture must throw the expected diagnostic. The duplicate-ID pair has otherwise valid labels/cards, so duplicate detection cannot pass accidentally through a missing-label failure. No expected outcome was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.positive",
+      "test": "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
+      "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.positive",
+      "test": "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory",
+      "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.negative",
+      "test": "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name",
+      "scenario_sha256": "be6b76702496764787dc0accc91f89eee8d1950edc6c723d8ab212441d14b6f1",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "A different physical parent or directory without the owned fixture prefix is rejected",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

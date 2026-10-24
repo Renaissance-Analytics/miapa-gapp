@@ -2,22 +2,29 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, dirname, basename } from "node:path";
+import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { ownedProfileRoot } from "./browser-profile.mjs";
+
+let phase = "fixture_input", failedPhase, cleanupVerified = false;
+process.on("uncaughtException", () => {
+  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified }));
+  process.exitCode = 1;
+});
 
 let input = "";
 for await (const chunk of process.stdin) input += chunk;
 const fixture = JSON.parse(input);
 assert.match(fixture.origin, /^http:\/\/127\.0\.0\.1:\d+$/);
 assert.match(fixture.build_id, /^[0-9a-f]{64}$/);
+phase = "browser_binary";
 const binary = ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"].find(existsSync);
 assert.ok(binary, "Native browser prerequisite");
-const parent = realpathSync(fixture.profile_root);
-assert.equal(dirname(parent), realpathSync(tmpdir()));
-assert.match(basename(parent), /^maipa-browser-fixture-[a-z0-9_-]+$/);
+phase = "profile_parent";
+const parent = ownedProfileRoot(fixture.profile_root);
 const profile = mkdtempSync(join(parent, "maipa-ci-browser-"));
-assert.equal(dirname(realpathSync(profile)), parent);
+assert.equal(dirname(realpathSync.native(profile)), parent);
+phase = "browser_launch";
 const child = spawn(binary, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking",
   "--disable-extensions", "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"],
   { windowsHide: true, stdio: "ignore" });
@@ -68,6 +75,7 @@ try {
   assert.ok(+port > 0 && +port < 65536);
   assert.match(browserPath, /^\/devtools\/browser\/[a-zA-Z0-9-]+$/);
   debugOrigin = `http://127.0.0.1:${port}`;
+  phase = "debug_endpoint";
   const version = await (await fetch(`${debugOrigin}/json/version`, { signal: AbortSignal.timeout(5000) })).json();
   assert.match(version.Browser, /^(?:HeadlessChrome|Chrome|Edg)\/[\d.]+$/);
   assert.equal(version.webSocketDebuggerUrl, `ws://127.0.0.1:${port}${browserPath}`);
@@ -86,6 +94,7 @@ try {
   await command("Page.enable"); await command("Runtime.enable"); await command("Network.enable");
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await command("Page.navigate", { url: fixture.origin });
+  phase = "anonymous";
   await until(() => evaluate("document.body.innerText.includes('Sign in required')"), "anonymous workspace");
   assert.equal(await evaluate("document.querySelector('[data-maipa-build-id]')?.dataset.maipaBuildId"), fixture.build_id);
   const publicApi = await evaluate(`(async () => {
@@ -96,6 +105,7 @@ try {
   assert.equal(publicApi[1].body.build_id, fixture.build_id);
   assert.ok(publicApi.every(r => r.cache?.includes("no-store")));
   record("anonymous-authority-and-build");
+  phase = "release_controls";
   await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), "Fancy release notes");
   assert.ok(await evaluate(`document.body.innerText.includes(${JSON.stringify(fixture.release_label)})`));
   await click("Got it");
@@ -104,22 +114,26 @@ try {
   await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), "reopen release notes");
   await click("Close updates");
   record("fancy-release-controls");
+  phase = "theme";
   await click("Dark");
   await until(() => evaluate("document.querySelector('.appearance button[aria-pressed=true]')?.textContent === 'Dark'"), "dark preference");
   assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), "#111714");
   await command("Page.reload");
   await until(() => evaluate("document.querySelector('.appearance button[aria-pressed=true]')?.textContent === 'Dark'"), "persisted theme");
   record("theme-and-reload");
+  phase = "keyboard_divider";
   const divider = await evaluate("(() => {const d=document.querySelector('[role=separator]'); d.focus(); return +d.getAttribute('aria-valuenow');})()");
   await command("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
   await command("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
   await until(async () => (await evaluate("+document.querySelector('[role=separator]').getAttribute('aria-valuenow')")) > divider, "keyboard divider");
   record("keyboard-divider");
+  phase = "mobile_panels";
   await command("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert"), "mobile work area");
   await click("Conversation");
   await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), "mobile conversation");
   record("mobile-panels");
+  phase = "authenticated_scope";
   await command("Network.setCookie", { name: "sessionid", value: fixture.cookie, url: fixture.origin, httpOnly: true, sameSite: "Lax" });
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await command("Page.reload");
@@ -129,6 +143,7 @@ try {
   assert.ok(JSON.stringify(owned.accounts).includes(fixture.account_id));
   assert.ok(!JSON.stringify(owned.accounts).includes(fixture.foreign_account_id));
   record("authenticated-account-scope");
+  phase = "transport_csrf";
   const checks = await evaluate(`(async () => {
     const s=await (await fetch('/api/session/')).json(); const headers={'Content-Type':'application/json','X-CSRFToken':s.csrf_token};
     const base='/api/agent/accounts/'; const suffix='/transport-checks/';
@@ -140,10 +155,15 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
+  phase = "browser_exceptions";
   assert.equal(exceptions.length, 0, "No uncaught browser exceptions");
   record("no-uncaught-exceptions");
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
+} catch (error) {
+  failedPhase = phase;
+  throw error;
 } finally {
+  phase = "cleanup";
   socket?.close();
   for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(Error("Fixture ended")); }
   if (child.pid && !closed) {
@@ -157,9 +177,10 @@ try {
     try { await fetch(`${debugOrigin}/json/version`, { signal: AbortSignal.timeout(1000) }); reachable = true; } catch {}
     assert.equal(reachable, false, "Owned debugging endpoint closed");
   }
-  assert.equal(dirname(realpathSync(profile)), parent);
+  assert.equal(dirname(realpathSync.native(profile)), parent);
   rmSync(profile, { recursive: true, maxRetries: 5, retryDelay: 200 });
   assert.equal(existsSync(profile), false);
+  cleanupVerified = true;
   if (evidence) { record("owned-browser-cleanup"); evidence.checks = passed.length; evidence.cleanup = true; }
 }
 console.log(JSON.stringify(evidence));

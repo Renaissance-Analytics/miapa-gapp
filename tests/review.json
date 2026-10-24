@@ -920,6 +920,26 @@
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
       "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e"
+    },
+    {
+      "scenario": "K06-BROWSER-REPORT.positive",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only",
+      "scenario_sha256": "1907a9996ddf96d8f091fc959601b749785d4609e22999fc4244717686f2fa9c",
+      "source_sha256": "d9f57c9d02936b10e089721cba03c74ae1195e79575f80060a88fed25c181d21",
+      "expected_observation": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
+      "decision": "aligned",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-REPORT.negative",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified",
+      "scenario_sha256": "2e982f64e234ff77c55b4ddb529ddd75d95fec330ec399f164d7601c8fea3cc4",
+      "source_sha256": "d9f57c9d02936b10e089721cba03c74ae1195e79575f80060a88fed25c181d21",
+      "expected_observation": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
+      "decision": "aligned",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

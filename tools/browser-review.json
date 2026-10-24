@@ -3,19 +3,57 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "46359a1e6c7003cfedcc3d76617dd050441013e55e2b55ecd14280a46aeccb6a",
-    "tools/check_browser.py": "95291924ea886a29c563d7e9a505b22a9a2ca8e3007df15dff542f64b5639982"
+    "tools/browser.mjs": "23bb6f084a80d6877aa75157ef50adfb39431ed9c20baaef59c38d7d8657f8e4",
+    "tools/check_browser.py": "fd6cb7c2a659a6e0b02baa4a76d12712a825ce012e74bb599c8722ec4f0fabb9",
+    "tools/browser-profile.mjs": "81d4dbdcc7b848a29a198cb951313644b6fb19085ee4da895f5d436b387af753"
   },
   "cases": [
-    {"id": "anonymous-authority-and-build", "kind": "negative", "expected": "Anonymous workspace requires sign-in; health/version return200, private session/accounts401, no-store and exact built identity."},
-    {"id": "fancy-release-controls", "kind": "positive", "expected": "Published Fancy notes appear with current release, dismiss and reopen via real pointer input."},
-    {"id": "theme-and-reload", "kind": "positive", "expected": "Pointer-selected Dark has the approved computed canvas color and survives reload."},
-    {"id": "keyboard-divider", "kind": "positive", "expected": "Focused published divider increases its announced value after a real ArrowRight key."},
-    {"id": "mobile-panels", "kind": "positive", "expected": "Narrow work panel is active, then pointer-selected Conversation reverses both inert states."},
-    {"id": "authenticated-account-scope", "kind": "negative", "expected": "Synthetic server session loads Signed in and own account ID, excluding another owner's account."},
-    {"id": "csrf-and-real-zero-provider-transport", "kind": "negative", "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."},
-    {"id": "no-uncaught-exceptions", "kind": "positive", "expected": "No uncaught JavaScript exceptions during the actual app interactions."},
-    {"id": "owned-browser-cleanup", "kind": "positive", "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."}
+    {
+      "id": "anonymous-authority-and-build",
+      "kind": "negative",
+      "expected": "Anonymous workspace requires sign-in; health/version return200, private session/accounts401, no-store and exact built identity."
+    },
+    {
+      "id": "fancy-release-controls",
+      "kind": "positive",
+      "expected": "Published Fancy notes appear with current release, dismiss and reopen via real pointer input."
+    },
+    {
+      "id": "theme-and-reload",
+      "kind": "positive",
+      "expected": "Pointer-selected Dark has the approved computed canvas color and survives reload."
+    },
+    {
+      "id": "keyboard-divider",
+      "kind": "positive",
+      "expected": "Focused published divider increases its announced value after a real ArrowRight key."
+    },
+    {
+      "id": "mobile-panels",
+      "kind": "positive",
+      "expected": "Narrow work panel is active, then pointer-selected Conversation reverses both inert states."
+    },
+    {
+      "id": "authenticated-account-scope",
+      "kind": "negative",
+      "expected": "Synthetic server session loads Signed in and own account ID, excluding another owner's account."
+    },
+    {
+      "id": "csrf-and-real-zero-provider-transport",
+      "kind": "negative",
+      "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."
+    },
+    {
+      "id": "no-uncaught-exceptions",
+      "kind": "positive",
+      "expected": "No uncaught JavaScript exceptions during the actual app interactions."
+    },
+    {
+      "id": "owned-browser-cleanup",
+      "kind": "positive",
+      "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
+    }
   ],
-  "limits": "Hashes preserve semantic review, not semantic correctness. Not a login UI, live conversation, full accessibility, worker isolation or Q05/Q06 release test. Each candidate requires its own final shared run."
+  "limits": "Hashes preserve semantic review, not semantic correctness. Not a login UI, live conversation, full accessibility, worker isolation or Q05/Q06 release test. Each candidate requires its own final shared run.",
+  "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged."
 }

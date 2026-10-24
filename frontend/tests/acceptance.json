@@ -136,6 +136,33 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-BROWSER-PARENT",
+      "risk": "String-only path equality may reject an actual Windows temporary-directory alias or allow cleanup outside the owned fixture.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-PARENT.positive",
+          "kind": "positive",
+          "given": "Real temporary directories on the supported Windows filesystem, including alternate case for the same parent",
+          "when": "Validate fixture ownership before launching or cleaning browser state",
+          "then": "Actual owned directories and alternate names for the same physical parent pass",
+          "tests": [
+            "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
+            "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-PARENT.negative",
+          "kind": "negative",
+          "given": "Real temporary directories on the supported Windows filesystem, including alternate case for the same parent",
+          "when": "Validate fixture ownership before launching or cleaning browser state",
+          "then": "A different physical parent or directory without the owned fixture prefix is rejected",
+          "tests": [
+            "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name"
+          ]
+        }
+      ]
     }
   ]
 }

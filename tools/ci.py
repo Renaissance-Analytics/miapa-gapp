@@ -144,7 +144,7 @@ class Commands:
             review = json.loads((self.root / "tools/browser-review.json").read_text(encoding="utf-8"))
             if review.get("decision") != "aligned" or tuple(item["id"] for item in review["cases"]) != BROWSER_CASES:
                 raise ValueError("Browser review missing")
-            for name in ("tools/browser.mjs", "tools/check_browser.py"):
+            for name in ("tools/browser.mjs", "tools/check_browser.py", "tools/browser-profile.mjs"):
                 digest = hashlib.sha256((self.root / name).read_text(encoding="utf-8").encode()).hexdigest()
                 if review["source_sha256"][name] != digest:
                     raise ValueError("Browser source review stale")
@@ -188,7 +188,15 @@ class Commands:
             manifest = json.loads((self.frontend / "dist/build-info.json").read_text(encoding="utf-8"))
             value["build_id"] = manifest["build_id"]
         elif stage == "browser":
-            output = self.command([sys.executable, "-m", "tools.check_browser"], timeout=180)
+            target = self.artifacts / "browser-result.json"
+            target.unlink(missing_ok=True)
+            try:
+                output = self.command([sys.executable, "-m", "tools.check_browser"], timeout=180)
+            except Exception:
+                if target.is_file():
+                    from tools.check_browser import browser_failure_evidence
+                    return {"returncode": 1, **browser_failure_evidence(json.loads(target.read_text(encoding="utf-8")))}
+                return {"returncode": 1, "checks": 0, "reason": "browser_process", "cleanup": False}
             value = {"returncode": 0, **json.loads(output)}
             if tuple(value.get("scenarios", ())) != BROWSER_CASES or value.get("checks") != len(BROWSER_CASES):
                 raise ValueError("Required browser scenarios not executed")
