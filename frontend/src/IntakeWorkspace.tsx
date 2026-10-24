@@ -138,20 +138,27 @@ export function IntakeWorkspace() {
   const [dateInput, setDateInput] = useState(today);
   const [on, setOn] = useState(today);
   const [attempt, setAttempt] = useState(0);
+  const [listAttempt, setListAttempt] = useState(0);
+  const [listPending, setListPending] = useState(true);
   const [name, setName] = useState('');
   const [entityName, setEntityName] = useState('');
   const [newEntity, setNewEntity] = useState('');
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
   useEffect(() => {
-    let active = true;
+    let active = true; setListPending(true);
     void listEngagements().then(result => {
       if (!active) return;
-      if (result.kind === 'ok') { setEngagements(result.value); setEntityId(result.value[0]?.entities[0]?.id ?? ''); }
+      if (result.kind === 'ok') {
+        setEngagements(result.value);
+        setEntityId(current => result.value.some(row => row.entities.some(entity => entity.id === current))
+          ? current : result.value[0]?.entities[0]?.id ?? '');
+      }
       else setMessage(messages[result.kind]);
+      setListPending(false);
     });
     return () => { active = false; };
-  }, []);
+  }, [listAttempt]);
   useEffect(() => {
     let active = true; setProfile(undefined);
     if (entityId) void readEntity(entityId, on).then(result => {
@@ -161,25 +168,25 @@ export function IntakeWorkspace() {
     return () => { active = false; };
   }, [entityId, on, attempt]);
   const reload = () => { setMessage(''); setAttempt(n => n + 1); };
-  return <Card className="intake-card" variant="outlined" sections="plain"><Card.Body>
+  return <Card className="intake-card" variant="outlined" sections="plain" aria-busy={listPending}><Card.Body>
     <div className="intake-heading"><div><span className="eyebrow">Start with the facts</span><h3>Engagements and client facts</h3></div>
-      <Button variant="ghost" onClick={reload}>Reload facts</Button></div>
+      <Button variant="ghost" disabled={listPending} onClick={() => { reload(); setListAttempt(n => n + 1); }}>Reload facts</Button></div>
     <p>Record what you know, where it came from and when it applies. Earlier assertions remain in history.</p>
     {message && <p role="alert">{message}</p>}
     <details className="intake-create" open={!engagements.length}><summary>New engagement</summary>
       <form className="intake-form" aria-label="New engagement" autoComplete="off" onSubmit={async event => {
-        event.preventDefault(); if (pending) return; setPending(true); setMessage('');
+        event.preventDefault(); if (pending || listPending) return; setPending(true); setMessage('');
         const result = await createEngagement(name.trim(), entityName.trim());
         if (result.kind === 'ok') { setEngagements(rows => [...rows, result.value]); setEntityId(result.value.entities[0].id); setName(''); setEntityName(''); }
         else setMessage(messages[result.kind]);
         setPending(false);
       }}>
-        <Input id="intake-engagement-name" label="Engagement name" required maxLength={128} value={name} onValueChange={setName} disabled={pending} />
-        <Input id="intake-entity-name" label="Entity name" required maxLength={128} value={entityName} onValueChange={setEntityName} disabled={pending} />
-        <Button type="submit" disabled={pending}>Create engagement</Button>
+        <Input id="intake-engagement-name" label="Engagement name" required maxLength={128} value={name} onValueChange={setName} disabled={pending || listPending} />
+        <Input id="intake-entity-name" label="Entity name" required maxLength={128} value={entityName} onValueChange={setEntityName} disabled={pending || listPending} />
+        <Button type="submit" disabled={pending || listPending}>Create engagement</Button>
       </form>
     </details>
-    {!!engagements.length && <Select id="intake-entity" label="Entity" value={entityId} disabled={pending}
+    {!!engagements.length && <Select id="intake-entity" label="Entity" value={entityId} disabled={pending || listPending}
       list={engagements.flatMap(row => row.entities.map(entity => ({ value: entity.id, label: `${row.name} · ${entity.name}` })))}
       onValueChange={next => { setEntityId(next); setMessage(''); }} />}
     {profile && <section className="intake-profile" aria-label="Client facts" data-entity-id={profile.id} data-entity-revision={profile.revision}>
@@ -199,13 +206,13 @@ export function IntakeWorkspace() {
       <FactHistory key={`history:${profile.id}:${profile.revision}:${factKey}`} entityId={profile.id} factKey={factKey} />
       <details className="intake-create"><summary>Add entity to this engagement</summary>
         <form className="intake-form" onSubmit={async event => {
-          event.preventDefault(); if (pending || !profile.can_edit) return; setPending(true); setMessage('');
+          event.preventDefault(); if (pending || listPending || !profile.can_edit) return; setPending(true); setMessage('');
           const result = await addEntity(profile.engagement_id, newEntity.trim());
           if (result.kind === 'ok') { setEngagements(rows => rows.map(row => row.id === profile.engagement_id ? { ...row, entities: [...row.entities, result.value] } : row)); setEntityId(result.value.id); setNewEntity(''); }
           else setMessage(messages[result.kind]);
           setPending(false);
-        }}><Input label="Additional entity name" required maxLength={128} value={newEntity} onValueChange={setNewEntity} disabled={pending || !profile.can_edit} />
-          <Button type="submit" disabled={pending || !profile.can_edit}>Add entity</Button></form>
+        }}><Input label="Additional entity name" required maxLength={128} value={newEntity} onValueChange={setNewEntity} disabled={pending || listPending || !profile.can_edit} />
+          <Button type="submit" disabled={pending || listPending || !profile.can_edit}>Add entity</Button></form>
       </details>
     </section>}
   </Card.Body></Card>;
