@@ -165,30 +165,30 @@
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
-      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
-      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-PARENT.negative",
       "test": "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name",
       "scenario_sha256": "be6b76702496764787dc0accc91f89eee8d1950edc6c723d8ab212441d14b6f1",
-      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
       "expected_observation": "A different physical parent or directory without the owned fixture prefix is rejected",
       "decision": "aligned",
-      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
@@ -280,6 +280,76 @@
       "decision": "aligned",
       "reason": "Exact creation body, returned object and history URL/id/value assertions preserve parent/entity/revision distinctions.",
       "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.1",
+      "test": "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "809531778214d0520145154204a4c8c50a9d2da4e00aca9fd4665f85b0b67a28",
+      "expected_observation": "Show a local-code and new-password form, distinguish true/false setup and never prefill secrets or claim a connected provider.",
+      "decision": "aligned",
+      "reason": "SSR asserts accessible fields and local file instructions; real browser separately proves admin creation.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.2",
+      "test": "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "b03dd2342e08177722be82ca0dfea34c7e0858e356e26a8928813e2615627d68",
+      "expected_observation": "Send exact bounded same-origin CSRF payload and retain only the created result.",
+      "decision": "aligned",
+      "reason": "Checks exact paths/payload/options and return value, including no retained code/password/token.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.3",
+      "test": "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "9fff5a00a71e2ea5d291f3693a3ab1fa01ee410d41f8206879228d3cf58ef522",
+      "expected_observation": "Reject malformed input without network, map fixed failure states and expose no raw diagnostics.",
+      "decision": "aligned",
+      "reason": "Independent statuses and invalid input expectations ensure no optimistic success.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.4",
+      "test": "onboarding.test.mjs#chat adapter sends only revision action and answer and renders an escaped explicit review",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "925327f28ca381f4b6f3d387aac51be5b748c27174ac72f87e95eba9ad7480fb",
+      "expected_observation": "Send exact revision/action/answer with CSRF and display explicit unknown/date/escaped names.",
+      "decision": "aligned",
+      "reason": "Exact CSRF and server-created setup identity headers bind the accepted revision/action/answer to the account draft. SSR review assertions retain escaped names, unknown basis and effective date. Other test assertions remain reviewed unchanged.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.5",
+      "test": "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "0c37e9fccbb3231057f2e5da57ae01d570a94b3d2e3d80814db9eac1390ab5c9",
+      "expected_observation": "Return only fixed denied/conflict/unavailable/invalid states and reject fake provider readiness or role fields.",
+      "decision": "aligned",
+      "reason": "Explicit expected states and mutated independent fixtures cover parser fail-closed behavior.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "BROWSER-CONNECTION-READINESS.complete",
+      "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
+      "scenario_sha256": "12f570098f676e9c97be3792ee7712243c59226f804f82bb894fcc234baa5c82",
+      "expected_observation": "Return the exact validated port/path only after the final chunk is present.",
+      "decision": "aligned",
+      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup. Cleanup now checks the actual physical directory inode, matching the existing fixture tests and supporting Windows short-path aliases; readiness/refusal expectations remain unchanged.",
+      "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
+    },
+    {
+      "scenario": "BROWSER-CONNECTION-READINESS.partial",
+      "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
+      "source_sha256": "26087c92649f98e36dd518c30326512f19b38e48c37f0aae0da1c3ab883298ff",
+      "scenario_sha256": "6deee54f9e47acd29a899c1beb746b11d4fb14e6e38313bef0d36b8f7936bc97",
+      "expected_observation": "Keep waiting for partial records and refuse zero/out-of-range/address ports, foreign URLs and extra lines.",
+      "decision": "aligned",
+      "reason": "Actual owned temporary file writes simulate successive producer chunks and independently assert no endpoint before completion, exact endpoint after completion, malformed-record refusal and verified owned cleanup. Cleanup now checks the actual physical directory inode, matching the existing fixture tests and supporting Windows short-path aliases; readiness/refusal expectations remain unchanged.",
+      "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
     }
   ]
 }

@@ -4,11 +4,14 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { ownedProfileRoot } from "./browser-profile.mjs";
+import { debuggingPort, ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false;
 let startupEvidence = {}, launchState = "starting", launchExit;
-process.on("uncaughtException", () => {
+process.on("uncaughtException", error => {
+  // Isolated synthetic fixture diagnostics stay in ignored local failure logs;
+  // CI artifacts contain only the fixed phase/cleanup report below.
+  console.error(error?.stack || 'Native browser fixture failed');
   console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence }));
   process.exitCode = 1;
 });
@@ -57,7 +60,7 @@ function command(method, params = {}) {
   const id = ++sequence;
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => { pending.delete(id); reject(Error("CDP command deadline")); }, 15_000);
-    pending.set(id, { resolve, reject, timer });
+    pending.set(id, { resolve, reject, timer, method });
     socket.send(JSON.stringify({ id, method, params }));
   });
 }
@@ -67,13 +70,34 @@ async function click(label) {
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
 }
+async function fill(id, value) {
+  assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
+  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
+  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
+  await command('Input.insertText', { text: value });
+}
+async function select(id, value) {
+  const steps = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
+    if (!field || field.tagName!=='SELECT' || field.disabled) return -1;
+    field.scrollIntoView({block:'center'}); field.focus();
+    return [...field.options].filter(o=>!o.disabled).findIndex(o=>o.value===${JSON.stringify(value)}); })()`);
+  assert.ok(steps >= 0, 'Selectable recorded option');
+  for (const [key, code] of [['Home', 36], ...Array.from({length:steps},()=>['ArrowDown',40])]) {
+    await command('Input.dispatchKeyEvent', { type: 'keyDown', key, windowsVirtualKeyCode: code });
+    await command('Input.dispatchKeyEvent', { type: 'keyUp', key, windowsVirtualKeyCode: code });
+  }
+  await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), 'native select change');
+}
 try {
-  await until(() => {
+  const { port, browserPath } = await until(() => {
     if (launchError || closed) throw Error("Native browser launch failed");
-    return existsSync(join(profile, "DevToolsActivePort"));
-  }, "native browser");
-  launchState = "devtools_file";
-  const [port, browserPath] = readFileSync(join(profile, "DevToolsActivePort"), "utf8").trim().split(/\r?\n/);
+    const file = join(profile, 'DevToolsActivePort');
+    if (!existsSync(file)) return false;
+    launchState = 'devtools_file';
+    // File creation can precede its final write. Never parse a partial record
+    // as a ready browser, or connect to an unvalidated endpoint.
+    return debuggingPort(readFileSync(file, 'utf8'));
+  }, "complete native browser connection record");
   assert.match(port, /^\d{1,5}$/);
   assert.ok(+port > 0 && +port < 65536);
   assert.match(browserPath, /^\/devtools\/browser\/[a-zA-Z0-9-]+$/);
@@ -93,12 +117,73 @@ try {
       intakeListResponses.push(message.params.response.status);
     if (message.id && pending.has(message.id)) {
       const entry = pending.get(message.id); pending.delete(message.id); clearTimeout(entry.timer);
-      if (message.error) entry.reject(Error("CDP command rejected")); else entry.resolve(message.result);
+      if (message.error) entry.reject(Error(`CDP ${entry.method} rejected: ${String(message.error.message).slice(0, 200)}`)); else entry.resolve(message.result);
     }
   });
   await command("Page.enable"); await command("Runtime.enable"); await command("Network.enable");
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await command("Page.navigate", { url: fixture.origin });
+  if (fixture.first_run) {
+    phase = 'first_run';
+    await until(() => evaluate("!!document.getElementById('maipa-admin-username')"), 'first-run administrator form');
+    await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), 'first-run update notes');
+    await click('Got it');
+    await fill('maipa-setup-code', fixture.setup_code);
+    await fill('maipa-admin-username', fixture.username);
+    await fill('maipa-admin-password', fixture.password);
+    await fill('maipa-admin-confirmation', fixture.password);
+    await click('Create administrator');
+    await until(() => evaluate("document.body.innerText.includes('Signed in')"), 'created administrator session');
+    await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), 'new-account update notes');
+    await click('Got it');
+    const admin = await evaluate("(async()=>({workspace:await(await fetch('/api/workspace/')).json(),setup:await(await fetch('/api/setup/')).json()}))()");
+    assert.equal(admin.workspace.role, 'administrator');
+    assert.equal(admin.setup.setup_required, false);
+    assert.equal(await evaluate("!!document.querySelector('[name=\"password-confirmation\"]')"), false);
+    record('local-first-run-admin');
+    phase = 'setup_chat';
+    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    await click('Account setup');
+    await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), 'mobile account conversation');
+    const atStep = step => until(() => evaluate(`document.querySelector('[data-setup-step]')?.dataset.setupStep === ${JSON.stringify(step)} && document.querySelector('[data-setup-step]').getAttribute('aria-busy') === 'false'`), 'saved setup prompt');
+    await atStep('display_name');
+    await fill('maipa-setup-answer', 'Synthetic onboarding owner');
+    await click('Send answer');
+    await atStep('workspace');
+    await command('Page.reload');
+    await until(() => evaluate("!![...document.querySelectorAll('button')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
+    await click('Account setup');
+    await atStep('workspace');
+    assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup conversation\"]').innerText.includes('Synthetic onboarding owner')"));
+    await select('maipa-setup-answer', 'new'); await click('Send answer'); await atStep('engagement_name');
+    await fill('maipa-setup-answer', 'Synthetic onboarding engagement'); await click('Send answer'); await atStep('entity_name');
+    await fill('maipa-setup-answer', 'Synthetic onboarding entity'); await click('Send answer'); await atStep('currency');
+    await fill('maipa-setup-answer', 'USD'); await click('Send answer'); await atStep('reporting_basis');
+    await select('maipa-setup-answer', 'unknown'); await click('Send answer'); await atStep('effective_from');
+    assert.match(await evaluate("document.getElementById('maipa-setup-answer').value"), /^\d{4}-\d{2}-\d{2}$/);
+    await click('Send answer'); await atStep('review');
+    assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup review\"]').innerText.includes('Unknown for now')"));
+    const before = await evaluate("(async()=>({setup:await(await fetch('/api/onboarding/')).json(),clients:await(await fetch('/api/intake/engagements/')).json()}))()");
+    assert.deepEqual(before.clients.engagements, []);
+    await click('Confirm and save setup'); await atStep('complete');
+    const saved = await evaluate("(async()=>{const setup=await(await fetch('/api/onboarding/')).json();return {setup,entity:await(await fetch('/api/intake/entities/'+setup.entity_id+'/')).json()};})()");
+    assert.equal(saved.entity.name, 'Synthetic onboarding entity');
+    assert.equal(saved.entity.facts.currency.value, 'USD');
+    assert.equal(saved.entity.facts.reporting_basis.knowledge, 'unknown');
+    assert.equal(saved.entity.facts.legal_form.knowledge, 'unknown');
+    assert.equal(saved.setup.provider_ready, false);
+    const stale = await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/onboarding/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Setup':${JSON.stringify(before.setup.setup_id)}},body:JSON.stringify({expected_revision:${before.setup.revision},action:'reply',answer:'confirm'})})).status;})()`);
+    assert.equal(stale, 409);
+    await click('Open saved client facts');
+    await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert && !!document.querySelector('[data-entity-id]')"), 'confirmed client in work panel');
+    assert.equal(await evaluate("document.querySelector('[data-fact-key=currency] dd').textContent"), 'USD');
+    record('account-chat-resume-and-confirm');
+    await click('Sign out');
+    await until(() => evaluate("!!document.getElementById('maipa-username')"), 'claimed install uses sign-in');
+    assert.equal(await evaluate("(async()=> (await fetch('/api/onboarding/')).status)()"), 401);
+    assert.equal(await evaluate("!!document.getElementById('maipa-admin-username')"), false);
+    record('first-run-stays-closed');
+  } else {
   phase = "anonymous";
   await until(() => evaluate("document.body.innerText.includes('Sign in required')"), "anonymous workspace");
   assert.equal(await evaluate("document.querySelector('[data-maipa-build-id]')?.dataset.maipaBuildId"), fixture.build_id);
@@ -141,24 +226,6 @@ try {
   phase = "login";
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
-  async function fill(id, value) {
-    assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
-    await command("Input.dispatchKeyEvent", { type: "keyDown", key: "a", code: "KeyA", windowsVirtualKeyCode: 65, modifiers: 2 });
-    await command("Input.dispatchKeyEvent", { type: "keyUp", key: "a", code: "KeyA", windowsVirtualKeyCode: 65, modifiers: 2 });
-    await command("Input.insertText", { text: value });
-  }
-  async function select(id, value) {
-    const steps = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
-      if (!field || field.tagName!=='SELECT' || field.disabled) return -1;
-      field.scrollIntoView({block:'center'}); field.focus();
-      return [...field.options].filter(o=>!o.disabled).findIndex(o=>o.value===${JSON.stringify(value)}); })()`);
-    assert.ok(steps >= 0, "Selectable recorded option");
-    for (const [key, code] of [["Home", 36], ...Array.from({length:steps},()=>["ArrowDown",40])]) {
-      await command("Input.dispatchKeyEvent", { type: "keyDown", key, windowsVirtualKeyCode: code });
-      await command("Input.dispatchKeyEvent", { type: "keyUp", key, windowsVirtualKeyCode: code });
-    }
-    await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), "native select change");
-  }
   async function login(username) {
     await fill("maipa-username", username);
     await fill("maipa-password", fixture.password);
@@ -178,6 +245,12 @@ try {
   assert.equal(workspace.status, 200); assert.equal(workspace.body.role, "preparer");
   assert.ok(workspace.body.permissions.includes("agent.transport.check"));
   record("real-login-and-server-role");
+  phase = 'setup_isolation';
+  const privateSetup = await evaluate("(async()=> (await fetch('/api/onboarding/')).json())()");
+  assert.equal(privateSetup.step, 'display_name');
+  assert.deepEqual(privateSetup.draft, {});
+  assert.ok(!JSON.stringify(privateSetup).includes('Synthetic onboarding owner'));
+  record('onboarding-user-isolation');
   phase = "authenticated_scope";
   const owned = await evaluate(`(async () => {const s=await (await fetch('/api/session/')).json(); const r=await fetch('/api/agent/accounts/'); return {session:s,accounts:await r.json()};})()`);
   assert.equal(owned.session.user.id, fixture.user_id);
@@ -300,6 +373,7 @@ try {
   assert.equal(privateIntake.entity, 404); assert.equal(privateIntake.history, 404);
   assert.equal(await evaluate("document.body.innerText.includes('Synthetic browser entity') || document.body.innerText.includes('synthetic-browser-source-1')"), false);
   record("intake-user-isolation");
+  }
   phase = "browser_exceptions";
   assert.equal(exceptions.length, 0, "No uncaught browser exceptions");
   record("no-uncaught-exceptions");

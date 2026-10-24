@@ -31,7 +31,7 @@ export function themeStorageKey(session: SessionState): string {
 type SignInResult = "signed_in" | "invalid_credentials" | "rate_limited" | "already_signed_in" | "unavailable";
 const requestOptions = (): RequestInit => ({ credentials: "same-origin", cache: "no-store", redirect: "error", signal: AbortSignal.timeout(10_000) });
 
-async function csrfToken(fetcher: typeof fetch): Promise<string> {
+export async function csrfToken(fetcher: typeof fetch): Promise<string> {
   const response = await fetcher("/api/session/csrf/", requestOptions());
   if (response.status !== 200) throw Error("Session unavailable");
   const value: unknown = await response.json();

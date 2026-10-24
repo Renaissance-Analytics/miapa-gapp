@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "first_run", "setup_chat", "setup_isolation", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -70,6 +70,7 @@ def main():
         from django.conf import settings
         settings.DATABASES["default"]["NAME"] = fixture_root / "fixture.sqlite3"
         settings.ACP_CHECK_ROOT = fixture_root / "acp"
+        settings.LOCAL_SETUP_CODE_FILE = fixture_root / 'local-setup-code'
         django.setup()
         from django.core.management import call_command
         from django.contrib.auth import get_user_model
@@ -79,22 +80,17 @@ def main():
         from django.db import connections
         with open(os.devnull, "w") as silent:
             call_command("migrate", interactive=False, verbosity=0, stdout=silent)
-        password = secrets.token_urlsafe(24)
-        owner = get_user_model().objects.create_user(username="synthetic-browser-owner", password=password)
-        other = get_user_model().objects.create_user(username="synthetic-browser-other", password=password)
-        installation = Installation.objects.create()
-        Membership.objects.create(installation=installation, user=owner, role="preparer")
-        Membership.objects.create(installation=installation, user=other, role="viewer")
-        owned = AgentAccount.objects.create(owner=owner, provider="codex", label="Synthetic owned account")
-        foreign = AgentAccount.objects.create(owner=other, provider="claude", label="Synthetic foreign account")
+        from backend.maipa.workspace.bootstrap import prepare_local_setup
+        prepare_local_setup()
         application = get_wsgi_application()
         failed_initial_intake = False
+        enable_intake_failure = False
 
         def first_intake_failure(environ, start_response):
             # One deliberate failure in this isolated fixture only. Every retry
             # reaches actual Django/auth/database; no success response is faked.
             nonlocal failed_initial_intake
-            if (not failed_initial_intake and environ.get("PATH_INFO") == "/api/intake/engagements/"
+            if (enable_intake_failure and not failed_initial_intake and environ.get("PATH_INFO") == "/api/intake/engagements/"
                     and environ.get("REQUEST_METHOD") == "GET"):
                 failed_initial_intake = True
                 payload = b'{"error":{"code":"intake_unavailable"}}'
@@ -108,34 +104,58 @@ def main():
         thread.start()
         try:
             manifest = json.loads((ROOT / "frontend/dist/build-info.json").read_text(encoding="utf-8"))
-            data = {"origin": f"http://127.0.0.1:{server.server_port}", "profile_root": str(fixture_root), "build_id": manifest["build_id"],
-                    "release_label": manifest["release_label"], "username": owner.username, "viewer_username": other.username,
-                    "password": password, "user_id": str(owner.pk),
-                    "account_id": str(owned.pk), "foreign_account_id": str(foreign.pk)}
+            base_data = {"origin": f"http://127.0.0.1:{server.server_port}", "profile_root": str(fixture_root), "build_id": manifest["build_id"],
+                         "release_label": manifest["release_label"]}
             node = shutil.which("node")
             if not node:
                 raise ValueError("Node prerequisite")
             from backend.maipa.windows_sandbox import _Api, _windows_paths
             environment = browser_environment(os.environ, _windows_paths(_Api()))
-            process = subprocess.Popen([node, "tools/browser.mjs"], cwd=ROOT,
+            def run_browser(data):
+                process = subprocess.Popen([node, "tools/browser.mjs"], cwd=ROOT,
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment)
-            try:
-                stdout, stderr = process.communicate(json.dumps(data), timeout=120)
-            except subprocess.TimeoutExpired:
-                subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
-                               capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
-                process.wait(timeout=10)
-                raise ValueError("Owned browser fixture deadline")
-            if process.returncode:
-                artifact = ROOT / "artifacts/ci/browser-failure.log"
-                artifact.parent.mkdir(parents=True, exist_ok=True)
-                artifact.write_text(stderr, encoding="utf-8")
                 try:
-                    failure = json.loads(stdout)
-                except ValueError:
-                    failure = None
-                raise BrowserFailure(browser_failure_evidence(failure))
-            evidence = json.loads(stdout)
+                    stdout, stderr = process.communicate(json.dumps(data), timeout=120)
+                except subprocess.TimeoutExpired:
+                    subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
+                               capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
+                    process.wait(timeout=10)
+                    raise ValueError("Owned browser fixture deadline")
+                if process.returncode:
+                    artifact = ROOT / "artifacts/ci/browser-failure.log"
+                    artifact.parent.mkdir(parents=True, exist_ok=True)
+                    artifact.write_text(stderr, encoding="utf-8")
+                    try:
+                        failure = json.loads(stdout)
+                    except ValueError:
+                        failure = None
+                    raise BrowserFailure(browser_failure_evidence(failure))
+                return json.loads(stdout)
+            first_run = run_browser(base_data | {'first_run': True, 'setup_code': settings.LOCAL_SETUP_CODE_FILE.read_text(),
+                'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
+            if (first_run.get('cleanup') is not True or first_run.get('checks') != 5
+                    or first_run.get('scenarios') != ['local-first-run-admin', 'account-chat-resume-and-confirm',
+                        'first-run-stays-closed', 'no-uncaught-exceptions', 'owned-browser-cleanup']):
+                raise ValueError('First-run browser cleanup required')
+            password = secrets.token_urlsafe(24)
+            owner = get_user_model().objects.create_user(username='synthetic-browser-owner', password=password)
+            other = get_user_model().objects.create_user(username='synthetic-browser-other', password=password)
+            installation = Installation.objects.get()
+            Membership.objects.create(installation=installation, user=owner, role='preparer')
+            Membership.objects.create(installation=installation, user=other, role='viewer')
+            owned = AgentAccount.objects.create(owner=owner, provider='codex', label='Synthetic owned account')
+            foreign = AgentAccount.objects.create(owner=other, provider='claude', label='Synthetic foreign account')
+            enable_intake_failure = True
+            evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
+                'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk)})
+            if first_run.get('build_id') != evidence.get('build_id') or first_run.get('browser') != evidence.get('browser'):
+                raise ValueError('Browser fixture identity mismatch')
+            # Both processes independently prove exceptions/cleanup. Report those
+            # shared aggregate cases at the end with the ordinary fixture, while
+            # retaining actual first-run and ordinary case order and every case.
+            first_only = [case for case in first_run['scenarios'] if case not in evidence['scenarios']]
+            evidence['scenarios'] = first_only + evidence['scenarios']
+            evidence['checks'] = len(evidence['scenarios'])
         finally:
             server.shutdown()
             server.server_close()

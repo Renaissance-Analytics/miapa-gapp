@@ -1400,6 +1400,156 @@
       "decision": "aligned",
       "reason": "Concrete HTTP payloads and exact cursor revisions exercise parser limits, method refusal and valid pagination rather than merely malformed cases.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.1",
+      "test": "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_setup_without_disclosing_local_code",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "870c27eccf44d8f6530b6d701e2bfc0ce7910b2c6879abef9e6381326400eaf3",
+      "expected_observation": "Offer setup without disclosing the code or creating users.",
+      "decision": "aligned",
+      "reason": "Asserts exact minimal status, no-store, no code and zero users.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.2",
+      "test": "tests.test_onboarding.FirstRunTests.test_claim_creates_hashed_admin_rotates_session_and_permanently_closes_setup",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "1ddd0bac2630a37f2df9057d56b7de9588a48ac9d4b1d13730d597b364a0c595",
+      "expected_observation": "Create one hashed administrator and rotated session; close setup permanently and reject another claim.",
+      "decision": "aligned",
+      "reason": "Real database/password/session assertions require one install/admin and repeated 409 with no extra users.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.3",
+      "test": "tests.test_onboarding.FirstRunTests.test_code_password_and_unknown_fields_cannot_claim_install",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "7cb877e2278312e4d2ece040b51a4131defaeafe5feedf0a0b2373a88d4b96ed",
+      "expected_observation": "Reject every invalid request without creating users/install; a subsequent valid request succeeds.",
+      "decision": "aligned",
+      "reason": "Each independent invalid input asserts 400/403 and zero durable effects before a real valid claim.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.4",
+      "test": "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_local_code_is_never_http_discoverable",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "6964c05133ffac2fba532712f3d5ac3a090bfd6cc1f3e9adf9a4468f32ccdb9b",
+      "expected_observation": "Reject CSRF, hide private files and fail closed without the local code.",
+      "decision": "aligned",
+      "reason": "Actual middleware and routes must return 403/404/503 and no user.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.5",
+      "test": "tests.test_onboarding.FirstRunTests.test_existing_users_or_installation_never_reopen_bootstrap",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "96c186126142a69554100f193ebd4ba72b774925cbc120c467f6d31a6799ba99",
+      "expected_observation": "Setup stays closed and POST returns conflict.",
+      "decision": "aligned",
+      "reason": "Separately tests both legacy database conditions; absence of active admin is not a takeover opportunity.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.6",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_chat_retains_accepted_replies_across_login_and_has_no_fake_provider_readiness",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "e6b675ba447aeb9a83b212b8d46b313658c670541caa697128213a0a7db3d6ec",
+      "expected_observation": "Resume the saved next prompt and accepted reply; never claim a provider is connected.",
+      "decision": "aligned",
+      "reason": "Asserts exact step, draft, transcript and revision across actual session changes.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.7",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_confirmation_saves_real_owned_entities_and_effective_dated_facts_once",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "5f8a300a919404d3e2905f56dd3e8c818f35553ced39d3f67ce87a98e6bfbce2",
+      "expected_observation": "Save real owned entity, explicit dated currency/basis and display name once; reject stale replay.",
+      "decision": "aligned",
+      "reason": "Checks actual intake rows, owner/install, precise facts/date and zero preconfirmation records; duplicate must 409.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.8",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_stale_reply_and_invalid_answer_do_not_advance_or_persist_untrusted_fields",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "656cbb6cca7fa174c1954df6d47c5defb0ea84bdd5e0b1016ac30e11e9b1a28d",
+      "expected_observation": "Reject stale and invalid replies without changing accepted draft.",
+      "decision": "aligned",
+      "reason": "The original accepted name remains exact; no role/object answer is retained.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.9",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_account_progress_is_private_and_revocation_is_immediate",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "796765be29eb9993a9824d971a8f30847e3d79e92565f08f01ec793bfd6f0d28",
+      "expected_observation": "Keep setup private, reject an old browser tab reply after the signed-in account changes, and deny both reads and writes after revocation.",
+      "decision": "aligned",
+      "reason": "Real sessions switch principals: the former setup identity must return409 and leave the new user draft empty, even when revisions coincide. Then actual membership revocation denies read/write403. All other assertions in this file retained and reviewed unchanged.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.10",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_defer_and_resume_keep_profile_and_never_claim_provider_connected",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "0feabc9d1afc9b50fe15086faca0751be5e15c0854317e5642a837656caf56f3",
+      "expected_observation": "Keep the profile, create no financial records and resume from workspace selection with provider setup still required.",
+      "decision": "aligned",
+      "reason": "Asserts exact deferred/readiness flags, zero engagements and saved name after resume.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.11",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_viewer_only_sets_own_profile_and_cannot_create_financial_records",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "227e1d49c07d36249baaf4844703eedfb7bd1313e6188690993fde9d04777d33",
+      "expected_observation": "Permit only own profile; no finance records or role escalation.",
+      "decision": "aligned",
+      "reason": "Viewer follows profile-only review, rejects new-work answer, and retains viewer role with zero engagements.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.12",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_existing_entity_selection_is_owned_and_changed_fact_revision_blocks_confirmation",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "8a83f8f46e892d6686d55abd360fe279f352a13976a619e4b36fa5eb7d825ada",
+      "expected_observation": "Reject stale finance changes atomically and unauthorized entity selection; allow explicit draft reset.",
+      "decision": "aligned",
+      "reason": "Real intake correction leaves exactly one fact; setup remains review, reset returns first prompt, viewer cannot select the entity.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.13",
+      "test": "tests.test_onboarding.AccountOnboardingTests.test_chat_writes_require_authentication_csrf_and_strict_bounded_json",
+      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "scenario_sha256": "14323a80fcee6e315f07ccd2dfc7197fe70911c657471250e4f258c9a92b0fc7",
+      "expected_observation": "Reject each invalid request and retain setup revision zero.",
+      "decision": "aligned",
+      "reason": "Actual HTTP/middleware status checks cover auth, CSRF, duplicate keys, identity hints and body budget.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-BOUNDARIES.1",
+      "test": "tests.test_onboarding_boundaries.LocalCodeTests.test_launcher_creates_private_random_code_once_and_existing_install_gets_no_code",
+      "source_sha256": "ec300b976448836c38725063462ac065cbddd0099d433959b7d7e99bd5a89d1c",
+      "scenario_sha256": "8f494f636f8ca8b10f4a6f431bcda6d66125626ca3908f2cb13c873c1e178542",
+      "expected_observation": "Create a stable 64-hex random code with a protected owner/System-only Windows DACL or 0600 Unix mode, and create no code for an existing install.",
+      "decision": "aligned",
+      "reason": "Reads actual native file security descriptor and counts exactly two protected allow entries, excluding broad principals; repeated prepare preserves bytes, configured install gets no file.",
+      "reviewer": "Maipa independent security-boundary acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-BOUNDARIES.2",
+      "test": "tests.test_onboarding_boundaries.ConcurrentBootstrapTests.test_two_real_connections_can_claim_only_one_admin_and_replay_stays_closed",
+      "source_sha256": "ec300b976448836c38725063462ac065cbddd0099d433959b7d7e99bd5a89d1c",
+      "scenario_sha256": "ab0084e380632571ce800a3a17657c3968ef1d3a1b1678e2969c98c58a166204",
+      "expected_observation": "At most one racing request succeeds; transient SQLite lock failures are retryable and final durable state has exactly one administrator with bootstrap closed.",
+      "decision": "aligned",
+      "reason": "Actual thread barrier and real CSRF/session/database requests exercise locking; one clean retry is permitted only if both competing upgrades fail closed, then exact row counts and permanent 409 are required.",
+      "reviewer": "Maipa independent security-boundary acceptance review; no external reviewer claimed"
     }
   ]
 }

@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-11",
+    "label": "Development update 11",
+    "cards": [
+      { "title": "Set up your local Maipa", "description": "New installations can create their administrator in the browser using a one-time local setup code. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step." }
+    ]
+  },
+  {
     "id": "development-10",
     "label": "Development update 10",
     "cards": [

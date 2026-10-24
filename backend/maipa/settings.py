@@ -9,6 +9,7 @@ FRONTEND_DIST = BASE_DIR / "frontend/dist"
 ACP_RUNTIME_ROOT = BASE_DIR / "backend/agent"
 ACP_CHECK_ROOT = BASE_DIR / "runtime/acp-checks"
 ACP_NODE_EXECUTABLE = ""  # Resolved from the server PATH, never HTTP input.
+LOCAL_SETUP_CODE_FILE = BASE_DIR / 'runtime/local-setup-code'
 SECRET_KEY = os.environ.get("MAIPA_SECRET_KEY", "")
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured("Set MAIPA_SECRET_KEY to a private random value of at least 50 characters.")
