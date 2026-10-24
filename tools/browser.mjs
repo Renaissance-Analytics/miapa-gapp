@@ -1,10 +1,10 @@
 // Owned native-browser fixture only. No installed driver, arbitrary debug URL or human profile.
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { debuggingPort, ownedProfileRoot } from "./browser-profile.mjs";
+import { readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false;
 let startupEvidence = {}, launchState = "starting", launchExit;
@@ -96,7 +96,7 @@ try {
     launchState = 'devtools_file';
     // File creation can precede its final write. Never parse a partial record
     // as a ready browser, or connect to an unvalidated endpoint.
-    return debuggingPort(readFileSync(file, 'utf8'));
+    return readDebuggingPortFile(file);
   }, "complete native browser connection record");
   assert.match(port, /^\d{1,5}$/);
   assert.ok(+port > 0 && +port < 65536);

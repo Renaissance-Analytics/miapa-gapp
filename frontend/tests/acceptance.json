@@ -336,6 +336,16 @@
           "tests": [
             "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records"
           ]
+        },
+        {
+          "id": "BROWSER-CONNECTION-READINESS.file-open",
+          "kind": "negative",
+          "given": "An owned real browser file exists but its initial open reports ENOENT EBUSY EPERM or EACCES",
+          "when": "Poll startup readiness before connecting to the owned debugger",
+          "then": "Keep waiting on those transient opens; accept only the exact subsequently readable valid record, refuse unsafe records and propagate unrelated I/O errors.",
+          "tests": [
+            "browser-profile.test.mjs#browser startup tolerates transient file open races but never accepts an unread or unsafe record"
+          ]
         }
       ]
     },
