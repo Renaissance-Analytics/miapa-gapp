@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "reviews": [
+    {
+      "scenario": "K05-CLIENT-IDENTITY.valid",
+      "test": "workspace.test.mjs#session reads only the same-origin authenticated session with no-store",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "ad80559a2002109a43fce4c1131d78f23c5d91dfd91419e0fa6928b0751da865",
+      "expected_observation": "Use same-origin credentials and no-store; retain only the string principal ID, never the CSRF token",
+      "decision": "aligned",
+      "reason": "Request path/options and exact output identity are asserted. The synthetic token must not appear in the retained model.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CLIENT-IDENTITY.refuse",
+      "test": "workspace.test.mjs#anonymous sessions stay signed out",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
+      "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
+      "decision": "aligned",
+      "reason": "Exact anonymous/unavailable states are compared for every failure, including numeric/empty/path-like IDs. Mock transport does not establish real browser/backend behavior.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-CLIENT-IDENTITY.refuse",
+      "test": "workspace.test.mjs#malformed identity, server failures and network errors never claim authentication",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
+      "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
+      "decision": "aligned",
+      "reason": "Exact anonymous/unavailable states are compared for every failure, including numeric/empty/path-like IDs. Mock transport does not establish real browser/backend behavior.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-SHELL.structure",
+      "test": "workspace.test.mjs#workspace keeps two named panels and the published accessible splitter",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
+      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "decision": "aligned",
+      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-SHELL.structure",
+      "test": "workspace.test.mjs#workspace exposes System, Light and Dark choices without fake finance or provider controls",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
+      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "decision": "aligned",
+      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-SHELL.structure",
+      "test": "workspace.test.mjs#theme storage is separate for each authenticated user and the signed-out workspace",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
+      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "decision": "aligned",
+      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-APP-SHELL.recovery",
+      "test": "workspace.test.mjs#failed session checks show recovery without leaking response details or showing data",
+      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "scenario_sha256": "6e6cb0dbdbbfd25271c4be777167c5594e8747bd577f7e1b467a7f317b65bc19",
+      "expected_observation": "Show Workspace unavailable and a recovery action with no private diagnostic/token content",
+      "decision": "aligned",
+      "reason": "The exact recovery state is required; raw response/key fragments must not appear.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-FRONTEND-ALIGNMENT.valid",
+      "test": "alignment.test.mjs#frontend alignment accepts independent reviewed positive and negative fixtures",
+      "source_sha256": "947f255af526a8cd83f8c408f55f2804218e4d4666112020cdb6a5bfe4935a72",
+      "scenario_sha256": "566b93722dc223bac446335751b1fc7b8c86af9d2344fbfa1c1a410b8e37f3a7",
+      "expected_observation": "No alignment errors",
+      "decision": "aligned",
+      "reason": "The fixture independently hashes its exact input and expected results; the gate must accept valid coverage.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-FRONTEND-ALIGNMENT.invalid",
+      "test": "alignment.test.mjs#frontend alignment rejects missing coverage and skipped tests",
+      "source_sha256": "947f255af526a8cd83f8c408f55f2804218e4d4666112020cdb6a5bfe4935a72",
+      "scenario_sha256": "9188665ce9727c77edf94d7148a25be72ea95fef02682ac4d98b325acb37d92f",
+      "expected_observation": "Reject each invalid state with a specific skip/requirements/source-changed/unmapped diagnostic",
+      "decision": "aligned",
+      "reason": "Fixtures introduce each bad condition and require its diagnostic. Stale source/coverage rejection is not a claim that hashes prove semantic truth.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K04-FRONTEND-ALIGNMENT.invalid",
+      "test": "alignment.test.mjs#frontend alignment rejects weakened tests and unrelated mappings after review",
+      "source_sha256": "947f255af526a8cd83f8c408f55f2804218e4d4666112020cdb6a5bfe4935a72",
+      "scenario_sha256": "9188665ce9727c77edf94d7148a25be72ea95fef02682ac4d98b325acb37d92f",
+      "expected_observation": "Reject each invalid state with a specific skip/requirements/source-changed/unmapped diagnostic",
+      "decision": "aligned",
+      "reason": "Fixtures introduce each bad condition and require its diagnostic. Stale source/coverage rejection is not a claim that hashes prove semantic truth.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-UPDATE-SURFACE.visible",
+      "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
+      "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
+      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
+      "decision": "aligned",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-UPDATE-SURFACE.visible",
+      "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
+      "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
+      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
+      "decision": "aligned",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-UPDATE-SURFACE.visible",
+      "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
+      "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
+      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
+      "decision": "aligned",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-UPDATE-SURFACE.failure",
+      "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
+      "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
+      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
+      "decision": "aligned",
+      "reason": "Every failure must reject with the exact generic error; success or reflecting private response/error text would fail.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-BUILD-IDENTITY.inputs",
+      "test": "build-info.test.mjs#build identity is stable across repeated builds and checkout newlines but changes with backend frontend or notes",
+      "scenario_sha256": "49988980e40ee08e66bcce7e2ddad4df966e6d18e1ff4ade9fc687d148d40036",
+      "source_sha256": "b70cca004c422179ac4f4cecb74d2d53c06526c6e81a10702720198bbf1635bf",
+      "expected_observation": "Produce stable64hex IDs across repeated builds/newlines/runtime changes, but a different ID for each backend/frontend/notes change",
+      "decision": "aligned",
+      "reason": "Independent mutations distinguish a constant ID, timestamp-only IDs, missing source families and accidental runtime inclusion. Exact release cursor is checked.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K05-BUILD-IDENTITY.invalid",
+      "test": "build-info.test.mjs#empty duplicate or malformed release metadata stops the build instead of generating a misleading release",
+      "scenario_sha256": "d99eabde9bb93842a3816f2be285d4b1d03b8988557e53c27a37c09d601a0957",
+      "source_sha256": "b70cca004c422179ac4f4cecb74d2d53c06526c6e81a10702720198bbf1635bf",
+      "expected_observation": "Refuse each invalid release with Invalid release metadata",
+      "decision": "aligned",
+      "reason": "Each invalid fixture must throw the expected diagnostic. The duplicate-ID pair has otherwise valid labels/cards, so duplicate detection cannot pass accidentally through a missing-label failure. No expected outcome was weakened.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.positive",
+      "test": "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
+      "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.positive",
+      "test": "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory",
+      "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PARENT.negative",
+      "test": "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name",
+      "scenario_sha256": "be6b76702496764787dc0accc91f89eee8d1950edc6c723d8ab212441d14b6f1",
+      "source_sha256": "9c963fa455f71e2f019c2f73814e056520ced25735532e724b2b126958c777a9",
+      "expected_observation": "A different physical parent or directory without the owned fixture prefix is rejected",
+      "decision": "aligned",
+      "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    }
+  ]
+}

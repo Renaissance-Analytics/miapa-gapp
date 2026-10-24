@@ -2,6 +2,8 @@
 
 Alignment runs first, before importing Django or app/test modules.
 """
+import argparse
+import json
 import os
 from pathlib import Path
 import sys
@@ -23,7 +25,10 @@ def suite_test_ids(suite):
             yield from suite_test_ids(item)
 
 
-def main():
+def main(argv=()):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report", type=Path)
+    args = parser.parse_args(argv)
     root = Path(__file__).resolve().parents[1]
     errors = check_alignment(root)
     if errors:
@@ -49,6 +54,11 @@ def main():
             failures = super().suite_result(suite, result, **kwargs)
             if required_result_code(result) and not failures:
                 print("Required tests missing/skipped/expected-failure: FAIL")
+            if args.report:
+                args.report.write_text(json.dumps({"tests": result.testsRun,
+                    "passed": result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped) - len(result.expectedFailures),
+                    "skipped": len(result.skipped) + len(result.expectedFailures),
+                    "failed": len(result.failures) + len(result.errors) + len(result.unexpectedSuccesses)}), encoding="utf-8")
             return max(failures, required_result_code(result))
 
     django.setup()
@@ -56,4 +66,4 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

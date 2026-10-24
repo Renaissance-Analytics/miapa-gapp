@@ -264,6 +264,247 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K05-DEV-SURFACE",
+      "risk": "A development asset host could leak private files or unintentionally become a production surface.",
+      "scenarios": [
+        {
+          "id": "K05-DEV-SURFACE.built",
+          "kind": "positive",
+          "given": "Explicit local development with a trusted synthetic build",
+          "when": "GET the shell and asset",
+          "then": "Serve the exact built files; shell is not cached",
+          "tests": [
+            "tests.test_development_surface.DevelopmentSurfaceTests.test_development_serves_built_shell_and_asset"
+          ]
+        },
+        {
+          "id": "K05-DEV-SURFACE.deny",
+          "kind": "negative",
+          "given": "Non-development mode, missing build or asset traversal",
+          "when": "Request local UI content",
+          "then": "Non-development and traversal return404 without private contents; missing build returns503",
+          "tests": [
+            "tests.test_development_surface.DevelopmentSurfaceTests.test_non_development_never_exposes_local_build",
+            "tests.test_development_surface.DevelopmentSurfaceTests.test_missing_development_build_is_unavailable",
+            "tests.test_development_surface.DevelopmentSurfaceTests.test_asset_traversal_cannot_read_private_runtime_file"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-APP-VERSION",
+      "risk": "Stale or private file data could be presented as a new deployed build, or a read endpoint could accept writes.",
+      "scenarios": [
+        {
+          "id": "K05-APP-VERSION.public",
+          "kind": "positive",
+          "given": "A generated build manifest with a valid hash and extra synthetic private-looking data",
+          "when": "Anonymous GET /api/version/",
+          "then": "200 with only the exact built hash and no-store; no extra manifest fields are exposed",
+          "tests": [
+            "tests.test_build_version.BuildVersionTests.test_version_exposes_only_public_built_identity_without_caching"
+          ]
+        },
+        {
+          "id": "K05-APP-VERSION.refuse",
+          "kind": "negative",
+          "given": "Missing, broken, oversized, wrong-schema or malformed build metadata, or an attempted version write",
+          "when": "Read or POST the version endpoint",
+          "then": "Invalid metadata returns generic503/no-store; writes return405 with Allow GET",
+          "tests": [
+            "tests.test_build_version.BuildVersionTests.test_missing_or_invalid_metadata_never_claims_a_version_or_leaks_details",
+            "tests.test_build_version.BuildVersionTests.test_version_is_read_only"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-ACP-CLIENT",
+      "risk": "A pipe client could misroute concurrent replies or another account's session, deadlock approvals, leak diagnostics, or leave requests pending after failure.",
+      "scenarios": [
+        {
+          "id": "K05-ACP-CLIENT.positive",
+          "kind": "positive",
+          "given": "An application-owned ACP client with a fixed trusted workspace and immutable user/account scope, exercised with a synthetic bidirectional subprocess peer",
+          "when": "Initialize, create/prompt/read a session, correlate simultaneous replies, handle server requests, and stop or fail the connection",
+          "then": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+          "tests": [
+            "tests.test_acp_client.AcpClientTests.test_correlates_reversed_responses_and_negotiates_protocol",
+            "tests.test_acp_client.AcpClientTests.test_reads_updates_and_denies_permission_before_prompt_finishes",
+            "tests.test_acp_client.AcpClientTests.test_session_launch_uses_fixed_workspace_and_no_browser_mcp_configuration",
+            "tests.test_acp_client.AcpClientTests.test_shutdown_report_is_distinct_from_process_exit"
+          ]
+        },
+        {
+          "id": "K05-ACP-CLIENT.negative",
+          "kind": "negative",
+          "given": "An application-owned ACP client with a fixed trusted workspace and immutable user/account scope, exercised with a synthetic bidirectional subprocess peer",
+          "when": "Initialize, create/prompt/read a session, correlate simultaneous replies, handle server requests, and stop or fail the connection",
+          "then": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
+          "tests": [
+            "tests.test_acp_client.AcpClientTests.test_foreign_user_or_account_cannot_send_or_read_session_data",
+            "tests.test_acp_client.AcpClientTests.test_bad_frames_fail_pending_requests_without_reflecting_provider_data",
+            "tests.test_acp_client.AcpClientTests.test_deadline_closes_connection_without_retry_or_late_authority",
+            "tests.test_acp_client.AcpClientTests.test_invalid_scope_and_relative_executable_are_refused_before_spawn",
+            "tests.test_acp_client.AcpClientTests.test_worker_profile_must_match_account_user_and_fixed_workspace",
+            "tests.test_acp_client.AcpClientTests.test_parent_secrets_and_runtime_injection_variables_are_not_inherited",
+            "tests.test_acp_client.AcpClientTests.test_oversized_outgoing_request_is_refused_without_breaking_initialization"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-ACP-HOST",
+      "risk": "Consumer bootstrap could misdeclare package identity, accept a browser-selected workspace/MCP configuration, lose standard driver updates, or confuse EOF with provider shutdown.",
+      "scenarios": [
+        {
+          "id": "K05-ACP-HOST.positive",
+          "kind": "positive",
+          "given": "The exact installed published ACP package, a trusted synthetic account/home/workspace profile, and the application Python/Node bootstrap",
+          "when": "Initialize the real entry, exercise a session using the published CodexDriver with a synthetic transport, or attempt foreign workspace/MCP input",
+          "then": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_real_entry_initializes_published_host_and_reports_zero_provider_shutdown",
+            "tests.test_acp_host.AcpHostTests.test_python_host_published_codex_driver_session_and_stream_round_trip"
+          ]
+        },
+        {
+          "id": "K05-ACP-HOST.negative",
+          "kind": "negative",
+          "given": "The exact installed published ACP package, a trusted synthetic account/home/workspace profile, and the application Python/Node bootstrap",
+          "when": "Initialize the real entry, exercise a session using the published CodexDriver with a synthetic transport, or attempt foreign workspace/MCP input",
+          "then": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_host_refuses_foreign_workspace_or_mcp_before_constructing_a_driver"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K05-AUTHENTICATED-ACP",
+      "risk": "A browser could choose another user's provider profile, launch privileged workers, leak setup paths/diagnostics, or confuse a transport handshake with subscription readiness.",
+      "scenarios": [
+        {
+          "id": "K05-AUTHENTICATED-ACP.positive",
+          "kind": "positive",
+          "given": "Two Django-authenticated users with server-owned account metadata and synthetic isolated transport-check storage",
+          "when": "List owned accounts, request or read a transport check, forge identity/configuration, or encounter failures",
+          "then": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+          "tests": [
+            "tests.test_agent_accounts.AgentAccountTests.test_runtime_list_uses_authenticated_owner_and_exposes_no_paths_or_login_claim",
+            "tests.test_agent_accounts.AgentAccountTests.test_actual_authenticated_transport_check_records_no_provider_readiness",
+            "tests.test_agent_accounts.AgentAccountTests.test_second_user_owns_a_real_transport_check_without_access_to_first_user_history"
+          ]
+        },
+        {
+          "id": "K05-AUTHENTICATED-ACP.negative",
+          "kind": "negative",
+          "given": "Two Django-authenticated users with server-owned account metadata and synthetic isolated transport-check storage",
+          "when": "List owned accounts, request or read a transport check, forge identity/configuration, or encounter failures",
+          "then": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
+          "tests": [
+            "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_unknown_providers",
+            "tests.test_agent_accounts.AgentAccountTests.test_anonymous_and_inactive_users_cannot_read_accounts_or_check_history",
+            "tests.test_agent_accounts.AgentAccountTests.test_foreign_disabled_and_missing_accounts_are_indistinguishable",
+            "tests.test_agent_accounts.AgentAccountTests.test_missing_csrf_and_foreign_origin_never_create_a_check",
+            "tests.test_agent_accounts.AgentAccountTests.test_client_cannot_supply_identity_profile_workspace_commands_or_mcp",
+            "tests.test_agent_accounts.AgentAccountTests.test_malformed_or_overbudget_check_bodies_are_rejected",
+            "tests.test_agent_accounts.AgentAccountTests.test_account_cooldown_refuses_overlap_without_starting_or_recording_work",
+            "tests.test_agent_accounts.AgentAccountTests.test_broken_runtime_is_generic_and_history_stays_owned",
+            "tests.test_agent_accounts.AgentAccountTests.test_accounts_are_read_only_and_check_history_rejects_delete",
+            "tests.test_agent_accounts.AgentAccountTests.test_runtime_failure_is_recorded_without_reflecting_diagnostics_or_claiming_login",
+            "tests.test_agent_accounts.AgentAccountTests.test_reassigned_account_does_not_disclose_the_previous_requesters_history"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-PIPELINE",
+      "risk": "A partial, stale or exit-zero-only check could publish misleading all-green evidence.",
+      "scenarios": [
+        {
+          "id": "K06-PIPELINE.positive",
+          "kind": "positive",
+          "given": "A fixed bootstrap stage sequence with synthetic child evidence and exact candidate snapshots",
+          "when": "Execute all required gates or inject missing evidence, failures or source changes",
+          "then": "A complete unchanged candidate passes in alignment-first/browser-last order with exact build evidence",
+          "tests": [
+            "tests.test_ci.CiTests.test_complete_run_binds_identity_and_browser_is_last"
+          ]
+        },
+        {
+          "id": "K06-PIPELINE.negative",
+          "kind": "negative",
+          "given": "A fixed bootstrap stage sequence with synthetic child evidence and exact candidate snapshots",
+          "when": "Execute all required gates or inject missing evidence, failures or source changes",
+          "then": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
+          "tests": [
+            "tests.test_ci.CiTests.test_alignment_failure_prevents_all_later_work",
+            "tests.test_ci.CiTests.test_failure_at_every_stage_stops_later_effects",
+            "tests.test_ci.CiTests.test_empty_skipped_failed_or_missing_test_evidence_cannot_pass",
+            "tests.test_ci.CiTests.test_browser_missing_cleanup_or_wrong_build_cannot_pass",
+            "tests.test_ci.CiTests.test_source_change_even_after_browser_invalidates_candidate",
+            "tests.test_ci.CiTests.test_command_exception_and_unstructured_success_fail_closed",
+            "tests.test_ci.CiTests.test_missing_or_malformed_candidate_identity_prevents_execution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-CLOSURE",
+      "risk": "Dependency checks could reject legitimate npm bundles or accept unapproved installed code and unsafe registries.",
+      "scenarios": [
+        {
+          "id": "K06-CLOSURE.positive",
+          "kind": "positive",
+          "given": "Synthetic exact manifest, npm lock and installed package directory",
+          "when": "Check ordinary/bundled published closure or inject extra, unpinned, mismatched or unsafe entries",
+          "then": "Exact installed closure with integrity-covered optional bundles passes",
+          "tests": [
+            "tests.test_ci_dependencies.DependencyCheckTests.test_accepts_exact_registry_install_and_integrity_covered_optional_bundle"
+          ]
+        },
+        {
+          "id": "K06-CLOSURE.negative",
+          "kind": "negative",
+          "given": "Synthetic exact manifest, npm lock and installed package directory",
+          "when": "Check ordinary/bundled published closure or inject extra, unpinned, mismatched or unsafe entries",
+          "then": "Unapproved installed packages, unverified bundles and unsafe dependency inputs fail",
+          "tests": [
+            "tests.test_ci_dependencies.DependencyCheckTests.test_bundle_marker_without_verified_parent_is_refused",
+            "tests.test_ci_dependencies.DependencyCheckTests.test_extra_installed_package_or_wrong_version_is_refused",
+            "tests.test_ci_dependencies.DependencyCheckTests.test_missing_required_unpinned_or_foreign_registry_dependency_is_refused"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BROWSER-REPORT",
+      "risk": "Hosted diagnostics could leak child paths/cookies or mistake malformed cleanup evidence for verified cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-REPORT.positive",
+          "kind": "positive",
+          "given": "Child failure metadata containing a fixed stage code or arbitrary diagnostic fields",
+          "when": "Create public-safe failure evidence",
+          "then": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-REPORT.negative",
+          "kind": "negative",
+          "given": "Child failure metadata containing a fixed stage code or arbitrary diagnostic fields",
+          "when": "Create public-safe failure evidence",
+          "then": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified"
+          ]
+        }
+      ]
     }
   ]
 }

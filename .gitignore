@@ -9,5 +9,7 @@ artifacts/
 *.sqlite3
 node_modules/
 frontend/dist/
+frontend/.test-build/
+*.tsbuildinfo
 .DS_Store
 Thumbs.db
