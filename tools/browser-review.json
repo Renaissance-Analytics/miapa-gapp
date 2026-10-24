@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "23bb6f084a80d6877aa75157ef50adfb39431ed9c20baaef59c38d7d8657f8e4",
-    "tools/check_browser.py": "fd6cb7c2a659a6e0b02baa4a76d12712a825ce012e74bb599c8722ec4f0fabb9",
+    "tools/browser.mjs": "b8486fa4ba7eef7b7aab7b6a29499fdcfecc2b1c7a401307c4b208e4646568fe",
+    "tools/check_browser.py": "d6d8671e425808fc67347da85a507ac42cf3401a9537bbe45d9f41b1ec687001",
     "tools/browser-profile.mjs": "81d4dbdcc7b848a29a198cb951313644b6fb19085ee4da895f5d436b387af753"
   },
   "cases": [
@@ -34,14 +34,24 @@
       "expected": "Narrow work panel is active, then pointer-selected Conversation reverses both inert states."
     },
     {
+      "id": "real-login-and-server-role",
+      "kind": "positive",
+      "expected": "Actual native input and pointer submission rejects an incorrect password with generic feedback, clears it, then authenticates the synthetic preparer and reads the exact server role/transport permission."
+    },
+    {
       "id": "authenticated-account-scope",
       "kind": "negative",
-      "expected": "Synthetic server session loads Signed in and own account ID, excluding another owner's account."
+      "expected": "A real password-authenticated synthetic preparer sees Signed in and its own account ID, excluding another owner account."
     },
     {
       "id": "csrf-and-real-zero-provider-transport",
       "kind": "negative",
       "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."
+    },
+    {
+      "id": "logout-and-viewer-denial",
+      "kind": "negative",
+      "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
     },
     {
       "id": "no-uncaught-exceptions",
@@ -54,6 +64,8 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Hashes preserve semantic review, not semantic correctness. Not a login UI, live conversation, full accessibility, worker isolation or Q05/Q06 release test. Each candidate requires its own final shared run.",
-  "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged."
+  "limits": "Hashes preserve review, not semantic correctness. Actual login/logout/role/private-account browser acceptance is required on this candidate; live providers, complete accessibility, integrated OS worker isolation and full Q05/Q06 remain open.",
+  "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
+  "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
+  "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes."
 }

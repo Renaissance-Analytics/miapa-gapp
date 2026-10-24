@@ -15,7 +15,8 @@ class ConfigurationTests(unittest.TestCase):
         command = (
             "import json; from backend.maipa import settings as s; "
             "print(json.dumps({'debug':s.DEBUG,'hosts':s.ALLOWED_HOSTS,"
-            "'session_secure':s.SESSION_COOKIE_SECURE,'csrf_secure':s.CSRF_COOKIE_SECURE}))"
+            "'session_secure':s.SESSION_COOKIE_SECURE,'csrf_secure':s.CSRF_COOKIE_SECURE,"
+            "'csrf_origins':getattr(s,'CSRF_TRUSTED_ORIGINS',[])}))"
         )
         return subprocess.run([sys.executable, "-c", command], env=env,
                               cwd=Path(__file__).resolve().parents[1],
@@ -48,10 +49,22 @@ class ConfigurationTests(unittest.TestCase):
                                      "MAIPA_ALLOWED_HOSTS": "maipa.example"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), {"debug": False, "hosts": ["maipa.example"],
-                                                    "session_secure": True, "csrf_secure": True})
+                                                    "session_secure": True, "csrf_secure": True, "csrf_origins": []})
 
     def test_explicit_local_mode_uses_loopback_http_only(self):
         result = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4, "MAIPA_LOCAL_DEV": "1"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout), {"debug": False, "hosts": ["localhost", "127.0.0.1", "[::1]"],
-                                                    "session_secure": False, "csrf_secure": False})
+                                                    "session_secure": False, "csrf_secure": False, "csrf_origins": []})
+
+    def test_genie_local_mode_trusts_only_its_exact_https_origin(self):
+        result = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4,
+                                     "MAIPA_ALLOWED_HOSTS": "maipa.gen,127.0.0.1", "MAIPA_LOCAL_DEV": "1"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["csrf_origins"], ["https://maipa.gen"])
+
+    def test_genie_origin_trust_is_absent_for_production_or_other_local_hosts(self):
+        for changes in ({"MAIPA_ALLOWED_HOSTS": "maipa.gen"}, {"MAIPA_ALLOWED_HOSTS": "other.gen", "MAIPA_LOCAL_DEV": "1"}):
+            result = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4} | changes)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["csrf_origins"], [])

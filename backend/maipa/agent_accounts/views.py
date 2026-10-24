@@ -9,6 +9,7 @@ from django.utils import timezone
 from backend.maipa.api import error, method_not_allowed
 from .models import AgentAccount, TransportCheck
 from . import runtime
+from backend.maipa.workspace.policy import authorize
 
 
 def _authenticated(request):
@@ -16,8 +17,9 @@ def _authenticated(request):
 
 
 def accounts(request):
-    if not _authenticated(request):
-        return error("authentication_required", 401)
+    _, denied = authorize(request, "agent.accounts.read")
+    if denied is not None:
+        return denied
     if request.method != "GET":
         return method_not_allowed("GET")
     try:
@@ -32,8 +34,9 @@ def accounts(request):
 
 
 def transport_checks(request, account_id):
-    if not _authenticated(request):
-        return error("authentication_required", 401)
+    _, denied = authorize(request, "agent.transport.check" if request.method == "POST" else "agent.accounts.read")
+    if denied is not None:
+        return denied
     if request.method not in {"GET", "POST"}:
         return method_not_allowed("GET, POST")
     account = AgentAccount.objects.filter(pk=account_id, owner=request.user, enabled=True).first()

@@ -18,6 +18,10 @@ class AgentAccountTests(TestCase):
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(username="synthetic-agent-owner")
         cls.other = get_user_model().objects.create_user(username="synthetic-agent-other")
+        from backend.maipa.workspace.models import Installation, Membership
+        installation = Installation.objects.create()
+        for user in (cls.user, cls.other):
+            Membership.objects.create(installation=installation, user=user, role="preparer")
         cls.account = AgentAccount.objects.create(owner=cls.user, provider="codex", label="Personal Codex")
         cls.foreign = AgentAccount.objects.create(owner=cls.other, provider="claude", label="synthetic-private-label")
         cls.disabled = AgentAccount.objects.create(owner=cls.user, provider="claude", label="Disabled", enabled=False)
@@ -48,6 +52,22 @@ class AgentAccountTests(TestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 AgentAccount.objects.create(owner=self.user, provider="untrusted", label="Unknown")
+
+    def test_actual_transport_has_verified_appcontainer_and_empty_job(self):
+        from backend.maipa.agent_accounts.runtime import probe_transport
+        self.assertEqual(probe_transport(self.account),
+            {"isolation": "windows-appcontainer", "job_empty": True, "provider_sessions": 0})
+
+    def test_stale_reassigned_or_revoked_account_cannot_launch_a_worker(self):
+        from backend.maipa.agent_accounts.runtime import probe_transport
+        from backend.maipa.workspace.models import Membership
+        Membership.objects.filter(user=self.user).update(enabled=False)
+        with self.assertRaises(TransportUnavailable):
+            probe_transport(self.account)
+        Membership.objects.filter(user=self.user).update(enabled=True)
+        AgentAccount.objects.filter(pk=self.account.pk).update(owner=self.other)
+        with self.assertRaises(TransportUnavailable):
+            probe_transport(self.account)
 
     def test_runtime_list_uses_authenticated_owner_and_exposes_no_paths_or_login_claim(self):
         self.sign_in()

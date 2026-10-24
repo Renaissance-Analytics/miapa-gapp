@@ -190,6 +190,46 @@
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P01-LOGIN-UI.valid",
+      "test": "auth.test.mjs#sign-in sends bounded same-origin credentials with the server CSRF token and retains no secrets",
+      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "scenario_sha256": "fdd10cce34527ad4051a7abdae68b9c969db3345807ade0e224f96082544a022",
+      "expected_observation": "Use same-origin no-store nonredirecting CSRF-protected requests, keep credentials out of retained state, and verify logout acknowledgement.",
+      "decision": "aligned",
+      "reason": "Fixed request paths/options/payloads and safe result states are checked independently. The markup assertions require actual labelled Fancy password controls. These adapter/markup tests do not replace the real browser/backend lifecycle.",
+      "reviewer": "Maipa independent P01 frontend review; no external review claimed"
+    },
+    {
+      "scenario": "P01-LOGIN-UI.valid",
+      "test": "auth.test.mjs#sign-out requires CSRF POST and a verified backend response",
+      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "scenario_sha256": "fdd10cce34527ad4051a7abdae68b9c969db3345807ade0e224f96082544a022",
+      "expected_observation": "Use same-origin no-store nonredirecting CSRF-protected requests, keep credentials out of retained state, and verify logout acknowledgement.",
+      "decision": "aligned",
+      "reason": "Fixed request paths/options/payloads and safe result states are checked independently. The markup assertions require actual labelled Fancy password controls. These adapter/markup tests do not replace the real browser/backend lifecycle.",
+      "reviewer": "Maipa independent P01 frontend review; no external review claimed"
+    },
+    {
+      "scenario": "P01-LOGIN-UI.controls",
+      "test": "auth.test.mjs#anonymous workspace has a labelled password form and authenticated workspace has sign-out",
+      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "scenario_sha256": "9b25dad499834b96483ba158ef2b46ca2640a1d353ff7798ef524a0154f2a18b",
+      "expected_observation": "Expose a labelled username/password form with native autocomplete semantics only while signed out, and Sign out only while authenticated.",
+      "decision": "aligned",
+      "reason": "Fixed request paths/options/payloads and safe result states are checked independently. The markup assertions require actual labelled Fancy password controls. These adapter/markup tests do not replace the real browser/backend lifecycle.",
+      "reviewer": "Maipa independent P01 frontend review; no external review claimed"
+    },
+    {
+      "scenario": "P01-LOGIN-UI.failure",
+      "test": "auth.test.mjs#sign-in errors never expose raw diagnostics and failed CSRF bootstrap sends no password",
+      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "scenario_sha256": "9d0e988aa620133b9758fd634beaca2df95e1beaf655f010d0bd7aab0daa9ec6",
+      "expected_observation": "Return only fixed safe failure states; never send a password after invalid CSRF bootstrap or reflect raw server diagnostics.",
+      "decision": "aligned",
+      "reason": "Fixed request paths/options/payloads and safe result states are checked independently. The markup assertions require actual labelled Fancy password controls. These adapter/markup tests do not replace the real browser/backend lifecycle.",
+      "reviewer": "Maipa independent P01 frontend review; no external review claimed"
     }
   ]
 }

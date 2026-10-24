@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "authenticated_scope", "transport_csrf", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -54,26 +54,28 @@ def main():
         django.setup()
         from django.core.management import call_command
         from django.contrib.auth import get_user_model
-        from django.test import Client
         from backend.maipa.agent_accounts.models import AgentAccount
+        from backend.maipa.workspace.models import Installation, Membership
         from django.core.wsgi import get_wsgi_application
         from django.db import connections
         with open(os.devnull, "w") as silent:
             call_command("migrate", interactive=False, verbosity=0, stdout=silent)
-        owner = get_user_model().objects.create_user(username="synthetic-browser-owner")
-        other = get_user_model().objects.create_user(username="synthetic-browser-other")
+        password = secrets.token_urlsafe(24)
+        owner = get_user_model().objects.create_user(username="synthetic-browser-owner", password=password)
+        other = get_user_model().objects.create_user(username="synthetic-browser-other", password=password)
+        installation = Installation.objects.create()
+        Membership.objects.create(installation=installation, user=owner, role="preparer")
+        Membership.objects.create(installation=installation, user=other, role="viewer")
         owned = AgentAccount.objects.create(owner=owner, provider="codex", label="Synthetic owned account")
         foreign = AgentAccount.objects.create(owner=other, provider="claude", label="Synthetic foreign account")
-        client = Client()
-        client.force_login(owner)
-        cookie = client.cookies[settings.SESSION_COOKIE_NAME].value
         server = make_server("127.0.0.1", 0, get_wsgi_application(), handler_class=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
             manifest = json.loads((ROOT / "frontend/dist/build-info.json").read_text(encoding="utf-8"))
             data = {"origin": f"http://127.0.0.1:{server.server_port}", "profile_root": str(fixture_root), "build_id": manifest["build_id"],
-                    "release_label": manifest["release_label"], "cookie": cookie, "user_id": str(owner.pk),
+                    "release_label": manifest["release_label"], "username": owner.username, "viewer_username": other.username,
+                    "password": password, "user_id": str(owner.pk),
                     "account_id": str(owned.pk), "foreign_account_id": str(foreign.pk)}
             node = shutil.which("node")
             if not node:

@@ -163,6 +163,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P01-LOGIN-UI",
+      "risk": "Login UI could send passwords without CSRF, leak credentials/diagnostics, or misrepresent failed logout as success.",
+      "scenarios": [
+        {
+          "id": "P01-LOGIN-UI.valid",
+          "kind": "positive",
+          "given": "A server CSRF token and successful login/logout responses",
+          "when": "Submit real authentication actions through the client adapters",
+          "then": "Use same-origin no-store nonredirecting CSRF-protected requests, keep credentials out of retained state, and verify logout acknowledgement.",
+          "tests": [
+            "auth.test.mjs#sign-in sends bounded same-origin credentials with the server CSRF token and retains no secrets",
+            "auth.test.mjs#sign-out requires CSRF POST and a verified backend response"
+          ]
+        },
+        {
+          "id": "P01-LOGIN-UI.controls",
+          "kind": "positive",
+          "given": "Anonymous and authenticated session models",
+          "when": "Render the real workspace",
+          "then": "Expose a labelled username/password form with native autocomplete semantics only while signed out, and Sign out only while authenticated.",
+          "tests": [
+            "auth.test.mjs#anonymous workspace has a labelled password form and authenticated workspace has sign-out"
+          ]
+        },
+        {
+          "id": "P01-LOGIN-UI.failure",
+          "kind": "negative",
+          "given": "Invalid credentials, rate limit, identity conflict, server failure or malformed CSRF bootstrap",
+          "when": "Attempt sign-in",
+          "then": "Return only fixed safe failure states; never send a password after invalid CSRF bootstrap or reflect raw server diagnostics.",
+          "tests": [
+            "auth.test.mjs#sign-in errors never expose raw diagnostics and failed CSRF bootstrap sends no password"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -42,7 +42,7 @@ def _invalid_number(value):
 
 
 class AcpClient:
-    def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576):
+    def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576, launcher=None):
         if (not isinstance(scope, Scope) or not isinstance(command, (list, tuple)) or
                 not command or not all(isinstance(arg, str) and arg and "\0" not in arg for arg in command) or
                 not Path(command[0]).is_absolute() or not Path(command[0]).is_file()):
@@ -56,6 +56,7 @@ class AcpClient:
             raise ValueError("Invalid ACP budget")
         self.workspace = workspace.resolve()
         self._scope = scope
+        self._launcher = launcher  # Trusted server capability, never HTTP configuration.
         self._command = tuple(command)
         self._env = {key: value for key, value in os.environ.items()
                      if key.upper() in {"PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP"}}
@@ -108,9 +109,13 @@ class AcpClient:
         if self._process is not None or self._failed:
             raise AcpError("ACP connection unavailable")
         try:
-            self._process = await asyncio.create_subprocess_exec(*self._command,
-                cwd=self.workspace, env=self._env, stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, limit=self._budget + 1)
+            if self._launcher is None:
+                self._process = await asyncio.create_subprocess_exec(*self._command,
+                    cwd=self.workspace, env=self._env, stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, limit=self._budget + 1)
+            else:
+                self._process = await self._launcher.spawn(self._command, scope=self._scope,
+                    cwd=self.workspace, env=self._env, limit=self._budget + 1)
         except OSError:
             self._failed = True
             raise AcpError("ACP connection unavailable") from None
@@ -204,8 +209,11 @@ class AcpClient:
         future = asyncio.get_running_loop().create_future()
         self._pending[number] = future
         try:
-            await self._write({"jsonrpc": "2.0", "id": number, "method": method, "params": params})
-            return await asyncio.wait_for(future, timeout=self._timeout if timeout is None else timeout)
+            # A worker that never reads can fill its input pipe. The deadline
+            # covers writing as well as waiting for the correlated response.
+            async with asyncio.timeout(self._timeout if timeout is None else timeout):
+                await self._write({"jsonrpc": "2.0", "id": number, "method": method, "params": params})
+                return await future
         except (TimeoutError, OSError):
             self._fail()
             await self._terminate()

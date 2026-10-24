@@ -35,6 +35,10 @@ class SessionApiTests(TestCase):
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(username="synthetic-user")
         cls.other = get_user_model().objects.create_user(username="synthetic-other")
+        from backend.maipa.workspace.models import Installation, Membership
+        installation = Installation.objects.create()
+        for user in (cls.user, cls.other):
+            Membership.objects.create(installation=installation, user=user, role="preparer")
 
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)

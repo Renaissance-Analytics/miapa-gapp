@@ -16,7 +16,8 @@ import time
 STAGES = ("alignment", "dependencies", "static", "backend", "frontend", "migrations", "build", "browser")
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_CASES = ("anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
-                 "mobile-panels", "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
+                 "mobile-panels", "real-login-and-server-role", "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
+                 "logout-and-viewer-denial",
                  "no-uncaught-exceptions", "owned-browser-cleanup")
 
 

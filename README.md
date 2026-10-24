@@ -2,10 +2,11 @@
 
 My AI Professional Accountant. Product repository spelling: `miapa-gapp`.
 
-This local candidate contains a Python/Django API foundation and a TypeScript
+This public repository contains a Python/Django API foundation and a TypeScript
 Fancy workspace shell in the approved Calm ledger design, with System/Light/Dark
-appearance. Both backend and frontend have acceptance-alignment gates. Published
-Prism ACP transport now has a scoped Python/Node bootstrap; live provider account
+appearance. Both backend and frontend have acceptance-alignment gates.
+Workspace members can sign in and out with server-owned installation membership
+and initial roles. Prism ACP transport has a scoped Python/Node bootstrap; live provider account
 integration and the accounting workflows remain unfinished. This is
 not a usable accounting product or a release candidate.
 
@@ -45,8 +46,14 @@ recorded review, not a proof of semantic correctness. See [test review](docs/tes
 - `GET /api/health/`: minimal public liveness, no database/provider readiness claim.
 - `GET /api/version/`: public built-bundle fingerprint, uncached; no account data.
 - `GET /api/session/`: Django-authenticated user ID and masked CSRF token; otherwise
-  `401`. Responses are private and cannot be cached.
+  `401`, or `403` when workspace membership is unavailable. Responses cannot be cached.
+- `GET /api/session/csrf/`: minimal public CSRF bootstrap, uncached.
+- `POST /api/session/login/`: bounded strict JSON username/password, same-origin
+  CSRF, generic failures, shared five-attempt/15-minute login budget, and real
+  Django session/CSRF rotation. An existing signed-in identity cannot be switched.
 - `POST /api/session/logout/`: authenticated, CSRF-protected session invalidation.
+- `GET /api/workspace/`: the server-selected sole installation and current member
+  role/permissions; query/header tenant or role hints cannot change authority.
 - Errors use `{"error":{"code":"..."}}`; unknown path/host details are not reflected.
 
 Authenticated account metadata and a zero-provider transport check now bridge
@@ -56,8 +63,19 @@ Checks and history retain the original requester and never claim provider login.
 See [account transport checks](docs/agent-account-transport.md).
 
 The session endpoint never accepts a user identity from a query/header. User
-provisioning/login UI, roles/entity authority, finance operations and live provider
-sessions are separate unfinished work. No finance/provider execution is exposed.
+membership is checked on each protected request. Administrator/preparer members
+can start their own zero-provider checks; reviewer/viewer members can read their
+own account metadata/history. Administrator status does not expose another user's
+private provider account. Finance-specific role/entity authority and live provider
+sessions remain unfinished. No finance/provider execution is exposed.
+
+In a configured, trusted backend console, create users using Django's interactive
+`createsuperuser` command (or another approved operator provisioning path), then
+run `backend/manage.py grant_workspace_access --username <name> --role <role>`.
+Roles are `administrator`, `preparer`, `reviewer` and `viewer`. This command only
+grants membership to an existing active password user; it accepts no password or
+HTTP input. Django staff/superuser flags alone do not grant workspace access.
+Do not put passwords or the private server signing key in command-line arguments.
 
 ## Development serving
 
@@ -65,6 +83,9 @@ Serving requires a private random `MAIPA_SECRET_KEY` of at least 50 characters.
 Do not put it in tracked files. Configure exact `MAIPA_ALLOWED_HOSTS` names;
 wildcards are rejected. `MAIPA_LOCAL_DEV=1` explicitly allows local HTTP cookie
 settings and defaults the host list to loopback names. `DEBUG` remains false.
+When that explicit local mode also allows `maipa.gen`, CSRF trusts exactly
+`https://maipa.gen` for Genie's HTTPS-to-loopback proxy. It does not trust wildcard
+origins or forwarded-protocol headers. Production origin/TLS policy remains K01.
 
 Create the ignored `runtime/` directory before local migrations. SQLite uses the
 Python standard library and is local development storage; production database,
@@ -116,19 +137,24 @@ build-identity contract. Keep these notes current as application work progresses
 The shared bootstrap pipeline is now `tools.ci`: see [CI checks](docs/ci.md)
 for locked environment preparation, alignment-first stage ordering, candidate
 evidence and the final isolated native-browser check. The GitHub workflow calls
-this same entrypoint on Windows2025. Hosted execution remains pending initial
-approved source publication; a local report does not imply hosted success.
+this same entrypoint on Windows2025. The approved bootstrap has hosted green
+evidence; changed P01 source still needs its own local and hosted candidate checks.
 
 The backend includes an application-owned Python ACP client and a Node host
-using exact published Prism ACP0.24.1. Immutable user/account scope, fixed
-workspace/home profiles, opaque application session handles and bounded streams
-are tested. Permission requests currently cancel; no approval grant is invented.
+using exact published Prism ACP0.24.1. Authenticated transport checks now run
+inside a verified Windows AppContainer with a job assigned before execution.
+Each worker receives an exact-byte, read-only runtime and its own writable
+workspace/home. Real worker/descendant tests deny other-user and server files;
+deadlines, revocation and server death verify actual process cleanup. See
+[Windows worker isolation](docs/windows-worker-isolation.md).
+Opaque application session handles and bounded streams are tested. Permission
+requests currently cancel; no approval grant is invented.
 The product entry initializes successfully; a synthetic transport under the
 published CodexDriver tests the session/stream round trip. These tests use no
-provider login, credentials or model calls. Provider provisioning, OS/account
-isolation, durable transcripts/resume, live turn/shutdown and conversation HTTP/UI
-integration
-remain open. See [ACP bootstrap](docs/acp-bootstrap.md).
+provider login, credentials or model calls. Provider provisioning, actual provider
+CLI/network/IPC compatibility inside the boundary, durable transcripts/resume,
+live turn/shutdown and conversation HTTP/UI integration remain open.
+See [ACP bootstrap](docs/acp-bootstrap.md).
 
 Backend and future frontend share this repository. Application code, adapters,
 authorization, persistence and tests belong here; package owners work only on
@@ -137,6 +163,6 @@ their released packages. No PHP backend or PHP ACP package is used.
 The local backend checks are a scoped check, not the complete CI/release pipeline.
 Design approval and Windows frontend build/typecheck are verified. Complete
 browser/ACP/finance/admin acceptance, production hardening and exact-candidate
-shipping approval remain open. The public empty GitHub repository exists; source
-publication, hosted CI, the submodule pin and clean remote clone remain pending.
-No source has been published.
+shipping approval remain open. The approved bootstrap source is merged on main,
+with hosted CI, a tracked submodule pin and clean anonymous clone verified.
+Current P01 changes require their own exact-green source publication approval.

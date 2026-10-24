@@ -3,6 +3,7 @@ import { Button, Card, initTheme, ResizablePanels, useTheme } from "@particle-ac
 import { readSession, themeStorageKey, type SessionState } from "./api.js";
 import { BuildUpdates } from "./BuildUpdates.js";
 import { updatesStorageKey } from "./updates.js";
+import { SignInForm, SignOutButton } from "./Authentication.js";
 
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const theme = useTheme();
@@ -49,7 +50,8 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
       </section>
       <section className="work-panel" data-pane="work" aria-label="Work area" inert={narrow && pane !== "work"}>
         <div className="work-heading"><div><span className="eyebrow">Your workspace</span><h2>Work area</h2></div>
-          <span className="connection" role="status"><span aria-hidden="true" />{status}</span>
+          <div className="session-controls"><span className="connection" role="status"><span aria-hidden="true" />{status}</span>
+            {session.state === "authenticated" && <SignOutButton refresh={refresh} />}</div>
         </div>
         <div className="work-content">
           <Card className="welcome-card" variant="outlined" sections="plain">
@@ -59,6 +61,7 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
                 ? "Your books, documents and conversations belong to your private workspace. Sign in is required before accessing them."
                 : "Books, evidence and reviewed proposals share this work area, alongside your conversation with Maipa."}</p>
               {failed && <Button className="retry-button" onClick={refresh}>Try again</Button>}
+              {anonymous && <SignInForm refresh={refresh} />}
               <div className="workspace-principles"><div><span aria-hidden="true">01</span><strong>Keep the source</strong><p>Financial work stays connected to its evidence.</p></div>
                 <div><span aria-hidden="true">02</span><strong>Review the proposal</strong><p>Know what is being changed before you approve it.</p></div>
                 <div><span aria-hidden="true">03</span><strong>Verify the outcome</strong><p>Clear results, with a record you can follow.</p></div></div>

@@ -1,7 +1,7 @@
 name: Bootstrap checks
 on:
   push:
-    branches: [main, bootstrap/maipa-workspace]
+    branches: [main, bootstrap/maipa-workspace, 'feature/**']
   pull_request:
     branches: [main]
 permissions:
