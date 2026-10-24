@@ -33,3 +33,27 @@ class LoginBudget(models.Model):
 
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(attempts__lte=5), name="workspace_login_attempt_budget")]
+
+
+class BootstrapState(models.Model):
+    """Migration-created write lock; closure survives users being disabled/deleted."""
+    slot = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    closed = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(slot=1), name='workspace_single_bootstrap')]
+
+
+class AccountOnboarding(models.Model):
+    identity = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    installation = models.ForeignKey(Installation, on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    step = models.CharField(max_length=24, default='display_name')
+    draft = models.JSONField(default=dict)
+    messages = models.JSONField(default=list)
+    entity = models.ForeignKey('intake.Entity', null=True, on_delete=models.PROTECT)
+    deferred = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_setup_revision')]

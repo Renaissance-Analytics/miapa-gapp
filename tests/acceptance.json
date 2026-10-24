@@ -974,6 +974,168 @@
           ]
         }
       ]
+    },
+    {
+      "id": "LOCAL-ONBOARDING",
+      "risk": "Anonymous install takeover, duplicate admins, lost/private setup progress or fake financial/provider configuration.",
+      "scenarios": [
+        {
+          "id": "LOCAL-ONBOARDING.1",
+          "kind": "positive",
+          "given": "A pristine database and local operator code",
+          "when": "Read first-run status",
+          "then": "Offer setup without disclosing the code or creating users.",
+          "tests": [
+            "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_setup_without_disclosing_local_code"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.2",
+          "kind": "positive",
+          "given": "A pristine installation and matching strong credentials/code",
+          "when": "Claim and replay setup, including after membership disablement",
+          "then": "Create one hashed administrator and rotated session; close setup permanently and reject another claim.",
+          "tests": [
+            "tests.test_onboarding.FirstRunTests.test_claim_creates_hashed_admin_rotates_session_and_permanently_closes_setup"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.3",
+          "kind": "negative",
+          "given": "Invalid code, weak/mismatched passwords or untrusted fields",
+          "when": "Attempt first-run administrator creation",
+          "then": "Reject every invalid request without creating users/install; a subsequent valid request succeeds.",
+          "tests": [
+            "tests.test_onboarding.FirstRunTests.test_code_password_and_unknown_fields_cannot_claim_install"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.4",
+          "kind": "negative",
+          "given": "Missing CSRF or missing local operator-code file",
+          "when": "POST setup or try to read the private file over HTTP",
+          "then": "Reject CSRF, hide private files and fail closed without the local code.",
+          "tests": [
+            "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_local_code_is_never_http_discoverable"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.5",
+          "kind": "negative",
+          "given": "An existing user or existing installation",
+          "when": "Read and attempt anonymous setup",
+          "then": "Setup stays closed and POST returns conflict.",
+          "tests": [
+            "tests.test_onboarding.FirstRunTests.test_existing_users_or_installation_never_reopen_bootstrap"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.6",
+          "kind": "positive",
+          "given": "A real signed-in member",
+          "when": "Reply, sign out and sign in again",
+          "then": "Resume the saved next prompt and accepted reply; never claim a provider is connected.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_chat_retains_accepted_replies_across_login_and_has_no_fake_provider_readiness"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.7",
+          "kind": "positive",
+          "given": "A reviewed account setup draft",
+          "when": "Confirm once and replay the stale confirmation",
+          "then": "Save real owned entity, explicit dated currency/basis and display name once; reject stale replay.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_confirmation_saves_real_owned_entities_and_effective_dated_facts_once"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.8",
+          "kind": "negative",
+          "given": "Two replies at the same setup revision and an object masquerading as an answer",
+          "when": "Submit conflicting and malformed answers",
+          "then": "Reject stale and invalid replies without changing accepted draft.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_stale_reply_and_invalid_answer_do_not_advance_or_persist_untrusted_fields"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.9",
+          "kind": "negative",
+          "given": "Two real members with separate sessions",
+          "when": "Read the other account and then revoke membership",
+          "then": "Keep setup private, reject an old browser tab reply after the signed-in account changes, and deny both reads and writes after revocation.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_account_progress_is_private_and_revocation_is_immediate"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.10",
+          "kind": "positive",
+          "given": "A user choosing to defer financial setup",
+          "when": "Confirm the profile and later resume account setup",
+          "then": "Keep the profile, create no financial records and resume from workspace selection with provider setup still required.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_defer_and_resume_keep_profile_and_never_claim_provider_connected"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.11",
+          "kind": "negative",
+          "given": "A read-only member",
+          "when": "Attempt financial setup and confirm profile",
+          "then": "Permit only own profile; no finance records or role escalation.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_viewer_only_sets_own_profile_and_cannot_create_financial_records"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.12",
+          "kind": "negative",
+          "given": "An owned entity changed independently after setup selection",
+          "when": "Confirm stale setup, reset, then try entity selection as a viewer",
+          "then": "Reject stale finance changes atomically and unauthorized entity selection; allow explicit draft reset.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_existing_entity_selection_is_owned_and_changed_fact_revision_blocks_confirmation"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.13",
+          "kind": "negative",
+          "given": "Anonymous, missing-CSRF, duplicate/unknown JSON fields or oversized data",
+          "when": "Read or write account setup",
+          "then": "Reject each invalid request and retain setup revision zero.",
+          "tests": [
+            "tests.test_onboarding.AccountOnboardingTests.test_chat_writes_require_authentication_csrf_and_strict_bounded_json"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "LOCAL-ONBOARDING-BOUNDARIES",
+      "risk": "Readable local pairing code or simultaneous anonymous claims create multiple administrators.",
+      "scenarios": [
+        {
+          "id": "LOCAL-ONBOARDING-BOUNDARIES.1",
+          "kind": "positive",
+          "given": "A pristine install using the actual local launcher preparation",
+          "when": "Generate and prepare the code repeatedly, then configure the installation",
+          "then": "Create a stable 64-hex random code with a protected owner/System-only Windows DACL or 0600 Unix mode, and create no code for an existing install.",
+          "tests": [
+            "tests.test_onboarding_boundaries.LocalCodeTests.test_launcher_creates_private_random_code_once_and_existing_install_gets_no_code"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-BOUNDARIES.2",
+          "kind": "negative",
+          "given": "Two separate real database connections and synchronized HTTP clients with the same valid local code",
+          "when": "Race administrator creation and then replay",
+          "then": "At most one racing request succeeds; transient SQLite lock failures are retryable and final durable state has exactly one administrator with bootstrap closed.",
+          "tests": [
+            "tests.test_onboarding_boundaries.ConcurrentBootstrapTests.test_two_real_connections_can_claim_only_one_admin_and_replay_stays_closed"
+          ]
+        }
+      ]
     }
   ]
 }

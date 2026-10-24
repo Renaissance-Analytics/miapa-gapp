@@ -256,6 +256,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "LOCAL-ONBOARDING-UI",
+      "risk": "Misleading local setup/chat, credential exposure or optimistic fake readiness.",
+      "scenarios": [
+        {
+          "id": "LOCAL-ONBOARDING-UI.1",
+          "kind": "positive",
+          "given": "An unclaimed local install",
+          "when": "Render the admin form and parse setup status",
+          "then": "Show a local-code and new-password form, distinguish true/false setup and never prefill secrets or claim a connected provider.",
+          "tests": [
+            "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.2",
+          "kind": "positive",
+          "given": "Valid local code and strong matching credentials",
+          "when": "Submit administrator creation",
+          "then": "Send exact bounded same-origin CSRF payload and retain only the created result.",
+          "tests": [
+            "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.3",
+          "kind": "negative",
+          "given": "Invalid fields, malformed setup status or server errors",
+          "when": "Attempt local setup",
+          "then": "Reject malformed input without network, map fixed failure states and expose no raw diagnostics.",
+          "tests": [
+            "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.4",
+          "kind": "positive",
+          "given": "A saved setup review with unknown basis and untrusted entity text",
+          "when": "Confirm through the adapter and render review",
+          "then": "Send exact revision/action/answer with CSRF and display explicit unknown/date/escaped names.",
+          "tests": [
+            "onboarding.test.mjs#chat adapter sends only revision action and answer and renders an escaped explicit review"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.5",
+          "kind": "negative",
+          "given": "Unauthorized/stale/failing HTTP and malformed or falsely connected bodies",
+          "when": "Read account setup or submit invalid revision",
+          "then": "Return only fixed denied/conflict/unavailable/invalid states and reject fake provider readiness or role fields.",
+          "tests": [
+            "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -38,6 +38,8 @@ def main():
     sys.path.insert(0, str(root))
     from django.core.management import execute_from_command_line
     execute_from_command_line(["manage.py", "migrate", "--noinput"])
+    from backend.maipa.workspace.bootstrap import prepare_local_setup
+    prepare_local_setup()
     execute_from_command_line(["manage.py", "runserver", f"127.0.0.1:{args.port}", "--noreload"])
 
 

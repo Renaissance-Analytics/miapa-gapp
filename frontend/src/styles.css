@@ -70,6 +70,22 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .privacy-note { color: var(--muted); font-size: 11px; margin-top: 22px; }
 .sign-in-form { display: grid; gap: 18px; max-width: 360px; margin-top: 28px; }
 .sign-in-submit { justify-self: start; background: var(--accent); color: var(--on-accent); }
+.first-run code { overflow-wrap: anywhere; }
+.setup-chat { display: flex; flex: 1; flex-direction: column; gap: 12px; min-height: 0; margin-top: 18px; }
+.setup-guide-label { color: var(--muted); font-size: 11px; margin: 0; }
+.setup-transcript { flex: 1; min-height: 100px; overflow: auto; padding-right: 5px; overflow-wrap: anywhere; }
+.setup-message { margin: 14px 0; padding: 12px; border-radius: 12px; background: var(--canvas); }
+.setup-message.user { margin-left: 22px; border: 1px solid var(--border); background: var(--raised); }
+.setup-message > span { font-size: 10px; font-weight: 700; color: var(--muted); }
+.setup-message p, .setup-provider-note { font-size: 12px; line-height: 1.7; margin: 6px 0 0; }
+.setup-provider-note { color: var(--muted); margin-bottom: 14px; }
+.setup-review { font-size: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; }
+.setup-review > div { margin-bottom: 10px; }
+.setup-review dt { color: var(--muted); font-size: 10px; }
+.setup-review dd { margin: 3px 0 0; }
+.setup-composer { display: grid; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.setup-composer form { display: grid; gap: 10px; }
+.setup-composer form > button { justify-self: start; }
 .auth-message { color: var(--error) !important; margin: 0; font-size: 12px; }
 .session-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .sign-out-controls { display: flex; align-items: center; gap: 8px; font-size: 11px; }

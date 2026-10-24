@@ -3,7 +3,9 @@ import { Button, Card, initTheme, ResizablePanels, useTheme } from "@particle-ac
 import { readSession, themeStorageKey, type SessionState } from "./api.js";
 import { BuildUpdates } from "./BuildUpdates.js";
 import { updatesStorageKey } from "./updates.js";
-import { SignInForm, SignOutButton } from "./Authentication.js";
+import { SignOutButton } from "./Authentication.js";
+import { LocalAccess } from './FirstRun.js';
+import { AccountSetupChat } from './AccountSetupChat.js';
 import { IntakeWorkspace } from "./IntakeWorkspace.js";
 
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
@@ -11,6 +13,7 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
   const [split, setSplit] = useState(28);
   const [pane, setPane] = useState<"agent" | "work">("work");
   const [narrow, setNarrow] = useState(false);
+  const [factsAttempt, setFactsAttempt] = useState(0);
 
   useEffect(() => initTheme({ storageKey: themeStorageKey(session) }), [session]);
   useEffect(() => {
@@ -43,26 +46,26 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
       label="Resize conversation and work area">
       <section className="agent-panel" data-pane="agent" aria-label="Conversation" inert={narrow && pane !== "agent"}>
         <div className="panel-heading"><span className="eyebrow">Your financial copilot</span><h2>Conversation</h2></div>
-        <div className="agent-empty"><span className="agent-mark" aria-hidden="true">m</span>
+        {session.state === 'authenticated' ? <AccountSetupChat key={session.userId} onOpenFacts={() => { setFactsAttempt(value => value + 1); setPane('work'); }} /> : <div className="agent-empty"><span className="agent-mark" aria-hidden="true">m</span>
           <h3>A clearer picture,<br />one conversation at a time.</h3>
           <p>{anonymous ? "Sign in to begin a conversation with Maipa." : "Conversations will stay here while you work with your books and evidence."}</p>
-        </div>
+        </div>}
         <p className="agent-note">Thoughtful preparation. Clear evidence. You stay in control.</p>
       </section>
       <section className="work-panel" data-pane="work" aria-label="Work area" inert={narrow && pane !== "work"}>
         <div className="work-heading"><div><span className="eyebrow">Your workspace</span><h2>Work area</h2></div>
           <div className="session-controls"><span className="connection" role="status"><span aria-hidden="true" />{status}</span>
+            {session.state === 'authenticated' && <Button variant="ghost" onClick={() => setPane('agent')}>Account setup</Button>}
             {session.state === "authenticated" && <SignOutButton refresh={refresh} />}</div>
         </div>
         <div className="work-content">
-          {session.state === "authenticated" ? <IntakeWorkspace key={session.userId} /> : <Card className="welcome-card" variant="outlined" sections="plain">
+          {session.state === "authenticated" ? <IntakeWorkspace key={`${session.userId}.${factsAttempt}`} /> : <Card className="welcome-card" variant="outlined" sections="plain">
             <Card.Body><span className="eyebrow">A calm place to work</span>
-              <h3>{failed ? "Workspace unavailable" : anonymous ? "Sign in to begin" : session.state === "checking" ? "Opening your workspace" : "Your financial work, together"}</h3>
-              <p>{failed ? "We could not check your session. Try again to reconnect." : anonymous
-                ? "Your books, documents and conversations belong to your private workspace. Sign in is required before accessing them."
-                : "Books, evidence and reviewed proposals share this work area, alongside your conversation with Maipa."}</p>
+              {!anonymous && <><h3>{failed ? "Workspace unavailable" : "Opening your workspace"}</h3>
+              <p>{failed ? "We could not check your session. Try again to reconnect."
+                : "Books, evidence and reviewed proposals share this work area, alongside your conversation with Maipa."}</p></>}
               {failed && <Button className="retry-button" onClick={refresh}>Try again</Button>}
-              {anonymous && <SignInForm refresh={refresh} />}
+              {anonymous && <LocalAccess refresh={refresh} />}
               <div className="workspace-principles"><div><span aria-hidden="true">01</span><strong>Keep the source</strong><p>Financial work stays connected to its evidence.</p></div>
                 <div><span aria-hidden="true">02</span><strong>Review the proposal</strong><p>Know what is being changed before you approve it.</p></div>
                 <div><span aria-hidden="true">03</span><strong>Verify the outcome</strong><p>Clear results, with a record you can follow.</p></div></div>

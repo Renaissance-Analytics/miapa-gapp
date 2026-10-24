@@ -280,6 +280,56 @@
       "decision": "aligned",
       "reason": "Exact creation body, returned object and history URL/id/value assertions preserve parent/entity/revision distinctions.",
       "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.1",
+      "test": "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "809531778214d0520145154204a4c8c50a9d2da4e00aca9fd4665f85b0b67a28",
+      "expected_observation": "Show a local-code and new-password form, distinguish true/false setup and never prefill secrets or claim a connected provider.",
+      "decision": "aligned",
+      "reason": "SSR asserts accessible fields and local file instructions; real browser separately proves admin creation.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.2",
+      "test": "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "b03dd2342e08177722be82ca0dfea34c7e0858e356e26a8928813e2615627d68",
+      "expected_observation": "Send exact bounded same-origin CSRF payload and retain only the created result.",
+      "decision": "aligned",
+      "reason": "Checks exact paths/payload/options and return value, including no retained code/password/token.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.3",
+      "test": "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "9fff5a00a71e2ea5d291f3693a3ab1fa01ee410d41f8206879228d3cf58ef522",
+      "expected_observation": "Reject malformed input without network, map fixed failure states and expose no raw diagnostics.",
+      "decision": "aligned",
+      "reason": "Independent statuses and invalid input expectations ensure no optimistic success.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.4",
+      "test": "onboarding.test.mjs#chat adapter sends only revision action and answer and renders an escaped explicit review",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "925327f28ca381f4b6f3d387aac51be5b748c27174ac72f87e95eba9ad7480fb",
+      "expected_observation": "Send exact revision/action/answer with CSRF and display explicit unknown/date/escaped names.",
+      "decision": "aligned",
+      "reason": "Exact CSRF and server-created setup identity headers bind the accepted revision/action/answer to the account draft. SSR review assertions retain escaped names, unknown basis and effective date. Other test assertions remain reviewed unchanged.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.5",
+      "test": "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state",
+      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "scenario_sha256": "0c37e9fccbb3231057f2e5da57ae01d570a94b3d2e3d80814db9eac1390ab5c9",
+      "expected_observation": "Return only fixed denied/conflict/unavailable/invalid states and reject fake provider readiness or role fields.",
+      "decision": "aligned",
+      "reason": "Explicit expected states and mutated independent fixtures cover parser fail-closed behavior.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }
