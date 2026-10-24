@@ -1220,6 +1220,46 @@
       "decision": "aligned",
       "reason": "Both real profiles grant their own distinct SID before either child is tested. Actual root/descendant reads in both directions plus two simultaneously nonsignalled process handles rule out one-sided scope metadata or a nonexistent foreign directory. Native exit/job/profile assertions verify both lifetimes. Reviewed the added two-live-user case; previous test methods and their assertions remain unchanged. Reviewed strengthened environment setup: clear the parent environment to the same minimal CI OS/path keys plus synthetic forbidden variables. Existing actual-child no-inheritance and real revocation assertions are preserved. The full CI run already observed nine native startup failures under that minimal environment before the OS path resolver fix.",
       "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BACKEND-REPORT.known",
+      "test": "tests.test_backend_reporting.BackendReportingTests.test_known_test_and_native_phase_are_retained_without_exception_text",
+      "scenario_sha256": "86cea6f2fdc3cbd646a22e64c66a6ff1eeceeabd055786e109f6e0730bb22c4c",
+      "source_sha256": "b57ec84abde6d33b2583959263927c76a21d14773803fcd9732e66f09f5cb75d",
+      "expected_observation": "Retain the known test identifier, allowlisted phase/code and bounded exception kinds; exclude every exception message.",
+      "decision": "aligned",
+      "reason": "Exact output asserts the diagnostic facts and absence of synthetic private messages across the exception context.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BACKEND-REPORT.unknown",
+      "test": "tests.test_backend_reporting.BackendReportingTests.test_unknown_test_exception_metadata_and_cycles_are_bounded_and_redacted",
+      "scenario_sha256": "6687ccea251af9ec78f689095d1a3bade4b4b27d3f746fe21d5a49ba576b7f6e",
+      "source_sha256": "b57ec84abde6d33b2583959263927c76a21d14773803fcd9732e66f09f5cb75d",
+      "expected_observation": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
+      "decision": "aligned",
+      "reason": "A cycle and private field fixtures assert bounded exact safe output; a real unittest result must still count its failure and remain unsuccessful. The report sanitizer preserves counts and allowlisted diagnostics while rejecting extra fields.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BACKEND-REPORT.unknown",
+      "test": "tests.test_backend_reporting.BackendReportingTests.test_real_test_result_keeps_failure_and_collects_only_safe_evidence",
+      "scenario_sha256": "6687ccea251af9ec78f689095d1a3bade4b4b27d3f746fe21d5a49ba576b7f6e",
+      "source_sha256": "b57ec84abde6d33b2583959263927c76a21d14773803fcd9732e66f09f5cb75d",
+      "expected_observation": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
+      "decision": "aligned",
+      "reason": "A cycle and private field fixtures assert bounded exact safe output; a real unittest result must still count its failure and remain unsuccessful. The report sanitizer preserves counts and allowlisted diagnostics while rejecting extra fields.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "K06-BACKEND-REPORT.unknown",
+      "test": "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer",
+      "scenario_sha256": "6687ccea251af9ec78f689095d1a3bade4b4b27d3f746fe21d5a49ba576b7f6e",
+      "source_sha256": "b57ec84abde6d33b2583959263927c76a21d14773803fcd9732e66f09f5cb75d",
+      "expected_observation": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
+      "decision": "aligned",
+      "reason": "A cycle and private field fixtures assert bounded exact safe output; a real unittest result must still count its failure and remain unsuccessful. The report sanitizer preserves counts and allowlisted diagnostics while rejecting extra fields.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
     }
   ]
 }

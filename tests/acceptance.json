@@ -794,6 +794,34 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-BACKEND-REPORT",
+      "risk": "An opaque hosted backend failure can stall diagnosis; printing raw exceptions can disclose private paths, data or credentials.",
+      "scenarios": [
+        {
+          "id": "K06-BACKEND-REPORT.known",
+          "kind": "positive",
+          "given": "A known reviewed test raises a native error with a fixed phase/code and a private message",
+          "when": "Build public failure evidence",
+          "then": "Retain the known test identifier, allowlisted phase/code and bounded exception kinds; exclude every exception message.",
+          "tests": [
+            "tests.test_backend_reporting.BackendReportingTests.test_known_test_and_native_phase_are_retained_without_exception_text"
+          ]
+        },
+        {
+          "id": "K06-BACKEND-REPORT.unknown",
+          "kind": "negative",
+          "given": "An unknown identifier, private metadata, cyclic exception context or untrusted extra report fields",
+          "when": "Collect result and CI failure metadata",
+          "then": "Unknown names are redacted, context traversal terminates, arbitrary fields/messages never escape, and real assertion failures remain failures.",
+          "tests": [
+            "tests.test_backend_reporting.BackendReportingTests.test_unknown_test_exception_metadata_and_cycles_are_bounded_and_redacted",
+            "tests.test_backend_reporting.BackendReportingTests.test_real_test_result_keeps_failure_and_collects_only_safe_evidence",
+            "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer"
+          ]
+        }
+      ]
     }
   ]
 }

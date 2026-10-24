@@ -108,7 +108,9 @@ class _Api:
 
 def _checked(value):
     if not value:
-        raise SandboxUnavailable("Windows worker isolation unavailable")
+        error = SandboxUnavailable("Windows worker isolation unavailable")
+        error.native_code = c.get_last_error()
+        raise error
     return value
 
 
@@ -295,13 +297,16 @@ class WindowsSandbox:
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
 
     def __enter__(self):
+        operation = "create_profile"
         try:
             if self._entered:
                 raise SandboxUnavailable("Worker already initialized")
             self._entered = True
             result = self.api.userenv.CreateAppContainerProfile(self.profile_name, "Maipa worker", "Private Maipa worker", None, 0, c.byref(self.sid))
             if result < 0:
-                raise SandboxUnavailable("Worker profile unavailable")
+                error = SandboxUnavailable("Worker profile unavailable")
+                error.native_code = result & 0xffffffff
+                raise error
             self._created = True
             value = w.LPWSTR()
             _checked(self.api.advapi.ConvertSidToStringSidW(self.sid, c.byref(value)))
@@ -309,15 +314,19 @@ class WindowsSandbox:
                 self._sid_string = value.value
             finally:
                 self.api.kernel.LocalFree(c.cast(value, c.c_void_p))
+            operation = "grant_acl"
             self._acl(self.root, "(X,RA)")
             for path in self.readonly:
                 self._acl(path, "RX", inherit=True)
             for path in self.writable:
                 self._acl(path, "M", inherit=True, low=True)
             return self
-        except Exception:
+        except Exception as cause:
+            error = SandboxUnavailable("Worker isolation unavailable")
+            error.operation = operation
+            error.native_code = getattr(cause, "native_code", getattr(cause, "returncode", c.get_last_error()))
             self.close()
-            raise SandboxUnavailable("Worker isolation unavailable") from None
+            raise error from None
 
     def _verify_token(self, process, job):
         a, k, token = self.api.advapi, self.api.kernel, w.HANDLE()
@@ -342,6 +351,7 @@ class WindowsSandbox:
         import msvcrt
         k, pi, attributes, job = self.api.kernel, _ProcessInfo(), None, None
         descriptors = []
+        operation = "attributes"
         try:
             size = c.c_size_t()
             k.InitializeProcThreadAttributeList(None, 2, 0, c.byref(size))
@@ -350,6 +360,7 @@ class WindowsSandbox:
             _checked(k.InitializeProcThreadAttributeList(attributes, 2, 0, c.byref(size)))
             security = _SecurityCapabilities(self.sid, None, 0, 0)
             _checked(k.UpdateProcThreadAttribute(attributes, 0, 0x20009, c.byref(security), c.sizeof(security), None, None))
+            operation = "pipes"
             input_read, input_write = os.pipe()
             output_read, output_write = os.pipe()
             error_read, error_write = os.pipe()
@@ -358,6 +369,7 @@ class WindowsSandbox:
             for handle in handles:
                 os.set_handle_inheritable(handle, True)
             _checked(k.UpdateProcThreadAttribute(attributes, 0, 0x20002, handles, c.sizeof(handles), None, None))
+            operation = "job_create"
             job = _checked(k.CreateJobObjectW(None, None))
             limits = _ExtendedLimits()
             limits.basic.flags = 0x2000  # KILL_ON_JOB_CLOSE; no breakaway flags.
@@ -366,14 +378,19 @@ class WindowsSandbox:
             startup.base.cb, startup.base.flags = c.sizeof(startup), 0x100
             startup.base.stdin, startup.base.stdout, startup.base.stderr = handles
             startup.attributes = attributes
+            operation = "environment"
             child_env = _windows_paths(self.api)
             child_env.update({key: value for key, value in env.items() if key.upper() in {"PATH", "SYSTEMROOT", "WINDIR", "MAIPA_ACP_PROFILE"}})
             child_env.update(TEMP=str(cwd), TMP=str(cwd))
             block = c.create_unicode_buffer("\0".join(key + "=" + value for key, value in sorted(child_env.items(), key=lambda pair: pair[0].upper())) + "\0\0")
+            operation = "create_process"
             _checked(k.CreateProcessW(command[0], c.create_unicode_buffer(subprocess.list2cmdline(command)), None, None, True,
                 0x80000 | 0x400 | 0x08000000 | 0x4, block, str(cwd), c.byref(startup), c.byref(pi)))
+            operation = "assign_job"
             _checked(k.AssignProcessToJobObject(job, pi.process))
+            operation = "verify_token"
             self._verify_token(pi.process, job)
+            operation = "resume"
             if k.ResumeThread(pi.thread) == 0xffffffff:
                 raise SandboxUnavailable("Worker launch unavailable")
             for fd in (input_read, output_write, error_write):
@@ -383,11 +400,14 @@ class WindowsSandbox:
             descriptors.clear()
             job = pi.process = None
             return child
-        except Exception:
+        except Exception as cause:
+            error = SandboxUnavailable("Worker launch unavailable")
+            error.operation = operation
+            error.native_code = getattr(cause, "native_code", c.get_last_error())
             if pi.process:
                 k.TerminateProcess(pi.process, 1)
                 k.WaitForSingleObject(pi.process, 5000)
-            raise SandboxUnavailable("Worker launch unavailable") from None
+            raise error from None
         finally:
             if pi.thread: k.CloseHandle(pi.thread)
             if pi.process: k.CloseHandle(pi.process)

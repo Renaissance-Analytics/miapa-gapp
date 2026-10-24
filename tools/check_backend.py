@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 
 from tools.alignment import check_alignment, discovered_test_ids
+from tools.backend_reporting import ReportedTextTestResult
 
 
 def required_result_code(result):
@@ -44,6 +45,11 @@ def main(argv=()):
     from django.test.runner import DiscoverRunner
 
     class RequiredTestsRunner(DiscoverRunner):
+        def get_resultclass(self):
+            class BoundResult(ReportedTextTestResult):
+                known_tests = frozenset(discovered_test_ids(root))
+            return BoundResult
+
         def build_suite(self, *args, **kwargs):
             suite = super().build_suite(*args, **kwargs)
             if set(suite_test_ids(suite)) != discovered_test_ids(root):
@@ -58,7 +64,8 @@ def main(argv=()):
                 args.report.write_text(json.dumps({"tests": result.testsRun,
                     "passed": result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped) - len(result.expectedFailures),
                     "skipped": len(result.skipped) + len(result.expectedFailures),
-                    "failed": len(result.failures) + len(result.errors) + len(result.unexpectedSuccesses)}), encoding="utf-8")
+                    "failed": len(result.failures) + len(result.errors) + len(result.unexpectedSuccesses),
+                    "failures": result.safe_failures}), encoding="utf-8")
             return max(failures, required_result_code(result))
 
     django.setup()
