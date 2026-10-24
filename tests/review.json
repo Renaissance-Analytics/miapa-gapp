@@ -1880,6 +1880,66 @@
       "decision": "aligned",
       "reason": "Reviewed every one of the eight operations independently before/after its exact agent grant. Discovery/triage are nonfinancial inspection duties; the explicit ledger reviewer attempt must still fail. Previous nine test bodies are byte-identical.",
       "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.durable",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_personal_width_survives_logout_and_an_independent_session",
+      "scenario_sha256": "28ed9da6e5f0a45596699924d51ef3673fca522c65ae9e3c2360837d949bec9a",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "The same private layout identity returns revision one and 3375 basis points without cache",
+      "decision": "aligned",
+      "reason": "Exact response keys, owner, default, changed revision and independent-session snapshot rule out browser-only persistence; signed-out access is denied.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.isolation",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_other_user_and_old_tab_cannot_replace_each_others_layout",
+      "scenario_sha256": "347cc1a75260666a83b983d4be6699bfee4dcba9db0b438061718a444bfdb3e7",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "Reject the stale identity without changing either layout or the viewers role",
+      "decision": "aligned",
+      "reason": "The old-tab POST must fail at revision zero and preserve the entire viewer snapshot; switching back proves the preparers saved width survives.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.concurrency",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_revision_conflict_preserves_the_winner_and_requires_reread",
+      "scenario_sha256": "a7df688f9521d0e6e8e2387a379cf67449fab54c4d64a4b3985b233feb496858",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "Only the first write wins until reread and the second accepted write has revision two",
+      "decision": "aligned",
+      "reason": "Compares the persisted full winner after the conflict and a new revision after an explicit read, rather than asserting only 409.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.validation",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_invalid_widths_identity_hints_and_revision_types_do_not_write",
+      "scenario_sha256": "3991b984f78b7b8ba688344f405a0299ddd72548d2b4f055e32c5788abba230d",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "Every invalid request is rejected and the exact saved layout remains unchanged",
+      "decision": "aligned",
+      "reason": "Exercises boundaries, booleans, strings, fractional values and mass-assignment fields with an exact final snapshot comparison.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.json",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_strict_bounded_json_and_missing_identity_never_update_layout",
+      "scenario_sha256": "4f450be677a4b78ececea565646e83d5e1cc3bcaca4e4ade3123cb310bff44eb",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "Reject invalid bodies or mismatched identity without mutating the saved snapshot",
+      "decision": "aligned",
+      "reason": "Checks strict JSON and the 4096 byte boundary plus a real missing/wrong identity on an otherwise valid write; compares final state.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-LAYOUT.access",
+      "test": "tests.test_workspace_layout.WorkspaceLayoutTests.test_live_membership_authentication_csrf_and_method_guards_apply",
+      "scenario_sha256": "135f3bf0c5dc44196dd01878fe688b4bdde22eaa942d99eb0507810c77ec0f9c",
+      "source_sha256": "3eb871c51916c3bd809643ca4ba129c2c0ae202db3794f9cc9ba9c06a8cd1f07",
+      "expected_observation": "CSRF and membership deny reads or writes immediately and unsupported methods cannot mutate layout",
+      "decision": "aligned",
+      "reason": "Uses enforced real CSRF middleware, foreign origin, existing-session membership revocation, Allow header and unchanged state after restoring membership.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

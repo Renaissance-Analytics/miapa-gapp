@@ -1,5 +1,13 @@
 [
   {
+    "id": "development-13",
+    "label": "Development update 13",
+    "cards": [
+      { "title": "Your pane width follows your account", "description": "Drag the divider or use its keyboard controls to save your pane width. It restores after sign-in and in another browser. Conflicting or unconfirmed saves offer an explicit reload." },
+      { "title": "Change work views alongside your conversation", "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built." }
+    ]
+  },
+  {
     "id": "development-12",
     "label": "Development update 12",
     "cards": [

@@ -336,6 +336,16 @@
           "tests": [
             "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records"
           ]
+        },
+        {
+          "id": "BROWSER-CONNECTION-READINESS.file-open",
+          "kind": "negative",
+          "given": "An owned real browser file exists but its initial open reports ENOENT EBUSY EPERM or EACCES",
+          "when": "Poll startup readiness before connecting to the owned debugger",
+          "then": "Keep waiting on those transient opens; accept only the exact subsequently readable valid record, refuse unsafe records and propagate unrelated I/O errors.",
+          "tests": [
+            "browser-profile.test.mjs#browser startup tolerates transient file open races but never accepts an unread or unsafe record"
+          ]
         }
       ]
     },
@@ -391,6 +401,108 @@
           "then": "Pagination sends the exact valid cursor and never requests an invented path.",
           "tests": [
             "authority.test.mjs#authority pagination binds the exact server cursor and rejects invented paths"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P04-LAYOUT-CLIENT",
+      "risk": "Late or uncertain requests can claim false persistence or display a different users preferences.",
+      "scenarios": [
+        {
+          "id": "P04-LAYOUT-CLIENT.read",
+          "kind": "positive",
+          "given": "A saved private layout response for the current user",
+          "when": "Read through the production layout client",
+          "then": "Accept only a bounded exact valid snapshot from the same-origin current principal",
+          "tests": [
+            "layout.test.mjs#saved layout reads are bounded same-origin and bound to the expected user"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT-CLIENT.write",
+          "kind": "positive",
+          "given": "A loaded server layout identity and revision",
+          "when": "Commit a divider gesture",
+          "then": "Use fresh CSRF, scoped identity and expected revision and accept only the exact acknowledged next snapshot",
+          "tests": [
+            "layout.test.mjs#layout writes use fresh CSRF identity and exact revision and verify the acknowledged change"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT-CLIENT.uncertain",
+          "kind": "negative",
+          "given": "A gesture whose acknowledgement is lost",
+          "when": "Try another write before reloading the saved server state",
+          "then": "Make only one mutation and preserve the unsaved width with unavailable state until explicit reread",
+          "tests": [
+            "layout.test.mjs#layout gesture state saves once and unknown outcome requires an explicit reread"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT-CLIENT.identity",
+          "kind": "negative",
+          "given": "Overlapping reads followed by a principal unmount",
+          "when": "Resolve reads out of order and after disposal or return a different principal",
+          "then": "Ignore stale publications and never display the other principals width",
+          "tests": [
+            "layout.test.mjs#stale loads and disposed identities cannot publish another users saved width"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT-CLIENT.inflight",
+          "kind": "negative",
+          "given": "An unresolved mutation followed by an explicit saved-state read",
+          "when": "Attempt another gesture then resolve the old acknowledgement after reread",
+          "then": "Lock overlapping writes and ignore the stale mutation response",
+          "tests": [
+            "layout.test.mjs#a pending commit locks further writes and stale acknowledgements after reload are ignored"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P04-WORK-VIEWS",
+      "risk": "Unbounded or unvalidated agent view documents can inject code, bind foreign data or leak a prior principals catalog.",
+      "scenarios": [
+        {
+          "id": "P04-WORK-VIEWS.composition",
+          "kind": "positive",
+          "given": "The published screen bridge and approved work-view catalog",
+          "when": "Create navigate update and remove a schema-driven work view",
+          "then": "The controlled active view and schema change through actual package tools and the real panel renders a Fancy screen",
+          "tests": [
+            "user-panel.test.mjs#published screen bridge creates navigates updates and removes bounded work views"
+          ]
+        },
+        {
+          "id": "P04-WORK-VIEWS.validation",
+          "kind": "negative",
+          "given": "An untrusted proposed view document",
+          "when": "Use arbitrary components, unsafe props, foreign-owner hints, duplicate IDs or unbounded structures",
+          "then": "Reject the document before rendering while accepting a registered bounded composition",
+          "tests": [
+            "user-panel.test.mjs#schema validation rejects arbitrary code bindings unsafe props and unbounded documents"
+          ]
+        },
+        {
+          "id": "P04-WORK-VIEWS.isolation",
+          "kind": "negative",
+          "given": "Two independent mounted principals and a private generated view",
+          "when": "Make invalid bridge changes or navigate from the other principal, then dispose the first",
+          "then": "Invalid operations preserve the complete catalog, other users cannot enumerate or select the view, and disposed tools are withdrawn",
+          "tests": [
+            "user-panel.test.mjs#invalid bridge changes preserve the current catalog and never gain another principals views"
+          ]
+        },
+        {
+          "id": "P04-WORK-VIEWS.bounds",
+          "kind": "negative",
+          "given": "A validated view and mutable caller-owned document",
+          "when": "Mutate the input after acceptance and exceed the eight-view catalog bound",
+          "then": "The accepted schema remains unchanged and the rejected ninth view changes no state",
+          "tests": [
+            "user-panel.test.mjs#accepted schema is copied and view quotas and reserved builtins remain enforced"
           ]
         }
       ]

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Card, initTheme, ResizablePanels, useTheme } from "@particle-academy/react-fancy";
 import { readSession, themeStorageKey, type SessionState } from "./api.js";
 import { BuildUpdates } from "./BuildUpdates.js";
@@ -6,14 +6,34 @@ import { updatesStorageKey } from "./updates.js";
 import { SignOutButton } from "./Authentication.js";
 import { LocalAccess } from './FirstRun.js';
 import { AccountSetupChat } from './AccountSetupChat.js';
-import { IntakeWorkspace } from "./IntakeWorkspace.js";
+import { DynamicUserPanel } from './DynamicUserPanel.js';
+import { LayoutController, type LayoutState } from './layout.js';
 
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
+  const identity = session.state === 'authenticated' ? `user.${session.userId}` : session.state;
+  return <WorkspaceSession key={identity} session={session} refresh={refresh} />;
+}
+
+function WorkspaceSession({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const theme = useTheme();
-  const [split, setSplit] = useState(28);
+  const [layout, setLayout] = useState<LayoutState>({ phase: session.state === 'authenticated' ? 'loading' : 'ready', split: 28 });
+  const layoutController = useRef<LayoutController | null>(null);
   const [pane, setPane] = useState<"agent" | "work">("work");
   const [narrow, setNarrow] = useState(false);
   const [factsAttempt, setFactsAttempt] = useState(0);
+
+  useEffect(() => {
+    if (session.state !== 'authenticated') return;
+    const controller = new LayoutController(session.userId, setLayout);
+    layoutController.current = controller;
+    void controller.load();
+    return () => { controller.dispose(); layoutController.current = null; };
+  }, [session.state === 'authenticated' ? session.userId : null]);
+
+  function changeSplit(split: number) {
+    if (session.state === 'authenticated') layoutController.current?.change(split);
+    else setLayout({ phase: 'ready', split });
+  }
 
   useEffect(() => initTheme({ storageKey: themeStorageKey(session) }), [session]);
   useEffect(() => {
@@ -42,7 +62,9 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
       <Button variant="ghost" aria-pressed={pane === "agent"} onClick={() => setPane("agent")}>Conversation</Button>
       <Button variant="ghost" aria-pressed={pane === "work"} onClick={() => setPane("work")}>Work area</Button>
     </div>
-    <ResizablePanels className="workspace-panels" value={split} onValueChange={setSplit} min={22} max={45}
+    <ResizablePanels className="workspace-panels" value={layout.split} onValueChange={changeSplit}
+      onValueCommit={split => { void layoutController.current?.commit(split); }} min={22} max={45}
+      disabled={session.state === 'authenticated' && layout.phase !== 'ready'}
       label="Resize conversation and work area">
       <section className="agent-panel" data-pane="agent" aria-label="Conversation" inert={narrow && pane !== "agent"}>
         <div className="panel-heading"><span className="eyebrow">Your financial copilot</span><h2>Conversation</h2></div>
@@ -59,7 +81,13 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
             {session.state === "authenticated" && <SignOutButton refresh={refresh} />}</div>
         </div>
         <div className="work-content">
-          {session.state === "authenticated" ? <IntakeWorkspace key={`${session.userId}.${factsAttempt}`} /> : <Card className="welcome-card" variant="outlined" sections="plain">
+          {session.state === 'authenticated' && <div className="layout-status" data-layout-state={layout.phase}>
+            <span role="status">{layout.phase === 'loading' ? 'Loading your pane width…' : layout.phase === 'saving' ? 'Saving pane width…'
+              : layout.phase === 'ready' ? 'Pane width ready.' : layout.phase === 'conflict' ? 'Your saved layout changed. Reload it before resizing.'
+              : 'Pane width could not be confirmed. Reload the saved layout before resizing.'}</span>
+            {(layout.phase === 'conflict' || layout.phase === 'unavailable') && <Button variant="ghost" onClick={() => { void layoutController.current?.load(); }}>Reload saved layout</Button>}
+          </div>}
+          {session.state === "authenticated" ? <DynamicUserPanel key={session.userId} userId={session.userId} factsAttempt={factsAttempt} /> : <Card className="welcome-card" variant="outlined" sections="plain">
             <Card.Body><span className="eyebrow">A calm place to work</span>
               {!anonymous && <><h3>{failed ? "Workspace unavailable" : "Opening your workspace"}</h3>
               <p>{failed ? "We could not check your session. Try again to reconnect."

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { realpathSync, statSync } from "node:fs";
+import { readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -22,4 +22,13 @@ export function debuggingPort(contents) {
   if (!/^[1-9]\d{0,4}$/.test(port) || +port > 65535 ||
       !/^\/devtools\/browser\/[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(browserPath)) return null;
   return { port, browserPath };
+}
+
+/** An existing Windows file can still be locked or replaced during its write. */
+export function readDebuggingPortFile(path, reader = readFileSync) {
+  try { return debuggingPort(reader(path, 'utf8')); }
+  catch (error) {
+    if (['ENOENT', 'EBUSY', 'EPERM', 'EACCES'].includes(error?.code)) return null;
+    throw error;
+  }
 }

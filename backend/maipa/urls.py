@@ -4,6 +4,7 @@ from . import api, builds, development
 from .agent_accounts import views as agent_accounts
 from .workspace import views as workspace
 from .workspace import setup_views
+from .workspace.layout import personal_layout
 from .intake import views as intake
 from .policies import views as policies
 
@@ -16,6 +17,7 @@ urlpatterns = [
     path("api/session/csrf/", workspace.csrf_bootstrap, name="session-csrf"),
     path("api/session/login/", workspace.session_login, name="session-login"),
     path("api/workspace/", workspace.workspace_state, name="workspace"),
+    path('api/workspace/layout/', personal_layout, name='workspace-layout'),
     path('api/setup/', setup_views.first_run, name='first-run'),
     path('api/onboarding/', setup_views.account_setup, name='account-onboarding'),
     path('api/policies/entities/<uuid:entity_id>/', policies.entity_authority, name='entity-authority'),

@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -164,13 +164,21 @@ def main():
             enable_intake_failure = True
             evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
                 'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk)})
+            if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
+                raise ValueError('Ordinary browser exceptions and cleanup required')
+            resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,
+                'password': password, 'user_id': str(owner.pk), 'expected_points': 3500})
+            if (resumed.get('cleanup') is not True or resumed.get('checks') != 3
+                    or resumed.get('scenarios') != ['layout-fresh-browser-restore', 'no-uncaught-exceptions', 'owned-browser-cleanup']
+                    or resumed.get('build_id') != evidence.get('build_id') or resumed.get('browser') != evidence.get('browser')):
+                raise ValueError('Fresh-profile layout acceptance and cleanup required')
             if first_run.get('build_id') != evidence.get('build_id') or first_run.get('browser') != evidence.get('browser'):
                 raise ValueError('Browser fixture identity mismatch')
             # Both processes independently prove exceptions/cleanup. Report those
             # shared aggregate cases at the end with the ordinary fixture, while
             # retaining actual first-run and ordinary case order and every case.
             first_only = [case for case in first_run['scenarios'] if case not in evidence['scenarios']]
-            evidence['scenarios'] = first_only + evidence['scenarios']
+            evidence['scenarios'] = first_only + evidence['scenarios'][:-2] + resumed['scenarios']
             evidence['checks'] = len(evidence['scenarios'])
         finally:
             server.shutdown()
