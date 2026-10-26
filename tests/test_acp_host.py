@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AcpHostTests(unittest.TestCase):
-    def run_host(self, body, *, real_entry=False):
+    def run_host(self, body, *, real_entry=False, native_policy=False):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 base = Path(directory)
@@ -20,6 +20,17 @@ class AcpHostTests(unittest.TestCase):
                 profile = {"provider": "codex", "user_id": "user-1", "account_id": "account-1",
                     "workspace": str((base / "workspace").resolve()), "home": str(base / "home"), "supervisor_directory": str(base / "supervisor")}
                 script = ROOT / ("backend/agent/host.mjs" if real_entry else "tests/fixtures/acp_host.mjs")
+                if native_policy:
+                    runtime = base / 'runtime'
+                    runtime.mkdir()
+                    shutil.copy2(ROOT/'backend/agent/host.mjs', runtime/'host.mjs')
+                    shutil.copytree(ROOT/'backend/agent/node_modules/@particle-academy/prism-acp', runtime/'node_modules/@particle-academy/prism-acp')
+                    binary = runtime/'provider/vendor/x86_64-pc-windows-msvc/bin/codex.exe'
+                    binary.parent.mkdir(parents=True)
+                    binary.write_bytes(b'Synthetic non-executable policy fixture; never launched')
+                    profile['provider_binary'] = str(binary)
+                    script = runtime/'policy-host.mjs'
+                    shutil.copy2(ROOT/'tests/fixtures/acp_policy_host.mjs', script)
                 owner = Scope("user-1", "account-1")
                 node = shutil.which("node")
                 if node is None:
@@ -37,10 +48,20 @@ class AcpHostTests(unittest.TestCase):
         async def case(client, owner):
             result = await client.initialize(owner)
             self.assertEqual(result["protocolVersion"], 1)
-            self.assertEqual(result["agentInfo"]["version"], "0.28.0")
+            self.assertEqual(result["agentInfo"]["version"], "0.29.0")
             self.assertEqual(result["authMethods"], [])
             self.assertEqual(await client.shutdown(owner), {"verified": True, "survivors": 0, "sessions": 0})
         self.run_host(case, real_entry=True)
+
+    def test_native_host_enforces_published_mcp_only_policy_and_fixed_model(self):
+        async def case(client, owner):
+            # Host-owned policy must override even authority-shaped client hints.
+            await client.initialize(owner)
+            result = await client._request(owner, 'session/new', {'cwd': str(client.workspace), 'mcpServers': [],
+                'model': 'gpt-6.1', 'nativeTools': 'default'})
+            self.assertTrue(result['sessionId'])
+            self.assertEqual((await client.shutdown(owner))['sessions'], 1)
+        self.run_host(case, native_policy=True)
 
     def test_python_host_published_codex_driver_session_and_stream_round_trip(self):
         async def case(client, owner):

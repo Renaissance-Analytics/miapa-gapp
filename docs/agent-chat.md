@@ -37,6 +37,16 @@ Current acceptance boundary: the deterministic ACP peer is registered only by
 the dedicated test fixture. It exercises the real consumer, authenticated HTTP,
 streaming and UI services. It is not a production fallback or evidence of a real
 model turn. Actual native device consent and clean stop are separately verified.
-Authenticated native model sessions remain explicitly disabled pending the
-published Prism MCP-only Codex tool policy, followed by scoped human sign-in and
-actual model-to-UI acceptance. This contribution is still in progress.
+The published Prism ACP0.29.0 policy fixes native sessions to Codex CLI0.163.0,
+gpt-5.3-codex and `nativeTools: 'none'`. Only fresh sessions and the supplied
+Maipa UI MCP server are admitted. The published driver refuses unsupported
+CLI/model/configuration, resume and announced unsupported reroutes. Its three
+read-only MCP resource helpers remain scoped to supplied servers; Maipa exposes
+no filesystem resources. This is separate from the app's OS/profile isolation.
+
+Actual native fresh-session acknowledgment and verified stop pass without a
+model turn or human credentials. Scoped human sign-in and actual model-to-UI
+acceptance remain pending; this contribution is still in progress. A serving
+model change that Codex does not announce cannot be detected by the driver.
+An allowed UI call before a later reroute notice still requires current server
+authority and cannot be undone by subsequent provider shutdown.

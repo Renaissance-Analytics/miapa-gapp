@@ -3,11 +3,13 @@ import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   serve, ClaudeDriver, CodexDriver, prepareProcessTree,
-  CLAUDE_DRIVER_CAPABILITIES, CODEX_DRIVER_CAPABILITIES,
+  CLAUDE_DRIVER_CAPABILITIES, CODEX_DRIVER_CAPABILITIES, CODEX_NATIVE_TOOLS_NONE,
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.28.0") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.29.0") throw new Error("Unexpected ACP runtime");
+if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
+    || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 
 export function validateProfile(value) {
   if (!value || !["claude", "codex"].includes(value.provider) ||
@@ -57,16 +59,16 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
     agentInfo: { name: "maipa-prism-acp", title: "Maipa ACP host", version: packageVersion },
     driverCapabilities: profile.provider === "codex" ? CODEX_DRIVER_CAPABILITIES : CLAUDE_DRIVER_CAPABILITIES,
     driverFactory(options, events) {
-      // Authenticated model turns stay closed until the published driver supplies
-      // the measured MCP-only tool policy requested from its package owner.
-      if (profile.provider_binary) throw new Error('Provider UI-only policy unavailable');
       if (closing || options.cwd !== profile.workspace || options.resumeSessionId || options.mcpServers?.length
           || (uiMcp && drivers.length > 0)) {
         throw new Error("Worker session refused");
       }
       const configured = { ...options, cwd: profile.workspace, parentEnv,
         ...(profile.provider_binary ? { binary: profile.provider_binary,
-          binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'] } : {}),
+          binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'],
+          // Only the exact published measured matrix can drive native sessions.
+          // Neither browser/model input nor inherited CLI defaults select policy.
+          model: 'gpt-5.3-codex', nativeTools: 'none' } : {}),
         mcpServers: uiMcp ? [uiMcp] : [],
         processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
         credentials: { mode: "subscription" } };

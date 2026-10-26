@@ -4,7 +4,7 @@
     "label": "Development update 20",
     "cards": [
       { "title": "A conversation, with room to work", "description": "The new shell gives chat the workspace and supports contextual components alongside it. Closing a panel returns that space to chat. The live agent integration is still being verified." },
-      { "title": "Subscription connection in progress", "description": "Scoped ChatGPT sign-in and saved conversations are being integrated. Live model sessions remain unavailable until the provider tool restriction and the actual agent workflow pass verification." }
+      { "title": "Connect your ChatGPT subscription", "description": "Start sign-in from the conversation using your own ChatGPT subscription. The connection and saved chat belong to your Maipa account. The live agent workflow is awaiting its final sign-in and model verification." }
     ]
   },
   {
