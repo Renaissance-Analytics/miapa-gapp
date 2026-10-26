@@ -1,5 +1,12 @@
 [
   {
+    "id": "development-16",
+    "label": "Development update 16",
+    "cards": [
+      { "title": "Private storage for future agent work", "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built." }
+    ]
+  },
+  {
     "id": "development-15",
     "label": "Development update 15",
     "cards": [

@@ -11,9 +11,12 @@ import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
+BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
+    'setup_engagement', 'setup_entity', 'setup_currency', 'setup_reporting_basis', 'setup_effective_from',
+    'setup_review', 'setup_confirm', 'setup_stale', 'setup_open_facts'}
 
 
 class BrowserFailure(Exception):
@@ -25,6 +28,9 @@ def browser_failure_evidence(value):
     valid = isinstance(value, dict) and isinstance(value.get("reason"), str) and value["reason"] in BROWSER_PHASES
     result = {"checks": 0, "reason": value["reason"] if valid else "browser_process",
               "cleanup": valid and value.get("cleanup") is True}
+    if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
+        if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
+            result['checkpoint'] = value['checkpoint']
     if valid and value["reason"] == "browser_launch":
         if value.get("startup_state") in ("starting", "spawn_error", "exited", "devtools_file"):
             result["startup_state"] = value["startup_state"]
@@ -169,9 +175,14 @@ def main():
             Membership.objects.create(installation=installation, user=other, role='viewer')
             owned = AgentAccount.objects.create(owner=owner, provider='codex', label='Synthetic owned account')
             foreign = AgentAccount.objects.create(owner=other, provider='claude', label='Synthetic foreign account')
+            from backend.maipa.agent_accounts.references import record_session, store_artifact, read_artifact
+            reference = record_session(owner, str(owned.pk), 'synthetic-browser-provider-session')
+            artifact = store_artifact(owner, str(owned.pk), reference, b'synthetic browser resource payload\x00')
+            assert read_artifact(owner, str(owned.pk), reference, artifact.artifact_id) == b'synthetic browser resource payload\x00'
             enable_intake_failure = True
             evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
-                'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk)})
+                'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk),
+                'service_reference': reference, 'artifact_reference': artifact.artifact_id})
             if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
                 raise ValueError('Ordinary browser exceptions and cleanup required')
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,

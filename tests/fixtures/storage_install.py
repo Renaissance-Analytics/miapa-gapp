@@ -1,5 +1,6 @@
 """Fresh-process synthetic Django install for offline recovery acceptance only."""
 import json
+import hashlib
 import os
 from pathlib import Path
 import sys
@@ -29,6 +30,18 @@ from django.core.management import call_command
 from django.test import Client
 from backend.maipa.workspace.models import Installation, Membership, WorkspaceLayout
 from backend.maipa.storage import prepare_directory, prepare_files, development_key
+from backend.maipa.agent_accounts.models import AgentAccount
+from backend.maipa.agent_accounts.references import (
+    record_session, resolve_session, store_artifact, read_artifact, ReferenceUnavailable)
+
+
+def reference_access(actor, account, session, artifact):
+    try:
+        read_artifact(actor, account, session, artifact)
+    except ReferenceUnavailable as error:
+        assert str(error) == 'Saved agent resource unavailable'
+        return 'denied'
+    return 'allowed'
 
 
 def main():
@@ -45,6 +58,9 @@ def main():
         for user in users:
             Membership.objects.create(installation=install, user=user, role='preparer')
         owner = users[0]
+        account = AgentAccount.objects.create(owner=owner, provider='codex', label='Synthetic recovery account')
+        agent_session = record_session(owner, str(account.pk), 'synthetic-recovery-provider-session')
+        artifact = store_artifact(owner, str(account.pk), agent_session, b'synthetic referenced artifact\x00\xff')
         layout = WorkspaceLayout.objects.create(installation=install, user=owner,
             revision=4, split_basis_points=3400)
         client = Client()
@@ -71,7 +87,8 @@ def main():
             path.write_bytes(data)
         return {'installation': str(install.pk), 'user': str(owner.pk),
             'layout': str(layout.identity), 'session': client.cookies['sessionid'].value,
-            'setup': setup['setup_id'], 'preferences': preferences['preferences_id']}
+            'setup': setup['setup_id'], 'preferences': preferences['preferences_id'],
+            'agent_account_id': str(account.pk), 'agent_session_id': agent_session, 'artifact_id': artifact.artifact_id}
     if operation == 'inspect':
         proof_path = physical_chain(Path(sys.argv[2]))
         if proof_path.parent != root.parent or proof_path.name != 'synthetic-proof.json':
@@ -83,21 +100,35 @@ def main():
         setup = client.get('/api/onboarding/', secure=True)
         preferences = client.get('/api/workspace/preferences/', secure=True)
         owner = get_user_model().objects.get(pk=proof['user'])
+        current_reference_access = reference_access(owner, proof['agent_account_id'], proof['agent_session_id'], proof['artifact_id'])
+        private_handle = artifact_payload = None
+        if current_reference_access == 'allowed':
+            private_handle = resolve_session(owner, proof['agent_account_id'], proof['agent_session_id'])
+            artifact_payload = read_artifact(owner, proof['agent_account_id'], proof['agent_session_id'], proof['artifact_id'])
         assert owner.check_password('synthetic-recovery-password!932')
         other = Client()
-        other.force_login(get_user_model().objects.get(username='recovery-other'))
+        other_user = get_user_model().objects.get(username='recovery-other')
+        other.force_login(other_user)
+        other_reference_access = reference_access(other_user, proof['agent_account_id'], proof['agent_session_id'], proof['artifact_id'])
         other_setup = other.get('/api/onboarding/', secure=True)
         other_preferences = other.get('/api/workspace/preferences/', secure=True)
         denied_before = client.get('/api/onboarding/', secure=True).status_code
         Membership.objects.filter(user=owner).update(enabled=False)
         denied_after = client.get('/api/onboarding/', secure=True)
         preferences_revoked = client.get('/api/workspace/preferences/', secure=True)
+        revoked_reference_access = reference_access(owner, proof['agent_account_id'], proof['agent_session_id'], proof['artifact_id'])
         return {'installation': str(Installation.objects.get().pk),
             'layout_status': layout.status_code, 'layout': layout.json(),
             'setup_status': setup.status_code, 'setup': setup.json(),
             'preferences_status': preferences.status_code, 'preferences': preferences.json(),
             'other_preferences': other_preferences.json(), 'preferences_revoked': preferences_revoked.status_code,
             'preferences_revoked_cache': preferences_revoked['Cache-Control'],
+            'agent_session_id': proof['agent_session_id'], 'artifact_id': proof['artifact_id'],
+            'agent_reference_access': current_reference_access,
+            'private_handle_digest': hashlib.sha256(private_handle.value.encode()).hexdigest() if private_handle else None,
+            'artifact_bytes_hex': artifact_payload.hex() if artifact_payload is not None else None,
+            'artifact_sha256': hashlib.sha256(artifact_payload).hexdigest() if artifact_payload is not None else None,
+            'other_reference_access': other_reference_access, 'revoked_reference_access': revoked_reference_access,
             'other_draft': other_setup.json()['draft'],
             'revocation': [denied_before, denied_after.status_code],
             'revocation_cache': denied_after['Cache-Control'],

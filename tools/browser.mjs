@@ -6,13 +6,14 @@ import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
 
-let phase = "fixture_input", failedPhase, cleanupVerified = false;
+let phase = "fixture_input", failedPhase, cleanupVerified = false, checkpoint;
 let startupEvidence = {}, launchState = "starting", launchExit;
 process.on("uncaughtException", error => {
   // Isolated synthetic fixture diagnostics stay in ignored local failure logs;
   // CI artifacts contain only the fixed phase/cleanup report below.
   console.error(error?.stack || 'Native browser fixture failed');
-  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence }));
+  console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence,
+    ...((failedPhase || phase) === 'setup_chat' ? { checkpoint } : {}) }));
   process.exitCode = 1;
 });
 
@@ -168,29 +169,40 @@ try {
     assert.equal(await evaluate("!!document.querySelector('[name=\"password-confirmation\"]')"), false);
     record('local-first-run-admin');
     phase = 'setup_chat';
+    checkpoint = 'setup_mobile';
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     await click('Account setup');
     await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), 'mobile account conversation');
     const atStep = step => until(() => evaluate(`document.querySelector('[data-setup-step]')?.dataset.setupStep === ${JSON.stringify(step)} && document.querySelector('[data-setup-step]').getAttribute('aria-busy') === 'false'`), 'saved setup prompt');
+    checkpoint = 'setup_display_name';
     await atStep('display_name');
     await fill('maipa-setup-answer', 'Synthetic onboarding owner');
     await click('Send answer');
+    checkpoint = 'setup_workspace';
     await atStep('workspace');
+    checkpoint = 'setup_resume';
     await command('Page.reload');
     await until(() => evaluate("!![...document.querySelectorAll('button')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
     await click('Account setup');
     await atStep('workspace');
     assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup conversation\"]').innerText.includes('Synthetic onboarding owner')"));
+    checkpoint = 'setup_engagement';
     await select('maipa-setup-answer', 'new'); await click('Send answer'); await atStep('engagement_name');
+    checkpoint = 'setup_entity';
     await fill('maipa-setup-answer', 'Synthetic onboarding engagement'); await click('Send answer'); await atStep('entity_name');
+    checkpoint = 'setup_currency';
     await fill('maipa-setup-answer', 'Synthetic onboarding entity'); await click('Send answer'); await atStep('currency');
+    checkpoint = 'setup_reporting_basis';
     await fill('maipa-setup-answer', 'USD'); await click('Send answer'); await atStep('reporting_basis');
+    checkpoint = 'setup_effective_from';
     await select('maipa-setup-answer', 'unknown'); await click('Send answer'); await atStep('effective_from');
     assert.match(await evaluate("document.getElementById('maipa-setup-answer').value"), /^\d{4}-\d{2}-\d{2}$/);
+    checkpoint = 'setup_review';
     await click('Send answer'); await atStep('review');
     assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup review\"]').innerText.includes('Unknown for now')"));
     const before = await evaluate("(async()=>({setup:await(await fetch('/api/onboarding/')).json(),clients:await(await fetch('/api/intake/engagements/')).json()}))()");
     assert.deepEqual(before.clients.engagements, []);
+    checkpoint = 'setup_confirm';
     await click('Confirm and save setup'); await atStep('complete');
     const saved = await evaluate("(async()=>{const setup=await(await fetch('/api/onboarding/')).json();return {setup,entity:await(await fetch('/api/intake/entities/'+setup.entity_id+'/')).json()};})()");
     assert.equal(saved.entity.name, 'Synthetic onboarding entity');
@@ -198,8 +210,10 @@ try {
     assert.equal(saved.entity.facts.reporting_basis.knowledge, 'unknown');
     assert.equal(saved.entity.facts.legal_form.knowledge, 'unknown');
     assert.equal(saved.setup.provider_ready, false);
+    checkpoint = 'setup_stale';
     const stale = await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/onboarding/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Setup':${JSON.stringify(before.setup.setup_id)}},body:JSON.stringify({expected_revision:${before.setup.revision},action:'reply',answer:'confirm'})})).status;})()`);
     assert.equal(stale, 409);
+    checkpoint = 'setup_open_facts';
     await click('Open saved client facts');
     await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert && !!document.querySelector('[data-entity-id]')"), 'confirmed client in work panel');
     assert.equal(await evaluate("document.querySelector('[data-fact-key=currency] dd').textContent"), 'USD');
@@ -283,6 +297,17 @@ try {
   assert.ok(JSON.stringify(owned.accounts).includes(fixture.account_id));
   assert.ok(!JSON.stringify(owned.accounts).includes(fixture.foreign_account_id));
   record("authenticated-account-scope");
+  phase = 'service_storage';
+  assert.match(fixture.service_reference, /^[0-9a-f-]{36}$/);
+  assert.match(fixture.artifact_reference, /^[0-9a-f-]{36}$/);
+  const privateStorage = await evaluate(`(async()=>{
+    const paths=['/api/agent/sessions/'+${JSON.stringify(fixture.service_reference)}+'/',
+      '/artifacts/'+${JSON.stringify(fixture.artifact_reference.replaceAll('-', ''))}+'/payload',
+      '/sessions/'+${JSON.stringify(fixture.service_reference)}+'/'];
+    const results=[];for(const path of paths){const r=await fetch(path,{cache:'no-store'});results.push(r.status);}return results;
+  })()`);
+  assert.deepEqual(privateStorage, [404,404,404]);
+  record('owned-service-storage-private');
   phase = "transport_csrf";
   const checks = await evaluate(`(async () => {
     const s=await (await fetch('/api/session/')).json(); const headers={'Content-Type':'application/json','X-CSRFToken':s.csrf_token};
