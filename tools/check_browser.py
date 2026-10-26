@@ -64,13 +64,19 @@ def main():
         raise ValueError("Dedicated fixture process required")
     with tempfile.TemporaryDirectory(prefix="maipa-browser-fixture-") as temporary:
         fixture_root = Path(temporary).resolve()
+        data_root = fixture_root / 'install'
         os.environ.update(MAIPA_LOCAL_DEV="1", MAIPA_SECRET_KEY=secrets.token_urlsafe(72),
+                          MAIPA_DATA_DIR=str(data_root),
                           MAIPA_ALLOWED_HOSTS="127.0.0.1", DJANGO_SETTINGS_MODULE="backend.maipa.settings")
+        from backend.maipa.storage import prepare_directory, prepare_files, write_private
+        prepare_directory(data_root)
+        write_private(data_root / 'development-key', os.environ['MAIPA_SECRET_KEY'].encode('ascii'))
+        prepare_files(data_root)
         import django
         from django.conf import settings
-        settings.DATABASES["default"]["NAME"] = fixture_root / "fixture.sqlite3"
-        settings.ACP_CHECK_ROOT = fixture_root / "acp"
-        settings.LOCAL_SETUP_CODE_FILE = fixture_root / 'local-setup-code'
+        if (settings.DATA_ROOT != data_root or settings.DATABASES['default']['NAME'] != data_root / 'maipa.sqlite3'
+                or settings.ACP_CHECK_ROOT != data_root / 'workers'):
+            raise ValueError('Synthetic installation storage binding')
         django.setup()
         from django.core.management import call_command
         from django.contrib.auth import get_user_model
@@ -80,8 +86,8 @@ def main():
         from django.db import connections
         with open(os.devnull, "w") as silent:
             call_command("migrate", interactive=False, verbosity=0, stdout=silent)
-        from backend.maipa.workspace.bootstrap import prepare_local_setup
-        prepare_local_setup()
+        if (data_root / 'local-setup-code').exists():
+            raise ValueError('First-run fixture must not require a setup-code file')
         application = get_wsgi_application()
         failed_initial_intake = False
         enable_intake_failure = False
@@ -147,12 +153,14 @@ def main():
                         failure = None
                     raise BrowserFailure(browser_failure_evidence(failure))
                 return json.loads(stdout)
-            first_run = run_browser(base_data | {'first_run': True, 'setup_code': settings.LOCAL_SETUP_CODE_FILE.read_text(),
+            first_run = run_browser(base_data | {'first_run': True,
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
             if (first_run.get('cleanup') is not True or first_run.get('checks') != 5
                     or first_run.get('scenarios') != ['local-first-run-admin', 'account-chat-resume-and-confirm',
                         'first-run-stays-closed', 'no-uncaught-exceptions', 'owned-browser-cleanup']):
                 raise ValueError('First-run browser cleanup required')
+            if (data_root / 'local-setup-code').exists():
+                raise ValueError('Browser onboarding must not generate a setup-code file')
             password = secrets.token_urlsafe(24)
             owner = get_user_model().objects.create_user(username='synthetic-browser-owner', password=password)
             other = get_user_model().objects.create_user(username='synthetic-browser-other', password=password)

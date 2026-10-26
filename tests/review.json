@@ -1403,153 +1403,153 @@
     },
     {
       "scenario": "LOCAL-ONBOARDING.1",
-      "test": "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_setup_without_disclosing_local_code",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
-      "scenario_sha256": "870c27eccf44d8f6530b6d701e2bfc0ce7910b2c6879abef9e6381326400eaf3",
-      "expected_observation": "Offer setup without disclosing the code or creating users.",
+      "test": "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_browser_setup_without_a_code_file",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
+      "scenario_sha256": "4000f5811098c4301495490344e18405e194ae281fbd0f49944837590c16beb5",
+      "expected_observation": "Offer browser setup without creating users or asking for a setup code.",
       "decision": "aligned",
-      "reason": "Asserts exact minimal status, no-store, no code and zero users.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.2",
       "test": "tests.test_onboarding.FirstRunTests.test_claim_creates_hashed_admin_rotates_session_and_permanently_closes_setup",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
-      "scenario_sha256": "1ddd0bac2630a37f2df9057d56b7de9588a48ac9d4b1d13730d597b364a0c595",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
+      "scenario_sha256": "afd3fe4bf60dad2767b796933441a5e658c64e4ef53c1c1ddb3836f6f887a5f2",
       "expected_observation": "Create one hashed administrator and rotated session; close setup permanently and reject another claim.",
       "decision": "aligned",
-      "reason": "Real database/password/session assertions require one install/admin and repeated 409 with no extra users.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.3",
-      "test": "tests.test_onboarding.FirstRunTests.test_code_password_and_unknown_fields_cannot_claim_install",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
-      "scenario_sha256": "7cb877e2278312e4d2ece040b51a4131defaeafe5feedf0a0b2373a88d4b96ed",
-      "expected_observation": "Reject every invalid request without creating users/install; a subsequent valid request succeeds.",
+      "test": "tests.test_onboarding.FirstRunTests.test_password_and_unknown_fields_cannot_claim_install",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
+      "scenario_sha256": "a3dd5499b58a7651c917f816c970ef314346ae010b9d3d8ba96b2e7f256c0029",
+      "expected_observation": "Return invalid request without creating users or installation; valid credentials alone then succeed.",
       "decision": "aligned",
-      "reason": "Each independent invalid input asserts 400/403 and zero durable effects before a real valid claim.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.4",
-      "test": "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_local_code_is_never_http_discoverable",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
-      "scenario_sha256": "6964c05133ffac2fba532712f3d5ac3a090bfd6cc1f3e9adf9a4468f32ccdb9b",
-      "expected_observation": "Reject CSRF, hide private files and fail closed without the local code.",
+      "test": "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_rejects_foreign_origin",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
+      "scenario_sha256": "de1d51eb4691daef7e38650216b59f0a7480f4d1d554f0e798915b0b0a177b45",
+      "expected_observation": "Reject both unsafe requests, keep private paths unavailable, create no users, then accept a valid same-origin request without a code.",
       "decision": "aligned",
-      "reason": "Actual middleware and routes must return 403/404/503 and no user.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.5",
       "test": "tests.test_onboarding.FirstRunTests.test_existing_users_or_installation_never_reopen_bootstrap",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "96c186126142a69554100f193ebd4ba72b774925cbc120c467f6d31a6799ba99",
       "expected_observation": "Setup stays closed and POST returns conflict.",
       "decision": "aligned",
-      "reason": "Separately tests both legacy database conditions; absence of active admin is not a takeover opportunity.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.6",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_chat_retains_accepted_replies_across_login_and_has_no_fake_provider_readiness",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "e6b675ba447aeb9a83b212b8d46b313658c670541caa697128213a0a7db3d6ec",
       "expected_observation": "Resume the saved next prompt and accepted reply; never claim a provider is connected.",
       "decision": "aligned",
-      "reason": "Asserts exact step, draft, transcript and revision across actual session changes.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.7",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_confirmation_saves_real_owned_entities_and_effective_dated_facts_once",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "5f8a300a919404d3e2905f56dd3e8c818f35553ced39d3f67ce87a98e6bfbce2",
       "expected_observation": "Save real owned entity, explicit dated currency/basis and display name once; reject stale replay.",
       "decision": "aligned",
-      "reason": "Checks actual intake rows, owner/install, precise facts/date and zero preconfirmation records; duplicate must 409.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.8",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_stale_reply_and_invalid_answer_do_not_advance_or_persist_untrusted_fields",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "656cbb6cca7fa174c1954df6d47c5defb0ea84bdd5e0b1016ac30e11e9b1a28d",
       "expected_observation": "Reject stale and invalid replies without changing accepted draft.",
       "decision": "aligned",
-      "reason": "The original accepted name remains exact; no role/object answer is retained.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.9",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_account_progress_is_private_and_revocation_is_immediate",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "796765be29eb9993a9824d971a8f30847e3d79e92565f08f01ec793bfd6f0d28",
       "expected_observation": "Keep setup private, reject an old browser tab reply after the signed-in account changes, and deny both reads and writes after revocation.",
       "decision": "aligned",
-      "reason": "Real sessions switch principals: the former setup identity must return409 and leave the new user draft empty, even when revisions coincide. Then actual membership revocation denies read/write403. All other assertions in this file retained and reviewed unchanged.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.10",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_defer_and_resume_keep_profile_and_never_claim_provider_connected",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "0feabc9d1afc9b50fe15086faca0751be5e15c0854317e5642a837656caf56f3",
       "expected_observation": "Keep the profile, create no financial records and resume from workspace selection with provider setup still required.",
       "decision": "aligned",
-      "reason": "Asserts exact deferred/readiness flags, zero engagements and saved name after resume.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.11",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_viewer_only_sets_own_profile_and_cannot_create_financial_records",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "227e1d49c07d36249baaf4844703eedfb7bd1313e6188690993fde9d04777d33",
       "expected_observation": "Permit only own profile; no finance records or role escalation.",
       "decision": "aligned",
-      "reason": "Viewer follows profile-only review, rejects new-work answer, and retains viewer role with zero engagements.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.12",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_existing_entity_selection_is_owned_and_changed_fact_revision_blocks_confirmation",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "8a83f8f46e892d6686d55abd360fe279f352a13976a619e4b36fa5eb7d825ada",
       "expected_observation": "Reject stale finance changes atomically and unauthorized entity selection; allow explicit draft reset.",
       "decision": "aligned",
-      "reason": "Real intake correction leaves exactly one fact; setup remains review, reset returns first prompt, viewer cannot select the entity.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING.13",
       "test": "tests.test_onboarding.AccountOnboardingTests.test_chat_writes_require_authentication_csrf_and_strict_bounded_json",
-      "source_sha256": "4098ca2544d0275984620180d609ada94cca535ebe13253a478ba6a0221b2891",
+      "source_sha256": "3ff6bf1d3c2ae2ff3163e06a3b54d522e88ffd385e4928732c06859e4273925b",
       "scenario_sha256": "14323a80fcee6e315f07ccd2dfc7197fe70911c657471250e4f258c9a92b0fc7",
       "expected_observation": "Reject each invalid request and retain setup revision zero.",
       "decision": "aligned",
-      "reason": "Actual HTTP/middleware status checks cover auth, CSRF, duplicate keys, identity hints and body budget.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-BOUNDARIES.1",
-      "test": "tests.test_onboarding_boundaries.LocalCodeTests.test_launcher_creates_private_random_code_once_and_existing_install_gets_no_code",
-      "source_sha256": "ec300b976448836c38725063462ac065cbddd0099d433959b7d7e99bd5a89d1c",
-      "scenario_sha256": "8f494f636f8ca8b10f4a6f431bcda6d66125626ca3908f2cb13c873c1e178542",
-      "expected_observation": "Create a stable 64-hex random code with a protected owner/System-only Windows DACL or 0600 Unix mode, and create no code for an existing install.",
+      "test": "tests.test_onboarding_boundaries.LocalSetupCommandTests.test_existing_setup_command_guides_browser_without_creating_a_code",
+      "source_sha256": "c35b48656266fa181c08505437a6fdf42fc15c419c4763d6f2a610e7a6037dc0",
+      "scenario_sha256": "9d1e7c0e17d9ae42c92dd979ec902f26b40ac9b9546f5241998732ad7541c343",
+      "expected_observation": "Direct the operator to browser onboarding without generating files or users; report closed setup after configuration.",
       "decision": "aligned",
-      "reason": "Reads actual native file security descriptor and counts exactly two protected allow entries, excluding broad principals; repeated prepare preserves bytes, configured install gets no file.",
-      "reviewer": "Maipa independent security-boundary acceptance review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-BOUNDARIES.2",
       "test": "tests.test_onboarding_boundaries.ConcurrentBootstrapTests.test_two_real_connections_can_claim_only_one_admin_and_replay_stays_closed",
-      "source_sha256": "ec300b976448836c38725063462ac065cbddd0099d433959b7d7e99bd5a89d1c",
-      "scenario_sha256": "ab0084e380632571ce800a3a17657c3968ef1d3a1b1678e2969c98c58a166204",
+      "source_sha256": "c35b48656266fa181c08505437a6fdf42fc15c419c4763d6f2a610e7a6037dc0",
+      "scenario_sha256": "f52c47ca449424a39e00e8007715e18d7f292b0f63872ad25cb33d6e6a07f733",
       "expected_observation": "At most one racing request succeeds; transient SQLite lock failures are retryable and final durable state has exactly one administrator with bootstrap closed.",
       "decision": "aligned",
-      "reason": "Actual thread barrier and real CSRF/session/database requests exercise locking; one clean retry is permitted only if both competing upgrades fail closed, then exact row counts and permanent 409 are required.",
-      "reviewer": "Maipa independent security-boundary acceptance review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P03-AUTHORITY.exact_approved_authority_is_reused_and_audited_without_new_approval",
@@ -1940,6 +1940,406 @@
       "decision": "aligned",
       "reason": "Uses enforced real CSRF middleware, foreign origin, existing-session membership revocation, Allow header and unchanged state after restoring membership.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.private",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_configured_install_is_outside_code_and_private_before_key_generation",
+      "scenario_sha256": "30901f60aa09a24b712da8c1a9548c8779a2e788acdaa2f189eefc4921463ea0",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The directory has a protected owner/System inheritable DACL before entropy generation; the key is private and no source runtime directory is created",
+      "decision": "aligned",
+      "reason": "A callback inspects the actual directory before returning synthetic entropy; independent Win32 DACL reads assert exactly two grants, inheritance and no broad users, then the real key file and migrate invocation are checked. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.upgrade",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_code_replacement_reuses_private_key_and_install_data",
+      "scenario_sha256": "08986961098b1f4673b728685f9d2b2a3a774a01c0c1e754f1c0bc17a75db780",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The same key and synthetic persistent marker survive code replacement without regeneration or a new repository runtime",
+      "decision": "aligned",
+      "reason": "Two distinct code directories use the same actual data directory. A generation callback fails if called a second time; the retained bytes are independently asserted. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.path",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_relative_or_source_nested_data_path_refuses_without_creating_keys",
+      "scenario_sha256": "912d323a2809525cbaa4f2e7355e5c56b47d489594e54fe55f06ea5c43c2cd19",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses all unsafe roots and creates no secret under source",
+      "decision": "aligned",
+      "reason": "Each concrete forbidden path must cause SystemExit and neither possible source key path may exist. This checks outcome rather than a path-validator return value. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.legacy",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_existing_legacy_data_does_not_silently_boot_a_different_install",
+      "scenario_sha256": "10636fdda69f6c282346e51563f63de08feccfcbf1dd9dd00d7edf5de3ae2384",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses to silently create a different install and preserves the legacy bytes",
+      "decision": "aligned",
+      "reason": "A real synthetic legacy file is retained byte-for-byte and the target directory must remain absent. No real install or credentials are accessed. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.failure",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_failed_key_generation_never_leaves_a_usable_partial_key",
+      "scenario_sha256": "17b513611792b5cd5b68b1d316d80bf2ea036bf91edc9f9d04f94185e6855338",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The failure leaves no usable or partial key at either install or legacy location",
+      "decision": "aligned",
+      "reason": "A controlled entropy exception exercises the actual file-creation ordering and both possible locations are checked after failure. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INSTALL.link",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_linked_install_path_cannot_redirect_secret_creation",
+      "scenario_sha256": "3d9cb047217832abb08e588395b57680f805c696ceb321c022d74c4e605d5984",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses the linked root without writing into the target",
+      "decision": "aligned",
+      "reason": "The test creates a native junction on Windows, asserts successful creation, then verifies refusal and an empty target. It never skips the filesystem outcome. Re-review: the six existing methods are unchanged; the launcher helper only adds an optional command callback for the new pre-Django checks. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa acceptance-to-test review; independent synthetic filesystem and ACL outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-FILES.fresh",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_database_is_private_before_migrations_open_it",
+      "scenario_sha256": "a94202f05aec1730f3e01c78272b01ccf709b63f3b60aef59cce8681cb6b5a2e",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The real database file exists and is private at both migration and server invocation",
+      "decision": "aligned",
+      "reason": "The callback inspects actual file existence and DACL before either mocked Django command, with an exact two-command observation count. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa semantic review; actual owned synthetic file/permission outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-FILES.existing",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_existing_database_and_setup_permissions_are_tightened_before_django",
+      "scenario_sha256": "1b580d8a83dd4f58b9260f5e7cb5b3fa7ad0a687ef7c2ad8230c1058cc09e5ca",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Both files have private ACLs before Django runs and all original bytes survive",
+      "decision": "aligned",
+      "reason": "Actual Win32 DACLs are inspected inside the pre-command callback, then both synthetic files are compared byte-for-byte. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa semantic review; actual owned synthetic file/permission outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-FILES.hardlink",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_hardlinked_database_refuses_without_changing_target_bytes_or_permissions",
+      "scenario_sha256": "535ec97307e74df70cf0d0e1112999876bd9a10e79ee5efa98a8040a83ffed95",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses and neither the target bytes nor its original ACL is changed",
+      "decision": "aligned",
+      "reason": "A native hardlink is created; exact original DACL/mode and bytes are read before and after refusal, catching protection applied before link validation. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa semantic review; actual owned synthetic file/permission outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-FILES.key",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_malformed_existing_key_refuses_without_replacement",
+      "scenario_sha256": "bcd2300f643560239dffec2d40ff821805cb140151fe24a31344a6676d9467b9",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses while preserving the existing bytes rather than generating a different signing key",
+      "decision": "aligned",
+      "reason": "The short synthetic key remains byte-identical after SystemExit; no real key is read. Re-review: all ten existing methods remain unchanged; the launcher helper only adds an explicit synthetic supplied-key input. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa semantic review; actual owned synthetic file/permission outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.roundtrip",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files",
+      "scenario_sha256": "2a7205959116fabfab3f06a725ece7bec6e8efe12dcc5f3ad91674676f56658b",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+      "decision": "aligned",
+      "reason": "The fixture uses real migrations and HTTP session/layout/onboarding endpoints. Exact identities, width3400/revision4, saved draft, two users, denial after revocation, no-store, private file bytes and independent Win32 ACLs are asserted; no provider readiness is claimed. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.wal",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_committed_wal_records_are_in_the_actual_database_snapshot",
+      "scenario_sha256": "a62178d0d96939833da55007a77e76c504701a7276022278423eef67a259bd02",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The snapshot database contains the committed WAL-only synthetic record",
+      "decision": "aligned",
+      "reason": "PRAGMA WAL mode and nonempty WAL are preconditions; an independent connection reads the exact committed record from the destination database, catching a plain main-file copy. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.writer",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_live_sqlite_writer_refuses_snapshot_and_preserves_source",
+      "scenario_sha256": "55b309bc2564cc27f3f14be626728e4fe938c6f29554d415caf3db0328a00f4b",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The first attempt refuses without a destination or staging leak; after rollback a snapshot succeeds",
+      "decision": "aligned",
+      "reason": "A native SQLite transaction is held rather than mocking lock metadata; both refusal and a later real successful snapshot are required. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.lock",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_real_install_lock_blocks_another_process_then_releases",
+      "scenario_sha256": "28dc23eb1069a598b5810aa0f6c46b77a988fab95ae924e60023f2e3c350e816",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The locked attempt refuses without publication; the holder exits cleanly and the later snapshot succeeds",
+      "decision": "aligned",
+      "reason": "The test waits for the actual lock-holder handshake, requires clean process exit, checks refusal/cleanup and then positive success. The owned process is killed and reaped on failure. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.destination",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_existing_destination_including_empty_directory_is_never_overwritten",
+      "scenario_sha256": "d6d4d5b11d22a8fcf05dd39ee04b7397401eee0cbc66b3967769c1cffd8a5c4e",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Both attempts refuse and preserve the empty directory or exact existing marker bytes",
+      "decision": "aligned",
+      "reason": "A successful snapshot is a precondition. Existing destination contents are inspected after both refused attempts; no force/overwrite switch is involved. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.corrupt",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_corrupt_snapshot_file_refuses_without_partial_restore",
+      "scenario_sha256": "16ac8c9a0e67068da5a76bd7b4d761670e526727435c4d42bfc8b276688d2d31",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Restore refuses without publishing a destination or leaving owned staging",
+      "decision": "aligned",
+      "reason": "The corruption is written into the real SQLite file after a required positive snapshot; refusal must leave no destination or staging and no private diagnostics. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.extra",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_unmanifested_private_file_refuses_without_partial_restore",
+      "scenario_sha256": "1844ede5d8e73fa7458b8985279421f64d28fd5cd90305eabf81ebaba62f5bb1",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Restore refuses instead of silently dropping or importing unmanifested state",
+      "decision": "aligned",
+      "reason": "The test creates an actual extra file after successful backup, then asserts refusal and absence of published/staging output. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.manifest",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_hostile_manifest_path_version_and_duplicate_keys_refuse",
+      "scenario_sha256": "0d479f9fa2daea8402598ae37b0d4abe38ca7e75db17242fbc274c7b07d990d3",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Every malformed manifest refuses without creating the destination or an escaped file",
+      "decision": "aligned",
+      "reason": "The file map is mutated with concrete hostile names, version999 and a duplicate version key. Every case requires nonzero exit, no destination/staging/secret reflection and no escaped file. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.hardlink",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_hardlinked_private_source_file_refuses_without_altering_target_acl",
+      "scenario_sha256": "77d6cdd7a3518070252875c0032f30e93575aa134972b76bdef4e353e3b950f9",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Snapshot refuses without changing the target bytes or original effective ACL",
+      "decision": "aligned",
+      "reason": "A real filesystem hardlink is a precondition. Exact before/after bytes and independent DACL/mode observations catch unsafe permission propagation as well as unsafe copying. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.interrupted",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_interrupted_copy_is_not_published_and_owned_staging_is_removed",
+      "scenario_sha256": "5f9e53fe01152e78d5aff03c83f77a2ab612e4610583d032e6c0fe0f06346752",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The operation raises, the destination is absent, owned staging is removed and the source signing key remains unchanged",
+      "decision": "aligned",
+      "reason": "Only the I/O failure is controlled; actual staging/publication/cleanup and retained synthetic source bytes are asserted. This is not a metadata-only fake backup. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-RECOVERY.namespace",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_unknown_durable_source_file_refuses_instead_of_omitting_it",
+      "scenario_sha256": "ae37d2556e04f71b6f8bdc21c4e99cf48d74d1b0e1120d9defc1b772d2474e78",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Snapshot refuses rather than claiming success while omitting unknown state",
+      "decision": "aligned",
+      "reason": "A real unrecognized source file is created; nonzero exit, absent destination/staging and redacted diagnostics are required. Re-review: all eleven existing methods are unchanged; only new legacy helpers and cases are appended. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent acceptance-to-test review; actual synthetic Django/SQLite/files/process/ACL observations, no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-ADOPT.retained",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_explicit_legacy_adoption_retains_records_keys_and_restarts_same_install",
+      "scenario_sha256": "b0e95c18f96710b55b2d0550e89a7a95a1454fe80670bffeef9249118af811de",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Original legacy bytes remain intact; keys and installation identity survive; a private directory-and-storage binding permits restart without regenerating a key",
+      "decision": "aligned",
+      "reason": "Before/after legacy bytes, exact adopted keys, actual binding DACL, two launcher phases and an independent fresh-process session/installation inspection are required. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent legacy-adoption review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-ADOPT.writer",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_legacy_writer_blocks_adoption_without_a_binding_or_partial_target",
+      "scenario_sha256": "faa1fa3cd3520e02bded61dceee29ae4d82f0babff9fcc394edb8a3fabad37c6",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The active writer causes refusal with no binding/target/staging; adoption succeeds after rollback",
+      "decision": "aligned",
+      "reason": "The native SQLite write lock is real, the refused attempt is checked for publication/cleanup/secret reflection, and a later positive adoption prevents vacuous refusal coverage. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent legacy-adoption review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-ADOPT.replay",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_legacy_replay_and_conflicting_destination_cannot_replace_install",
+      "scenario_sha256": "6898a938b1b5920966a4ba4dfbb54e8c53b544cc0160975fb2647bf8b9dcb6ea",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Both attempts refuse while preserving the original binding/key and creating no second install",
+      "decision": "aligned",
+      "reason": "Successful adoption is a precondition; exact binding/key bytes and absence of a second destination are checked after both replay attempts. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent legacy-adoption review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-ADOPT.binding",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_legacy_startup_binding_requires_exact_directory_format_and_storage_identity",
+      "scenario_sha256": "b9e72da6795363d97f5ee884c8ba8e24f4d5c64bc8e4d44920ca4a73bdafa819",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Every invalid binding refuses startup rather than reopening the old database or using an unrelated install",
+      "decision": "aligned",
+      "reason": "Concrete binding mutations exercise the actual launcher; each must cause SystemExit even though the target itself contains valid data. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent legacy-adoption review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-ADOPT.failure",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_failed_legacy_binding_write_preserves_source_and_removes_unpublished_target",
+      "scenario_sha256": "34b0785fbb813fa10efa4eef30ca4b86f75a2013a604de8f4ea486886a832fc4",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Adoption raises, leaves no target/binding/staging and retains original signing/setup bytes",
+      "decision": "aligned",
+      "reason": "The real adoption algorithm runs until the one controlled I/O failure; actual source bytes, destination, binding and owned staging are then independently checked. Re-review: the sixteen existing test methods are unchanged; integrity cases are appended. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent legacy-adoption review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INTEGRITY.sidecar",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_legacy_sqlite_sidecar_hardlink_is_rejected_before_sqlite_opens_any_file",
+      "scenario_sha256": "10350bc52983c1ae501550b21817054198ae248ee7d9f9a4e1f4f445ff8b5988",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Adoption refuses before any SQLite open, leaves no target, and preserves the link, target bytes and effective ACL",
+      "decision": "aligned",
+      "reason": "Only SQLite connect is observed, not allowed to run on the unsafe path. A real native hardlink, unchanged two-link count, bytes and independently read ACL/mode make pre-open refusal observable. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa security-boundary acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INTEGRITY.database",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_matching_file_hash_does_not_make_an_invalid_sqlite_database_restorable",
+      "scenario_sha256": "8345105da0ff9128045832555047144a5c6a571e8475b29f28265b093a87fd36",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Actual SQLite validation still refuses and removes owned staging without publishing a destination",
+      "decision": "aligned",
+      "reason": "Matching size/SHA256 is a precondition after real successful backup; this isolates actual SQLite validation from the already-covered checksum mismatch. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa security-boundary acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INTEGRITY.key",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_matching_file_hash_does_not_make_a_malformed_signing_key_restorable",
+      "scenario_sha256": "8e1b7724b2f956f9dec207278e7d7e77c17a029f5fdabe5dd4f0d3735551f283",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Signing-key format validation refuses without a published target or owned staging leak",
+      "decision": "aligned",
+      "reason": "The test deliberately supplies a matching size/SHA256 to require key validation rather than relying on checksum rejection. All key bytes are explicitly synthetic. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa security-boundary acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-INTEGRITY.valid",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files",
+      "scenario_sha256": "6c781c52c2acb551e6ba62e345bcb5cc3717426059d0ab313e066c904f1b36c2",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+      "decision": "aligned",
+      "reason": "The real fresh-process Django roundtrip independently proves that valid database/key formats, identities, scope and protected files remain usable after restore. Post-hardening re-review: the lock handshake has a15-second readiness deadline and guaranteed process/thread cleanup; all identity, scope, format, file, ACL and refusal assertions remain present. Re-review: all nineteen existing methods remain unchanged; source-recognition and matching-capacity refusal cases are appended. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa integrity positive-case re-review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.provided",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_supplied_signing_key_is_retained_privately_and_reused_without_entropy",
+      "scenario_sha256": "19cb94306520adc29545ae988538ddec9bb875c672078156785630c5f0b54306",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The exact key is saved privately, remains usable across restart and never consumes replacement entropy",
+      "decision": "aligned",
+      "reason": "Both returned key strings, actual file bytes and DACL are checked; a failing entropy callback proves no fallback key was generated. Punctuation covers ordinary Django-generated key syntax. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent signing-key/default-path acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.mismatch",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_supplied_key_mismatch_refuses_before_django_without_replacing_saved_key",
+      "scenario_sha256": "430f60cd846d910532f9e3ec8085d68cea17e6c64cfab5ee13893abebad04ec2",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses before either Django command and preserves the original key bytes",
+      "decision": "aligned",
+      "reason": "The first real synthetic launch establishes the retained key; a second conflicting input must cause SystemExit, zero command callbacks and unchanged bytes. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent signing-key/default-path acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.invalid",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_short_or_control_character_supplied_keys_cannot_create_an_install",
+      "scenario_sha256": "99da0d8530eb4430e8b9c5c89a7d2cfad04f33b7b86f802d636438ba739e380f",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Every invalid key refuses before Django and leaves no signing key file",
+      "decision": "aligned",
+      "reason": "Both concrete malformed inputs require SystemExit and no command invocation or key file; failure cannot silently create a different key. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent signing-key/default-path acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.os-default",
+      "test": "tests.test_install_storage.InstallConfigurationTests.test_scrubbed_environment_resolves_the_os_owned_default_without_writing_it",
+      "scenario_sha256": "db7a002438209b969b19c92d0388e5ffc454d94a9861edeeb300f1843a27fc70",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "The default resolves to the actual OS user LocalAppData Maipa directory and import does not create it",
+      "decision": "aligned",
+      "reason": "A separately called Shell32 folder API supplies the Windows oracle. The child environment permits only OS startup variables, matching CI; exact data/database paths and unchanged directory existence are required. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent signing-key/default-path acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.import",
+      "test": "tests.test_install_storage.InstallConfigurationTests.test_settings_import_does_not_create_a_configured_data_directory",
+      "scenario_sha256": "6bf3d255bc7535a5abcc0d878dcd78ffb3a27a62f6a8f027432575f3df26be47",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Settings resolve the configured path without creating installation storage",
+      "decision": "aligned",
+      "reason": "The child returns only resolved configuration; the parent independently verifies the exact path and its continued absence. Re-review: fifteen prior methods retain their assertions; only the initialized-install key-loss regression is appended. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent signing-key/default-path acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-KEY-CONTINUITY.lost",
+      "test": "tests.test_install_storage.InstallLauncherTests.test_missing_key_of_an_initialized_install_refuses_without_regeneration",
+      "scenario_sha256": "8c7632599122a2c3aa59b28ac7d5d2fd8007cf134f49d4e6da18687589a22ce1",
+      "source_sha256": "38209df79651d7cb6a53a656e1cc6c244ef4013a3665696cb7599406a97f4823",
+      "expected_observation": "Startup refuses without consuming replacement entropy or writing a new key",
+      "decision": "aligned",
+      "reason": "An actual first launch establishes the installation marker, then the owned synthetic key is removed. A replacement callback records any entropy call; SystemExit, zero calls and no replacement file are independently required. Code-free onboarding re-review: removed the mock for the deleted setup-code generator; all real private storage, launcher, key continuity, ACL, link and failure assertions remain unchanged.",
+      "reviewer": "Maipa independent missing-key acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-REFUSAL.source",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_unrecognized_source_does_not_create_or_reprotect_a_foreign_lockfile",
+      "scenario_sha256": "2b293825152efe0e74a47faf76b8a3b882e1495565a47e1f224ace4dad75c41f",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Backup refuses without changing existing file bytes/ACL or creating a lockfile in the unrecognized folder",
+      "decision": "aligned",
+      "reason": "The test independently reads actual original and final DACL/mode and bytes, then removes its owned marker and repeats to require an empty unrelated source after refusal. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa source-integrity/refusal acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-REFUSAL.capacity",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_backup_refuses_a_manifest_larger_than_its_restore_read_budget",
+      "scenario_sha256": "de98a68e75a715524172e726228e5db464bd33550c133e157069921c12bd1cc8",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Backup raises before publication, removes owned staging and retains the original signing-key bytes",
+      "decision": "aligned",
+      "reason": "Only the numeric capacity is reduced to64bytes to keep the test finite; actual snapshot copy, checksums, staging and publication execute. A false successful backup cannot satisfy the assertion. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa source-integrity/refusal acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-REFUSAL.valid",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files",
+      "scenario_sha256": "434bc2a49be56f12050079d2523924ff2fcf0c548725cdba589e6648e7e1efdf",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+      "decision": "aligned",
+      "reason": "The retained real roundtrip proves a recognized install and an in-budget manifest yield usable restored records, session, identities and private files. Re-review: twenty-one prior test methods remain unchanged; the seed-fixture refusal regression is appended. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa refusal positive-case re-review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-REFUSAL.fixture",
+      "test": "tests.test_install_recovery.InstallRecoveryTests.test_seed_fixture_requires_explicit_marker_and_owned_synthetic_path",
+      "scenario_sha256": "59d4e09fca3ba7f2fe5e5ad9752440c62d2f6f5874994aa9b4feb9688a0c5743",
+      "source_sha256": "196667ab71ace48a0d4fd7391c791cd8f0ffbbe78006e4a64a3835e31ed2b657",
+      "expected_observation": "The fixture refuses before creating any directory, database or synthetic account at either destination",
+      "decision": "aligned",
+      "reason": "Each real child gets an explicit absent synthetic path; one has the correct owned path without the marker, the other the marker with an unrelated path. Both must exit nonzero and leave the filesystem absent, so accidental real/default-install seeding cannot count as a fixture. Final fixture re-review: the child environment now explicitly marks ordinary owned synthetic fixture invocations; all22test methods retain their assertions and the negative fixture case deliberately removes the marker or selects a forbidden path.",
+      "reviewer": "Maipa independent diagnostic-fixture ownership review; no external reviewer claimed"
     }
   ]
 }

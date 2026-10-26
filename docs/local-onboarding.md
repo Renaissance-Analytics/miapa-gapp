@@ -1,28 +1,26 @@
 # Local onboarding
 
-After migrating a pristine database, the local launcher prepares a random,
-one-time code in the ignored `runtime/local-setup-code` file. On Windows the file
-has a protected ACL for the launcher identity and LocalSystem; on Unix it is mode
-0600. The file's contents are never returned by an HTTP route or printed to logs.
-A future packaged launcher must run the same preparation after migration; other
-trusted launchers can use `python backend/manage.py prepare_local_setup` with their
-normal server settings. The current Genie development entrypoint does this
-automatically.
+Open the locally installed Maipa in your browser. On first open, choose an
+administrator username, enter a strong password of at least 12 characters,
+confirm it and select **Create administrator**. No setup code, file lookup or
+terminal command is needed. The launcher migrates a new local database before
+serving the application.
 
-On first open, Maipa offers **Create local administrator**. Read the local file
-on the installation's computer, paste the code, choose a username and enter a
-strong matching password of at least 12 characters. Credentials go only to the
+Credentials go only to the
 CSRF-protected same-origin setup endpoint; they are not part of the chat. There
 is no default password. Success creates the installation, hashed user and explicit
 administrator membership atomically, then rotates the authenticated session.
-Passwords, codes and confirmation fields clear after submission.
+Password and confirmation fields clear after submission. The next step is
+**Account setup** in the persistent conversation panel.
 
 First-run creation closes after one successful claim. It also stays unavailable
 for legacy databases containing an installation or any user; disabled/deleted
 administrators do not reopen it. The singleton compare-and-swap rejects duplicate
 claims; concurrent SQLite write contention returns a retryable unavailable result.
 Existing console-provisioned members continue to use the normal sign-in form.
-The residual code file is inert after closure and is never a recovery password.
+Legacy setup-code files are unused and never act as recovery passwords. The old
+`prepare_local_setup` management command remains compatible with existing launchers;
+it displays browser guidance and creates no files or users.
 
 Each signed-in user has **Account setup** in the persistent Conversation panel.
 The setup guide saves accepted answers to the server and resumes after reload,

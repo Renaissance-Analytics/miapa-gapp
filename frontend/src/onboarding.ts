@@ -23,14 +23,13 @@ export async function readFirstRun(fetcher: typeof fetch = fetch): Promise<boole
   } catch { return null; }
 }
 
-export async function createAdmin(setupCode: string, username: string, password: string, confirmation: string, fetcher: typeof fetch = fetch): Promise<'created' | 'closed' | 'invalid_code' | 'invalid' | 'unavailable'> {
-  if (!/^[a-f0-9]{64}$/.test(setupCode) || !username || username.length > 150 || password.length < 12 || password.length > 1024 || password !== confirmation) return 'invalid';
+export async function createAdmin(username: string, password: string, confirmation: string, fetcher: typeof fetch = fetch): Promise<'created' | 'closed' | 'invalid' | 'unavailable'> {
+  if (!username || username.length > 150 || password.length < 12 || password.length > 1024 || password !== confirmation) return 'invalid';
   try {
     const token = await csrfToken(fetcher);
     const response = await fetcher('/api/setup/', { ...options(), method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': token },
-      body: JSON.stringify({ setup_code: setupCode, username, password, password_confirmation: confirmation }) });
+      body: JSON.stringify({ username, password, password_confirmation: confirmation }) });
     if (response.status === 409) return 'closed';
-    if (response.status === 403) return 'invalid_code';
     if (response.status === 400) return 'invalid';
     if (response.status !== 201) return 'unavailable';
     const value: unknown = await response.json();

@@ -1,8 +1,7 @@
-"""Prepare a local operator code without printing its contents or granting membership."""
-from django.conf import settings
+"""Keep existing launcher guidance compatible with browser-only local setup."""
 from django.core.management.base import BaseCommand
 
-from backend.maipa.workspace.bootstrap import prepare_local_setup, required
+from backend.maipa.workspace.bootstrap import required
 
 
 class Command(BaseCommand):
@@ -12,5 +11,4 @@ class Command(BaseCommand):
         if not required():
             self.stdout.write('This installation is already configured. First-run setup is closed.')
             return
-        prepare_local_setup()
-        self.stdout.write(f'Open Maipa in your browser. The private local setup code is in {settings.LOCAL_SETUP_CODE_FILE}.')
+        self.stdout.write('Open Maipa in your browser to create your administrator account, then continue with account setup in the conversation.')

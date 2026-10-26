@@ -1,4 +1,4 @@
-"""Fail-closed Django foundation. Local SQLite is development storage only."""
+"""Fail-closed Django configuration with server-owned local installation data."""
 import os
 from pathlib import Path
 
@@ -7,9 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parents[2]
 FRONTEND_DIST = BASE_DIR / "frontend/dist"
 ACP_RUNTIME_ROOT = BASE_DIR / "backend/agent"
-ACP_CHECK_ROOT = BASE_DIR / "runtime/acp-checks"
 ACP_NODE_EXECUTABLE = ""  # Resolved from the server PATH, never HTTP input.
-LOCAL_SETUP_CODE_FILE = BASE_DIR / 'runtime/local-setup-code'
 SECRET_KEY = os.environ.get("MAIPA_SECRET_KEY", "")
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured("Set MAIPA_SECRET_KEY to a private random value of at least 50 characters.")
@@ -20,6 +18,13 @@ if not ALLOWED_HOSTS and LOCAL_DEV:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 if not ALLOWED_HOSTS or any("*" in host or "://" in host or "/" in host for host in ALLOWED_HOSTS):
     raise ImproperlyConfigured("Set exact MAIPA_ALLOWED_HOSTS names; wildcard hosts are forbidden.")
+
+from .storage import data_directory
+try:
+    DATA_ROOT = data_directory(BASE_DIR)
+except (OSError, ValueError):
+    raise ImproperlyConfigured('Private installation storage unavailable') from None
+ACP_CHECK_ROOT = DATA_ROOT / 'workers'
 
 INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions",
                   "backend.maipa.workspace.apps.WorkspaceConfig",
@@ -38,7 +43,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "backend.maipa.urls"
 ASGI_APPLICATION = "backend.maipa.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "runtime/maipa.sqlite3"}}
+DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATA_ROOT / "maipa.sqlite3"}}
 USE_TZ = True
 TIME_ZONE = "UTC"
 LANGUAGE_CODE = "en-us"

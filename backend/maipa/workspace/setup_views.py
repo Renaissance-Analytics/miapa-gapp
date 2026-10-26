@@ -46,9 +46,7 @@ def first_run(request):
         return JsonResponse({'user': {'id': str(user.pk)}, 'csrf_token': get_token(request)}, status=201)
     except bootstrap.SetupClosed:
         return error('setup_closed', 409)
-    except bootstrap.InvalidCode:
-        return error('invalid_setup_code', 403)
-    except (bootstrap.SetupUnavailable, OperationalError):
+    except OperationalError:
         return error('setup_unavailable', 503)
     except IntegrityError:
         return error('setup_closed', 409)
