@@ -2110,6 +2110,208 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P05-REFERENCES",
+      "risk": "Private provider handles and artifact bytes can escape ownership, survive revoked authority, be corrupted, or falsely publish after failed writes.",
+      "scenarios": [
+        {
+          "id": "P05-REFERENCES.durable",
+          "kind": "positive",
+          "given": "Trusted host records one acknowledged synthetic opaque handle",
+          "when": "Reload the saved reference",
+          "then": "Return exact original handle only by app UUID, with original owner/account/install/provider and no private repr",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_durable_opaque_session_resolves_exact_private_handle_without_disclosure"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.scope",
+          "kind": "negative",
+          "given": "Real owned reference and payload exist",
+          "when": "Another actor/account or browser URL requests them",
+          "then": "Deny cross-scope operations; HTTP404 never exposes real payload or provider handle",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_wrong_actor_account_and_public_urls_cannot_reach_real_saved_payload"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.account",
+          "kind": "negative",
+          "given": "A saved reference retains its original account tuple",
+          "when": "Disable, change provider, or reassign the real account",
+          "then": "Deny history adoption; unchanged original binding works only after original authority is restored",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_disabled_reassigned_and_changed_provider_accounts_never_adopt_history"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.authority",
+          "kind": "negative",
+          "given": "Saved payload and stale active user object exist",
+          "when": "Deactivate database user, revoke membership or downgrade role",
+          "then": "Every record/resolve/read/write/revoke checks fresh authority; administrator authority can read original payload",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_fresh_database_user_and_membership_authority_apply_to_every_operation"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.install",
+          "kind": "negative",
+          "given": "Original reference and storage identity exist",
+          "when": "Misbind installation or change private storage identity",
+          "then": "Deny without silently rebinding; restore original binding to resolve same handle",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_original_installation_and_private_storage_binding_cannot_be_replaced"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.revoke",
+          "kind": "negative",
+          "given": "Owned session and artifact are saved",
+          "when": "Revoke the reference",
+          "then": "Durable revocation closes resolve/read/write/re-record without deleting private evidence",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_revocation_is_durable_and_closes_handle_artifact_reads_and_writes"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.duplicate",
+          "kind": "negative",
+          "given": "Original handle already has one application reference",
+          "when": "Record it again",
+          "then": "Refuse duplicate, retain one original identity and exact handle",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_duplicate_private_handle_refuses_without_replacing_original_identity"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.bounds",
+          "kind": "negative",
+          "given": "A current actor/account exists",
+          "when": "Use malformed IDs, control characters, oversized handle/payload or mutable payload",
+          "then": "Refuse with one safe error before artifact directory creation",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_invalid_handles_ids_and_payload_budgets_refuse_before_file_creation"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.artifact",
+          "kind": "positive",
+          "given": "Trusted host stores exact binary bytes",
+          "when": "Read saved artifact and inspect receipt/file permission",
+          "then": "Exact bytes, independent SHA256/size, UUID/session binding and private native ACL; receipt has no path",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_immutable_artifact_receipt_matches_exact_bytes_digest_size_and_private_acl"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.corruption",
+          "kind": "negative",
+          "given": "Real immutable payload and session exist",
+          "when": "Truncate, change, append, remove payload or request under another session",
+          "then": "No corrupted/missing/foreign-session bytes return",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_corruption_truncation_missing_file_and_wrong_session_never_return_bytes"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.hardlink",
+          "kind": "negative",
+          "given": "Stored payload path is replaced with a real hardlink",
+          "when": "Read artifact",
+          "then": "Refuse before touching foreign bytes or native ACL",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_hardlink_payload_is_refused_without_touching_foreign_bytes_or_acl"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.reparse",
+          "kind": "negative",
+          "given": "Stored artifact directory is replaced with a real junction/symlink",
+          "when": "Read artifact",
+          "then": "Refuse before touching foreign bytes or native ACL",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_reparse_artifact_directory_is_refused_without_touching_foreign_target"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.failure",
+          "kind": "negative",
+          "given": "Artifact payload is written to real private storage",
+          "when": "Fail fsync or database publication",
+          "then": "No success/row/partial owned file; later ordinary store/read still returns exact bytes",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_failed_durable_write_and_database_publication_clean_only_new_owned_files"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.late-revoke",
+          "kind": "negative",
+          "given": "Actual payload read is in progress",
+          "when": "Revoke membership when file read closes",
+          "then": "Recheck authority before returning; return no bytes and preserve private file",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_access_revoked_during_real_payload_read_is_checked_before_return"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.collision",
+          "kind": "negative",
+          "given": "A server UUID collides with a real saved artifact",
+          "when": "Attempt another artifact write",
+          "then": "Refuse and retain exactly one original row and exact payload; no preexisting file cleanup",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_storage_identity_collision_never_removes_or_replaces_existing_payload"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.session-db",
+          "kind": "negative",
+          "given": "Current owned account exists",
+          "when": "Fail session database creation",
+          "then": "Return one safe failure and zero rows; ordinary record/resolve still works afterward",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_session_database_failure_never_returns_or_publishes_a_reference"
+          ]
+        },
+        {
+          "id": "P05-REFERENCES.metadata",
+          "kind": "negative",
+          "given": "A bounded deeply nested invalid metadata shape, and a separately fault-injected private parser exception",
+          "when": "Resolve the owned reference through real authority and the metadata boundary",
+          "then": "Return fixed safe errors for malformed metadata and private parser failure; original metadata still resolves exact handle",
+          "tests": [
+            "tests.test_service_references.ServiceReferenceTests.test_malformed_storage_metadata_and_parser_failure_have_fixed_safe_errors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-BROWSER-DIAGNOSTICS",
+      "risk": "Hosted phase-only failures are hard to diagnose, while raw browser text can leak credentials or private records.",
+      "scenarios": [
+        {
+          "id": "P05-BROWSER-DIAGNOSTICS.known",
+          "kind": "positive",
+          "given": "A fixed setup confirmation checkpoint and arbitrary private browser fields",
+          "when": "Build the failure artifact",
+          "then": "Keep only allowed setup checkpoint, phase and verified cleanup",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_known_setup_checkpoint_survives_without_browser_text_or_answer"
+          ]
+        },
+        {
+          "id": "P05-BROWSER-DIAGNOSTICS.hostile",
+          "kind": "negative",
+          "given": "Unknown, nonstring or misplaced checkpoint values",
+          "when": "Build the failure artifact",
+          "then": "Discard checkpoint and private content rather than expanding public diagnostics",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_unknown_misplaced_or_nonstring_checkpoints_are_discarded"
+          ]
+        }
+      ]
     }
   ]
 }

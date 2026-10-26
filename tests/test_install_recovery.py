@@ -1,5 +1,6 @@
 """Offline backup/restore must preserve real synthetic Django authority and files."""
 import json
+import hashlib
 from concurrent.futures import ThreadPoolExecutor
 import os
 from pathlib import Path
@@ -9,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 from unittest.mock import patch
 
 from tests.test_install_storage import descriptor
@@ -90,6 +92,14 @@ class InstallRecoveryTests(unittest.TestCase):
         self.assertEqual((state['other_preferences']['theme'], state['other_preferences']['active_view']), ('system', 'client-facts'))
         self.assertNotEqual(state['other_preferences']['preferences_id'], self.proof['preferences'])
         self.assertEqual((state['preferences_revoked'], state['preferences_revoked_cache']), (403, 'no-store'))
+        self.assertEqual(state['agent_session_id'], self.proof['agent_session_id'])
+        self.assertEqual(state['artifact_id'], self.proof['artifact_id'])
+        self.assertEqual(state['agent_reference_access'], 'allowed')
+        self.assertEqual(state['private_handle_digest'], hashlib.sha256(b'synthetic-recovery-provider-session').hexdigest())
+        self.assertEqual(bytes.fromhex(state['artifact_bytes_hex']), b'synthetic referenced artifact\x00\xff')
+        self.assertEqual(state['artifact_sha256'], hashlib.sha256(b'synthetic referenced artifact\x00\xff').hexdigest())
+        self.assertEqual(state['other_reference_access'], 'denied')
+        self.assertEqual(state['revoked_reference_access'], 'denied')
         self.assertEqual(state['other_draft'], {})
         self.assertEqual(state['revocation'], [200, 403])
         self.assertEqual(state['revocation_cache'], 'no-store')
@@ -99,7 +109,8 @@ class InstallRecoveryTests(unittest.TestCase):
             for relative in ('development-key', 'local-setup-code',
                     'providers/11111111-1111-4111-8111-111111111111/synthetic.token',
                     'sessions/22222222-2222-4222-8222-222222222222/state.json',
-                    'artifacts/33333333-3333-4333-8333-333333333333/proof.bin'):
+                    'artifacts/33333333-3333-4333-8333-333333333333/proof.bin',
+                    'artifacts/'+uuid.UUID(self.proof['artifact_id']).hex+'/payload'):
                 self.assertEqual((folder / relative).read_bytes(), (self.data / relative).read_bytes())
                 if os.name == 'nt':
                     acl = descriptor(folder / relative)
@@ -262,6 +273,14 @@ class InstallRecoveryTests(unittest.TestCase):
             cwd=ROOT, env=environment(self.restored), capture_output=True, text=True, timeout=30)
         self.assertEqual(inspect.returncode, 0, inspect.stderr)
         self.assertEqual(json.loads(inspect.stdout)['installation'], self.proof['installation'])
+        # This legacy fixture copies only DB/key/code, deliberately excluding the
+        # modern storage identity and artifact files. Those mappings must not be
+        # adopted under the newly created identity. Full restore above requires
+        # the original private identity, exact handle and actual binary payload.
+        legacy_state = json.loads(inspect.stdout)
+        self.assertEqual(legacy_state['agent_reference_access'], 'denied')
+        self.assertIsNone(legacy_state['private_handle_digest'])
+        self.assertIsNone(legacy_state['artifact_bytes_hex'])
 
     def test_legacy_writer_blocks_adoption_without_a_binding_or_partial_target(self):
         code = self.legacy()

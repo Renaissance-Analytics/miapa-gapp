@@ -4,6 +4,18 @@ from tools.check_browser import browser_failure_evidence
 
 
 class BrowserReportingTests(unittest.TestCase):
+    def test_known_setup_checkpoint_survives_without_browser_text_or_answer(self):
+        self.assertEqual(browser_failure_evidence({'reason':'setup_chat','cleanup':True,
+            'checkpoint':'setup_confirm','answer':'synthetic-private-answer','stderr':'private-path'}),
+            {'checks':0,'reason':'setup_chat','cleanup':True,'checkpoint':'setup_confirm'})
+
+    def test_unknown_misplaced_or_nonstring_checkpoints_are_discarded(self):
+        for reason, checkpoint in [('setup_chat','synthetic-private-answer'), ('setup_chat',{}),
+                                   ('setup_chat',True), ('anonymous','setup_confirm')]:
+            result=browser_failure_evidence({'reason':reason,'cleanup':True,'checkpoint':checkpoint})
+            self.assertNotIn('checkpoint', result)
+            self.assertNotIn('synthetic-private-answer', str(result))
+
     def test_browser_startup_paths_are_resolved_without_inheriting_credentials(self):
         from tools.check_browser import browser_environment
         ambient = {"PATH": "synthetic-tools", "TEMP": "synthetic-temp", "TMP": "synthetic-temp",
