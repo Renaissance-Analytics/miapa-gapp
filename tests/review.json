@@ -3250,6 +3250,26 @@
       "decision": "aligned",
       "reason": "Native MCP result must exceed65536bytes while its actual schema is within32768bytes; exact full text/structured equivalence,15notes and real process-tree/outer/profile/capsule cleanup are asserted. The original oversized-request test remains unchanged.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "backend-safe-source-location",
+      "test": "tests.test_failure_locations.FailureLocationTests.test_failure_location_is_a_source_line_without_path_or_exception_text",
+      "scenario_sha256": "e1a1c6f9a6e1af5d96345fda33df7103a7bb1447161f729143cc957b7fc981d6",
+      "source_sha256": "5c7197a72f2972a1100e8e444205178aeae010dff32c10e7de2760688f484504",
+      "expected_observation": "Only bounded numeric lines from the known test module survive; paths, messages, locals and unknown-test locations are absent",
+      "decision": "aligned",
+      "reason": "Semantic review: known test module traceback line is retained as an integer only; exact line and re-sanitization are asserted. Hostile bool, excessive number, text and unknown-test locations are rejected; private sentinel and absolute source path remain absent. This adds observability without loosening required outcomes or exposing worker output.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+    },
+    {
+      "scenario": "backend-safe-source-location",
+      "test": "tests.test_failure_locations.FailureLocationTests.test_untrusted_source_locations_are_bounded_and_unknown_tests_have_no_line",
+      "scenario_sha256": "e1a1c6f9a6e1af5d96345fda33df7103a7bb1447161f729143cc957b7fc981d6",
+      "source_sha256": "5c7197a72f2972a1100e8e444205178aeae010dff32c10e7de2760688f484504",
+      "expected_observation": "Only bounded numeric lines from the known test module survive; paths, messages, locals and unknown-test locations are absent",
+      "decision": "aligned",
+      "reason": "Semantic review: known test module traceback line is retained as an integer only; exact line and re-sanitization are asserted. Hostile bool, excessive number, text and unknown-test locations are rejected; private sentinel and absolute source path remain absent. This adds observability without loosening required outcomes or exposing worker output.",
+      "reviewer": "Maipa semantic acceptance review; no external review claimed"
     }
   ]
 }

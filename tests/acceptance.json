@@ -820,6 +820,17 @@
             "tests.test_backend_reporting.BackendReportingTests.test_real_test_result_keeps_failure_and_collects_only_safe_evidence",
             "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer"
           ]
+        },
+        {
+          "id": "backend-safe-source-location",
+          "given": "A reviewed required test fails on a hosted worker, or a failure report contains hostile location fields",
+          "when": "The exception chain is captured and sanitized for public candidate evidence",
+          "then": "Only bounded numeric lines from the known test module survive; paths, messages, locals and unknown-test locations are absent",
+          "tests": [
+            "tests.test_failure_locations.FailureLocationTests.test_failure_location_is_a_source_line_without_path_or_exception_text",
+            "tests.test_failure_locations.FailureLocationTests.test_untrusted_source_locations_are_bounded_and_unknown_tests_have_no_line"
+          ],
+          "kind": "positive"
         }
       ]
     },
