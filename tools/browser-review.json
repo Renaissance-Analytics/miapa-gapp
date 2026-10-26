@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "11f16f33412bebfa7af29f9045b4a0753650a5986bc47fed60f2cd49846ecd9c",
-    "tools/check_browser.py": "933f0b33315d1961033a4109dd7557e59f531b1943abf9ed8b05b08114af30b6",
+    "tools/browser.mjs": "6c0fa2eb278e653c4c9c4067e49f49df5ef658448f3b3bd58513cd4954c565a0",
+    "tools/check_browser.py": "581cf174af92273af3bdbc332a0437f90cda9db964b0991aba8aab1c12615374",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -19,9 +19,19 @@
       "expected": "Native mobile chat replies survive page reload, collect explicit client/currency/unknown basis and date, review with zero preconfirmation clients, then create actual intake facts once. Stale confirmation409; explicit Open saved client facts shows USD in the work panel."
     },
     {
+      "id": "admin-users-create-update-conflict",
+      "kind": "positive",
+      "expected": "Actual first-run administrator opens the fixed published Users and access view. Native username/password/confirmation/role entry creates a real user; native role/access changes persist with safe audit. A separate real authorized write causes stale409 and erases forms until explicit reload. Last-admin demotion is refused without revision or audit change. Saved preferences/layout/setup and the exact conversation pane node remain unchanged."
+    },
+    {
       "id": "first-run-stays-closed",
       "kind": "negative",
       "expected": "Actual logout after first-run returns the normal sign-in form, hides administrator creation and denies anonymous setup-chat reads401."
+    },
+    {
+      "id": "admin-users-restricted-login",
+      "kind": "negative",
+      "expected": "After actual sign-out, the UI-created user signs in with its real password and retains its saved viewer role. Admin API403, no admin navigation, empty own engagement list and absent original client prove access isolation. Existing first-run-closed check remains in its original order."
     },
     {
       "id": "anonymous-authority-and-build",
@@ -149,7 +159,7 @@
       "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
     }
   ],
-  "limits": "Twenty-eight actual native-browser cases are required. General live ACP conversations, provider provisioning, durable custom-view authoring, financial execution, Fancy Flow integration and Q04-Q06 remain open.",
+  "limits": "Thirty actual native-browser cases required. Comprehensive provider/profile/login/session and remaining P06/A01, financial execution, Fancy Flow and Q04-Q06 acceptance remain open.",
   "additional_review": "Physical dev/inode directory identity and native canonical paths replace brittle Windows string equality; fixed owned prefix and actual temporary parent remain required. A real alternate-casing test failed then passed, while foreign parent/unowned name remain refused. Fixed browser failure phases are public-safe metadata, all other diagnostics/paths/stdout/cookies discarded; two privacy/report tests observed red before implementation. Existing nine real app cases unchanged.",
   "p01_review": "Reviewed actual native typing/mouse submission and server-issued cookies, replacing forced fixture login without reducing existing cases. New failed-login, preparer role, logout/session invalidation and viewer/foreign-history denials compare exact backend outcomes; no fake session endpoint or package patch. Original nine checks retained; eleven scenarios total.",
   "desktop_transition_review": "After changing from mobile to desktop, wait for the real work-panel inert state to clear before focusing native inputs. This preserves actual input/focus assertions and avoids interacting while React is applying the media-query transition; no sleeps, mocked state or relaxed outcomes.",
@@ -167,5 +177,6 @@
   "code_free_onboarding_review": "User-requested local browser onboarding removes code generation, code-file reads and code entry. Reviewed real physical data-root fixture preparation, exact three-field DOM assertions and native credential submission; retained actual Django CSRF/auth, one-time closure, full saved chat confirmation/reload/mobile flow, all previous cases, no uncaught exceptions and owned-profile cleanup. Legacy backup files remain private optional historical content.",
   "preferences_review": "All previous 24 cases retain their assertions and order. The native click helper now waits for the same visible enabled button before actual pointer events; it still rejects disabled/missing controls. Three independent real-account preference cases are added. The fresh-profile fixture now requires four cases including preferences and both cleanup/exception proofs. Native browser profile ownership, startup validation and cleanup algorithms are unchanged; no provider/finance success is mocked.",
   "service_reference_review": "All27prior cases retain order and assertions; one actual private-storage case is added. The fixture creates actual rows/files through the new trusted-host service before browser launch, proves exact bytes, and passes only app UUIDs to that owned browser. No provider session/readiness, successful response or public file API is fabricated. Native pointer/key, current database, exceptions, build identity and complete owned cleanup remain required.",
-  "setup_checkpoint_review": "PR10 actual-main attempt1 failed at setup_chat without detailed hosted stderr. Three unchanged local runs and one controlled hosted rerun passed; original cause remains unknown. Fixed allowlisted interaction checkpoints improve future failure reports only. Existing native actions, assertions, deadlines and cleanup are unchanged; raw labels/answers/DOM/paths/errors are discarded. Known-checkpoint reporting was observed red; hostile/non-string/misplaced values remain discarded."
+  "setup_checkpoint_review": "PR10 actual-main attempt1 failed at setup_chat without detailed hosted stderr. Three unchanged local runs and one controlled hosted rerun passed; original cause remains unknown. Fixed allowlisted interaction checkpoints improve future failure reports only. Existing native actions, assertions, deadlines and cleanup are unchanged; raw labels/answers/DOM/paths/errors are discarded. Known-checkpoint reporting was observed red; hostile/non-string/misplaced values remain discarded.",
+  "admin_access_review": "Reviewed native input/pointer/keyboard actions against independent P06 administrator acceptance and actual Django state. Every prior28case and its assertions/order remains. First-run browser now requires7cases including both new outcomes and independent exceptions/cleanup. No success/state/provider is fabricated; the separate authorized API write only establishes a stale revision. New admin_users failure phase is a fixed public-safe token; raw DOM/credentials/paths stay out of reports. Initial14HTTP acceptance failures were actual404s; frontend57passed/5failed on stubs/reserved view impersonation before the implementation. No browser red or external reviewer is claimed."
 }

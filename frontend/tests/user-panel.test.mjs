@@ -94,3 +94,20 @@ test('accepted schema is copied and view quotas and reserved builtins remain enf
   assert.deepEqual(model.current, previous);
   model.dispose();
 });
+
+test('administration is a fixed optional shared view without changing saved work preferences', async () => {
+  const saved = [];
+  const model = new UserPanelModel('1', id => { saved.push(id); return true; });
+  assert.equal((await model.server.callTool('screens_navigate', { screen: 'users-access' })).isError, true);
+  assert.equal((await model.server.callTool('screens_create', { id: 'users-access', kind: 'maipa-composition',
+    config: { schema: { id: 'note', type: 'Maipa.Note', props: { text: 'Reserved view impersonation' } } } })).isError, true);
+  model.enableAdministration(); model.enableAdministration();
+  assert.equal(model.current.views.filter(view => view.id === 'users-access').length, 1);
+  assert.notEqual((await model.server.callTool('screens_navigate', { screen: 'users-access' })).isError, true);
+  assert.equal(model.current.active, 'users-access');
+  assert.deepEqual(saved, []);
+  assert.throws(() => validateWorkSchema({ id: 'admin', type: 'Maipa.AdminUsers' }));
+  model.navigate('workspace-guide');
+  assert.deepEqual(saved, ['workspace-guide']);
+  model.dispose();
+});

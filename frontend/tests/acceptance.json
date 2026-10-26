@@ -592,6 +592,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-ACCESS-UI",
+      "risk": "Stale or malformed admin data may cross users or show unacknowledged changes as saved.",
+      "scenarios": [
+        {
+          "id": "P06-ACCESS-UI.read",
+          "kind": "positive",
+          "given": "A valid current administrator snapshot",
+          "when": "Use the controlled administrator client or published shared screen bridge",
+          "then": "Exact bounded actor-bound snapshot and same-origin/no-store/redirect-error/deadline request options are preserved",
+          "tests": [
+            "admin-users.test.mjs#administrator reads only a bounded snapshot bound to the mounted actor"
+          ]
+        },
+        {
+          "id": "P06-ACCESS-UI.read-refuse",
+          "kind": "negative",
+          "given": "Foreign malformed private or oversized response data or denied access",
+          "when": "Use the controlled administrator client or published shared screen bridge",
+          "then": "No private/foreign/unknown/duplicate/oversize state is retained;401/403 reports denial",
+          "tests": [
+            "admin-users.test.mjs#foreign malformed private or oversized access data never enters the UI model"
+          ]
+        },
+        {
+          "id": "P06-ACCESS-UI.save",
+          "kind": "positive",
+          "given": "A reviewed new-user or role change under a known revision",
+          "when": "Use the controlled administrator client or published shared screen bridge",
+          "then": "Request binds original actor installation revision and CSRF to fixed routes; only exact next-revision receipt confirms save",
+          "tests": [
+            "admin-users.test.mjs#create and role writes bind actor install revision and csrf and acknowledge the exact next revision"
+          ]
+        },
+        {
+          "id": "P06-ACCESS-UI.save-refuse",
+          "kind": "negative",
+          "given": "Conflict denial invalid receipt target injection or unapproved fields",
+          "when": "Use the controlled administrator client or published shared screen bridge",
+          "then": "Safe failure categories remain distinct; malformed receipts never confirm save and unsafe input sends no request",
+          "tests": [
+            "admin-users.test.mjs#conflicts denial bad receipts and authority-shaped choices never claim a saved change"
+          ]
+        },
+        {
+          "id": "P06-ACCESS-UI.shared-view",
+          "kind": "positive",
+          "given": "One mounted principal with the optional administrator view",
+          "when": "Use the controlled administrator client or published shared screen bridge",
+          "then": "Only one fixed admin screen is added; shared navigation preserves work preferences and arbitrary schemas/reserved-ID impersonation stay refused",
+          "tests": [
+            "user-panel.test.mjs#administration is a fixed optional shared view without changing saved work preferences"
+          ]
+        }
+      ]
     }
   ]
 }

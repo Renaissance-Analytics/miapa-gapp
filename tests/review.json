@@ -2630,6 +2630,146 @@
       "decision": "aligned",
       "reason": "The native runtime parses bounded deep nesting but refuses its shape. A separate explicit metadata-parser fault injection tests the safe exception boundary; no claim that the native malformed input caused RecursionError.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.read_exposes_only_bounded_membership_and_safe_audit_fields",
+      "test": "tests.test_admin_users.AdminUsersTests.test_read_exposes_only_bounded_membership_and_safe_audit_fields",
+      "scenario_sha256": "ad4d1d26f3adb714db384fd52a07da17cc055e0ae59b863f84e57386c3c89303",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "Only exact public membership fields and empty safe history are returned",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: Only exact public membership fields and empty safe history are returned. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.create_persists_validated_password_role_and_safe_audit",
+      "test": "tests.test_admin_users.AdminUsersTests.test_create_persists_validated_password_role_and_safe_audit",
+      "scenario_sha256": "0df0a07b425031660aa2a5ebb1a6b1712f9e8def8d648c9ccd24032ae48d00c8",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "Password is hashed, normal flags and role persist across clients, safe audit records the actor and login works",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: Password is hashed, normal flags and role persist across clients, safe audit records the actor and login works. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.password_name_and_confirmation_validation_never_create_partial_users",
+      "test": "tests.test_admin_users.AdminUsersTests.test_password_name_and_confirmation_validation_never_create_partial_users",
+      "scenario_sha256": "038f4cb12d53edda64c107eacd12900d98c85780a3402740398fe951c6df906c",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "400 preserves both existing users, the revision and audit",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 400 preserves both existing users, the revision and audit. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.restricted_roles_flags_and_current_revocation_never_grant_administration",
+      "test": "tests.test_admin_users.AdminUsersTests.test_restricted_roles_flags_and_current_revocation_never_grant_administration",
+      "scenario_sha256": "0d9de180b556322aafea720bf785bce7cbae3a32180654169db203985d38ef6a",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "401 or403 denies every administrative read/write without elevation",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 401 or403 denies every administrative read/write without elevation. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.wrong_actor_cookie_and_installation_binding_cannot_write",
+      "test": "tests.test_admin_users.AdminUsersTests.test_wrong_actor_cookie_and_installation_binding_cannot_write",
+      "scenario_sha256": "09729d288702636bc85361d0bb5cccd69d4ff032f2aae15768f9f8a87d05d394",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "409 prevents actor/install adoption and keeps revision0",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 409 prevents actor/install adoption and keeps revision0. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.stale_revision_cannot_overwrite_winner_or_append_audit",
+      "test": "tests.test_admin_users.AdminUsersTests.test_stale_revision_cannot_overwrite_winner_or_append_audit",
+      "scenario_sha256": "da50ce2dc5a73736f28e5ec6115e7debbbfc2decbf8e42713acb4eca3cf5bd95",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "First role change persists once; second409 preserves its role, revision and sole audit event",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: First role change persists once; second409 preserves its role, revision and sole audit event. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.strict_json_bounds_unknown_fields_and_invalid_types_make_no_change",
+      "test": "tests.test_admin_users.AdminUsersTests.test_strict_json_bounds_unknown_fields_and_invalid_types_make_no_change",
+      "scenario_sha256": "14d86cfed6101327dc29ac25c9414d87dd80a8008e22ee88ec69fd879d3d224e",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "400 or413 leaves memberships, revision and history unchanged",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 400 or413 leaves memberships, revision and history unchanged. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.last_active_administrator_is_preserved_and_valid_self_demotion_loses_access",
+      "test": "tests.test_admin_users.AdminUsersTests.test_last_active_administrator_is_preserved_and_valid_self_demotion_loses_access",
+      "scenario_sha256": "e75536330d1c9ac546d0a6369c5062e01c002b4b3bd1572b94386b87aa96e223",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "409 protects last authority; self-demotion succeeds only with an active alternate and immediately loses admin reads",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 409 protects last authority; self-demotion succeeds only with an active alternate and immediately loses admin reads. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.disabled_membership_takes_effect_in_existing_session",
+      "test": "tests.test_admin_users.AdminUsersTests.test_disabled_membership_takes_effect_in_existing_session",
+      "scenario_sha256": "a57c56bcdee6b84566343fadecff71e85a31bf4975a0beaae152241c9d86b1a9",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "Saved enabledfalse immediately denies the existing viewer session",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: Saved enabledfalse immediately denies the existing viewer session. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.absent_or_foreign_member_is_not_adopted",
+      "test": "tests.test_admin_users.AdminUsersTests.test_absent_or_foreign_member_is_not_adopted",
+      "scenario_sha256": "13f92507f5211dfd61197045f4714363c472fdc8e1169b1fa29205d623c4dc6f",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "404 makes no change and restoring the fixture binding recovers original state",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 404 makes no change and restoring the fixture binding recovers original state. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.csrf_origin_and_method_guards_preserve_state",
+      "test": "tests.test_admin_users.AdminUsersTests.test_csrf_origin_and_method_guards_preserve_state",
+      "scenario_sha256": "f2a600f261dcae51d0e71a97333b40dba281707860b6d9a4d92474960a6f3bed",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "403 and exact405 Allow preserve original state",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 403 and exact405 Allow preserve original state. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.audit_failure_rolls_back_user_membership_and_revision",
+      "test": "tests.test_admin_users.AdminUsersTests.test_audit_failure_rolls_back_user_membership_and_revision",
+      "scenario_sha256": "d51a57d8d704f3d5fde47ac681eae0b569e8349a0a0a3741cc9277cbdc6ac7db",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "503 rolls back the user, membership and shared revision",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 503 rolls back the user, membership and shared revision. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.user_limit_and_revision_exhaustion_fail_without_partial_change",
+      "test": "tests.test_admin_users.AdminUsersTests.test_user_limit_and_revision_exhaustion_fail_without_partial_change",
+      "scenario_sha256": "20fdfec8644fc2ecc0dc4d8fc8003cd3d486c212628cf1031d7af93b5546292e",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "409 makes no partial change; database rejects revision2b",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: 409 makes no partial change; database rejects revision2b. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS.concurrent_administrators_cannot_remove_each_others_last_authority",
+      "test": "tests.test_admin_users.ConcurrentAdminUsersTests.test_concurrent_administrators_cannot_remove_each_others_last_authority",
+      "scenario_sha256": "c12571779287b0adfd9a2c62ed797514185af3be715c1abcf58ca6d226f3a62c",
+      "source_sha256": "c45e8561ff83b655487e61a13412e7d70c6deb90f1c3b47ea0418e3da98c4616",
+      "expected_observation": "At most one write succeeds, an enabled active administrator remains and revision equals committed writes",
+      "decision": "aligned",
+      "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: At most one write succeeds, an enabled active administrator remains and revision equals committed writes. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
+      "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
     }
   ]
 }

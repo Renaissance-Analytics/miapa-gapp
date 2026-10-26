@@ -454,7 +454,7 @@
     {
       "scenario": "P04-WORK-VIEWS.composition",
       "test": "user-panel.test.mjs#published screen bridge creates navigates updates and removes bounded work views",
-      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
       "scenario_sha256": "a46c2bfa0f07925f9aa51202b25a8052a67d26350b99dede65a3f9c7b2aed364",
       "expected_observation": "The controlled active view and schema change through actual package tools and the real panel renders a Fancy screen",
       "decision": "aligned",
@@ -464,7 +464,7 @@
     {
       "scenario": "P04-WORK-VIEWS.validation",
       "test": "user-panel.test.mjs#schema validation rejects arbitrary code bindings unsafe props and unbounded documents",
-      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
       "scenario_sha256": "622c0dd1121262fd646063d9f9af4a8290f3e7f62d2ecee47984fb3db6fa57f7",
       "expected_observation": "Reject the document before rendering while accepting a registered bounded composition",
       "decision": "aligned",
@@ -474,7 +474,7 @@
     {
       "scenario": "P04-WORK-VIEWS.isolation",
       "test": "user-panel.test.mjs#invalid bridge changes preserve the current catalog and never gain another principals views",
-      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
       "scenario_sha256": "f8aa9125aa60f12b4257780f0176550d3089b1e8532315e6f70f9148251b3104",
       "expected_observation": "Invalid operations preserve the complete catalog, other users cannot enumerate or select the view, and disposed tools are withdrawn",
       "decision": "aligned",
@@ -484,7 +484,7 @@
     {
       "scenario": "P04-WORK-VIEWS.bounds",
       "test": "user-panel.test.mjs#accepted schema is copied and view quotas and reserved builtins remain enforced",
-      "source_sha256": "81413fc0077c9b3d4edf290974e59e9555955af7e74c2402a47ba54d36b168d0",
+      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
       "scenario_sha256": "bfa0ca7f801bbe8c941b2122fe085ed3f8921094675928bc3539d3c0b7fa09ef",
       "expected_observation": "The accepted schema remains unchanged and the rejected ninth view changes no state",
       "decision": "aligned",
@@ -580,6 +580,56 @@
       "decision": "aligned",
       "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
       "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS-UI.read",
+      "test": "admin-users.test.mjs#administrator reads only a bounded snapshot bound to the mounted actor",
+      "source_sha256": "fb344a81b8d535f7b0f35f4b715ced51240c41ab6c26f0a65e1ee3bb2a9007dc",
+      "scenario_sha256": "6526ab5e49d9528c4d06507039993a1dfb803faa5e7a4938a588e22dc3666f4b",
+      "expected_observation": "Exact bounded actor-bound snapshot and same-origin/no-store/redirect-error/deadline request options are preserved",
+      "decision": "aligned",
+      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS-UI.read-refuse",
+      "test": "admin-users.test.mjs#foreign malformed private or oversized access data never enters the UI model",
+      "source_sha256": "fb344a81b8d535f7b0f35f4b715ced51240c41ab6c26f0a65e1ee3bb2a9007dc",
+      "scenario_sha256": "8289dd74d98e12629a5205d1553ab567a07152ec6802845d97fc7c34cb22aa26",
+      "expected_observation": "No private/foreign/unknown/duplicate/oversize state is retained;401/403 reports denial",
+      "decision": "aligned",
+      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS-UI.save",
+      "test": "admin-users.test.mjs#create and role writes bind actor install revision and csrf and acknowledge the exact next revision",
+      "source_sha256": "fb344a81b8d535f7b0f35f4b715ced51240c41ab6c26f0a65e1ee3bb2a9007dc",
+      "scenario_sha256": "c477c7ed4402572b5f09c49119b11b0d014a3b242de79fce1f2c87ff53d76061",
+      "expected_observation": "Request binds original actor installation revision and CSRF to fixed routes; only exact next-revision receipt confirms save",
+      "decision": "aligned",
+      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS-UI.save-refuse",
+      "test": "admin-users.test.mjs#conflicts denial bad receipts and authority-shaped choices never claim a saved change",
+      "source_sha256": "fb344a81b8d535f7b0f35f4b715ced51240c41ab6c26f0a65e1ee3bb2a9007dc",
+      "scenario_sha256": "e7869b6473d98a6d934a32344cb124c2df2ce7307e47d5e09c6a2259681d5205",
+      "expected_observation": "Safe failure categories remain distinct; malformed receipts never confirm save and unsafe input sends no request",
+      "decision": "aligned",
+      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-ACCESS-UI.shared-view",
+      "test": "user-panel.test.mjs#administration is a fixed optional shared view without changing saved work preferences",
+      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
+      "scenario_sha256": "d04773d21baa15811d1cb40f0e44ebc4cab11e7c8004907632c177a150afd733",
+      "expected_observation": "Only one fixed admin screen is added; shared navigation preserves work preferences and arbitrary schemas/reserved-ID impersonation stay refused",
+      "decision": "aligned",
+      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
+      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
     }
   ]
 }

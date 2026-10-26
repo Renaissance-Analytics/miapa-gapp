@@ -2312,6 +2312,152 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-ACCESS",
+      "risk": "Administrative controls may elevate stale or foreign users, remove last authority or silently overwrite access changes.",
+      "scenarios": [
+        {
+          "id": "P06-ACCESS.read_exposes_only_bounded_membership_and_safe_audit_fields",
+          "kind": "positive",
+          "given": "An enabled administrator reads local memberships",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "Only exact public membership fields and empty safe history are returned",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_read_exposes_only_bounded_membership_and_safe_audit_fields"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.create_persists_validated_password_role_and_safe_audit",
+          "kind": "positive",
+          "given": "An administrator creates a local preparer",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "Password is hashed, normal flags and role persist across clients, safe audit records the actor and login works",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_create_persists_validated_password_role_and_safe_audit"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.password_name_and_confirmation_validation_never_create_partial_users",
+          "kind": "negative",
+          "given": "Invalid or duplicate username, weak/oversize password or mismatched confirmation",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "400 preserves both existing users, the revision and audit",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_password_name_and_confirmation_validation_never_create_partial_users"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.restricted_roles_flags_and_current_revocation_never_grant_administration",
+          "kind": "negative",
+          "given": "Anonymous, non-admin, elevated Django flags or missing/revoked membership",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "401 or403 denies every administrative read/write without elevation",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_restricted_roles_flags_and_current_revocation_never_grant_administration"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.wrong_actor_cookie_and_installation_binding_cannot_write",
+          "kind": "negative",
+          "given": "A stale tab changes cookie to another administrator or supplies a different installation",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "409 prevents actor/install adoption and keeps revision0",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_wrong_actor_cookie_and_installation_binding_cannot_write"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.stale_revision_cannot_overwrite_winner_or_append_audit",
+          "kind": "negative",
+          "given": "Two changes use the same revision",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "First role change persists once; second409 preserves its role, revision and sole audit event",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_stale_revision_cannot_overwrite_winner_or_append_audit"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.strict_json_bounds_unknown_fields_and_invalid_types_make_no_change",
+          "kind": "negative",
+          "given": "Malformed/oversize/duplicate/nonfinite JSON, unknown authority fields or invalid values",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "400 or413 leaves memberships, revision and history unchanged",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_strict_json_bounds_unknown_fields_and_invalid_types_make_no_change"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.last_active_administrator_is_preserved_and_valid_self_demotion_loses_access",
+          "kind": "negative",
+          "given": "The last active admin tries to demote/disable self; alternate admin may be disabled or inactive",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "409 protects last authority; self-demotion succeeds only with an active alternate and immediately loses admin reads",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_last_active_administrator_is_preserved_and_valid_self_demotion_loses_access"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.disabled_membership_takes_effect_in_existing_session",
+          "kind": "positive",
+          "given": "An already signed-in viewer is disabled by an administrator",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "Saved enabledfalse immediately denies the existing viewer session",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_disabled_membership_takes_effect_in_existing_session"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.absent_or_foreign_member_is_not_adopted",
+          "kind": "negative",
+          "given": "A target has no membership or a damaged foreign-install binding",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "404 makes no change and restoring the fixture binding recovers original state",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_absent_or_foreign_member_is_not_adopted"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.csrf_origin_and_method_guards_preserve_state",
+          "kind": "negative",
+          "given": "A write omits CSRF or has foreign origin, or uses DELETE",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "403 and exact405 Allow preserve original state",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_csrf_origin_and_method_guards_preserve_state"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.audit_failure_rolls_back_user_membership_and_revision",
+          "kind": "negative",
+          "given": "Audit persistence fails during create",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "503 rolls back the user, membership and shared revision",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_audit_failure_rolls_back_user_membership_and_revision"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.user_limit_and_revision_exhaustion_fail_without_partial_change",
+          "kind": "negative",
+          "given": "The install has200members or its revision is exhausted",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "409 makes no partial change; database rejects revision2b",
+          "tests": [
+            "tests.test_admin_users.AdminUsersTests.test_user_limit_and_revision_exhaustion_fail_without_partial_change"
+          ]
+        },
+        {
+          "id": "P06-ACCESS.concurrent_administrators_cannot_remove_each_others_last_authority",
+          "kind": "negative",
+          "given": "Separate connections concurrently demote each other at revision0",
+          "when": "Use the real session-protected administrator API against persisted database state",
+          "then": "At most one write succeeds, an enabled active administrator remains and revision equals committed writes",
+          "tests": [
+            "tests.test_admin_users.ConcurrentAdminUsersTests.test_concurrent_administrators_cannot_remove_each_others_last_authority"
+          ]
+        }
+      ]
     }
   ]
 }

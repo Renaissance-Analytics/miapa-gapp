@@ -11,9 +11,13 @@ ROLES = ("administrator", "preparer", "reviewer", "viewer")
 class Installation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     slot = models.PositiveSmallIntegerField(default=1, unique=True, editable=False)
+    access_revision = models.PositiveIntegerField(default=0)
 
     class Meta:
-        constraints = [models.CheckConstraint(condition=models.Q(slot=1), name="workspace_single_installation")]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(slot=1), name="workspace_single_installation"),
+            models.CheckConstraint(condition=models.Q(access_revision__lt=2_000_000_000), name='workspace_access_revision'),
+        ]
 
 
 class Membership(models.Model):
@@ -24,6 +28,26 @@ class Membership(models.Model):
 
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(role__in=ROLES), name="workspace_known_role")]
+
+
+class AccessEvent(models.Model):
+    """Append-only through the access service; no password or provider state."""
+    installation = models.ForeignKey(Installation, on_delete=models.PROTECT)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    subject = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    kind = models.CharField(max_length=8)
+    role = models.CharField(max_length=16)
+    enabled = models.BooleanField()
+    revision = models.PositiveIntegerField()
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('installation', 'revision'), name='workspace_access_event_revision'),
+            models.CheckConstraint(condition=models.Q(kind__in=('created', 'changed')), name='workspace_access_event_kind'),
+            models.CheckConstraint(condition=models.Q(role__in=ROLES), name='workspace_access_event_role'),
+            models.CheckConstraint(condition=models.Q(revision__gt=0, revision__lt=2_000_000_000), name='workspace_access_event_bounds'),
+        ]
 
 
 class LoginBudget(models.Model):
