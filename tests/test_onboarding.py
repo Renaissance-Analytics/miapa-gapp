@@ -1,10 +1,8 @@
 """Independent local-bootstrap and persisted setup-chat acceptance."""
 import json
-from pathlib import Path
-import tempfile
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase, override_settings
+from django.test import Client, TestCase
 
 from backend.maipa.intake.models import Engagement, Entity, FactRevision
 from backend.maipa.workspace.models import Installation, Membership
@@ -12,28 +10,20 @@ from backend.maipa.workspace.models import Installation, Membership
 
 class FirstRunTests(TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix='maipa-setup-test-')
-        self.addCleanup(self.temporary.cleanup)
-        self.code_file = Path(self.temporary.name) / 'setup-code'
-        self.code = 'a7' * 32
-        self.code_file.write_text(self.code, encoding='utf-8')
-        self.config = override_settings(LOCAL_SETUP_CODE_FILE=self.code_file)
-        self.config.enable()
-        self.addCleanup(self.config.disable)
         self.client = Client(enforce_csrf_checks=True)
 
     def submit(self, **changes):
-        body = {'setup_code': self.code, 'username': 'local-admin',
+        body = {'username': 'local-admin',
                 'password': 'synthetic-long-phrase!932', 'password_confirmation': 'synthetic-long-phrase!932'} | changes
         token = self.client.get('/api/session/csrf/', secure=True).json()['csrf_token']
         return self.client.post('/api/setup/', data=json.dumps(body), content_type='application/json',
             secure=True, HTTP_ORIGIN='https://testserver', HTTP_X_CSRFTOKEN=token)
 
-    def test_pristine_install_offers_setup_without_disclosing_local_code(self):
+    def test_pristine_install_offers_browser_setup_without_a_code_file(self):
         response = self.client.get('/api/setup/', secure=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {'setup_required': True})
-        self.assertNotIn(self.code, response.content.decode())
+        self.assertNotIn('setup_code', response.content.decode())
         self.assertEqual(response['Cache-Control'], 'no-store')
         self.assertEqual(get_user_model().objects.count(), 0)
 
@@ -59,22 +49,27 @@ class FirstRunTests(TestCase):
         Membership.objects.update(enabled=False)
         self.assertEqual(self.client.get('/api/setup/', secure=True).json(), {'setup_required': False})
 
-    def test_code_password_and_unknown_fields_cannot_claim_install(self):
+    def test_password_and_unknown_fields_cannot_claim_install(self):
         for changes in ({'setup_code': 'b1' * 32}, {'password': 'short', 'password_confirmation': 'short'},
                         {'password_confirmation': 'different'}, {'role': 'administrator'}, {'user_id': '9'}):
             response = self.submit(**changes)
-            self.assertIn(response.status_code, (400, 403))
+            self.assertEqual(response.status_code, 400)
             self.assertEqual(get_user_model().objects.count(), 0)
             self.assertEqual(Installation.objects.count(), 0)
         self.assertEqual(self.submit().status_code, 201)
 
-    def test_setup_requires_csrf_and_local_code_is_never_http_discoverable(self):
+    def test_setup_requires_csrf_and_rejects_foreign_origin(self):
         response = self.client.post('/api/setup/', data='{}', content_type='application/json', secure=True)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(self.client.get('/runtime/local-setup-code', secure=True).status_code, 404)
-        self.code_file.unlink()
-        self.assertEqual(self.submit().status_code, 503)
+        token = self.client.get('/api/session/csrf/', secure=True).json()['csrf_token']
+        body = {'username': 'local-admin', 'password': 'synthetic-long-phrase!932',
+                'password_confirmation': 'synthetic-long-phrase!932'}
+        response = self.client.post('/api/setup/', data=json.dumps(body), content_type='application/json',
+            secure=True, HTTP_ORIGIN='https://foreign.invalid', HTTP_X_CSRFTOKEN=token)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(get_user_model().objects.count(), 0)
+        self.assertEqual(self.submit().status_code, 201)
 
     def test_existing_users_or_installation_never_reopen_bootstrap(self):
         user = get_user_model().objects.create_user(username='existing', password='synthetic-test-passphrase')

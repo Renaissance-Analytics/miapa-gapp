@@ -142,7 +142,8 @@ try {
     await until(() => evaluate("!!document.getElementById('maipa-admin-username')"), 'first-run administrator form');
     await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), 'first-run update notes');
     await click('Got it');
-    await fill('maipa-setup-code', fixture.setup_code);
+    assert.equal(await evaluate("document.querySelectorAll('[aria-label=\"Create local administrator\"] input').length"), 3);
+    assert.equal(await evaluate("!!document.getElementById('maipa-setup-code')"), false);
     await fill('maipa-admin-username', fixture.username);
     await fill('maipa-admin-password', fixture.password);
     await fill('maipa-admin-confirmation', fixture.password);

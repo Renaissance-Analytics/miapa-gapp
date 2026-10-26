@@ -266,7 +266,7 @@
           "kind": "positive",
           "given": "An unclaimed local install",
           "when": "Render the admin form and parse setup status",
-          "then": "Show a local-code and new-password form, distinguish true/false setup and never prefill secrets or claim a connected provider.",
+          "then": "Show exactly username, new password and confirmation fields, explain the following setup conversation, distinguish true/false setup, and show no setup-code or file-discovery instructions or invented provider connection.",
           "tests": [
             "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup"
           ]
@@ -274,9 +274,9 @@
         {
           "id": "LOCAL-ONBOARDING-UI.2",
           "kind": "positive",
-          "given": "Valid local code and strong matching credentials",
+          "given": "Strong matching administrator credentials with no setup code",
           "when": "Submit administrator creation",
-          "then": "Send exact bounded same-origin CSRF payload and retain only the created result.",
+          "then": "Send only username, password and confirmation in bounded same-origin CSRF requests and retain only the created result.",
           "tests": [
             "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials"
           ]
@@ -286,7 +286,7 @@
           "kind": "negative",
           "given": "Invalid fields, malformed setup status or server errors",
           "when": "Attempt local setup",
-          "then": "Reject malformed input without network, map fixed failure states and expose no raw diagnostics.",
+          "then": "Reject malformed input without network, map invalid/closed/unavailable states including CSRF denial, and expose no raw diagnostics or obsolete invalid-code result.",
           "tests": [
             "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics"
           ]

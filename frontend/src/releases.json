@@ -1,5 +1,14 @@
 [
   {
+    "id": "development-14",
+    "label": "Development update 14",
+    "cards": [
+      { "title": "Start in your browser", "description": "Create your local administrator with a username and password, then continue with the saved account-setup conversation. There is no setup code or file to find." },
+      { "title": "Keep your workspace through app updates", "description": "Local installation storage now stays separate from application code. Administrator maintenance tools can back up and restore saved accounts, setup conversations and pane widths. Existing installations have an explicit migration path that preserves their sign-in state." },
+      { "title": "More setup is still ahead", "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work." }
+    ]
+  },
+  {
     "id": "development-13",
     "label": "Development update 13",
     "cards": [
@@ -18,7 +27,7 @@
     "id": "development-11",
     "label": "Development update 11",
     "cards": [
-      { "title": "Set up your local Maipa", "description": "New installations can create their administrator in the browser using a one-time local setup code. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step." }
+      { "title": "Set up your local Maipa", "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step." }
     ]
   },
   {

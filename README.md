@@ -87,14 +87,17 @@ When that explicit local mode also allows `maipa.gen`, CSRF trusts exactly
 `https://maipa.gen` for Genie's HTTPS-to-loopback proxy. It does not trust wildcard
 origins or forwarded-protocol headers. Production origin/TLS policy remains K01.
 
-Create the ignored `runtime/` directory before local migrations. SQLite uses the
-Python standard library and is local development storage; production database,
-listener, TLS/proxy, backup and isolation acceptance remain open. Test settings
+Installation data lives outside application source, under `%LOCALAPPDATA%/Maipa/data`
+on Windows or an explicit absolute `MAIPA_DATA_DIR`. The local launcher protects
+the directory and database before migration. Existing checkout-local databases
+require explicit offline adoption; see [install storage and recovery](docs/install-storage.md).
+SQLite uses the Python standard library; production listener, TLS/proxy and full
+MVP recovery acceptance remain open. Test settings
 use only an in-memory database and a fixed test key; never serve with them.
 
 The Genie-managed development site is **https://maipa.gen/**. Its explicit local
 entrypoint is `.venv/Scripts/python.exe backend/devserver.py {port}`. It creates a
-private random development key in ignored `runtime/` without printing it,
+private random development key in the protected install directory without printing it,
 migrates local SQLite and serves the trusted built frontend beside the API.
 It never runs in a terminal. The shell/assets routes refuse non-development
 mode; assets use Django's safe-join/static handler and cannot read runtime files.

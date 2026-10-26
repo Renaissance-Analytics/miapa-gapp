@@ -1,55 +1,35 @@
-"""Actual local-code ACL and concurrent HTTP installation claims."""
+"""Browser-only setup guidance and concurrent HTTP installation claims."""
 from concurrent.futures import ThreadPoolExecutor
-import ctypes
-from ctypes import wintypes
+from io import StringIO
 import json
-import os
 from pathlib import Path
 import tempfile
 import threading
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.db import connections
 from django.test import Client, TestCase, TransactionTestCase, override_settings
 
-from backend.maipa.workspace.bootstrap import prepare_local_setup
 from backend.maipa.workspace.models import BootstrapState, Installation, Membership
 
 
-class LocalCodeTests(TestCase):
-    def test_launcher_creates_private_random_code_once_and_existing_install_gets_no_code(self):
+class LocalSetupCommandTests(TestCase):
+    def test_existing_setup_command_guides_browser_without_creating_a_code(self):
         with tempfile.TemporaryDirectory(prefix='maipa-code-test-') as temporary:
             path = Path(temporary) / 'setup-code'
             with override_settings(LOCAL_SETUP_CODE_FILE=path):
-                prepare_local_setup()
-                self.assertRegex(path.read_text(), r'^[a-f0-9]{64}$')
-                first = path.read_bytes()
-                prepare_local_setup()
-                self.assertTrue(path.read_bytes() == first)
-                if os.name == 'nt':
-                    security = ctypes.WinDLL('advapi32', use_last_error=True)
-                    security.GetFileSecurityW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
-                    security.ConvertSecurityDescriptorToStringSecurityDescriptorW.argtypes = [wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(wintypes.LPWSTR), ctypes.POINTER(wintypes.DWORD)]
-                    size = wintypes.DWORD()
-                    security.GetFileSecurityW(str(path), 4, None, 0, ctypes.byref(size))
-                    buffer = ctypes.create_string_buffer(size.value)
-                    self.assertTrue(security.GetFileSecurityW(str(path), 4, buffer, size, ctypes.byref(size)))
-                    sddl = wintypes.LPWSTR()
-                    self.assertTrue(security.ConvertSecurityDescriptorToStringSecurityDescriptorW(buffer, 1, 4, ctypes.byref(sddl), None))
-                    try:
-                        self.assertIn('D:P', sddl.value)
-                        self.assertEqual(sddl.value.count('(A;'), 2)
-                        self.assertNotIn(';;;WD)', sddl.value)
-                        self.assertNotIn(';;;BU)', sddl.value)
-                    finally:
-                        kernel = ctypes.WinDLL('kernel32')
-                        kernel.LocalFree.argtypes = [wintypes.HLOCAL]
-                        kernel.LocalFree(ctypes.cast(sddl, wintypes.HLOCAL))
-                else:
-                    self.assertEqual(path.stat().st_mode & 0o777, 0o600)
-                path.unlink()
+                for _ in range(2):
+                    output = StringIO()
+                    call_command('prepare_local_setup', stdout=output)
+                    self.assertIn('Open Maipa in your browser', output.getvalue())
+                    self.assertNotIn('code', output.getvalue().lower())
+                    self.assertFalse(path.exists())
+                    self.assertEqual(get_user_model().objects.count(), 0)
                 Installation.objects.create()
-                prepare_local_setup()
+                output = StringIO()
+                call_command('prepare_local_setup', stdout=output)
+                self.assertIn('setup is closed', output.getvalue())
                 self.assertFalse(path.exists())
 
 
@@ -58,8 +38,6 @@ class ConcurrentBootstrapTests(TransactionTestCase):
         BootstrapState.objects.get_or_create(slot=1)
         with tempfile.TemporaryDirectory(prefix='maipa-claim-test-') as temporary:
             path = Path(temporary) / 'setup-code'
-            code = 'd7' * 32
-            path.write_text(code)
             barrier = threading.Barrier(2)
             def attempt(number, synchronize=True):
                 try:
@@ -67,7 +45,7 @@ class ConcurrentBootstrapTests(TransactionTestCase):
                     token = client.get('/api/session/csrf/', secure=True).json()['csrf_token']
                     if synchronize:
                         barrier.wait(timeout=10)
-                    response = client.post('/api/setup/', data=json.dumps({'setup_code': code, 'username': f'claim-{number}',
+                    response = client.post('/api/setup/', data=json.dumps({'username': f'claim-{number}',
                         'password': 'synthetic-long-claim!932', 'password_confirmation': 'synthetic-long-claim!932'}),
                         content_type='application/json', secure=True, HTTP_ORIGIN='https://testserver', HTTP_X_CSRFTOKEN=token)
                     return response.status_code
@@ -87,3 +65,4 @@ class ConcurrentBootstrapTests(TransactionTestCase):
                 self.assertEqual(Membership.objects.filter(role='administrator').count(), 1)
                 self.assertTrue(BootstrapState.objects.get(slot=1).closed)
                 self.assertEqual(attempt(4, False), 409)
+                self.assertFalse(path.exists())

@@ -982,17 +982,17 @@
         {
           "id": "LOCAL-ONBOARDING.1",
           "kind": "positive",
-          "given": "A pristine database and local operator code",
+          "given": "A pristine local database with no setup-code file",
           "when": "Read first-run status",
-          "then": "Offer setup without disclosing the code or creating users.",
+          "then": "Offer browser setup without creating users or asking for a setup code.",
           "tests": [
-            "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_setup_without_disclosing_local_code"
+            "tests.test_onboarding.FirstRunTests.test_pristine_install_offers_browser_setup_without_a_code_file"
           ]
         },
         {
           "id": "LOCAL-ONBOARDING.2",
           "kind": "positive",
-          "given": "A pristine installation and matching strong credentials/code",
+          "given": "A pristine local installation and strong matching administrator credentials; no setup code",
           "when": "Claim and replay setup, including after membership disablement",
           "then": "Create one hashed administrator and rotated session; close setup permanently and reject another claim.",
           "tests": [
@@ -1002,21 +1002,21 @@
         {
           "id": "LOCAL-ONBOARDING.3",
           "kind": "negative",
-          "given": "Invalid code, weak/mismatched passwords or untrusted fields",
+          "given": "Weak or mismatched passwords, obsolete setup_code, or injected role/user fields",
           "when": "Attempt first-run administrator creation",
-          "then": "Reject every invalid request without creating users/install; a subsequent valid request succeeds.",
+          "then": "Return invalid request without creating users or installation; valid credentials alone then succeed.",
           "tests": [
-            "tests.test_onboarding.FirstRunTests.test_code_password_and_unknown_fields_cannot_claim_install"
+            "tests.test_onboarding.FirstRunTests.test_password_and_unknown_fields_cannot_claim_install"
           ]
         },
         {
           "id": "LOCAL-ONBOARDING.4",
           "kind": "negative",
-          "given": "Missing CSRF or missing local operator-code file",
-          "when": "POST setup or try to read the private file over HTTP",
-          "then": "Reject CSRF, hide private files and fail closed without the local code.",
+          "given": "Missing CSRF or a foreign Origin even with a valid CSRF token",
+          "when": "POST first-run credentials or attempt HTTP access to an old private setup-code path",
+          "then": "Reject both unsafe requests, keep private paths unavailable, create no users, then accept a valid same-origin request without a code.",
           "tests": [
-            "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_local_code_is_never_http_discoverable"
+            "tests.test_onboarding.FirstRunTests.test_setup_requires_csrf_and_rejects_foreign_origin"
           ]
         },
         {
@@ -1113,22 +1113,22 @@
     },
     {
       "id": "LOCAL-ONBOARDING-BOUNDARIES",
-      "risk": "Readable local pairing code or simultaneous anonymous claims create multiple administrators.",
+      "risk": "Code-free browser onboarding must not reopen a claimed installation or create multiple administrators under concurrent requests.",
       "scenarios": [
         {
           "id": "LOCAL-ONBOARDING-BOUNDARIES.1",
           "kind": "positive",
-          "given": "A pristine install using the actual local launcher preparation",
-          "when": "Generate and prepare the code repeatedly, then configure the installation",
-          "then": "Create a stable 64-hex random code with a protected owner/System-only Windows DACL or 0600 Unix mode, and create no code for an existing install.",
+          "given": "A pristine local install and an unused legacy setup-code path",
+          "when": "Run the existing setup helper twice, then after installation is configured",
+          "then": "Direct the operator to browser onboarding without generating files or users; report closed setup after configuration.",
           "tests": [
-            "tests.test_onboarding_boundaries.LocalCodeTests.test_launcher_creates_private_random_code_once_and_existing_install_gets_no_code"
+            "tests.test_onboarding_boundaries.LocalSetupCommandTests.test_existing_setup_command_guides_browser_without_creating_a_code"
           ]
         },
         {
           "id": "LOCAL-ONBOARDING-BOUNDARIES.2",
           "kind": "negative",
-          "given": "Two separate real database connections and synchronized HTTP clients with the same valid local code",
+          "given": "Two separate real database connections and synchronized HTTP clients submitting strong credentials without a setup code",
           "when": "Race administrator creation and then replay",
           "then": "At most one racing request succeeds; transient SQLite lock failures are retryable and final durable state has exactly one administrator with bootstrap closed.",
           "tests": [
@@ -1559,6 +1559,448 @@
           "then": "CSRF and membership deny reads or writes immediately and unsupported methods cannot mutate layout",
           "tests": [
             "tests.test_workspace_layout.WorkspaceLayoutTests.test_live_membership_authentication_csrf_and_method_guards_apply"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-INSTALL",
+      "risk": "A checkout upgrade can replace private install state or expose keys through unsafe paths and inherited Windows permissions.",
+      "scenarios": [
+        {
+          "id": "P05-INSTALL.private",
+          "kind": "positive",
+          "given": "A clean owned install path outside the source checkout",
+          "when": "Start the local launcher with MAIPA_DATA_DIR",
+          "then": "The directory has a protected owner/System inheritable DACL before entropy generation; the key is private and no source runtime directory is created",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_configured_install_is_outside_code_and_private_before_key_generation"
+          ]
+        },
+        {
+          "id": "P05-INSTALL.upgrade",
+          "kind": "positive",
+          "given": "A synthetic private install already used by version one",
+          "when": "Start version two with the identical install path",
+          "then": "The same key and synthetic persistent marker survive code replacement without regeneration or a new repository runtime",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_code_replacement_reuses_private_key_and_install_data"
+          ]
+        },
+        {
+          "id": "P05-INSTALL.path",
+          "kind": "negative",
+          "given": "A relative path or a path equal to or inside the source tree",
+          "when": "Start the launcher",
+          "then": "Startup refuses all unsafe roots and creates no secret under source",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_relative_or_source_nested_data_path_refuses_without_creating_keys"
+          ]
+        },
+        {
+          "id": "P05-INSTALL.legacy",
+          "kind": "negative",
+          "given": "A source checkout contains an existing legacy database",
+          "when": "Start with a separate empty data directory and no explicit offline adoption",
+          "then": "Startup refuses to silently create a different install and preserves the legacy bytes",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_existing_legacy_data_does_not_silently_boot_a_different_install"
+          ]
+        },
+        {
+          "id": "P05-INSTALL.failure",
+          "kind": "negative",
+          "given": "Entropy generation fails during a pristine launch",
+          "when": "Try to prepare a local key",
+          "then": "The failure leaves no usable or partial key at either install or legacy location",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_failed_key_generation_never_leaves_a_usable_partial_key"
+          ]
+        },
+        {
+          "id": "P05-INSTALL.link",
+          "kind": "negative",
+          "given": "The configured install root is an actual junction or symlink to another owned folder",
+          "when": "Start the launcher",
+          "then": "Startup refuses the linked root without writing into the target",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_linked_install_path_cannot_redirect_secret_creation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-FILES",
+      "risk": "SQLite and existing setup files can retain broad ACLs or be redirected through hardlinks before Django opens them.",
+      "scenarios": [
+        {
+          "id": "P05-FILES.fresh",
+          "kind": "positive",
+          "given": "An empty owned install",
+          "when": "Launch before Django migration opens SQLite",
+          "then": "The real database file exists and is private at both migration and server invocation",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_database_is_private_before_migrations_open_it"
+          ]
+        },
+        {
+          "id": "P05-FILES.existing",
+          "kind": "positive",
+          "given": "Existing synthetic database and setup-code files have inherited permissions",
+          "when": "Launch the install",
+          "then": "Both files have private ACLs before Django runs and all original bytes survive",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_existing_database_and_setup_permissions_are_tightened_before_django"
+          ]
+        },
+        {
+          "id": "P05-FILES.hardlink",
+          "kind": "negative",
+          "given": "The database name is a real hardlink to a separate owned synthetic file",
+          "when": "Launch the install",
+          "then": "Startup refuses and neither the target bytes nor its original ACL is changed",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_hardlinked_database_refuses_without_changing_target_bytes_or_permissions"
+          ]
+        },
+        {
+          "id": "P05-FILES.key",
+          "kind": "negative",
+          "given": "The install has a malformed existing key",
+          "when": "Launch the install",
+          "then": "Startup refuses while preserving the existing bytes rather than generating a different signing key",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_malformed_existing_key_refuses_without_replacement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-RECOVERY",
+      "risk": "Snapshots can lose authority/session data or private files, copy stale WAL data, leak secrets, overwrite an install or claim partial recovery success.",
+      "scenarios": [
+        {
+          "id": "P05-RECOVERY.roundtrip",
+          "kind": "positive",
+          "given": "A migrated synthetic Django install with two users, saved setup/layout, an authenticated session and private files",
+          "when": "Snapshot and restore through separate CLI processes, then inspect through another fresh process",
+          "then": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.wal",
+          "kind": "positive",
+          "given": "A real SQLite database with committed data still resident in its WAL",
+          "when": "Keep its connection open and snapshot it",
+          "then": "The snapshot database contains the committed WAL-only synthetic record",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_committed_wal_records_are_in_the_actual_database_snapshot"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.writer",
+          "kind": "negative",
+          "given": "Another real SQLite connection holds an IMMEDIATE write transaction",
+          "when": "Try an offline snapshot before and after rollback",
+          "then": "The first attempt refuses without a destination or staging leak; after rollback a snapshot succeeds",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_live_sqlite_writer_refuses_snapshot_and_preserves_source"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.lock",
+          "kind": "negative",
+          "given": "A separate live Python process holds the installation maintenance lock",
+          "when": "Snapshot while locked, release the holder, then retry",
+          "then": "The locked attempt refuses without publication; the holder exits cleanly and the later snapshot succeeds",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_real_install_lock_blocks_another_process_then_releases"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.destination",
+          "kind": "negative",
+          "given": "A valid snapshot and an existing empty or occupied destination",
+          "when": "Try restoring into each existing destination",
+          "then": "Both attempts refuse and preserve the empty directory or exact existing marker bytes",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_existing_destination_including_empty_directory_is_never_overwritten"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.corrupt",
+          "kind": "negative",
+          "given": "A successfully created snapshot whose actual database bytes are corrupted",
+          "when": "Restore it",
+          "then": "Restore refuses without publishing a destination or leaving owned staging",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_corrupt_snapshot_file_refuses_without_partial_restore"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.extra",
+          "kind": "negative",
+          "given": "A valid snapshot has an additional unmanifested private file",
+          "when": "Restore it",
+          "then": "Restore refuses instead of silently dropping or importing unmanifested state",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_unmanifested_private_file_refuses_without_partial_restore"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.manifest",
+          "kind": "negative",
+          "given": "A valid snapshot is altered with traversal/absolute/device/stream paths, an unknown version or duplicate JSON keys",
+          "when": "Try restoring each altered manifest",
+          "then": "Every malformed manifest refuses without creating the destination or an escaped file",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_hostile_manifest_path_version_and_duplicate_keys_refuse"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.hardlink",
+          "kind": "negative",
+          "given": "A provider token path is an actual hardlink to another owned synthetic file",
+          "when": "Try a snapshot",
+          "then": "Snapshot refuses without changing the target bytes or original effective ACL",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_hardlinked_private_source_file_refuses_without_altering_target_acl"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.interrupted",
+          "kind": "negative",
+          "given": "The private file copy raises an OS error during snapshot construction",
+          "when": "Run the actual snapshot algorithm with that controlled copy failure",
+          "then": "The operation raises, the destination is absent, owned staging is removed and the source signing key remains unchanged",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_interrupted_copy_is_not_published_and_owned_staging_is_removed"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.namespace",
+          "kind": "negative",
+          "given": "An install contains a private file outside supported durable namespaces",
+          "when": "Try a snapshot",
+          "then": "Snapshot refuses rather than claiming success while omitting unknown state",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_unknown_durable_source_file_refuses_instead_of_omitting_it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-ADOPT",
+      "risk": "A source checkout upgrade can silently abandon the original install, duplicate it, regenerate keys or publish a partial adoption.",
+      "scenarios": [
+        {
+          "id": "P05-ADOPT.retained",
+          "kind": "positive",
+          "given": "An actual migrated synthetic legacy SQLite install with signing/setup keys and saved user/session records",
+          "when": "Explicitly adopt it offline, restart its checkout through the local launcher and inspect in a fresh process",
+          "then": "Original legacy bytes remain intact; keys and installation identity survive; a private directory-and-storage binding permits restart without regenerating a key",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_explicit_legacy_adoption_retains_records_keys_and_restarts_same_install"
+          ]
+        },
+        {
+          "id": "P05-ADOPT.writer",
+          "kind": "negative",
+          "given": "A real SQLite connection holds the legacy write transaction",
+          "when": "Attempt adoption before and after rollback",
+          "then": "The active writer causes refusal with no binding/target/staging; adoption succeeds after rollback",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_legacy_writer_blocks_adoption_without_a_binding_or_partial_target"
+          ]
+        },
+        {
+          "id": "P05-ADOPT.replay",
+          "kind": "negative",
+          "given": "A legacy install has already been successfully adopted",
+          "when": "Repeat adoption into the same destination or try a second destination",
+          "then": "Both attempts refuse while preserving the original binding/key and creating no second install",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_legacy_replay_and_conflicting_destination_cannot_replace_install"
+          ]
+        },
+        {
+          "id": "P05-ADOPT.binding",
+          "kind": "negative",
+          "given": "A successfully adopted checkout has a changed or missing binding",
+          "when": "Start with a wrong path, storage identity, format version, extra field or no binding",
+          "then": "Every invalid binding refuses startup rather than reopening the old database or using an unrelated install",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_legacy_startup_binding_requires_exact_directory_format_and_storage_identity"
+          ]
+        },
+        {
+          "id": "P05-ADOPT.failure",
+          "kind": "negative",
+          "given": "Writing the private legacy binding fails before publication",
+          "when": "Run actual adoption with a controlled permission failure only at the binding write",
+          "then": "Adoption raises, leaves no target/binding/staging and retains original signing/setup bytes",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_failed_legacy_binding_write_preserves_source_and_removes_unpublished_target"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-INTEGRITY",
+      "risk": "SQLite can open redirected sidecars before path checks, and matching manifest hashes alone do not prove usable or safe restored data.",
+      "scenarios": [
+        {
+          "id": "P05-INTEGRITY.valid",
+          "kind": "positive",
+          "given": "A migrated synthetic Django install with two users, saved setup/layout, an authenticated session and private files",
+          "when": "Snapshot and restore through separate CLI processes, then inspect through another fresh process",
+          "then": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files"
+          ]
+        },
+        {
+          "id": "P05-INTEGRITY.sidecar",
+          "kind": "negative",
+          "given": "A legacy SQLite WAL name is a real hardlink to an unrelated owned synthetic file",
+          "when": "Attempt adoption",
+          "then": "Adoption refuses before any SQLite open, leaves no target, and preserves the link, target bytes and effective ACL",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_legacy_sqlite_sidecar_hardlink_is_rejected_before_sqlite_opens_any_file"
+          ]
+        },
+        {
+          "id": "P05-INTEGRITY.database",
+          "kind": "negative",
+          "given": "A snapshot database is replaced with invalid bytes and its manifest hash is updated to match",
+          "when": "Attempt restore",
+          "then": "Actual SQLite validation still refuses and removes owned staging without publishing a destination",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_matching_file_hash_does_not_make_an_invalid_sqlite_database_restorable"
+          ]
+        },
+        {
+          "id": "P05-INTEGRITY.key",
+          "kind": "negative",
+          "given": "A snapshot signing key is replaced with a malformed value and its manifest hash is updated to match",
+          "when": "Attempt restore",
+          "then": "Signing-key format validation refuses without a published target or owned staging leak",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_matching_file_hash_does_not_make_a_malformed_signing_key_restorable"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-KEY-CONTINUITY",
+      "risk": "Environment overrides can change the live signing key while backups preserve another, and scrubbed service environments can fail to resolve a stable private data root.",
+      "scenarios": [
+        {
+          "id": "P05-KEY-CONTINUITY.provided",
+          "kind": "positive",
+          "given": "A pristine install has an explicit printable Django signing key containing punctuation",
+          "when": "Launch with the key, then restart without the environment override",
+          "then": "The exact key is saved privately, remains usable across restart and never consumes replacement entropy",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_supplied_signing_key_is_retained_privately_and_reused_without_entropy"
+          ]
+        },
+        {
+          "id": "P05-KEY-CONTINUITY.mismatch",
+          "kind": "negative",
+          "given": "An existing install has a saved key and the launcher receives a different environment key",
+          "when": "Try to launch",
+          "then": "Startup refuses before either Django command and preserves the original key bytes",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_supplied_key_mismatch_refuses_before_django_without_replacing_saved_key"
+          ]
+        },
+        {
+          "id": "P05-KEY-CONTINUITY.invalid",
+          "kind": "negative",
+          "given": "The supplied key is short or contains a control character",
+          "when": "Try to launch a pristine install",
+          "then": "Every invalid key refuses before Django and leaves no signing key file",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_short_or_control_character_supplied_keys_cannot_create_an_install"
+          ]
+        },
+        {
+          "id": "P05-KEY-CONTINUITY.os-default",
+          "kind": "positive",
+          "given": "The child environment lacks all user-profile/home variables",
+          "when": "Import normal settings in a fresh process",
+          "then": "The default resolves to the actual OS user LocalAppData Maipa directory and import does not create it",
+          "tests": [
+            "tests.test_install_storage.InstallConfigurationTests.test_scrubbed_environment_resolves_the_os_owned_default_without_writing_it"
+          ]
+        },
+        {
+          "id": "P05-KEY-CONTINUITY.import",
+          "kind": "positive",
+          "given": "An explicit synthetic data directory does not exist",
+          "when": "Import normal settings in a fresh process",
+          "then": "Settings resolve the configured path without creating installation storage",
+          "tests": [
+            "tests.test_install_storage.InstallConfigurationTests.test_settings_import_does_not_create_a_configured_data_directory"
+          ]
+        },
+        {
+          "id": "P05-KEY-CONTINUITY.lost",
+          "kind": "negative",
+          "given": "An initialized install retains format metadata and database but its signing key is missing",
+          "when": "Restart the launcher",
+          "then": "Startup refuses without consuming replacement entropy or writing a new key",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_missing_key_of_an_initialized_install_refuses_without_regeneration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-REFUSAL",
+      "risk": "A refused source can be mutated before recognition, or backup can claim success for a manifest its own restore refuses.",
+      "scenarios": [
+        {
+          "id": "P05-REFUSAL.valid",
+          "kind": "positive",
+          "given": "A migrated synthetic Django install with two users, saved setup/layout, an authenticated session and private files",
+          "when": "Snapshot and restore through separate CLI processes, then inspect through another fresh process",
+          "then": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files"
+          ]
+        },
+        {
+          "id": "P05-REFUSAL.source",
+          "kind": "negative",
+          "given": "An unrelated owned folder has an ordinary existing maintenance.lock file or no lockfile",
+          "when": "Mistakenly pass that folder as the backup source",
+          "then": "Backup refuses without changing existing file bytes/ACL or creating a lockfile in the unrecognized folder",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_unrecognized_source_does_not_create_or_reprotect_a_foreign_lockfile"
+          ]
+        },
+        {
+          "id": "P05-REFUSAL.capacity",
+          "kind": "negative",
+          "given": "An actual synthetic install produces a manifest exceeding a deliberately scaled restore-read budget",
+          "when": "Try backing it up with the same format capacity",
+          "then": "Backup raises before publication, removes owned staging and retains the original signing-key bytes",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_backup_refuses_a_manifest_larger_than_its_restore_read_budget"
+          ]
+        },
+        {
+          "id": "P05-REFUSAL.fixture",
+          "kind": "negative",
+          "given": "The diagnostic seed fixture is invoked without its explicit synthetic marker or with an unrelated storage path",
+          "when": "Run the seed process against an absent owned test destination",
+          "then": "The fixture refuses before creating any directory, database or synthetic account at either destination",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_seed_fixture_requires_explicit_marker_and_owned_synthetic_path"
           ]
         }
       ]

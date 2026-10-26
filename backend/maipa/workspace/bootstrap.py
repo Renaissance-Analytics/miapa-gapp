@@ -1,10 +1,4 @@
-"""Local operator pairing and atomic, one-time administrator creation."""
-import os
-from pathlib import Path
-import re
-import secrets
-
-from django.conf import settings
+"""Atomic, one-time administrator creation for a local installation."""
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.password_validation import (CommonPasswordValidator, MinimumLengthValidator,
@@ -19,57 +13,16 @@ class SetupClosed(Exception):
     pass
 
 
-class SetupUnavailable(Exception):
-    pass
-
-
-class InvalidCode(Exception):
-    pass
-
-
 def required():
     return (BootstrapState.objects.filter(slot=1, closed=False).exists()
             and not Installation.objects.exists() and not get_user_model().objects.exists())
-
-
-def prepare_local_setup():
-    """Called by the local launcher after migrate. Never print or serve the code."""
-    if not required():
-        return
-    path = Path(settings.LOCAL_SETUP_CODE_FILE)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    except FileExistsError:
-        return
-    with os.fdopen(fd, 'w', encoding='utf-8') as output:
-        from .local_code import protect
-        protect(path, output.fileno())
-        output.write(secrets.token_hex(32))
-
-
-def _operator_code():
-    path = Path(settings.LOCAL_SETUP_CODE_FILE)
-    try:
-        if path.is_symlink() or path.stat().st_size != 64:
-            raise SetupUnavailable()
-        value = path.read_text(encoding='utf-8')
-        if not re.fullmatch('[a-f0-9]{64}', value):
-            raise SetupUnavailable()
-        return value
-    except (OSError, UnicodeError):
-        raise SetupUnavailable() from None
 
 
 @transaction.atomic
 def claim(value):
     if not required():
         raise SetupClosed()
-    fields(value, ('setup_code', 'username', 'password', 'password_confirmation'))
-    code = value['setup_code']
-    require(isinstance(code, str) and bool(re.fullmatch('[a-f0-9]{64}', code)))
-    if not secrets.compare_digest(code, _operator_code()):
-        raise InvalidCode()
+    fields(value, ('username', 'password', 'password_confirmation'))
     username, password = value['username'], value['password']
     require(isinstance(username, str) and 1 <= len(username) <= 150 and username == username.strip())
     require(isinstance(password, str) and 12 <= len(password) <= 1024 and '\0' not in password)

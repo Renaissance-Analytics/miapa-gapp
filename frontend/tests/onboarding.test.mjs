@@ -17,7 +17,10 @@ test('first-run adapter and form distinguish local administrator creation from a
   assert.equal(await readFirstRun(async () => new Response(JSON.stringify({ setup_required: false }))), false);
   const html = renderToStaticMarkup(React.createElement(FirstRunForm, { refresh() {} }));
   assert.match(html, /Create local administrator/);
-  assert.match(html, /runtime\/local-setup-code/);
+  assert.doesNotMatch(html, /setup.code|LOCALAPPDATA|MAIPA_DATA_DIR|Paste the one-time/i);
+  assert.equal((html.match(/<input\b/g) || []).length, 3);
+  assert.match(html, /Administrator username/);
+  assert.match(html, /set up your account in the conversation/);
   assert.match(html, /autoComplete="new-password"/);
   assert.match(html, /Confirm password/);
   assert.doesNotMatch(html, /Connected to (Claude|Codex)|value="[a-f0-9]{64}"/);
@@ -25,14 +28,14 @@ test('first-run adapter and form distinguish local administrator creation from a
 
 test('administrator creation uses CSRF and bounded same-origin requests without retaining credentials', async () => {
   const calls = [];
-  const result = await createAdmin('a'.repeat(64), 'owner', 'synthetic-strong-passphrase', 'synthetic-strong-passphrase', async (url, options) => {
+  const result = await createAdmin('owner', 'synthetic-strong-passphrase', 'synthetic-strong-passphrase', async (url, options) => {
     calls.push({ url, options });
     return new Response(JSON.stringify(calls.length === 1 ? { csrf_token: token } : { user: { id: '19' } }), { status: calls.length === 1 ? 200 : 201 });
   });
   assert.equal(result, 'created');
   assert.deepEqual(calls.map(call => call.url), ['/api/session/csrf/', '/api/setup/']);
   assert.equal(calls[1].options.headers['X-CSRFToken'], token);
-  assert.deepEqual(JSON.parse(calls[1].options.body), { setup_code: 'a'.repeat(64), username: 'owner', password: 'synthetic-strong-passphrase', password_confirmation: 'synthetic-strong-passphrase' });
+  assert.deepEqual(JSON.parse(calls[1].options.body), { username: 'owner', password: 'synthetic-strong-passphrase', password_confirmation: 'synthetic-strong-passphrase' });
   for (const call of calls) {
     assert.equal(call.options.credentials, 'same-origin');
     assert.equal(call.options.cache, 'no-store');
@@ -46,11 +49,11 @@ test('invalid setup and failed bootstrap cannot claim success or disclose server
   assert.equal(await readFirstRun(async () => new Response('{}')), null);
   assert.equal(await readFirstRun(async () => { throw Error('private path'); }), null);
   let calls = 0;
-  assert.equal(await createAdmin('bad', 'owner', 'short', 'different', async () => { calls++; }), 'invalid');
+  assert.equal(await createAdmin('owner', 'short', 'different', async () => { calls++; }), 'invalid');
   assert.equal(calls, 0);
-  for (const [status, expected] of [[400, 'invalid'], [403, 'invalid_code'], [409, 'closed'], [503, 'unavailable']]) {
+  for (const [status, expected] of [[400, 'invalid'], [403, 'unavailable'], [409, 'closed'], [503, 'unavailable']]) {
     calls = 0;
-    assert.equal(await createAdmin('a'.repeat(64), 'owner', 'synthetic-strong-passphrase', 'synthetic-strong-passphrase', async () =>
+    assert.equal(await createAdmin('owner', 'synthetic-strong-passphrase', 'synthetic-strong-passphrase', async () =>
       ++calls === 1 ? new Response(JSON.stringify({ csrf_token: token })) : new Response('private diagnostic', { status })), expected);
   }
 });

@@ -4,7 +4,6 @@ import { SignInForm } from './Authentication.js';
 import { createAdmin, readFirstRun } from './onboarding.js';
 
 export function FirstRunForm({ refresh }: { refresh: () => void }) {
-  const [code, setCode] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -14,19 +13,17 @@ export function FirstRunForm({ refresh }: { refresh: () => void }) {
     event.preventDefault();
     if (pending) return;
     setPending(true); setMessage('');
-    const result = await createAdmin(code, username, password, confirmation);
-    setCode(''); setPassword(''); setConfirmation(''); setPending(false);
+    const result = await createAdmin(username, password, confirmation);
+    setPassword(''); setConfirmation(''); setPending(false);
     if (result === 'created' || result === 'closed') { refresh(); return; }
-    setMessage(result === 'invalid_code' ? 'Check the local setup code and try again.' : result === 'invalid'
+    setMessage(result === 'invalid'
       ? 'Use a valid username and matching strong passwords of at least 12 characters. Avoid common passwords and your username.'
-      : 'Local setup is unavailable. Check that the local Maipa launcher is running, then try again.');
+      : 'We couldn’t finish setup. Check your connection to Maipa and try again.');
   }
   return <div className="first-run">
     <h3>Set up Maipa on this computer</h3>
     <p>Create the administrator account for this local installation. After this step, you’ll set up your account in the conversation.</p>
-    <p>The local launcher creates a one-time code in <code>runtime/local-setup-code</code> inside your Maipa installation. Open that file on this computer and paste its code below.</p>
     <form className="sign-in-form" aria-label="Create local administrator" onSubmit={submit}>
-      <Input id="maipa-setup-code" name="setup-code" label="Local setup code" type="password" autoComplete="off" required maxLength={64} value={code} onValueChange={setCode} disabled={pending} />
       <Input id="maipa-admin-username" name="username" label="Administrator username" autoComplete="username" required maxLength={150} value={username} onValueChange={setUsername} disabled={pending} />
       <Input id="maipa-admin-password" name="password" label="Password (at least 12 characters)" type="password" autoComplete="new-password" required minLength={12} maxLength={1024} value={password} onValueChange={setPassword} disabled={pending} />
       <Input id="maipa-admin-confirmation" name="password-confirmation" label="Confirm password" type="password" autoComplete="new-password" required minLength={12} maxLength={1024} value={confirmation} onValueChange={setConfirmation} disabled={pending} />

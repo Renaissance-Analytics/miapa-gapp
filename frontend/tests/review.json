@@ -284,52 +284,52 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.1",
       "test": "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup",
-      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
-      "scenario_sha256": "809531778214d0520145154204a4c8c50a9d2da4e00aca9fd4665f85b0b67a28",
-      "expected_observation": "Show a local-code and new-password form, distinguish true/false setup and never prefill secrets or claim a connected provider.",
+      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "scenario_sha256": "3dcf11bedc9a35ddfb99f3f3a8427b321df947de4f57840b57f4ca73ead25b44",
+      "expected_observation": "Show exactly username, new password and confirmation fields, explain the following setup conversation, distinguish true/false setup, and show no setup-code or file-discovery instructions or invented provider connection.",
       "decision": "aligned",
-      "reason": "SSR asserts accessible fields and local file instructions; real browser separately proves admin creation.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-UI.2",
       "test": "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials",
-      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
-      "scenario_sha256": "b03dd2342e08177722be82ca0dfea34c7e0858e356e26a8928813e2615627d68",
-      "expected_observation": "Send exact bounded same-origin CSRF payload and retain only the created result.",
+      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "scenario_sha256": "b2bf5b5c9caefda933fe0e46276f792f6005260fd1aba583d2f61c58b0811f9c",
+      "expected_observation": "Send only username, password and confirmation in bounded same-origin CSRF requests and retain only the created result.",
       "decision": "aligned",
-      "reason": "Checks exact paths/payload/options and return value, including no retained code/password/token.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-UI.3",
       "test": "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics",
-      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
-      "scenario_sha256": "9fff5a00a71e2ea5d291f3693a3ab1fa01ee410d41f8206879228d3cf58ef522",
-      "expected_observation": "Reject malformed input without network, map fixed failure states and expose no raw diagnostics.",
+      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "scenario_sha256": "e08c78752e9f1e015a2eda2aacbfec9b7faf6396acd13de0b14dbddbfd6b88af",
+      "expected_observation": "Reject malformed input without network, map invalid/closed/unavailable states including CSRF denial, and expose no raw diagnostics or obsolete invalid-code result.",
       "decision": "aligned",
-      "reason": "Independent statuses and invalid input expectations ensure no optimistic success.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-UI.4",
       "test": "onboarding.test.mjs#chat adapter sends only revision action and answer and renders an escaped explicit review",
-      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
       "scenario_sha256": "925327f28ca381f4b6f3d387aac51be5b748c27174ac72f87e95eba9ad7480fb",
       "expected_observation": "Send exact revision/action/answer with CSRF and display explicit unknown/date/escaped names.",
       "decision": "aligned",
-      "reason": "Exact CSRF and server-created setup identity headers bind the accepted revision/action/answer to the account draft. SSR review assertions retain escaped names, unknown basis and effective date. Other test assertions remain reviewed unchanged.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "LOCAL-ONBOARDING-UI.5",
       "test": "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state",
-      "source_sha256": "ea1b41b61ce01e69cb0628a44ef9c74aeeb102bcb93473b9b111284e7d566539",
+      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
       "scenario_sha256": "0c37e9fccbb3231057f2e5da57ae01d570a94b3d2e3d80814db9eac1390ab5c9",
       "expected_observation": "Return only fixed denied/conflict/unavailable/invalid states and reject fake provider readiness or role fields.",
       "decision": "aligned",
-      "reason": "Explicit expected states and mutated independent fixtures cover parser fail-closed behavior.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "User explicitly removed setup-code pairing for this local application. Re-reviewed the complete onboarding tests: credentials alone must create one hashed administrator and rotate the session; weak passwords, extra fields, CSRF failures and foreign origins remain denied; existing users and concurrent claims remain closed. The compatibility helper must create no code. Saved chat, ownership, review/confirmation, revision conflicts, revocation, escaping and honest provider readiness remain covered. Frontend requires exactly three fields and an exact credentials-only payload with bounded requests and fixed error states. Private file ACL checks remain in install-storage tests.",
+      "reviewer": "Maipa independent code-free onboarding acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "BROWSER-CONNECTION-READINESS.complete",

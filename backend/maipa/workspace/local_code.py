@@ -1,10 +1,14 @@
-"""Protect newly created setup-code files before writing their secret bytes."""
+"""Protect private installation files before writing their bytes."""
 import os
 
 
-def protect(path, fd):
+def protect(path, fd=None, *, directory=False):
     if os.name != 'nt':
-        os.fchmod(fd, 0o600)
+        mode = 0o700 if directory else 0o600
+        if fd is None:
+            os.chmod(path, mode)
+        else:
+            os.fchmod(fd, mode)
         return
     import ctypes
     from ctypes import wintypes
@@ -21,7 +25,7 @@ def protect(path, fd):
     token, sid_text, descriptor = wintypes.HANDLE(), wintypes.LPWSTR(), wintypes.LPVOID()
     def checked(ok):
         if not ok:
-            raise OSError('Local setup code permissions unavailable')
+            raise OSError('Private installation permissions unavailable')
     checked(security.OpenProcessToken(kernel.GetCurrentProcess(), 0x0008, ctypes.byref(token)))
     try:
         size = wintypes.DWORD()
@@ -32,7 +36,8 @@ def protect(path, fd):
         sid = ctypes.cast(data, ctypes.POINTER(wintypes.LPVOID))[0]
         checked(security.ConvertSidToStringSidW(sid, ctypes.byref(sid_text)))
         # Protected DACL grants only this launcher identity and LocalSystem.
-        sddl = f'D:P(A;;FA;;;SY)(A;;FA;;;{sid_text.value})'
+        inheritance = 'OICI' if directory else ''
+        sddl = f'D:P(A;{inheritance};FA;;;SY)(A;{inheritance};FA;;;{sid_text.value})'
         checked(security.ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl, 1, ctypes.byref(descriptor), None))
         checked(security.SetFileSecurityW(str(path), 0x80000004, descriptor))
     finally:
