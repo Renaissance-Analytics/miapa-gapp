@@ -3,6 +3,7 @@ import { Button, Card } from '@particle-academy/react-fancy';
 import { Screen, ScreenSystem, registerSchemaComponents } from '@particle-academy/fancy-screens';
 import { IntakeWorkspace } from './IntakeWorkspace.js';
 import { UserPanelModel, initialUserPanelState } from './user-panel.js';
+import type { BuiltinView, PreferencesState } from './preferences.js';
 
 const FactsAttempt = createContext(0);
 function ClientFacts() { const attempt = useContext(FactsAttempt); return <IntakeWorkspace key={attempt} />; }
@@ -22,20 +23,37 @@ registerSchemaComponents({
   </Card.Body></Card>,
 });
 
-export function DynamicUserPanel({ userId, factsAttempt }: { userId: string; factsAttempt: number }) {
+export function DynamicUserPanel({ userId, factsAttempt, preferences = { phase: 'ready', theme: 'system', active_view: 'client-facts' }, onSelectBuiltin }:
+  { userId: string; factsAttempt: number; preferences?: PreferencesState; onSelectBuiltin?: (id: BuiltinView) => boolean }) {
   const model = useRef<UserPanelModel | null>(null);
+  const navigation = useRef({ preferences, onSelectBuiltin });
+  navigation.current = { preferences, onSelectBuiltin };
+  const previousPreferences = useRef(preferences);
   const [state, setState] = useState(initialUserPanelState);
   useEffect(() => {
-    const current = new UserPanelModel(userId);
+    const current = new UserPanelModel(userId, id => navigation.current.preferences.phase === 'ready'
+      && (navigation.current.onSelectBuiltin?.(id as BuiltinView) ?? true));
     model.current = current;
     const unsubscribe = current.subscribe(setState);
     return () => { unsubscribe(); current.dispose(); model.current = null; };
   }, [userId]);
-  useEffect(() => { if (factsAttempt > 0) model.current?.navigate('client-facts'); }, [factsAttempt]);
+  useEffect(() => {
+    const previous = previousPreferences.current;
+    previousPreferences.current = preferences;
+    if (preferences.phase === 'ready' && (previous.phase === 'loading' || previous.active_view !== preferences.active_view))
+      model.current?.restoreBuiltin(preferences.active_view);
+  }, [preferences.phase, preferences.active_view]);
+  useEffect(() => {
+    if (factsAttempt > 0 && model.current) {
+      try { model.current.navigate('client-facts'); }
+      catch { model.current.restoreBuiltin('client-facts'); }
+    }
+  }, [factsAttempt]);
   const active = state.views.find(view => view.id === state.active)!;
   return <FactsAttempt.Provider value={factsAttempt}><ScreenSystem>
     <nav className="work-view-controls" aria-label="Work views">{state.views.map(view => <Button key={view.id}
-      size="sm" variant="ghost" aria-pressed={view.id === state.active} onClick={() => model.current?.navigate(view.id)}>{view.title}</Button>)}</nav>
+      size="sm" variant="ghost" disabled={preferences.phase !== 'ready'} aria-pressed={view.id === state.active}
+      onClick={() => { try { model.current?.navigate(view.id); } catch { /* A save may have started before this event reached React. */ } }}>{view.title}</Button>)}</nav>
     <Screen id={active.id} title={active.title} schema={active.schema} />
   </ScreenSystem></FactsAttempt.Provider>;
 }

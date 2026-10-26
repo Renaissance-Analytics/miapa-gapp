@@ -65,10 +65,13 @@ function command(method, params = {}) {
   });
 }
 async function click(label) {
-  const point = await evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`);
+  const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`), `Visible enabled button ${label}`);
   assert.ok(point, `Visible button ${label}`);
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
+}
+async function preferencesReady() {
+  await until(() => evaluate("document.querySelector('[data-preferences-state]')?.dataset.preferencesState === 'ready'"), 'saved preferences ready');
 }
 async function fill(id, value) {
   assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
@@ -137,6 +140,14 @@ try {
     assert.equal(restored.layout.split_basis_points, fixture.expected_points);
     assert.equal(Number(restored.value), fixture.expected_points / 100);
     record('layout-fresh-browser-restore');
+    await preferencesReady();
+    const preferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
+    assert.equal(preferences.user_id, fixture.user_id);
+    assert.equal(preferences.theme, 'dark');
+    assert.equal(preferences.active_view, 'workspace-guide');
+    await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'fresh-profile saved appearance and view');
+    assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), '#111714');
+    record('preferences-fresh-browser-restore');
   } else if (fixture.first_run) {
     phase = 'first_run';
     await until(() => evaluate("!!document.getElementById('maipa-admin-username')"), 'first-run administrator form');
@@ -331,6 +342,24 @@ try {
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), 'desktop view restored');
   assert.equal(await evaluate("document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
   record('persistent-chat-work-views');
+  phase = 'preferences';
+  await preferencesReady();
+  await click('Dark'); await preferencesReady();
+  await click('Workspace guide'); await preferencesReady();
+  await command('Page.reload'); await preferencesReady();
+  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'saved preferences after reload');
+  const winner = await evaluate("(async()=>{const p=await(await fetch('/api/workspace/preferences/')).json();const s=await(await fetch('/api/session/csrf/')).json();const r=await fetch('/api/workspace/preferences/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Preferences':p.preferences_id},body:JSON.stringify({expected_revision:p.revision,theme:'light',active_view:'workspace-guide'})});return {status:r.status,body:await r.json()};})()");
+  assert.equal(winner.status, 200);
+  await click('System');
+  await until(() => evaluate("document.querySelector('[data-preferences-state]')?.dataset.preferencesState === 'conflict'"), 'stale preferences rejected');
+  assert.equal(await evaluate("document.getElementById('maipa-theme-dark').disabled"), true);
+  assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), winner.body);
+  await click('Reload saved preferences'); await preferencesReady();
+  await until(() => evaluate("document.getElementById('maipa-theme-light')?.getAttribute('aria-pressed') === 'true'"), 'authoritative theme restored');
+  await click('Dark'); await preferencesReady();
+  await click('Client facts'); await preferencesReady();
+  await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(clientEntityId)}`), 'facts available after preference recovery');
+  record('preferences-save-conflict-recovery');
   phase = 'layout';
   const layoutReady = () => until(() => evaluate("document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'saved layout ready');
   await layoutReady();
@@ -443,6 +472,9 @@ try {
   await until(() => evaluate("document.querySelector('.authority-panel')?.textContent.includes('No financial or workflow authority is recorded')"), 'honest absent authority');
   assert.equal(await evaluate("document.querySelector('.authority-panel').textContent.includes('synthetic-browser-authority')"), false);
   record('client-authority-and-revocation');
+  await preferencesReady();
+  await click('Workspace guide'); await preferencesReady();
+  const ownerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
   phase = "logout_viewer";
   await click("Sign out");
   await until(() => evaluate("!!document.getElementById('maipa-username')"), "logged-out password form");
@@ -459,6 +491,12 @@ try {
   assert.deepEqual(viewer.error, { error: { code: "permission_denied" } });
   assert.deepEqual(viewer.history, { checks: [] }); assert.equal(viewer.foreign, 404);
   record("logout-and-viewer-denial");
+  await preferencesReady();
+  const viewerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
+  assert.notEqual(viewerPreferences.preferences_id, ownerPreferences.preferences_id);
+  assert.equal(viewerPreferences.theme, 'system');
+  assert.equal(viewerPreferences.active_view, 'client-facts');
+  await click('Light'); await preferencesReady();
   phase = "intake_scope";
   const privateIntake = await evaluate(`(async()=>{
     const listed=await(await fetch('/api/intake/engagements/?role=administrator&tenant_id=foreign')).json();
@@ -491,6 +529,10 @@ try {
   await layoutReady();
   assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 35);
   record('layout-user-isolation-and-login');
+  await preferencesReady();
+  assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), ownerPreferences);
+  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'owner preferences restored after other account');
+  record('preferences-user-isolation');
   }
   phase = "browser_exceptions";
   assert.equal(exceptions.length, 0, "No uncaught browser exceptions");

@@ -49,6 +49,11 @@ def main():
             revision=4, split_basis_points=3400)
         client = Client()
         client.force_login(owner)
+        preferences = client.get('/api/workspace/preferences/', secure=True).json()
+        saved_preferences = client.post('/api/workspace/preferences/', data=json.dumps({
+            'expected_revision': preferences['revision'], 'theme': 'dark', 'active_view': 'workspace-guide'}),
+            content_type='application/json', secure=True, HTTP_X_MAIPA_PREFERENCES=preferences['preferences_id'])
+        assert saved_preferences.status_code == 200
         setup = client.get('/api/onboarding/', secure=True).json()
         response = client.post('/api/onboarding/', data=json.dumps({
             'expected_revision': setup['revision'], 'action': 'reply', 'answer': 'Synthetic saved profile'}),
@@ -66,7 +71,7 @@ def main():
             path.write_bytes(data)
         return {'installation': str(install.pk), 'user': str(owner.pk),
             'layout': str(layout.identity), 'session': client.cookies['sessionid'].value,
-            'setup': setup['setup_id']}
+            'setup': setup['setup_id'], 'preferences': preferences['preferences_id']}
     if operation == 'inspect':
         proof_path = physical_chain(Path(sys.argv[2]))
         if proof_path.parent != root.parent or proof_path.name != 'synthetic-proof.json':
@@ -76,17 +81,23 @@ def main():
         client.cookies['sessionid'] = proof['session']
         layout = client.get('/api/workspace/layout/', secure=True)
         setup = client.get('/api/onboarding/', secure=True)
+        preferences = client.get('/api/workspace/preferences/', secure=True)
         owner = get_user_model().objects.get(pk=proof['user'])
         assert owner.check_password('synthetic-recovery-password!932')
         other = Client()
         other.force_login(get_user_model().objects.get(username='recovery-other'))
         other_setup = other.get('/api/onboarding/', secure=True)
+        other_preferences = other.get('/api/workspace/preferences/', secure=True)
         denied_before = client.get('/api/onboarding/', secure=True).status_code
         Membership.objects.filter(user=owner).update(enabled=False)
         denied_after = client.get('/api/onboarding/', secure=True)
+        preferences_revoked = client.get('/api/workspace/preferences/', secure=True)
         return {'installation': str(Installation.objects.get().pk),
             'layout_status': layout.status_code, 'layout': layout.json(),
             'setup_status': setup.status_code, 'setup': setup.json(),
+            'preferences_status': preferences.status_code, 'preferences': preferences.json(),
+            'other_preferences': other_preferences.json(), 'preferences_revoked': preferences_revoked.status_code,
+            'preferences_revoked_cache': preferences_revoked['Cache-Control'],
             'other_draft': other_setup.json()['draft'],
             'revocation': [denied_before, denied_after.status_code],
             'revocation_cache': denied_after['Cache-Control'],

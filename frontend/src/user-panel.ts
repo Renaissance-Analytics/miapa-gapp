@@ -48,7 +48,7 @@ export class UserPanelModel {
   private disposed = false;
   private bridge: ReturnType<typeof registerScreensBridge>;
   get current(): UserPanelState { return structuredClone(this.value); }
-  constructor(userId: string) {
+  constructor(userId: string, private selectBuiltin?: (id: string) => boolean) {
     if (!/^[0-9]+$/.test(userId)) refuse();
     // The library's optional agentId argument must never select a different
     // host's global undo history. Bind every registered handler to this mount.
@@ -99,7 +99,17 @@ export class UserPanelModel {
   private ensureActive() { if (this.disposed) refuse(); }
   private emit() { this.listener?.(this.current); }
   subscribe(listener: (state: UserPanelState) => void) { this.ensureActive(); this.listener = listener; listener(this.current); return () => { this.listener = null; }; }
-  navigate(id: string) { this.ensureActive(); if (!this.value.views.some(view => view.id === id)) return refuse(); this.value = { ...this.value, active: id }; this.emit(); }
+  navigate(id: string) {
+    this.ensureActive();
+    const view = this.value.views.find(item => item.id === id);
+    if (!view || (view.builtin && this.selectBuiltin && !this.selectBuiltin(id))) return refuse();
+    this.value = { ...this.value, active: id }; this.emit();
+  }
+  restoreBuiltin(id: string) {
+    this.ensureActive();
+    if (!this.value.views.some(view => view.id === id && view.builtin)) return refuse();
+    this.value = { ...this.value, active: id }; this.emit();
+  }
   dispose() {
     if (this.disposed) return;
     this.disposed = true;

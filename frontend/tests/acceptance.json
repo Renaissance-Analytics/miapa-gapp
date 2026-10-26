@@ -506,6 +506,92 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P05-PREFERENCES-UI",
+      "risk": "Wrong-user cosmetic state, lost writes, false saved results or divergent human/agent navigation.",
+      "scenarios": [
+        {
+          "id": "P05-PREFERENCES-UI.1",
+          "kind": "positive",
+          "given": "An authenticated user reading saved preferences",
+          "when": "Read through the client adapter",
+          "then": "Use bounded same-origin no-store requests and reject foreign identities, unsupported fields/choices, oversized data and wrong media types.",
+          "tests": [
+            "preferences.test.mjs#personal preference reads are bounded same-origin and reject foreign or unsupported state"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.2",
+          "kind": "positive",
+          "given": "Valid saved identity/revision and new theme/view choices",
+          "when": "Save through the client adapter",
+          "then": "Use fresh CSRF and exact safe fields; accept only an acknowledgement with the same owner/identity, next revision and exact requested choices.",
+          "tests": [
+            "preferences.test.mjs#preference writes send exact choices identity revision and fresh CSRF and verify the acknowledgement"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.3",
+          "kind": "negative",
+          "given": "Invalid choices or injected fields and denied/failing/stale HTTP responses",
+          "when": "Attempt preference saving",
+          "then": "Send no invalid request and expose only fixed unavailable/conflict results without inventing success.",
+          "tests": [
+            "preferences.test.mjs#invalid preference fields and unsafe HTTP outcomes never become accepted settings"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.4",
+          "kind": "negative",
+          "given": "A write with a lost acknowledgement",
+          "when": "Try another change then explicitly reload",
+          "then": "Pause additional writes and reconcile authoritative state through a deliberate reload; expose no raw diagnostics.",
+          "tests": [
+            "preferences.test.mjs#an unknown preference save pauses writes until an explicit authoritative reload"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.5",
+          "kind": "negative",
+          "given": "Reordered requests, disposed mounts and a different principal",
+          "when": "Resolve late preference loads",
+          "then": "Keep the newest live principal state and reject foreign snapshots; disposed callbacks never publish.",
+          "tests": [
+            "preferences.test.mjs#late preference loads and disposed identities cannot publish into another principal"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.6",
+          "kind": "negative",
+          "given": "A pending save followed by an authoritative reload",
+          "when": "Attempt a second mutation and then resolve the old save",
+          "then": "Issue one write only and ignore the stale acknowledgement after reload.",
+          "tests": [
+            "preferences.test.mjs#pending preference writes lock further mutations and stale acknowledgements cannot overwrite a reload"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.7",
+          "kind": "positive",
+          "given": "The existing private published screens bridge and a personal-preference navigation gate",
+          "when": "Navigate from the human model and bridge, then restore saved built-in state",
+          "then": "Both navigation paths use the same gate and accepted built-in handles; restoration updates controlled state without writing and rejects arbitrary handles.",
+          "tests": [
+            "preferences.test.mjs#human and published screen navigation share the preference boundary and restore never writes"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES-UI.8",
+          "kind": "negative",
+          "given": "An authenticated mount before its server preferences load",
+          "when": "Render the workspace",
+          "then": "Show honest loading state, disable appearance edits and avoid provider/finance readiness claims.",
+          "tests": [
+            "preferences.test.mjs#authenticated workspace exposes loading and recovery state before allowing preference edits"
+          ]
+        }
+      ]
     }
   ]
 }

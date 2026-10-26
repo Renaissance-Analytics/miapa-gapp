@@ -27,7 +27,7 @@ are trusted.
 
 | State | Storage and boundary |
 |---|---|
-| Users, membership, intake, policies, onboarding, pane widths, web sessions | `maipa.sqlite3`, normal Django migrations and existing owner/revision guards |
+| Users, membership, intake, policies, onboarding, pane widths, personal preferences, web sessions | `maipa.sqlite3`, normal Django migrations and existing owner/revision guards |
 | Install format identity | Private `installation.json`, explicit format/version and storage UUID |
 | Development signing key | Private `development-key`, never served or logged |
 | Optional legacy setup-code file | Private `local-setup-code`, preserved by migration/backup but unused by onboarding |
@@ -37,9 +37,11 @@ are trusted.
 
 Durable file names use server-owned ASCII keys. A snapshot refuses unknown root
 state instead of silently omitting it. Actual provider homes, ACP session records,
-artifact authorization, persisted appearance and approved view state still need
-their implementing P05/P06/A01 slices. Current setup messages and pane widths
-retain their existing server persistence. Custom authored/pinned views remain A07.
+artifact authorization and owned service references still need their implementing
+P05/P06/A01 slices. Appearance choices and selected built-in work views use
+separate per-user preference records; setup messages and pane widths retain their
+existing server persistence. See [Personal preferences](personal-preferences.md).
+Custom authored/pinned views remain A07.
 
 ## Offline administrator maintenance
 

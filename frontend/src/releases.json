@@ -1,5 +1,13 @@
 [
   {
+    "id": "development-15",
+    "label": "Development update 15",
+    "cards": [
+      { "title": "Your appearance and work view follow your account", "description": "Choose System, Light or Dark and switch between Client facts and Workspace guide. Your choices now restore after sign-in and in another browser." },
+      { "title": "Reload a changed preference", "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change." }
+    ]
+  },
+  {
     "id": "development-14",
     "label": "Development update 14",
     "cards": [

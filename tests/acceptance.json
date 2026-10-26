@@ -1684,7 +1684,7 @@
           "kind": "positive",
           "given": "A migrated synthetic Django install with two users, saved setup/layout, an authenticated session and private files",
           "when": "Snapshot and restore through separate CLI processes, then inspect through another fresh process",
-          "then": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded",
+          "then": "Installation/user/layout/setup identities and revisions, authenticated session, user isolation and immediate revocation survive; private file bytes and actual ACLs match and ephemeral workers are excluded Also restore the exact saved personal theme/view identity and revision through a new process; another user retains defaults and revoked membership denies preference reads with no-store.",
           "tests": [
             "tests.test_install_recovery.InstallRecoveryTests.test_snapshot_restore_preserves_real_sessions_user_scope_and_private_files"
           ]
@@ -2001,6 +2001,112 @@
           "then": "The fixture refuses before creating any directory, database or synthetic account at either destination",
           "tests": [
             "tests.test_install_recovery.InstallRecoveryTests.test_seed_fixture_requires_explicit_marker_and_owned_synthetic_path"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05-PREFERENCES",
+      "risk": "Lost or foreign personal settings, stale-account writes, leaked private provider state, or preference saves corrupting independent layout state.",
+      "scenarios": [
+        {
+          "id": "P05-PREFERENCES.1",
+          "kind": "positive",
+          "given": "A member with no saved preferences and an existing pane width",
+          "when": "Save theme/view, log out and use an independent client",
+          "then": "Return server-owned defaults and stable identity; persist exact choices and next revision while pane width remains unchanged.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_defaults_and_saved_choices_survive_an_independent_login_without_changing_width"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.2",
+          "kind": "positive",
+          "given": "Two members, including a viewer, at matching initial preference revisions",
+          "when": "Save, switch accounts and replay the old identity",
+          "then": "Each member retains their own choices/defaults; deny cross-principal identity replay and grant no financial role.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_viewer_and_old_tab_stay_in_separate_owned_preferences"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.3",
+          "kind": "negative",
+          "given": "Two snapshots at the same revision",
+          "when": "Save a winner, replay a stale write and explicitly reread",
+          "then": "Preserve the winner and reject stale writes; a current revision then succeeds.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_stale_write_preserves_the_winner_until_explicit_reread"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.4",
+          "kind": "negative",
+          "given": "Unsupported themes/views and injected owner, path, schema, token or authority fields",
+          "when": "Submit each invalid preference payload",
+          "then": "Reject every request without advancing the saved choices or revision.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_unknown_choices_credentials_paths_and_authority_fields_never_write"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.5",
+          "kind": "negative",
+          "given": "Invalid revision types, duplicate keys, nonfinite JSON or oversized bodies",
+          "when": "POST personal preferences",
+          "then": "Return fixed invalid/too-large responses and preserve the exact initial snapshot.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_revision_and_strict_json_guards_do_not_advance_the_saved_choices"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.6",
+          "kind": "negative",
+          "given": "No initialized preference identity or an absent/foreign header",
+          "when": "POST before GET and replay wrong identities",
+          "then": "Reject with conflict and leave server defaults unchanged.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_missing_or_foreign_identity_cannot_initialize_or_replace_preferences"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.7",
+          "kind": "negative",
+          "given": "Anonymous, missing CSRF, foreign Origin, revoked member or unsupported method",
+          "when": "Read/write preferences and restore valid membership",
+          "then": "Deny each unsafe request with no-store boundaries; restored membership reads the unchanged snapshot.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_authentication_csrf_origin_methods_and_live_revocation_apply"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.8",
+          "kind": "negative",
+          "given": "A damaged preference row bound outside the current installation",
+          "when": "GET and POST that user\u2019s preferences",
+          "then": "Fail closed without adopting/rebinding the row; after explicit test repair the exact original snapshot remains.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_mismatched_install_binding_is_denied_without_rebinding"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.9",
+          "kind": "negative",
+          "given": "Valid initialized preference data",
+          "when": "Try direct database updates to unsupported enums or an exhausted revision",
+          "then": "Database constraints reject each update and the original snapshot remains unchanged.",
+          "tests": [
+            "tests.test_workspace_preferences.WorkspacePreferencesTests.test_database_rejects_unsupported_choices_and_exhausted_revisions"
+          ]
+        },
+        {
+          "id": "P05-PREFERENCES.10",
+          "kind": "negative",
+          "given": "Two synchronized requests on separate real database connections",
+          "when": "Race writes at revision zero",
+          "then": "At most one succeeds; other requests conflict or report retryable contention, with the durable revision matching accepted writes.",
+          "tests": [
+            "tests.test_workspace_preferences.ConcurrentPreferencesTests.test_real_concurrent_connections_accept_at_most_one_revision"
           ]
         }
       ]

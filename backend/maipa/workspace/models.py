@@ -72,3 +72,20 @@ class WorkspaceLayout(models.Model):
             models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_layout_revision'),
             models.CheckConstraint(condition=models.Q(split_basis_points__gte=2200, split_basis_points__lte=4500), name='workspace_layout_bounds'),
         ]
+
+
+class WorkspacePreferences(models.Model):
+    """Personal choices only; independent identity/revision from pane gestures."""
+    identity = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    installation = models.ForeignKey(Installation, on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    theme = models.CharField(max_length=8, default='system')
+    active_view = models.CharField(max_length=24, default='client-facts')
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_preferences_revision'),
+            models.CheckConstraint(condition=models.Q(theme__in=('system', 'light', 'dark')), name='workspace_preferences_theme'),
+            models.CheckConstraint(condition=models.Q(active_view__in=('client-facts', 'workspace-guide')), name='workspace_preferences_view'),
+        ]

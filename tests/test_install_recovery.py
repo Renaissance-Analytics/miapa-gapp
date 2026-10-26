@@ -84,6 +84,12 @@ class InstallRecoveryTests(unittest.TestCase):
         self.assertEqual(state['setup']['setup_id'], self.proof['setup'])
         self.assertEqual(state['setup']['draft'], {'display_name': 'Synthetic saved profile'})
         self.assertFalse(state['setup']['provider_ready'])
+        self.assertEqual(state['preferences_status'], 200)
+        self.assertEqual(state['preferences'], {'preferences_id': self.proof['preferences'], 'user_id': self.proof['user'],
+            'revision': 1, 'theme': 'dark', 'active_view': 'workspace-guide'})
+        self.assertEqual((state['other_preferences']['theme'], state['other_preferences']['active_view']), ('system', 'client-facts'))
+        self.assertNotEqual(state['other_preferences']['preferences_id'], self.proof['preferences'])
+        self.assertEqual((state['preferences_revoked'], state['preferences_revoked_cache']), (403, 'no-store'))
         self.assertEqual(state['other_draft'], {})
         self.assertEqual(state['revocation'], [200, 403])
         self.assertEqual(state['revocation_cache'], 'no-store')

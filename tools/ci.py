@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 BROWSER_CASES = ('local-first-run-admin', 'account-chat-resume-and-confirm', 'first-run-stays-closed',
                  "anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
                  "mobile-panels", "real-login-and-server-role", 'onboarding-user-isolation', "authenticated-account-scope", "csrf-and-real-zero-provider-transport",
-                 "intake-initial-load-recovery", 'persistent-chat-work-views', 'layout-gestures-conflict-recovery', "intake-facts-and-evidence", "intake-history-and-conflicts", 'client-authority-and-revocation', "logout-and-viewer-denial", "intake-user-isolation",
-                 'layout-user-isolation-and-login', 'layout-fresh-browser-restore',
+                 "intake-initial-load-recovery", 'persistent-chat-work-views', 'preferences-save-conflict-recovery', 'layout-gestures-conflict-recovery', "intake-facts-and-evidence", "intake-history-and-conflicts", 'client-authority-and-revocation', "logout-and-viewer-denial", "intake-user-isolation",
+                 'layout-user-isolation-and-login', 'preferences-user-isolation', 'layout-fresh-browser-restore', 'preferences-fresh-browser-restore',
                  "no-uncaught-exceptions", "owned-browser-cleanup")
 
 
