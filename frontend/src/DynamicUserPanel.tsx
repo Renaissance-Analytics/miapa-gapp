@@ -3,6 +3,8 @@ import { Button, Card } from '@particle-academy/react-fancy';
 import { Screen, ScreenSystem, registerSchemaComponents } from '@particle-academy/fancy-screens';
 import { IntakeWorkspace } from './IntakeWorkspace.js';
 import { AdminUsers } from './AdminUsers.js';
+import { ClientCatalog } from './ClientCatalog.js';
+import { canManageClients } from './client-catalog.js';
 import { canAdminister } from './admin-users.js';
 import { UserPanelModel, initialUserPanelState } from './user-panel.js';
 import type { BuiltinView, PreferencesState } from './preferences.js';
@@ -10,6 +12,7 @@ import type { BuiltinView, PreferencesState } from './preferences.js';
 const FactsAttempt = createContext(0);
 const Principal = createContext('');
 function Administration() { return <AdminUsers userId={useContext(Principal)} />; }
+function ClientAdministration() { return <ClientCatalog userId={useContext(Principal)} />; }
 function ClientFacts() { const attempt = useContext(FactsAttempt); return <IntakeWorkspace key={attempt} />; }
 function WorkspaceGuide() {
   return <Card variant="outlined" sections="plain"><Card.Body><h3>Your workspace</h3>
@@ -22,6 +25,7 @@ registerSchemaComponents({
   'Maipa.ClientFacts': ClientFacts,
   'Maipa.WorkspaceGuide': WorkspaceGuide,
   'Maipa.AdminUsers': Administration,
+  'Maipa.ClientCatalog': ClientAdministration,
   'Maipa.Stack': ({ children }) => <div className="work-view-stack">{children as React.ReactNode}</div>,
   'Maipa.Note': ({ text }) => <Card variant="outlined" sections="plain"><Card.Body>
     <span className="eyebrow">Agent note · verify against evidence</span><p>{String(text)}</p>
@@ -43,6 +47,7 @@ export function DynamicUserPanel({ userId, factsAttempt, preferences = { phase: 
     let active = true;
     // Cosmetic discovery only. Every admin read/write checks fresh server authority.
     void canAdminister().then(allowed => { if (active && allowed) current.enableAdministration(); });
+    void canManageClients().then(allowed => { if (active && allowed) current.enableClientAdministration(); });
     return () => { active = false; unsubscribe(); current.dispose(); model.current = null; };
   }, [userId]);
   useEffect(() => {

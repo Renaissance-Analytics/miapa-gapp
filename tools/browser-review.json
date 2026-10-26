@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "6c0fa2eb278e653c4c9c4067e49f49df5ef658448f3b3bd58513cd4954c565a0",
-    "tools/check_browser.py": "581cf174af92273af3bdbc332a0437f90cda9db964b0991aba8aab1c12615374",
+    "tools/browser.mjs": "72afb9f9c3df199652958290aef5793e335157e89ddc23827d07ee266a297a93",
+    "tools/check_browser.py": "da7b5bd78694df40d6966623a7f8c6b075759d2184b758b4d26d6e3ac474b490",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -17,6 +17,11 @@
       "id": "account-chat-resume-and-confirm",
       "kind": "positive",
       "expected": "Native mobile chat replies survive page reload, collect explicit client/currency/unknown basis and date, review with zero preconfirmation clients, then create actual intake facts once. Stale confirmation409; explicit Open saved client facts shows USD in the work panel."
+    },
+    {
+      "id": "client-catalog-create-rename-conflict",
+      "kind": "positive",
+      "expected": "The actual first-run administrator opens the fixed shared Client setup screen. Native input/pointer creates a real owned client and initial entity, renames both display labels and adds another entity with exact persisted audit revisions. An independent real authorized write causes stale409, clears forms/list and requires explicit reload/selection. Original financial facts, saved preferences/layout/setup and the exact persistent conversation pane node remain unchanged."
     },
     {
       "id": "admin-users-create-update-conflict",
@@ -32,6 +37,11 @@
       "id": "admin-users-restricted-login",
       "kind": "negative",
       "expected": "After actual sign-out, the UI-created user signs in with its real password and retains its saved viewer role. Admin API403, no admin navigation, empty own engagement list and absent original client prove access isolation. Existing first-run-closed check remains in its original order."
+    },
+    {
+      "id": "client-catalog-restricted-scope",
+      "kind": "negative",
+      "expected": "The actual UI-created viewer signs in with its real password. Client catalog403, original administrators new entity404, empty own engagement list, absent Client setup navigation and absent private labels prove current-role and data isolation. All earlier first-run/admin/ordinary/resumed-browser assertions and case order remain."
     },
     {
       "id": "anonymous-authority-and-build",

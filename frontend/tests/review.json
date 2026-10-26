@@ -630,6 +630,76 @@
       "decision": "aligned",
       "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
       "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-01",
+      "test": "client-catalog.test.mjs#catalog reads bind the mounted actor selected engagement and bounded private response",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Checks parsed empty and populated state plus exact request and transport protections.",
+      "expected_observation": "Only actor/selection-bound exact catalog state is accepted with same-origin no-store no-redirect and deadline options",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "e9ae8912a03d45eb8f0ca006eae8e504bea3108c94cd2b4127419036f76758c6"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-02",
+      "test": "client-catalog.test.mjs#foreign malformed duplicate and oversized catalog snapshots never enter UI state",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Independent adversarial payloads exercise identity, selected-page count, duplicate IDs, private-field rejection and actual response byte bounds.",
+      "expected_observation": "Every malformed or overbudget response is unavailable and malformed selection makes no network call",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "aac42f8df51f7223a5016fe82c2167775c3c87b33c4c21764e433484c5f1cb27"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-03",
+      "test": "client-catalog.test.mjs#catalog writes send only the closed command and bind csrf original actor identity install and revision",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Checks all four action shapes, HTTP methods/statuses, headers, wire body and complete receipt, not only a truthy save result.",
+      "expected_observation": "One CSRF-protected write sends exact action fields with original actor/state/install/revision and accepts its exact next-revision receipt",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "ffd2fa516d374af0f838aaa27a2717a15b3cedb1612dd43ca5c63629a3040e0f"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-04",
+      "test": "client-catalog.test.mjs#stale denied unconfirmed and mismatched catalog receipts never claim success or retry a write",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Actor/state/install/revision/action/target/engagement and unexpected private receipt fields are tested separately alongside status handling and write count.",
+      "expected_observation": "No incorrect result claims success and each attempt performs exactly one write without retry",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "cd6c46c5d7db807dac1b0a4439d67cc54e2f1203010c0bda30211f5ac19fdb6c"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-05",
+      "test": "client-catalog.test.mjs#unknown targets authority fields unsafe names and unsupported commands are refused before network use",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "No-network assertions test that only closed supported UI choices cross the client boundary; the server independently enforces current scope.",
+      "expected_observation": "Every invalid choice is refused before any fetch",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "98baf386cee54ea8b707eb93689e67fb7c6b4504df961a6f603cc9eabc1078fd"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-06",
+      "test": "client-catalog.test.mjs#client administration discovery admits preparers and administrators with actual server authority still required",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Exercises both allowed roles and denied roles/invalid response shapes; it grants no server authorization.",
+      "expected_observation": "Only valid preparer/administrator discovery enables the optional view",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "12805d230506be6496d7715083f0ad7c40e73702d645d86dd6b77443f4903170"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-UI-01-07",
+      "test": "client-catalog.test.mjs#client setup is a reserved optional shared screen which preserves saved view choices and principal scope",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
+      "reason": "Actual published MCP bridge calls prove reservation, shared navigation and principal separation; callback assertions protect saved work preferences and disposal removes tools.",
+      "expected_observation": "Only the fixed optional view can be shared by its own principal; arbitrary schema, reserved creation, mutation and deletion refuse while saved work preference stays unchanged",
+      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
+      "scenario_sha256": "0d40c1323464e7db5c38476fc8a0dfbabc4814e8ef0f4bc43d0518241e511363"
     }
   ]
 }

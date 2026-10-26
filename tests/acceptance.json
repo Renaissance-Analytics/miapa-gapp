@@ -2458,6 +2458,338 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-PROFILE-01",
+      "risk": "A provider consumer may borrow another account home, inherit private state after reassignment, run overlapping logins/sessions or follow a filesystem alias outside its original authority.",
+      "scenarios": [
+        {
+          "id": "P06-PROFILE-01-01",
+          "kind": "positive",
+          "given": "An enabled original account and current preparer",
+          "when": "Provision twice and reopen the leased private home",
+          "then": "The opaque profile and assigned home persist exact synthetic state; scope/provider match and no readiness field or home repr is exposed",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_original_private_home_survives_new_lease_and_provision_without_readiness_claim"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-02",
+          "kind": "negative",
+          "given": "A provisioned owned profile",
+          "when": "Try malformed references, a different actor/account and a foreign account provision",
+          "then": "Every request raises the same safe error and the profile directory inventory is unchanged",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_foreign_and_malformed_references_never_open_or_allocate_another_home"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-03",
+          "kind": "negative",
+          "given": "An existing original profile containing synthetic state",
+          "when": "Reassign account owner and provider in the database then provision and lease",
+          "then": "The new owner/provider cannot adopt the profile and original bytes remain unchanged",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_reassigned_owner_or_provider_cannot_adopt_the_original_profile"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-04",
+          "kind": "negative",
+          "given": "An already provisioned profile and cached actor",
+          "when": "Disable the database user, membership or account, and change current role to viewer",
+          "then": "Both provision and lease refuse each revoked state, then work after valid authority restoration",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_current_disabled_user_membership_account_and_restricted_roles_refuse_every_entry"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-05",
+          "kind": "negative",
+          "given": "A private profile bound to installation storage identity",
+          "when": "Change installation metadata to a different valid storage UUID",
+          "then": "Provision and lease refuse instead of rebinding; restoring the original identity recovers the same home",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_storage_identity_change_never_rebinds_private_state"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-06",
+          "kind": "negative",
+          "given": "An owned profile with retained synthetic payload",
+          "when": "Replace its marker with duplicate-key JSON and attempt provision/lease",
+          "then": "Both operations refuse, leaving the altered marker and original payload untouched",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_tampered_binding_marker_is_refused_without_repair_or_payload_mutation"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-07",
+          "kind": "positive",
+          "given": "A real exclusive profile lease held by the parent",
+          "when": "A separate Python process and a second same-process consumer attempt the same lease",
+          "then": "Both competing consumers are refused; the child and profile service acquire after close",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_competing_real_process_is_refused_then_acquires_after_lease_close"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-08",
+          "kind": "positive",
+          "given": "A synthetic home with persisted state and a child holding its native lock",
+          "when": "Kill and observe the actual lock-owner process after a refused competing lease",
+          "then": "The profile can be leased again and exact durable bytes survive",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_actual_lock_owner_death_releases_lease_without_deleting_home"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-09",
+          "kind": "negative",
+          "given": "An open profile lease",
+          "when": "Revoke current membership, restore it, then close the lease",
+          "then": "Fresh revalidation refuses revocation and closed leases; valid live authority and a new lease succeed",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_revoked_open_lease_cannot_revalidate_and_closed_lease_stays_unusable"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-10",
+          "kind": "positive",
+          "given": "An actual leased home with synthetic bytes",
+          "when": "Raise a consumer RuntimeError inside the context",
+          "then": "The original consumer exception propagates and a new lease reads retained bytes",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_consumer_exception_releases_lock_and_preserves_durable_home"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-11",
+          "kind": "negative",
+          "given": "A provisioned profile with a foreign synthetic file hardlinked as its lock",
+          "when": "Attempt to acquire the profile",
+          "then": "Acquisition refuses and foreign bytes and hardlink count remain unchanged",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_hardlinked_lock_is_refused_without_changing_foreign_file"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-12",
+          "kind": "negative",
+          "given": "A profile whose home is replaced with a real junction to a foreign synthetic directory",
+          "when": "Provision and lease the profile",
+          "then": "Both operations refuse and the entire foreign directory content remains unchanged",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_linked_home_is_refused_before_grant_or_foreign_tree_mutation"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-13",
+          "kind": "negative",
+          "given": "An authenticated owner and a real persisted private profile payload",
+          "when": "Request guessed profile and on-disk resource URLs",
+          "then": "HTTP404 responses disclose neither private bytes nor home paths",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_private_profile_is_unavailable_through_public_routes"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-14",
+          "kind": "positive",
+          "given": "Two real owned profile homes with distinct synthetic bytes",
+          "when": "Run an actual Node worker in the original leased home under a verified AppContainer and native job",
+          "then": "The worker reads/writes only its assigned state; foreign home read is denied, job/profile cleanup succeeds and durable state survives temporary capsule removal",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_real_isolated_capsule_uses_leased_home_and_refuses_another_account_home"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-15",
+          "kind": "negative",
+          "given": "An original profile lease and trusted runtime",
+          "when": "Supply a different scope, provider, root or a closed lease to the capsule",
+          "then": "Every mismatched or closed lease is refused before capsule use and the home remains empty",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_capsule_requires_original_lease_scope_provider_root_and_open_lifetime"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-16",
+          "kind": "positive",
+          "given": "A live original-account lease and exact installed published Prism host",
+          "when": "Initialize and shut down the actual isolated ACP host in the durable assigned profile",
+          "then": "Published host identity/authMethods match, zero provider sessions are reported and actual job/profile cleanup succeeds",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_published_host_initializes_in_original_profile_without_claiming_provider_login"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-17",
+          "kind": "positive",
+          "given": "A retained home with a real temporary AppContainer grant",
+          "when": "End the isolated boundary and then close its enclosing profile lease",
+          "then": "Actual root/home/payload DACLs omit the worker SID and public groups, while exact private state remains reopenable",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_lease_close_removes_temporary_worker_grants_from_retained_profile"
+          ]
+        },
+        {
+          "id": "P06-PROFILE-01-18",
+          "kind": "negative",
+          "given": "A profile containing a real sparse file just beyond the512MiB metadata budget",
+          "when": "Provision and acquire the profile",
+          "then": "Both refuse with a safe error, preserve the exact file size and recover after its explicit removal",
+          "tests": [
+            "tests.test_provider_profiles.ProviderProfileTests.test_overbudget_profile_is_refused_without_reading_or_deleting_its_payload"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P06-CLIENT-CATALOG-01",
+      "risk": "Client metadata administration may broaden data scope, apply stale or duplicate commands, bypass shared revision/audit authority or alter existing financial facts and conclusions.",
+      "scenarios": [
+        {
+          "id": "P06-CLIENT-CATALOG-01-01",
+          "kind": "positive",
+          "given": "Current preparer with no catalog, then real owned and foreign clients",
+          "when": "Read the current metadata catalog",
+          "then": "Empty state is complete and original actor/install bound; later only owned engagement and selected entity display metadata appears",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_empty_catalog_is_actor_bound_and_lists_only_current_owners_metadata"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-02",
+          "kind": "positive",
+          "given": "Current original catalog snapshot",
+          "when": "Create a client with initial entity, add entity and rename both display labels",
+          "then": "Actual records change, exact next-revision receipts bind actor/install/state and safe immutable event order matches all four writes",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_create_add_and_rename_have_exact_next_revision_receipts_and_real_audit"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-03",
+          "kind": "negative",
+          "given": "A saved snapshot used by two real writers",
+          "when": "Repeat a create and rename from a snapshot invalidated by an existing service write",
+          "then": "HTTP409 prevents duplicate/stale changes; the other real writer and exact current revision remain",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_duplicate_command_and_real_competing_tab_write_cannot_create_twice"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-04",
+          "kind": "positive",
+          "given": "A current metadata snapshot",
+          "when": "Create through both existing intake services and inspect the old API",
+          "then": "Both shared writes increment catalog revision/audit; existing engagement API shape stays unchanged",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_existing_intake_creation_shares_catalog_revision_and_audit"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-05",
+          "kind": "negative",
+          "given": "A valid original snapshot",
+          "when": "Post without CSRF or with a foreign Origin",
+          "then": "HTTP403 csrf_failed and identical original catalog/record count",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_missing_csrf_and_foreign_origin_do_not_write_catalog_or_events"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-06",
+          "kind": "negative",
+          "given": "An already read catalog and current membership",
+          "when": "Change current role/enabled/user-active state and sign out",
+          "then": "Restricted or revoked requests cannot read/write and no engagement appears",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_restricted_disabled_and_signed_out_principals_cannot_read_or_mutate"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-07",
+          "kind": "negative",
+          "given": "An original snapshot and another legitimate owner with private targets",
+          "when": "Substitute original actor/state/install or target the other owners engagement/entity",
+          "then": "Origin substitutions conflict; foreign targets404 with original revision/names unchanged",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_original_actor_identity_installation_and_foreign_targets_are_independently_bound"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-08",
+          "kind": "negative",
+          "given": "A valid current catalog",
+          "when": "Supply unexpected identity/path/secret/command fields, unknown actions, malformed names/revisions or DELETE",
+          "then": "Every invalid command400 and unsupported method405; no record/revision changes",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_strict_commands_refuse_identity_path_credential_fields_and_invalid_names"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-09",
+          "kind": "negative",
+          "given": "Authenticated authorized client with a valid CSRF token",
+          "when": "Send duplicate keys, nonfinite values, nonobject/malformed or oversized JSON",
+          "then": "400/413 responses expose no submitted private text and create no record",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_duplicate_key_malformed_and_overbudget_requests_have_safe_errors"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-10",
+          "kind": "positive",
+          "given": "Two owned engagements and a separate foreign one",
+          "when": "Select the second owned engagement and try foreign/missing/malformed/unknown query selections",
+          "then": "One selected entity set is returned; invalid selections refuse without leaking other IDs",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_selection_is_owned_canonical_and_bounded_to_one_engagement"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-11",
+          "kind": "negative",
+          "given": "A valid original snapshot",
+          "when": "Make the real audit append fail during an actual create transaction",
+          "then": "Safe503, no engagement/entity and an identical original catalog",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_audit_failure_rolls_back_new_records_and_revision_without_private_diagnostics"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-12",
+          "kind": "negative",
+          "given": "An actual engagement with100entities",
+          "when": "Attempt another entity from the current catalog",
+          "then": "400, exactly100entities and identical catalog/audit revision",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_quota_refusal_rolls_back_shared_revision_without_creating_a_partial_entity"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-13",
+          "kind": "positive",
+          "given": "A real saved fact and dependent current conclusion",
+          "when": "Rename its entity display label through the catalog",
+          "then": "The label changes while exact fact/history/conclusion data and fact revision remain unchanged",
+          "tests": [
+            "tests.test_client_catalog.ClientCatalogTests.test_existing_fact_values_and_revisions_are_unchanged_by_display_rename"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-01-14",
+          "kind": "negative",
+          "given": "Two actual authenticated CSRF-protected clients share one original catalog snapshot",
+          "when": "Run their create requests concurrently behind a real thread barrier",
+          "then": "Exactly one actual request201commits one engagement/entity/audit revision; the other409or safe503 makes no additional change.",
+          "tests": [
+            "tests.test_client_catalog_concurrency.ClientCatalogConcurrencyTests.test_two_real_clients_commit_at_most_one_create_and_one_audit_revision"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -11,7 +11,7 @@ import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "admin_users",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "admin_users", "client_catalog",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
@@ -161,9 +161,9 @@ def main():
                 return json.loads(stdout)
             first_run = run_browser(base_data | {'first_run': True,
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
-            if (first_run.get('cleanup') is not True or first_run.get('checks') != 7
+            if (first_run.get('cleanup') is not True or first_run.get('checks') != 9
                     or first_run.get('scenarios') != ['local-first-run-admin', 'account-chat-resume-and-confirm',
-                        'admin-users-create-update-conflict', 'first-run-stays-closed', 'admin-users-restricted-login',
+                        'client-catalog-create-rename-conflict', 'admin-users-create-update-conflict', 'first-run-stays-closed', 'admin-users-restricted-login', 'client-catalog-restricted-scope',
                         'no-uncaught-exceptions', 'owned-browser-cleanup']):
                 raise ValueError('First-run browser cleanup required')
             if (data_root / 'local-setup-code').exists():

@@ -3,6 +3,8 @@
 Only the fixed host/manifest and installed zero-dependency Prism package are
 copied. This keeps private server files outside the worker ACL and leaves the
 installed package tree untouched. Prepared supervisor code stays read-only.
+An optional original-account lease supplies a durable home; only the newly
+created worker directory is ever removed by capsule cleanup.
 """
 import hashlib
 import json
@@ -17,17 +19,38 @@ from .windows_sandbox import SandboxUnavailable, physical_path
 
 
 class WorkerCapsule:
-    def __init__(self, root, runtime, node, scope, provider):
+    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None):
         # A server-configured Node install may use a version-manager alias.
         # Resolve that trusted executable once, then validate and copy its
         # physical bytes. Runtime and writable paths never accept reparse hops.
         self.root, self.runtime, self.node = Path(root), physical_path(runtime), physical_path(Path(node).resolve(strict=True), directory=False)
         self.scope, self.provider, self.temporary = scope, provider, None
+        self.profile_lease = profile_lease
         if not self.root.is_absolute() or provider not in {"codex", "claude"}:
             raise SandboxUnavailable("Worker layout unavailable")
+        self._leased_home()
+
+    def _leased_home(self):
+        if self.profile_lease is None:
+            return None
+        # Import only for this trusted Django consumer. Temporary zero-provider
+        # capsules retain their independent stdlib-only initialization contract.
+        from .agent_accounts.profiles import ProfileLease, ProfileUnavailable
+        try:
+            lease = self.profile_lease
+            if not isinstance(lease, ProfileLease) or lease.scope != self.scope or lease.provider != self.provider:
+                raise SandboxUnavailable("Worker profile unavailable")
+            lease.revalidate()
+            home = physical_path(lease.home)
+            if home.name != 'home' or home.parent != physical_path(self.root):
+                raise SandboxUnavailable("Worker profile unavailable")
+            return home
+        except ProfileUnavailable:
+            raise SandboxUnavailable("Worker profile unavailable") from None
 
     def __enter__(self):
         try:
+            leased_home = self._leased_home()
             for path in (self.root, *self.root.parents):
                 if path.exists() or path.is_symlink():
                     physical_path(path)
@@ -37,9 +60,11 @@ class WorkerCapsule:
             self.base = physical_path(self.temporary.name)
             if self.base.parent != self.root:
                 raise SandboxUnavailable("Worker layout unavailable")
-            for name in ("code", "supervisor", "workspace", "home"):
+            for name in ("code", "supervisor", "workspace") + (() if leased_home else ("home",)):
                 (self.base / name).mkdir(mode=0o700)
-            self.code, self.supervisor, self.workspace, self.home = [self.base / name for name in ("code", "supervisor", "workspace", "home")]
+            self.code, self.supervisor, self.workspace = [self.base / name for name in ("code", "supervisor", "workspace")]
+            self.home = leased_home or self.base / 'home'
+            self.isolation_root = self.root if leased_home else self.base
             # The container must be able to read its own executable when it
             # launches descendants. Never change the installed Node tree ACL.
             node_bytes = self.node.read_bytes()
@@ -84,6 +109,7 @@ class WorkerCapsule:
             # points by the server. Avoid Node's extra realpath traversal into
             # inaccessible parent directories; do not broaden their ACLs.
             self.command = (str(self.worker_node), "--preserve-symlinks", "--preserve-symlinks-main", str(self.code / "host.mjs"))
+            self._leased_home()
             return self
         except Exception:
             self.close()

@@ -46,24 +46,33 @@ def owned_entity(user, entity_id, write=False):
 
 
 @transaction.atomic
-def create_engagement(user, body):
+def create_engagement(user, body, *, catalog_request=None):
     fields(body, ('name', 'entity_name')); text(body['name']); text(body['entity_name'])
+    from .catalog import claim, record_event, serialize
+    serialize(user)
     member = scope(user, True)
+    state = claim(user, catalog_request)
     # Explicit small-install quotas keep complete initial lists bounded.
     require(owned_engagements(user).count() < 100)
     row = Engagement.objects.create(owner=user, installation=member.installation, name=body['name'])
     Entity.objects.create(engagement=row, name=body['entity_name'])
+    record_event(state, 'create_engagement', row.pk, row.pk)
     return row
 
 
 @transaction.atomic
-def create_entity(user, engagement_id, body):
+def create_entity(user, engagement_id, body, *, catalog_request=None):
     fields(body, ('name',)); text(body['name'])
+    from .catalog import claim, record_event, serialize
+    serialize(user)
+    state = claim(user, catalog_request)
     row = owned_engagements(user, True).select_for_update().filter(pk=engagement_id).first()
     if row is None:
         raise NotFound()
     require(row.entities.count() < 100)
-    return Entity.objects.create(engagement=row, name=body['name'])
+    entity = Entity.objects.create(engagement=row, name=body['name'])
+    record_event(state, 'create_entity', entity.pk, row.pk)
+    return entity
 
 
 def applicable(entity, on):

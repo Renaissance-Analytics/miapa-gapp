@@ -2770,6 +2770,326 @@
       "decision": "aligned",
       "reason": "The named fixture drives real HTTP/database boundaries and directly asserts: At most one write succeeds, an enabled active administrator remains and revision equals committed writes. Exceptions are synthetic persistence failure only; concurrency uses separate actual connections.",
       "reviewer": "Maipa acceptance-to-test review against independent P06 admin acceptance; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-PROFILE-01-01",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_original_private_home_survives_new_lease_and_provision_without_readiness_claim",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Assertions compare durable bytes and both original scope identifiers across independent lease contexts; the absence of readiness prevents confusing persistence with authentication.",
+      "expected_observation": "The opaque profile and assigned home persist exact synthetic state; scope/provider match and no readiness field or home repr is exposed",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "74dabec16dee3528a3307cff14510f24bafdde0e820a871917c57f518fcb9961"
+    },
+    {
+      "scenario": "P06-PROFILE-01-02",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_foreign_and_malformed_references_never_open_or_allocate_another_home",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "References and current caller authority are exercised separately; disk inventory proves refusals do not allocate foreign state.",
+      "expected_observation": "Every request raises the same safe error and the profile directory inventory is unchanged",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "962d1975bb67a4668df5e4db15969ca0f19c27ef43101a324de591fc0fd8aa49"
+    },
+    {
+      "scenario": "P06-PROFILE-01-03",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_reassigned_owner_or_provider_cannot_adopt_the_original_profile",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "The database account is actually changed, including a new legitimate owner; refusal must come from immutable original binding, not a stale in-memory account.",
+      "expected_observation": "The new owner/provider cannot adopt the profile and original bytes remain unchanged",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "0d32e8e3b118a2dcc40a9b0b67182eeb8b4f87c877df9fa71fb744285e6a4cfb"
+    },
+    {
+      "scenario": "P06-PROFILE-01-04",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_current_disabled_user_membership_account_and_restricted_roles_refuse_every_entry",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Fresh authority is tested after provisioning with unchanged caller objects; separate changes identify missing user, role and enabled-state checks.",
+      "expected_observation": "Both provision and lease refuse each revoked state, then work after valid authority restoration",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "742254ab247cb88d23c168eece98aa5c6e40a237ec63132e8b1f13b8db18ea9e"
+    },
+    {
+      "scenario": "P06-PROFILE-01-05",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_storage_identity_change_never_rebinds_private_state",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "A syntactically valid changed storage ID distinguishes original binding enforcement from malformed metadata rejection.",
+      "expected_observation": "Provision and lease refuse instead of rebinding; restoring the original identity recovers the same home",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "7dc0995b50572218eda8aa30d7a83efa9b8ccd717e44c656a10b81836e1f9970"
+    },
+    {
+      "scenario": "P06-PROFILE-01-06",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_tampered_binding_marker_is_refused_without_repair_or_payload_mutation",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Strict duplicate-key validation and non-repair behavior prevent silently claiming an existing foreign or damaged home.",
+      "expected_observation": "Both operations refuse, leaving the altered marker and original payload untouched",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "18ebfdc148f7e384af764719bbf7888f81e3acdb2bf8d51471bac2292a3f7930"
+    },
+    {
+      "scenario": "P06-PROFILE-01-07",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_competing_real_process_is_refused_then_acquires_after_lease_close",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "A separate OS process proves native lock contention, while later acquisition verifies release rather than permanent refusal.",
+      "expected_observation": "Both competing consumers are refused; the child and profile service acquire after close",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "45ef0f93d0c8fc63ae53dca13f6e9a1fc2cefb67758acb4cd80166b11de0a206"
+    },
+    {
+      "scenario": "P06-PROFILE-01-08",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_actual_lock_owner_death_releases_lease_without_deleting_home",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "The child really owns the shared lock; process death, observed exit and subsequent acquisition test crash release without a mocked lock.",
+      "expected_observation": "The profile can be leased again and exact durable bytes survive",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "20ea64a19a0bc3205e26117e620d62ee6b20b80e5e9a5921a7a5bf2bccaa7ce5"
+    },
+    {
+      "scenario": "P06-PROFILE-01-09",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_revoked_open_lease_cannot_revalidate_and_closed_lease_stays_unusable",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "The consumer boundary is tested during an existing lease and after closure, not just at initial provisioning.",
+      "expected_observation": "Fresh revalidation refuses revocation and closed leases; valid live authority and a new lease succeed",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "66334ae04d9a462a070903968b413a1fcf1b44996509e9b10daf5fe2e5ea76fd"
+    },
+    {
+      "scenario": "P06-PROFILE-01-10",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_consumer_exception_releases_lock_and_preserves_durable_home",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Exception propagation and a second native lease demonstrate cleanup without masking consumer failures or deleting durable state.",
+      "expected_observation": "The original consumer exception propagates and a new lease reads retained bytes",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "b6b2fb2ad8462833e2808c567887f89367aae83992d2494a8ca51d040566b382"
+    },
+    {
+      "scenario": "P06-PROFILE-01-11",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_hardlinked_lock_is_refused_without_changing_foreign_file",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "A real hardlink establishes the alias; assertions detect permission/write cleanup following the foreign inode.",
+      "expected_observation": "Acquisition refuses and foreign bytes and hardlink count remain unchanged",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "20f8856d013b786ff8b1504512600d887565e8ce1245aa15afd210f2792c3d16"
+    },
+    {
+      "scenario": "P06-PROFILE-01-12",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_linked_home_is_refused_before_grant_or_foreign_tree_mutation",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "A real Windows reparse path exercises physical-path enforcement before ACL changes or home creation; only the junction is removed by fixture cleanup.",
+      "expected_observation": "Both operations refuse and the entire foreign directory content remains unchanged",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "ab8a039d65220d549aec754b3fbb41af56ed1060642103717162aa6b743d670b"
+    },
+    {
+      "scenario": "P06-PROFILE-01-13",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_private_profile_is_unavailable_through_public_routes",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Even the owner cannot turn the internal execution reference into a generic browser credential or file read endpoint.",
+      "expected_observation": "HTTP404 responses disclose neither private bytes nor home paths",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "f1c511a2c3840d6f4a677608433c3ee99943e06417a7ac0bd945771378028aa1"
+    },
+    {
+      "scenario": "P06-PROFILE-01-14",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_real_isolated_capsule_uses_leased_home_and_refuses_another_account_home",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Real process output, foreign bytes, kernel-observed empty job and retained home prove OS access isolation and capsule lifetime independently of provider readiness.",
+      "expected_observation": "The worker reads/writes only its assigned state; foreign home read is denied, job/profile cleanup succeeds and durable state survives temporary capsule removal",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "118c5eede4e2f30fd9dadd10cd393545cc04a1b21a43fb4c221083f9707c5d85"
+    },
+    {
+      "scenario": "P06-PROFILE-01-15",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_capsule_requires_original_lease_scope_provider_root_and_open_lifetime",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Four explicit trusted-consumer mistakes test original binding and active lease enforcement rather than assuming the caller always supplies correct scope.",
+      "expected_observation": "Every mismatched or closed lease is refused before capsule use and the home remains empty",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "c0a4583ba0090dc928c45ea368e4e162a415a201a2e958fa13e2d2e8aefde335"
+    },
+    {
+      "scenario": "P06-PROFILE-01-16",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_published_host_initializes_in_original_profile_without_claiming_provider_login",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Real Python/Node/published Prism initialization proves the profile layout is consumable without misreporting zero-provider transport as authenticated readiness.",
+      "expected_observation": "Published host identity/authMethods match, zero provider sessions are reported and actual job/profile cleanup succeeds",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "cdb3303a8f04428e88540290bb68780c5f984eb84febda888dfbb0c37d011757"
+    },
+    {
+      "scenario": "P06-PROFILE-01-17",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_lease_close_removes_temporary_worker_grants_from_retained_profile",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "Independent Windows descriptor reads prove access-grant removal instead of inferring privacy from profile deletion; retained bytes and re-lease detect accidental cleanup deletion.",
+      "expected_observation": "Actual root/home/payload DACLs omit the worker SID and public groups, while exact private state remains reopenable",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "64e4d38cfa8dc286af8cead0acfc6a43cb8724893b6c578b9126e1e2a21a75c2"
+    },
+    {
+      "scenario": "P06-PROFILE-01-18",
+      "test": "tests.test_provider_profiles.ProviderProfileTests.test_overbudget_profile_is_refused_without_reading_or_deleting_its_payload",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent profile acceptance review (no external reviewer)",
+      "reason": "A real file size crosses the boundary without allocating or reading credential-like payloads; no mocked quota or automatic destructive recovery satisfies acceptance.",
+      "expected_observation": "Both refuse with a safe error, preserve the exact file size and recover after its explicit removal",
+      "source_sha256": "de25198e94e6b9179ebdc5d3431e887b4ec37095872faae371f66b39f3d14a91",
+      "scenario_sha256": "54fdeadaffb71a5ea63c399a153d6c37197b9c425f41552ab355fc64f951a280"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-01",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_empty_catalog_is_actor_bound_and_lists_only_current_owners_metadata",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Checks exact fields, identity, actual database owner, selected row and absence of foreign labels/IDs; private financial/provider data has no catalog field.",
+      "expected_observation": "Empty state is complete and original actor/install bound; later only owned engagement and selected entity display metadata appears",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "2e58762f821d5369c6a149aa8379d628b3d5c7fe0294d7a0391d720f591721a6"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-02",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_create_add_and_rename_have_exact_next_revision_receipts_and_real_audit",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Uses real HTTP writes and ORM reads, checks receipt fields, original scope, unchanged fact revision and four persisted event revisions/actions without copied private names.",
+      "expected_observation": "Actual records change, exact next-revision receipts bind actor/install/state and safe immutable event order matches all four writes",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "4c1b6d0d5e696fe79c6b3c5f05473d196cbc2baa4c614b674e385605e6d571bb"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-03",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_duplicate_command_and_real_competing_tab_write_cannot_create_twice",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "No mocked409: one actual command and one actual shared service write create the conflicting states; counts and names prove no second write.",
+      "expected_observation": "HTTP409 prevents duplicate/stale changes; the other real writer and exact current revision remain",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "41006a78639ce6fa856a221416e42738e18339ed5847bbc5feb415f487c8e36a"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-04",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_existing_intake_creation_shares_catalog_revision_and_audit",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Exercises the app-owned shared service seam used by intake/onboarding rather than asserting only new endpoint behavior.",
+      "expected_observation": "Both shared writes increment catalog revision/audit; existing engagement API shape stays unchanged",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "949d998520732265ab6f8d7d3777905e012db8391591decc8c5a7d49e64422e6"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-05",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_missing_csrf_and_foreign_origin_do_not_write_catalog_or_events",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Real CSRF-enforcing client and unchanged complete snapshot detect record/counter/audit partial writes.",
+      "expected_observation": "HTTP403 csrf_failed and identical original catalog/record count",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "a133a4226a994276890e5045008f14ac1d5c4f807f3f6f655affdebd622f6cc5"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-06",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_restricted_disabled_and_signed_out_principals_cannot_read_or_mutate",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Reuses the cached snapshot across actual database authority changes and checks anonymous access separately.",
+      "expected_observation": "Restricted or revoked requests cannot read/write and no engagement appears",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "d84773ded17049e08bf1887bc5121892f3b454b93b3862b0fe1ea5bc18f4a9be"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-07",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_original_actor_identity_installation_and_foreign_targets_are_independently_bound",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Each identity dimension and each target-bearing command is exercised without relying on client-side discovery or administrative role to broaden private data scope.",
+      "expected_observation": "Origin substitutions conflict; foreign targets404 with original revision/names unchanged",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "35397b87ec8bb1dad8d8beb4a306691de93997e1b99b62e9e3fbd003da2a1da6"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-08",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_strict_commands_refuse_identity_path_credential_fields_and_invalid_names",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Closed server schemas and strict scalar types are exercised through actual HTTP, including booleans-as-integers and attempted arbitrary commands.",
+      "expected_observation": "Every invalid command400 and unsupported method405; no record/revision changes",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "73570abf051e2be5144dea67b085c0e3ddfbebe17ca23b8cce7bb30cf483ab50"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-09",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_duplicate_key_malformed_and_overbudget_requests_have_safe_errors",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Raw byte bodies exercise parsing and size checks independently of dictionary serialization.",
+      "expected_observation": "400/413 responses expose no submitted private text and create no record",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "c883b2a965e5e7e9551fe3ec57521af629bb3fcc6de6ba236f5412486ac907a3"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-10",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_selection_is_owned_canonical_and_bounded_to_one_engagement",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Actual multi-engagement state proves scope and selected-page behavior rather than only checking an empty bounded list.",
+      "expected_observation": "One selected entity set is returned; invalid selections refuse without leaking other IDs",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "c541dc886eae20c0586c7fbfb3e8d935a7da74c0512d6a20a047d65105765e6d"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-11",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_audit_failure_rolls_back_new_records_and_revision_without_private_diagnostics",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Only the audit append failure is injected; transaction rollback, current state and safe output are observed via real DB/HTTP.",
+      "expected_observation": "Safe503, no engagement/entity and an identical original catalog",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "6794f70629c7cc509f7759490d987d28b8bf4d0438cdf2d7da97b8029c55f755"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-12",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_quota_refusal_rolls_back_shared_revision_without_creating_a_partial_entity",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "An actual populated quota boundary tests whole transaction rollback, including a claimed shared revision.",
+      "expected_observation": "400, exactly100entities and identical catalog/audit revision",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "0186abf4b72fe0e7d75ed9a8b14be002907bab853edfda5c09f0ee12716f5a8f"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-13",
+      "test": "tests.test_client_catalog.ClientCatalogTests.test_existing_fact_values_and_revisions_are_unchanged_by_display_rename",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog acceptance review (no external reviewer)",
+      "reason": "Actual evidence-linked fact and conclusion rows prove display administration does not rewrite financial basis or stale legitimate work.",
+      "expected_observation": "The label changes while exact fact/history/conclusion data and fact revision remain unchanged",
+      "source_sha256": "7fde4404335f772739cd23cfea313520eb5e00f2920603e6367978e8c6603fc8",
+      "scenario_sha256": "f9a6fd4d30f5cfa4a9aeeb8b68d783bc515d88711e6b4fa43ecc5023ed1caa9f"
+    },
+    {
+      "scenario": "P06-CLIENT-CATALOG-01-14",
+      "test": "tests.test_client_catalog_concurrency.ClientCatalogConcurrencyTests.test_two_real_clients_commit_at_most_one_create_and_one_audit_revision",
+      "decision": "aligned",
+      "reviewer": "Maipa: independent catalog concurrency review (no external reviewer)",
+      "reason": "Distinct actual clients and database connections execute real HTTP writes concurrently. Record counts, revision, audit and safe losing response prove transaction serialization; SQLite lock contention is an allowed safe unavailable outcome, never duplicate success.",
+      "expected_observation": "Exactly one actual request201commits one engagement/entity/audit revision; the other409or safe503 makes no additional change.",
+      "source_sha256": "2ceb2cb5cdf0b9aa8fa27e9199bbb10eefda8e3dd8d0b118e1a79177023745eb",
+      "scenario_sha256": "a258782eb60c29afdd5e8d020c7069a15a619cbb202a7e5821a4515375f869b4"
     }
   ]
 }
