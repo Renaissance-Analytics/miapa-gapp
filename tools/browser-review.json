@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "6c0fa2eb278e653c4c9c4067e49f49df5ef658448f3b3bd58513cd4954c565a0",
-    "tools/check_browser.py": "581cf174af92273af3bdbc332a0437f90cda9db964b0991aba8aab1c12615374",
+    "tools/browser.mjs": "5d683a8ed5924182b2c9ad523368fed777655c1edc52e7489d44926a8dc2f37d",
+    "tools/check_browser.py": "463b0e4729fedb695bac098d88346f02dd539bc4643ed0c8cbf94aa72ec23340",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -17,6 +17,11 @@
       "id": "account-chat-resume-and-confirm",
       "kind": "positive",
       "expected": "Native mobile chat replies survive page reload, collect explicit client/currency/unknown basis and date, review with zero preconfirmation clients, then create actual intake facts once. Stale confirmation409; explicit Open saved client facts shows USD in the work panel."
+    },
+    {
+      "id": "client-catalog-create-rename-conflict",
+      "kind": "positive",
+      "expected": "The actual first-run administrator opens the fixed shared Client setup screen. Native input/pointer creates a real owned client and initial entity, renames both display labels and adds another entity with exact persisted audit revisions. An independent real authorized write causes stale409, clears forms/list and requires explicit reload/selection. Original financial facts, saved preferences/layout/setup and the exact persistent conversation pane node remain unchanged."
     },
     {
       "id": "admin-users-create-update-conflict",
@@ -32,6 +37,11 @@
       "id": "admin-users-restricted-login",
       "kind": "negative",
       "expected": "After actual sign-out, the UI-created user signs in with its real password and retains its saved viewer role. Admin API403, no admin navigation, empty own engagement list and absent original client prove access isolation. Existing first-run-closed check remains in its original order."
+    },
+    {
+      "id": "client-catalog-restricted-scope",
+      "kind": "negative",
+      "expected": "The actual UI-created viewer signs in with its real password. Client catalog403, original administrators new entity404, empty own engagement list, absent Client setup navigation and absent private labels prove current-role and data isolation. All earlier first-run/admin/ordinary/resumed-browser assertions and case order remain."
     },
     {
       "id": "anonymous-authority-and-build",
@@ -178,5 +188,6 @@
   "preferences_review": "All previous 24 cases retain their assertions and order. The native click helper now waits for the same visible enabled button before actual pointer events; it still rejects disabled/missing controls. Three independent real-account preference cases are added. The fresh-profile fixture now requires four cases including preferences and both cleanup/exception proofs. Native browser profile ownership, startup validation and cleanup algorithms are unchanged; no provider/finance success is mocked.",
   "service_reference_review": "All27prior cases retain order and assertions; one actual private-storage case is added. The fixture creates actual rows/files through the new trusted-host service before browser launch, proves exact bytes, and passes only app UUIDs to that owned browser. No provider session/readiness, successful response or public file API is fabricated. Native pointer/key, current database, exceptions, build identity and complete owned cleanup remain required.",
   "setup_checkpoint_review": "PR10 actual-main attempt1 failed at setup_chat without detailed hosted stderr. Three unchanged local runs and one controlled hosted rerun passed; original cause remains unknown. Fixed allowlisted interaction checkpoints improve future failure reports only. Existing native actions, assertions, deadlines and cleanup are unchanged; raw labels/answers/DOM/paths/errors are discarded. Known-checkpoint reporting was observed red; hostile/non-string/misplaced values remain discarded.",
-  "admin_access_review": "Reviewed native input/pointer/keyboard actions against independent P06 administrator acceptance and actual Django state. Every prior28case and its assertions/order remains. First-run browser now requires7cases including both new outcomes and independent exceptions/cleanup. No success/state/provider is fabricated; the separate authorized API write only establishes a stale revision. New admin_users failure phase is a fixed public-safe token; raw DOM/credentials/paths stay out of reports. Initial14HTTP acceptance failures were actual404s; frontend57passed/5failed on stubs/reserved view impersonation before the implementation. No browser red or external reviewer is claimed."
+  "admin_access_review": "Reviewed native input/pointer/keyboard actions against independent P06 administrator acceptance and actual Django state. Every prior28case and its assertions/order remains. First-run browser now requires7cases including both new outcomes and independent exceptions/cleanup. No success/state/provider is fabricated; the separate authorized API write only establishes a stale revision. New admin_users failure phase is a fixed public-safe token; raw DOM/credentials/paths stay out of reports. Initial14HTTP acceptance failures were actual404s; frontend57passed/5failed on stubs/reserved view impersonation before the implementation. No browser red or external reviewer is claimed.",
+  "failure_reporting_review": "After the preserved PR13 push logout_viewer failure, fixed auth checkpoints, a closed error classification, four numeric endpoint statuses and five UI booleans are allowlisted twice. No raw error/DOM/response/header/cookie/user/input/path is published. All 32 native cases, assertion bodies, interaction order and existing deadlines remain. Original failure cause remains unconfirmed; diagnostics do not claim a repair."
 }

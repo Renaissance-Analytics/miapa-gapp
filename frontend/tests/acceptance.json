@@ -648,6 +648,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-CLIENT-CATALOG-UI-01",
+      "risk": "Metadata administration may adopt another mounted actor or page, trust malformed/private responses, retry an uncertain command, forge a receipt or impersonate a privileged shared screen.",
+      "scenarios": [
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-01",
+          "kind": "positive",
+          "given": "An original mounted actor and selected engagement",
+          "when": "Read a real-shaped bounded catalog or empty catalog",
+          "then": "Only actor/selection-bound exact catalog state is accepted with same-origin no-store no-redirect and deadline options",
+          "tests": [
+            "client-catalog.test.mjs#catalog reads bind the mounted actor selected engagement and bounded private response"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-02",
+          "kind": "negative",
+          "given": "A server response with substituted actor/selection, duplicate IDs, unsafe fields, counts or oversized body",
+          "when": "Read or select a malformed catalog",
+          "then": "Every malformed or overbudget response is unavailable and malformed selection makes no network call",
+          "tests": [
+            "client-catalog.test.mjs#foreign malformed duplicate and oversized catalog snapshots never enter UI state"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-03",
+          "kind": "positive",
+          "given": "A validated original catalog snapshot",
+          "when": "Save each of the four closed metadata commands",
+          "then": "One CSRF-protected write sends exact action fields with original actor/state/install/revision and accepts its exact next-revision receipt",
+          "tests": [
+            "client-catalog.test.mjs#catalog writes send only the closed command and bind csrf original actor identity install and revision"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-04",
+          "kind": "negative",
+          "given": "A valid rename command and original snapshot",
+          "when": "Receive conflicts/denial/unavailability or mismatched receipt dimensions",
+          "then": "No incorrect result claims success and each attempt performs exactly one write without retry",
+          "tests": [
+            "client-catalog.test.mjs#stale denied unconfirmed and mismatched catalog receipts never claim success or retry a write"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-05",
+          "kind": "negative",
+          "given": "Current visible owned catalog targets",
+          "when": "Try unknown/unsafe targets, names, authority fields and unsupported commands",
+          "then": "Every invalid choice is refused before any fetch",
+          "tests": [
+            "client-catalog.test.mjs#unknown targets authority fields unsafe names and unsupported commands are refused before network use"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-06",
+          "kind": "positive",
+          "given": "Current workspace role discovery",
+          "when": "Check administrator/preparer and restricted/unknown/malformed responses",
+          "then": "Only valid preparer/administrator discovery enables the optional view",
+          "tests": [
+            "client-catalog.test.mjs#client administration discovery admits preparers and administrators with actual server authority still required"
+          ]
+        },
+        {
+          "id": "P06-CLIENT-CATALOG-UI-01-07",
+          "kind": "negative",
+          "given": "Separate mounted principals and the actual published screens bridge",
+          "when": "Try reserved view impersonation, then enable/navigate the fixed client view and attempt content mutation",
+          "then": "Only the fixed optional view can be shared by its own principal; arbitrary schema, reserved creation, mutation and deletion refuse while saved work preference stays unchanged",
+          "tests": [
+            "client-catalog.test.mjs#client setup is a reserved optional shared screen which preserves saved view choices and principal scope"
+          ]
+        }
+      ]
     }
   ]
 }

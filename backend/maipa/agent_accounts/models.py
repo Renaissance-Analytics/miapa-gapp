@@ -37,6 +37,23 @@ class TransportCheck(models.Model):
         ]
 
 
+class ProviderProfile(models.Model):
+    """Original private execution binding; never a login/readiness declaration."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    account = models.OneToOneField(AgentAccount, on_delete=models.PROTECT, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    storage_id = models.UUIDField(editable=False)
+    provider = models.CharField(max_length=16, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(provider__in=['codex', 'claude']),
+                                   name='agent_profile_known_provider'),
+        ]
+
+
 class SessionReference(models.Model):
     """Trusted host's durable private protocol mapping, never a readiness flag."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

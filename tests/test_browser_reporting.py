@@ -8,6 +8,16 @@ class BrowserReportingTests(unittest.TestCase):
         self.assertEqual(browser_failure_evidence({'reason':'setup_chat','cleanup':True,
             'checkpoint':'setup_confirm','answer':'synthetic-private-answer','stderr':'private-path'}),
             {'checks':0,'reason':'setup_chat','cleanup':True,'checkpoint':'setup_confirm'})
+        self.assertEqual(browser_failure_evidence({'reason':'logout_viewer','cleanup':True,
+            'checkpoint':'logout_form','failure_kind':'timeout',
+            'auth_responses':{'logout':200,'login':401},
+            'auth_ui':{'login_form':False,'sign_out':True,'sign_out_pending':False,
+                'sign_out_failed':False,'release_notes':False},
+            'answer':'synthetic-private-answer','stderr':'private-path'}),
+            {'checks':0,'reason':'logout_viewer','cleanup':True,'checkpoint':'logout_form',
+             'failure_kind':'timeout','auth_responses':{'logout':200,'login':401},
+             'auth_ui':{'login_form':False,'sign_out':True,'sign_out_pending':False,
+                'sign_out_failed':False,'release_notes':False}})
 
     def test_unknown_misplaced_or_nonstring_checkpoints_are_discarded(self):
         for reason, checkpoint in [('setup_chat','synthetic-private-answer'), ('setup_chat',{}),
@@ -15,6 +25,15 @@ class BrowserReportingTests(unittest.TestCase):
             result=browser_failure_evidence({'reason':reason,'cleanup':True,'checkpoint':checkpoint})
             self.assertNotIn('checkpoint', result)
             self.assertNotIn('synthetic-private-answer', str(result))
+        self.assertEqual(browser_failure_evidence({'reason':'logout_viewer','cleanup':True,
+            'checkpoint':'synthetic-private-answer','failure_kind':'private-path',
+            'auth_responses':{'logout':True,'login':700,'workspace':'secret','session':{},'token':200},
+            'auth_ui':{'login_form':1,'sign_out':'secret','sign_out_pending':{},'token':True}}),
+            {'checks':0,'reason':'logout_viewer','cleanup':True})
+        misplaced = browser_failure_evidence({'reason':'anonymous','cleanup':True,
+            'checkpoint':'logout_form','failure_kind':'timeout',
+            'auth_responses':{'logout':200},'auth_ui':{'login_form':True}})
+        self.assertEqual(misplaced, {'checks':0,'reason':'anonymous','cleanup':True})
 
     def test_browser_startup_paths_are_resolved_without_inheriting_credentials(self):
         from tools.check_browser import browser_environment

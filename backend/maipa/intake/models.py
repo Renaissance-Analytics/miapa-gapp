@@ -3,8 +3,47 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from .schema import KEYS
+
+CATALOG_ACTIONS = ('create_engagement', 'create_entity', 'rename_engagement', 'rename_entity')
+
+
+class ClientCatalogState(models.Model):
+    identity = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    revision = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000),
+                                              name='intake_catalog_revision')]
+
+
+class ClientCatalogEvent(models.Model):
+    catalog = models.ForeignKey(ClientCatalogState, on_delete=models.PROTECT, editable=False)
+    revision = models.PositiveIntegerField(editable=False)
+    action = models.CharField(max_length=24, editable=False)
+    target_id = models.UUIDField(editable=False)
+    engagement_id = models.UUIDField(editable=False)
+    at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('catalog', 'revision'), name='intake_catalog_event_revision'),
+            models.CheckConstraint(condition=models.Q(action__in=CATALOG_ACTIONS), name='intake_catalog_event_action'),
+            models.CheckConstraint(condition=models.Q(revision__gt=0, revision__lt=2_000_000_000),
+                                   name='intake_catalog_event_bounds'),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValueError('Client catalog events are append-only')
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValueError('Client catalog events are append-only')
 
 
 class Engagement(models.Model):

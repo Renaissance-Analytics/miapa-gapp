@@ -1,5 +1,13 @@
 [
   {
+    "id": "development-18",
+    "label": "Development update 18",
+    "cards": [
+      { "title": "Manage your clients and entities", "description": "Administrators and preparers can create their own client records, add entities and change display names in Client setup beside the conversation. Changes keep a history, and conflicting edits require a reload before another save." },
+      { "title": "Agent connection is still being built", "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress." }
+    ]
+  },
+  {
     "id": "development-17",
     "label": "Development update 17",
     "cards": [
