@@ -75,7 +75,7 @@ class AgentAccountTests(TestCase):
             HTTP_X_USER_ID=str(self.other.pk))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
-            "runtime": {"package": "@particle-academy/prism-acp", "version": "0.24.1", "provider_sessions_enabled": False},
+            "runtime": {"package": "@particle-academy/prism-acp", "version": "0.28.0", "provider_sessions_enabled": False},
             "accounts": [{"id": str(self.account.pk), "provider": "codex", "label": "Personal Codex", "status": "setup_required"}],
         })
         self.assertEqual(response["Cache-Control"], "no-store")

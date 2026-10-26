@@ -86,3 +86,19 @@ class ArtifactReference(models.Model):
         constraints = [
             models.CheckConstraint(condition=models.Q(size__lte=1_048_576), name='agent_artifact_size_budget'),
         ]
+
+
+class UiComposition(models.Model):
+    """One contextual composition bound to an original private ACP session."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session = models.ForeignKey(SessionReference, on_delete=models.PROTECT, editable=False)
+    role = models.CharField(max_length=16, editable=False)
+    access_revision = models.PositiveIntegerField(editable=False)
+    revision = models.PositiveIntegerField(default=0)
+    composition = models.JSONField(null=True, default=None)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(role__in=('administrator', 'preparer')), name='agent_ui_known_role'),
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='agent_ui_revision_budget'),
+        ]

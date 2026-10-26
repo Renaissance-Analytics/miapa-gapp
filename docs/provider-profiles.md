@@ -42,12 +42,14 @@ capsules after a crash or failed stop refuse a second consumer; explicit offline
 recovery remains necessary. Only file metadata and the small app-owned marker
 are examined; provider credential bytes are not read.
 
-Actual provider/login/session integration remains unfinished. The exact locked
-Prism ACP0.24.1 `launchProvider` call currently times out inside the verified
-Windows AppContainer, after supervisor preparation and before returning. A
-package-only reproduction is queued with Prism's owner. IPC is an unconfirmed
-hypothesis. Keep the OS boundary and published package intact; no host-user
-fallback, copied human login, substituted SDK or package patch is supported.
+Actual provider/login/session integration remains unfinished. The locked
+Prism ACP0.28.0 supports AppContainer-compatible LOCAL process pipes. Real
+native MCP relay tests launch Node children, exchange tool traffic, refuse
+foreign capabilities and enforce frame budgets. Child/outer jobs and profile/
+capsule cleanup verify empty. These synthetic tool cases resolve the tested
+pipe boundary; they do not establish a vendor login or healthy model turn.
+Keep the OS boundary and published package intact; no host-user fallback,
+copied human login, substituted SDK or package patch is supported.
 The later runtime must use the same original assigned home for provider login
 and actual acknowledged sessions and verify bounded startup/I/O/cancel/stop.
 

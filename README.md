@@ -144,7 +144,7 @@ this same entrypoint on Windows2025. The approved bootstrap has hosted green
 evidence; changed P01 source still needs its own local and hosted candidate checks.
 
 The backend includes an application-owned Python ACP client and a Node host
-using exact published Prism ACP0.24.1. Authenticated transport checks now run
+using exact published Prism ACP0.28.0. Authenticated transport checks now run
 inside a verified Windows AppContainer with a job assigned before execution.
 Each worker receives an exact-byte, read-only runtime and its own writable
 workspace/home. Real worker/descendant tests deny other-user and server files;

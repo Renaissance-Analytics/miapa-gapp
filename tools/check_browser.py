@@ -11,7 +11,7 @@ import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "admin_users", "client_catalog",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
@@ -201,10 +201,13 @@ def main():
             reference = record_session(owner, str(owned.pk), 'synthetic-browser-provider-session')
             artifact = store_artifact(owner, str(owned.pk), reference, b'synthetic browser resource payload\x00')
             assert read_artifact(owner, str(owned.pk), reference, artifact.artifact_id) == b'synthetic browser resource payload\x00'
+            # Trusted synthetic session setup, not a provider readiness claim.
+            from backend.maipa.agent_accounts.ui import open_ui_lease
+            ui_lease = open_ui_lease(owner, str(owned.pk), reference)
             enable_intake_failure = True
             evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
                 'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk),
-                'service_reference': reference, 'artifact_reference': artifact.artifact_id})
+                'service_reference': reference, 'artifact_reference': artifact.artifact_id, 'ui_lease': ui_lease})
             if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
                 raise ValueError('Ordinary browser exceptions and cleanup required')
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,

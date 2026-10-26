@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "5d683a8ed5924182b2c9ad523368fed777655c1edc52e7489d44926a8dc2f37d",
-    "tools/check_browser.py": "463b0e4729fedb695bac098d88346f02dd539bc4643ed0c8cbf94aa72ec23340",
+    "tools/browser.mjs": "16bdebc0cd37a80eea2588cad803cef5f40194b77bf47567128a96e7670da60b",
+    "tools/check_browser.py": "e741c36fe8bba2eb04c8e1c58cc14ff1d3338d202e6b9d03ad85f46af4ee35b1",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -87,6 +87,11 @@
       "id": "owned-service-storage-private",
       "kind": "negative",
       "expected": "Trusted isolated fixture records a real owned session reference and immutable private artifact, verifies exact bytes through authorized services, then passes only opaque app UUIDs to the actual signed-in browser. Browser requests for session/file URLs each return404; no raw provider handle or private filesystem path enters browser input."
+    },
+    {
+      "id": "scoped-ui-composition-api",
+      "kind": "positive",
+      "expected": "Real native browser requests use the authenticated same-origin Django UI endpoint and a trusted synthetic owned-session lease. Empty state progresses through exact present/dismiss revisions. Missing CSRF403, stale revision409, unsafe schema404 and foreign account404 preserve accepted state. This is shared API acceptance; it does not claim visible agent composition, vendor login or a real model turn. Existing native UI actions/assertions/order and cleanup remain."
     },
     {
       "id": "csrf-and-real-zero-provider-transport",

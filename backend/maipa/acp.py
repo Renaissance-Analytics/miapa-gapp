@@ -42,7 +42,7 @@ def _invalid_number(value):
 
 
 class AcpClient:
-    def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576, launcher=None):
+    def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576, launcher=None, ui_handler=None):
         if (not isinstance(scope, Scope) or not isinstance(command, (list, tuple)) or
                 not command or not all(isinstance(arg, str) and arg and "\0" not in arg for arg in command) or
                 not Path(command[0]).is_absolute() or not Path(command[0]).is_file()):
@@ -55,6 +55,12 @@ class AcpClient:
                 type(budget) is not int or not 1024 <= budget <= 1048576):
             raise ValueError("Invalid ACP budget")
         self.workspace = workspace.resolve()
+        if ui_handler is not None and not callable(ui_handler):
+            raise ValueError("Invalid UI capability")
+        # Trusted consumer closure bound to this worker's original principal.
+        # A protocol message cannot install a handler or select another actor.
+        self._ui_handler = ui_handler
+        self._callbacks = {}
         self._scope = scope
         self._launcher = launcher  # Trusted server capability, never HTTP configuration.
         self._command = tuple(command)
@@ -132,6 +138,9 @@ class AcpClient:
 
     def _fail(self):
         self._failed = True
+        for task in self._callbacks.values():
+            if task is not asyncio.current_task():
+                task.cancel()
         self._updates.clear()
         self._update_bytes = 0
         for future in self._pending.values():
@@ -172,9 +181,22 @@ class AcpClient:
             if "id" in message:
                 if type(message["id"]) not in (int, str):
                     raise ValueError("Invalid request identity")
+                if isinstance(message['id'], str) and len(message['id']) > 200:
+                    raise ValueError("Invalid request identity")
+                if message['id'] in self._callbacks:
+                    raise ValueError("Duplicate callback identity")
                 reply = {"jsonrpc": "2.0", "id": message["id"]}
                 if method == "session/request_permission":
                     reply["result"] = {"outcome": {"outcome": "cancelled"}}
+                elif method == 'maipa/ui' and self._ui_handler is not None:
+                    if len(self._callbacks) >= 8 or wire_size > min(self._budget, 65_536):
+                        reply['error'] = {'code': -32000, 'message': 'UI tool unavailable'}
+                    else:
+                        identity = message['id']
+                        task = asyncio.create_task(self._ui_reply(identity, message.get('params')))
+                        self._callbacks[identity] = task
+                        task.add_done_callback(lambda done, key=identity: self._callback_finished(key, done))
+                        return
                 else:
                     reply["error"] = {"code": -32601, "message": "Method not supported"}
                 await self._write(reply)
@@ -198,6 +220,33 @@ class AcpClient:
             future.set_exception(AcpError("ACP request refused"))
         else:
             future.set_result(message["result"])
+
+    def _callback_finished(self, identity, task):
+        self._callbacks.pop(identity, None)
+        if not task.cancelled():
+            task.exception()
+
+    async def _ui_reply(self, identity, params):
+        reply = {'jsonrpc': '2.0', 'id': identity}
+        try:
+            if (not isinstance(params, dict) or set(params) != {'method', 'params'} or
+                    params['method'] not in ('tools/list', 'tools/call') or not isinstance(params['params'], dict)):
+                raise ValueError('Invalid UI request')
+            async with asyncio.timeout(min(self._timeout, 30)):
+                result = await self._ui_handler(params)
+            wire = json.dumps(result, ensure_ascii=True, allow_nan=False).encode('utf-8')
+            if len(wire) > min(self._budget // 2, 65_536):
+                raise ValueError('UI result budget')
+            # Detach callback-owned mutable data before crossing the protocol.
+            reply['result'] = json.loads(wire)
+        except Exception:
+            # Handler/driver/model exceptions can include credentials and paths.
+            reply['error'] = {'code': -32000, 'message': 'UI tool unavailable'}
+        try:
+            await asyncio.wait_for(self._write(reply), min(self._timeout, 30))
+        except (OSError, AcpError, TimeoutError):
+            self._fail()
+            await self._terminate()
 
     async def _request(self, scope, method, params, *, timeout=None):
         """Internal protocol primitive; never expose arbitrary RPC to HTTP/UI."""
@@ -331,7 +380,8 @@ class AcpClient:
                 pass
         self._fail()
         await self._terminate()
-        tasks = [task for task in (self._reader, self._stderr) if task is not None and task is not asyncio.current_task()]
+        tasks = [task for task in (self._reader, self._stderr, *self._callbacks.values())
+                 if task is not None and task is not asyncio.current_task()]
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)

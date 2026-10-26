@@ -8,7 +8,7 @@ metadata is not a claim that the person has logged in or has provider access.
 `GET /api/agent/accounts/` returns only the signed-in active user's enabled
 accounts, their labels/provider and `setup_required` status, plus the exact
 installed runtime version and `provider_sessions_enabled: false`. The current
-runtime is the locked, published Prism ACP0.24.1. Missing/broken runtime metadata
+runtime is the locked, published Prism ACP0.28.0. Missing/broken runtime metadata
 returns a generic503. Headers/query parameters cannot select another user.
 
 `POST /api/agent/accounts/<uuid>/transport-checks/` accepts only an empty JSON
