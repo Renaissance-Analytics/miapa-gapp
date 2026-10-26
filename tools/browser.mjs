@@ -16,7 +16,7 @@ process.on("uncaughtException", error => {
   console.error(error?.stack || 'Native browser fixture failed');
   console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence,
     ...((failedPhase || phase) === 'setup_chat' ? { checkpoint } : {}),
-    ...((failedPhase || phase) === 'logout_viewer' ? { checkpoint, ...authEvidence } : {}) }));
+    ...(['login', 'logout_viewer'].includes(failedPhase || phase) ? { checkpoint, ...authEvidence } : {}) }));
   process.exitCode = 1;
 });
 
@@ -122,7 +122,7 @@ try {
     if (message.method === "Runtime.exceptionThrown") exceptions.push(true);
     if (message.method === "Network.responseReceived" && message.params.response.url === `${fixture.origin}/api/intake/engagements/`)
       intakeListResponses.push(message.params.response.status);
-    if (message.method === 'Network.responseReceived' && phase === 'logout_viewer') {
+    if (message.method === 'Network.responseReceived' && ['login', 'logout_viewer'].includes(phase)) {
       for (const [path, key] of [['/api/session/', 'session'], ['/api/session/login/', 'login'],
         ['/api/session/logout/', 'logout'], ['/api/workspace/', 'workspace']]) {
         if (message.params.response.url === fixture.origin + path) authResponses[key] = message.params.response.status;
@@ -384,29 +384,44 @@ try {
   await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), "mobile conversation");
   record("mobile-panels");
   phase = "login";
+  checkpoint = 'login_viewport';
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
   async function login(username) {
+    if (phase === 'login') checkpoint = 'login_username';
     if (phase === 'logout_viewer') checkpoint = 'viewer_username';
     await fill("maipa-username", username);
+    if (phase === 'login') checkpoint = 'login_password';
     if (phase === 'logout_viewer') checkpoint = 'viewer_password';
     await fill("maipa-password", fixture.password);
+    if (phase === 'login') checkpoint = 'login_submit';
     if (phase === 'logout_viewer') checkpoint = 'viewer_submit';
     await click("Sign in");
+    if (phase === 'login') checkpoint = 'login_workspace';
     if (phase === 'logout_viewer') checkpoint = 'viewer_workspace';
     await until(() => evaluate("document.body.innerText.includes('Signed in')"), "real authenticated workspace");
+    if (phase === 'login') checkpoint = 'login_notes';
     if (phase === 'logout_viewer') checkpoint = 'viewer_notes';
     if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
   }
+  checkpoint = 'login_wrong_username';
   await fill("maipa-username", fixture.username);
+  checkpoint = 'login_wrong_password';
   await fill("maipa-password", "synthetic-incorrect-password");
+  checkpoint = 'login_wrong_submit';
   await click("Sign in");
+  checkpoint = 'login_wrong_response';
   await until(() => evaluate("document.querySelector('.auth-message')?.textContent.includes('could not sign you in')"), "generic failed login");
+  checkpoint = 'login_password_cleared';
   assert.equal(await evaluate("document.getElementById('maipa-password').value"), "");
+  checkpoint = 'login_reload';
   await command("Page.reload");
+  checkpoint = 'login_form';
   await until(() => evaluate("!!document.getElementById('maipa-username')"), "login form");
   await login(fixture.username);
+  checkpoint = 'login_scope';
   const workspace = await evaluate("(async()=>{const r=await fetch('/api/workspace/');return {status:r.status,body:await r.json()};})()");
+  checkpoint = 'login_assertions';
   assert.equal(workspace.status, 200); assert.equal(workspace.body.role, "preparer");
   assert.ok(workspace.body.permissions.includes("agent.transport.check"));
   record("real-login-and-server-role");
@@ -726,7 +741,7 @@ try {
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
-  if (phase === 'logout_viewer') {
+  if (['login', 'logout_viewer'].includes(phase)) {
     // Only fixed codes, booleans and bounded status numbers cross the CI report.
     // No DOM text, user values, cookies, bodies, paths, URLs or raw errors.
     authEvidence = { auth_responses: { ...authResponses }, failure_kind:

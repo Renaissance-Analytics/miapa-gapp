@@ -20,6 +20,10 @@ BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_worksp
 BROWSER_AUTH_CHECKPOINTS = {'logout_click', 'logout_form', 'logout_session', 'logout_notes',
     'viewer_username', 'viewer_password', 'viewer_submit', 'viewer_workspace', 'viewer_notes',
     'viewer_scope', 'viewer_assertions'}
+BROWSER_LOGIN_CHECKPOINTS = {'login_viewport', 'login_username', 'login_password', 'login_submit',
+    'login_workspace', 'login_notes', 'login_wrong_username', 'login_wrong_password',
+    'login_wrong_submit', 'login_wrong_response', 'login_password_cleared', 'login_reload',
+    'login_form', 'login_scope', 'login_assertions'}
 
 
 class BrowserFailure(Exception):
@@ -34,9 +38,10 @@ def browser_failure_evidence(value):
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
         if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
             result['checkpoint'] = value['checkpoint']
-    if valid and value['reason'] == 'logout_viewer':
+    if valid and value['reason'] in ('login', 'logout_viewer'):
         checkpoint = value.get('checkpoint')
-        if isinstance(checkpoint, str) and checkpoint in BROWSER_AUTH_CHECKPOINTS:
+        checkpoints = BROWSER_LOGIN_CHECKPOINTS if value['reason'] == 'login' else BROWSER_AUTH_CHECKPOINTS
+        if isinstance(checkpoint, str) and checkpoint in checkpoints:
             result['checkpoint'] = checkpoint
         if value.get('failure_kind') in ('timeout', 'assertion', 'evaluation', 'protocol', 'other'):
             result['failure_kind'] = value['failure_kind']
