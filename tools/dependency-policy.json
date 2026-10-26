@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "review": "Explicit Django exception and reviewed published Fancy/Prism closure, including P04 bounded screen/MCP composition and declared Zustand peer; versions/integrities verified without install scripts. Changes require renewed review.",
+  "review": "Explicit Django exception and reviewed published Fancy/Prism closure, including P04 bounded screen/MCP composition and declared Zustand peer; versions/integrities verified without install scripts. Changes require renewed review. A01 adopts integrity-verified Prism ACP0.28.0 with unchanged zero runtime/peer dependencies and opt-in Windows LOCAL pipes; no lifecycle scripts.",
   "inputs": {
     "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
     "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
     "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
-    "backend/agent/package.json": "983cc7ad80f8b1781c91bbb01a72094ec61c2e2934971dfa116cd9fa3ed40ec5",
-    "backend/agent/package-lock.json": "ee997a00c85bd5ca9218487598aca03abd301003a0c770ad943ed2649545701c"
+    "backend/agent/package.json": "6a9fcaddc3cf06c2487157c2904162ca8bb3e14d658eb78166a1db72bfea72c4",
+    "backend/agent/package-lock.json": "c87c8c45d3ebf3973f296f71e4ea0395fbf9ebd2bc867df5a7397f24453ebca4"
   },
   "python": {
     "django": "5.2.18",

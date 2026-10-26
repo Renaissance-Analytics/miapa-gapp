@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import api, builds, development
 from .agent_accounts import views as agent_accounts
+from .agent_accounts.ui_views import composition as agent_ui
 from .workspace import views as workspace
 from .workspace import setup_views
 from .workspace.layout import personal_layout
@@ -37,6 +38,7 @@ urlpatterns = [
     path("api/intake/entities/<uuid:entity_id>/facts/<slug:key>/history/", intake.history, name="intake-history"),
     path("api/session/logout/", api.session_logout, name="session-logout"),
     path("api/agent/accounts/", agent_accounts.accounts, name="agent-accounts"),
+    path('api/agent/accounts/<uuid:account_id>/ui/<uuid:identity>/', agent_ui, name='agent-ui-composition'),
     path("api/agent/accounts/<uuid:account_id>/transport-checks/", agent_accounts.transport_checks, name="agent-transport-checks"),
 ]
 

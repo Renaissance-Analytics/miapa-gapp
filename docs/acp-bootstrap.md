@@ -3,7 +3,7 @@
 `backend/maipa/acp.py` is Maipa's Python-standard-library ACP client. It launches
 an absolute trusted executable without a shell, with a fixed workspace and an
 immutable application-user/provider-account scope. The Node entry
-`backend/agent/host.mjs` consumes the released Prism ACP0.24.1 `serve`,
+`backend/agent/host.mjs` consumes the released Prism ACP0.28.0 `serve`,
 `ClaudeDriver` and `CodexDriver` APIs. No PHP, separate model SDK, patched
 distribution or compatibility normalizer is involved.
 
@@ -22,6 +22,11 @@ Trusted backend code supplies `MAIPA_ACP_PROFILE` with `user_id`, `account_id`,
 account or workspace differs from its bound scope. Browser/model input must not
 construct the scope, launch command, profile, cwd, environment or MCP config.
 Provider home selection never changes the backend's global environment.
+
+The trusted bootstrap can opt into the scoped Codex UI adapter via `ui_tools`;
+see [agent UI runtime](agent-ui-runtime.md). Its fixed application MCP proxy is
+separate from rejected client-supplied MCP entries. It uses authenticated LOCAL
+pipes and the published process transport, without network/loopback privileges.
 
 The host forwards only a small OS environment set plus the selected home, uses
 subscription credentials through the unmodified provider CLI, and rejects a

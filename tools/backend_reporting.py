@@ -1,4 +1,5 @@
-"""Bounded public test diagnostics: no exception text, tracebacks or paths."""
+"""Bounded public test diagnostics: kinds and source line numbers, never raw text or paths."""
+import sys
 import unittest
 
 KINDS = frozenset({"AssertionError", "OSError", "PermissionError", "FileNotFoundError", "TimeoutError",
@@ -8,20 +9,39 @@ OPERATIONS = frozenset({"native", "create_profile", "grant_acl", "attributes", "
     "environment", "create_process", "assign_job", "verify_token", "resume"})
 
 
-def _frame(kind, operation=None, native_code=None):
+def _frame(kind, operation=None, native_code=None, test_line=None):
     frame = {"kind": kind if kind in KINDS else "unavailable"}
     if operation in OPERATIONS:
         frame["operation"] = operation
         if type(native_code) is int and 0 <= native_code < 2 ** 32:
             frame["native_code"] = native_code
+    if type(test_line) is int and 1 <= test_line <= 1_000_000:
+        frame["test_line"] = test_line
     return frame
+
+
+def _test_line(identifier, error, known_tests):
+    if identifier not in known_tests:
+        return None
+    # Test identifiers were independently discovered from reviewed source.
+    # Match the loaded test module exactly; never publish filenames, locals,
+    # exception messages or arbitrary traceback frame names.
+    module = sys.modules.get(identifier.rsplit('.', 2)[0])
+    filename = getattr(module, '__file__', None)
+    line, trace = None, error.__traceback__
+    while trace is not None:
+        if filename and trace.tb_frame.f_code.co_filename == filename:
+            line = trace.tb_lineno
+        trace = trace.tb_next
+    return line
 
 
 def failure_record(identifier, error, known_tests):
     chain, seen = [], set()
     while isinstance(error, BaseException) and id(error) not in seen and len(chain) < 8:
         seen.add(id(error))
-        chain.append(_frame(type(error).__name__, getattr(error, "operation", None), getattr(error, "native_code", None)))
+        chain.append(_frame(type(error).__name__, getattr(error, "operation", None), getattr(error, "native_code", None),
+                            _test_line(identifier, error, known_tests)))
         error = error.__cause__ or error.__context__
     return {"test": identifier if identifier in known_tests else "unavailable", "chain": chain}
 
@@ -60,8 +80,10 @@ def failure_evidence(value, known_tests):
         if not isinstance(row, dict):
             continue
         frames = row.get("chain")
-        chain = [_frame(frame.get("kind"), frame.get("operation"), frame.get("native_code"))
-            for frame in frames[:8] if isinstance(frame, dict)] if isinstance(frames, list) else []
         identifier = row.get("test")
-        result["failures"].append({"test": identifier if isinstance(identifier, str) and identifier in known_tests else "unavailable", "chain": chain})
+        known = isinstance(identifier, str) and identifier in known_tests
+        chain = [_frame(frame.get("kind"), frame.get("operation"), frame.get("native_code"),
+                        frame.get("test_line") if known else None)
+            for frame in frames[:8] if isinstance(frame, dict)] if isinstance(frames, list) else []
+        result["failures"].append({"test": identifier if known else "unavailable", "chain": chain})
     return result

@@ -7,7 +7,7 @@ import {
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.24.1") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.28.0") throw new Error("Unexpected ACP runtime");
 
 export function validateProfile(value) {
   if (!value || !["claude", "codex"].includes(value.provider) ||
@@ -15,6 +15,8 @@ export function validateProfile(value) {
     throw new Error("Invalid worker profile");
   }
   const result = { provider: value.provider, user_id: value.user_id, account_id: value.account_id };
+  if (value.ui_tools !== undefined && typeof value.ui_tools !== 'boolean') throw new Error('Invalid UI capability');
+  result.ui_tools = value.ui_tools === true;
   for (const key of ["workspace", "home", "supervisor_directory"]) {
     const path = value[key];
     if (typeof path !== "string" || !isAbsolute(path) || lstatSync(path).isSymbolicLink() || !lstatSync(path).isDirectory()) {
@@ -30,8 +32,11 @@ export function validateProfile(value) {
 
 // The optional constructors are an in-process test seam. CLI/environment input
 // cannot replace the published drivers, executable, argv, policy or MCP list.
-export function serveProfile(value, { input, output, constructors = {} }) {
+export function serveProfile(value, { input, output, constructors = {}, uiMcp }) {
   const profile = validateProfile(value);
+  // Only the trusted bootstrap supplies this application-owned stdio adapter.
+  // Published Claude LOCAL mode currently refuses generated MCP configuration.
+  if (profile.ui_tools !== Boolean(uiMcp) || (uiMcp && profile.provider !== 'codex')) throw new Error('UI transport unavailable');
   const drivers = [];
   let closing = false, shutdownPromise;
   const parentEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
@@ -43,14 +48,18 @@ export function serveProfile(value, { input, output, constructors = {} }) {
     agentInfo: { name: "maipa-prism-acp", title: "Maipa ACP host", version: packageVersion },
     driverCapabilities: profile.provider === "codex" ? CODEX_DRIVER_CAPABILITIES : CLAUDE_DRIVER_CAPABILITIES,
     driverFactory(options, events) {
-      if (closing || options.cwd !== profile.workspace || options.resumeSessionId || options.mcpServers?.length) {
+      if (closing || options.cwd !== profile.workspace || options.resumeSessionId || options.mcpServers?.length
+          || (uiMcp && drivers.length > 0)) {
         throw new Error("Worker session refused");
       }
       const configured = { ...options, cwd: profile.workspace, parentEnv,
+        mcpServers: uiMcp ? [uiMcp] : [],
+        processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
         credentials: { mode: "subscription" } };
       const driver = profile.provider === "codex"
         ? (constructors.codex ?? ((config, callbacks) => new CodexDriver(config, callbacks)))({
-            ...configured, approvalPolicy: "untrusted", sandbox: "read-only" }, events)
+            ...configured, approvalPolicy: "untrusted", sandbox: "read-only",
+            mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, events)
         : (constructors.claude ?? ((config, callbacks) => new ClaudeDriver(config, callbacks)))({
             ...configured, permissionMode: "plan",
             disallowedTools: ["Bash", "Write", "Edit", "MultiEdit", "NotebookEdit"] }, events);
@@ -84,10 +93,20 @@ async function main() {
   // This prepares/verifies the published Windows supervisor before a provider
   // may start. It is lifetime containment, not an OS data-access boundary.
   await prepareProcessTree({ directory: profile.supervisor_directory });
-  const host = serveProfile(profile, { input: process.stdin, output: process.stdout });
-  await host.closed;
-  const verdict = await host.shutdown();
-  if (!verdict.verified) process.exitCode = 1;
+  let host, relay;
+  try {
+    if (profile.ui_tools) {
+      if (profile.provider !== 'codex') throw new Error('UI transport unavailable');
+      const { createUiRelay } = await import('./ui-mcp.mjs');
+      relay = await createUiRelay(request => host.peer.request('maipa/ui', request));
+    }
+    host = serveProfile(profile, { input: process.stdin, output: process.stdout, uiMcp: relay?.mcp });
+    await host.closed;
+    const verdict = await host.shutdown();
+    if (!verdict.verified) process.exitCode = 1;
+  } finally {
+    await relay?.close();
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

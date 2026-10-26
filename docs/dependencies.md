@@ -37,7 +37,7 @@ satisfy both packages. All164previous lock entries keep their versions and
 integrities; only these two packages were added, with install scripts disabled.
 
 The app's ACP transport now uses exact published npm
-`@particle-academy/prism-acp`0.24.1 in its own `backend/agent/package-lock.json`,
+`@particle-academy/prism-acp`0.28.0 in its own `backend/agent/package-lock.json`,
 consumed by Maipa's Python/Node bootstrap. That separate lock contains just one
 runtime distribution, no runtime dependencies/peers, and no install scripts.
 Its132027-byte tarball matches the independently verified registry SHA512 and

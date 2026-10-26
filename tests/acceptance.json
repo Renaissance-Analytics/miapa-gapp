@@ -820,6 +820,17 @@
             "tests.test_backend_reporting.BackendReportingTests.test_real_test_result_keeps_failure_and_collects_only_safe_evidence",
             "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer"
           ]
+        },
+        {
+          "id": "backend-safe-source-location",
+          "given": "A reviewed required test fails on a hosted worker, or a failure report contains hostile location fields",
+          "when": "The exception chain is captured and sanitized for public candidate evidence",
+          "then": "Only bounded numeric lines from the known test module survive; paths, messages, locals and unknown-test locations are absent",
+          "tests": [
+            "tests.test_failure_locations.FailureLocationTests.test_failure_location_is_a_source_line_without_path_or_exception_text",
+            "tests.test_failure_locations.FailureLocationTests.test_untrusted_source_locations_are_bounded_and_unknown_tests_have_no_line"
+          ],
+          "kind": "positive"
         }
       ]
     },
@@ -2787,6 +2798,139 @@
           "then": "Exactly one actual request201commits one engagement/entity/audit revision; the other409or safe503 makes no additional change.",
           "tests": [
             "tests.test_client_catalog_concurrency.ClientCatalogConcurrencyTests.test_two_real_clients_commit_at_most_one_create_and_one_audit_revision"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-UI-TRANSPORT",
+      "risk": "Agent callbacks can block streaming, escape closed RPC routing, leak diagnostics or accumulate unbounded privileged work.",
+      "scenarios": [
+        {
+          "id": "A01-UI-TRANSPORT.callback",
+          "kind": "positive",
+          "given": "A trusted scoped UI callback and a synthetic ACP peer",
+          "when": "Request the component catalog",
+          "then": "Only maipa/ui reaches the callback and its exact result returns over the same ACP connection",
+          "tests": [
+            "tests.test_acp_ui.AcpUiTests.test_callback_returns_only_its_result_on_the_same_scoped_connection"
+          ]
+        },
+        {
+          "id": "A01-UI-TRANSPORT.stream",
+          "kind": "positive",
+          "given": "A UI callback blocked on a controlled event",
+          "when": "Read provider notifications before releasing it",
+          "then": "Streaming arrives while the prompt remains pending and the callback later completes",
+          "tests": [
+            "tests.test_acp_ui.AcpUiTests.test_slow_callback_does_not_block_streaming_notifications"
+          ]
+        },
+        {
+          "id": "A01-UI-TRANSPORT.closed",
+          "kind": "negative",
+          "given": "No configured callback or a foreign terminal RPC or provider permission request",
+          "when": "Ask for UI or native provider authority",
+          "then": "Unconfigured UI and foreign methods are unsupported and provider permission remains cancelled",
+          "tests": [
+            "tests.test_acp_ui.AcpUiTests.test_unconfigured_ui_and_foreign_rpc_never_gain_a_callback",
+            "tests.test_acp_ui.AcpUiTests.test_ui_handler_cannot_approve_provider_permissions"
+          ]
+        },
+        {
+          "id": "A01-UI-TRANSPORT.limits",
+          "kind": "negative",
+          "given": "A failing, oversized or indefinitely blocked callback",
+          "when": "Return data or flood more than eight pending calls",
+          "then": "Only a fixed safe error returns and closing cancels all eight pending callbacks",
+          "tests": [
+            "tests.test_acp_ui.AcpUiTests.test_callback_failure_and_oversized_result_are_redacted",
+            "tests.test_acp_ui.AcpUiTests.test_pending_callbacks_are_bounded_and_cancelled_on_close"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-UI-AUTHORITY",
+      "risk": "Untrusted agent component trees can reveal another user's data, gain admin capability or overwrite shared state without current revision/authority.",
+      "scenarios": [
+        {
+          "id": "A01-UI-AUTHORITY.lifecycle",
+          "kind": "positive",
+          "given": "An owned original provider session",
+          "when": "Discover components and present, update, dismiss a composition",
+          "then": "The session begins empty and exact controlled content progresses through revisions zero to three without a private provider handle",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_empty_session_catalog_and_revisioned_present_update_dismiss"
+          ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.schema",
+          "kind": "negative",
+          "given": "Arbitrary code/foreign props, obsolete fixed views, duplicate handles or stale revisions",
+          "when": "Attempt UI mutations",
+          "then": "Every invalid operation refuses with fixed safe text and leaves the previously accepted state unchanged",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_invalid_schema_and_stale_updates_cannot_change_controlled_state",
+            "tests.test_ui_composition.UiCompositionTests.test_tools_are_closed_and_bound_arguments_cannot_choose_principal_or_actions"
+          ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.authority",
+          "kind": "negative",
+          "given": "A foreign caller or revoked/disabled/changed original authority",
+          "when": "Read or dispatch with a saved UI lease",
+          "then": "Fresh server checks refuse foreign ownership, revocation, membership/account changes and changed installation access revision",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_foreign_owner_and_revoked_session_cannot_read_or_dispatch",
+            "tests.test_ui_composition.UiCompositionTests.test_account_membership_and_access_revision_are_rechecked_per_call",
+            "tests.test_ui_composition.UiCompositionTests.test_privileged_components_require_current_original_administrator_authority"
+          ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.http",
+          "kind": "positive",
+          "given": "A real Django session, CSRF token and actor-bound UI lease",
+          "when": "Use the shared UI endpoint",
+          "then": "Authenticated exact-origin CSRF writes and reads share state; anonymous, stale-actor, CSRF-less and foreign-owner requests fail",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_http_requires_session_current_actor_and_csrf_then_shares_controlled_revision"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-UI-MCP",
+      "risk": "An isolated provider may be unable to reach application tools or a tool relay may leak diagnostics, grow unbounded or leave native children alive.",
+      "scenarios": [
+        {
+          "id": "A01-UI-MCP.native",
+          "kind": "positive",
+          "given": "A fresh zero-capability native Windows worker and exact locked published Prism transport The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
+          "when": "Launch actual MCP children and exchange initialize/catalog/tool bytes over an authenticated LOCAL pipe",
+          "then": "Exact synthetic results return, foreign capability never dispatches and both process-tree stops plus outer job/profile/capsule cleanup are verified",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_actual_mcp_child_lists_and_calls_over_local_pipe_in_zero_capability_worker"
+          ]
+        },
+        {
+          "id": "A01-UI-MCP.limits",
+          "kind": "negative",
+          "given": "A callback carrying a private failure, an oversized frame or a foreign capability The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
+          "when": "Call through actual native MCP processes",
+          "then": "Only fixed safe errors return, excess or foreign requests never reach the callback, and real child and worker cleanup succeeds",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_relay_redacts_callback_errors_rejects_oversized_frames_and_foreign_capability"
+          ]
+        },
+        {
+          "id": "A01-UI-MCP.valid-large",
+          "kind": "positive",
+          "given": "A valid sixteen-node component tree with escaped note text inside the reviewed32KiB schema budget The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
+          "when": "Return both MCP text and structured output through real native child processes",
+          "then": "The complete exact state survives a reply above64KiB while request limits and verified native cleanup remain intact",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_valid_maximum_component_tree_survives_mcp_text_and_structured_output"
           ]
         }
       ]

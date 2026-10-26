@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "5d683a8ed5924182b2c9ad523368fed777655c1edc52e7489d44926a8dc2f37d",
-    "tools/check_browser.py": "463b0e4729fedb695bac098d88346f02dd539bc4643ed0c8cbf94aa72ec23340",
+    "tools/browser.mjs": "273fff088f0f64ebaa0bdd31bf15a7f92739e722031ebb55ffe48059cc675fd5",
+    "tools/check_browser.py": "c5b769f2af2acecbfa97c9f4e857873df2a3aa6da8eea5ceb1c25cccffaf88fa",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -87,6 +87,11 @@
       "id": "owned-service-storage-private",
       "kind": "negative",
       "expected": "Trusted isolated fixture records a real owned session reference and immutable private artifact, verifies exact bytes through authorized services, then passes only opaque app UUIDs to the actual signed-in browser. Browser requests for session/file URLs each return404; no raw provider handle or private filesystem path enters browser input."
+    },
+    {
+      "id": "scoped-ui-composition-api",
+      "kind": "positive",
+      "expected": "Real native browser requests use the authenticated same-origin Django UI endpoint and a trusted synthetic owned-session lease. Empty state progresses through exact present/dismiss revisions. Missing CSRF403, stale revision409, unsafe schema404 and foreign account404 preserve accepted state. This is shared API acceptance; it does not claim visible agent composition, vendor login or a real model turn. Existing native UI actions/assertions/order and cleanup remain."
     },
     {
       "id": "csrf-and-real-zero-provider-transport",
@@ -189,5 +194,6 @@
   "service_reference_review": "All27prior cases retain order and assertions; one actual private-storage case is added. The fixture creates actual rows/files through the new trusted-host service before browser launch, proves exact bytes, and passes only app UUIDs to that owned browser. No provider session/readiness, successful response or public file API is fabricated. Native pointer/key, current database, exceptions, build identity and complete owned cleanup remain required.",
   "setup_checkpoint_review": "PR10 actual-main attempt1 failed at setup_chat without detailed hosted stderr. Three unchanged local runs and one controlled hosted rerun passed; original cause remains unknown. Fixed allowlisted interaction checkpoints improve future failure reports only. Existing native actions, assertions, deadlines and cleanup are unchanged; raw labels/answers/DOM/paths/errors are discarded. Known-checkpoint reporting was observed red; hostile/non-string/misplaced values remain discarded.",
   "admin_access_review": "Reviewed native input/pointer/keyboard actions against independent P06 administrator acceptance and actual Django state. Every prior28case and its assertions/order remains. First-run browser now requires7cases including both new outcomes and independent exceptions/cleanup. No success/state/provider is fabricated; the separate authorized API write only establishes a stale revision. New admin_users failure phase is a fixed public-safe token; raw DOM/credentials/paths stay out of reports. Initial14HTTP acceptance failures were actual404s; frontend57passed/5failed on stubs/reserved view impersonation before the implementation. No browser red or external reviewer is claimed.",
-  "failure_reporting_review": "After the preserved PR13 push logout_viewer failure, fixed auth checkpoints, a closed error classification, four numeric endpoint statuses and five UI booleans are allowlisted twice. No raw error/DOM/response/header/cookie/user/input/path is published. All 32 native cases, assertion bodies, interaction order and existing deadlines remain. Original failure cause remains unconfirmed; diagnostics do not claim a repair."
+  "failure_reporting_review": "After the preserved PR13 push logout_viewer failure, fixed auth checkpoints, a closed error classification, four numeric endpoint statuses and five UI booleans are allowlisted twice. No raw error/DOM/response/header/cookie/user/input/path is published. All 32 native cases, assertion bodies, interaction order and existing deadlines remain. Original failure cause remains unconfirmed; diagnostics do not claim a repair.",
+  "diagnostic_review": "Initial login now receives the same closed privacy-safe checkpoint/status/kind/surface metadata as logout/viewer. Semantic review confirms all native input/click/evaluation/assertion/wait/deadline/case ordering and cleanup actions remain unchanged. This supplies evidence for an unconfirmed hosted login failure; it does not claim a repair."
 }

@@ -11,7 +11,7 @@ import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "admin_users", "client_catalog",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
@@ -20,6 +20,10 @@ BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_worksp
 BROWSER_AUTH_CHECKPOINTS = {'logout_click', 'logout_form', 'logout_session', 'logout_notes',
     'viewer_username', 'viewer_password', 'viewer_submit', 'viewer_workspace', 'viewer_notes',
     'viewer_scope', 'viewer_assertions'}
+BROWSER_LOGIN_CHECKPOINTS = {'login_viewport', 'login_username', 'login_password', 'login_submit',
+    'login_workspace', 'login_notes', 'login_wrong_username', 'login_wrong_password',
+    'login_wrong_submit', 'login_wrong_response', 'login_password_cleared', 'login_reload',
+    'login_form', 'login_scope', 'login_assertions'}
 
 
 class BrowserFailure(Exception):
@@ -34,9 +38,10 @@ def browser_failure_evidence(value):
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
         if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
             result['checkpoint'] = value['checkpoint']
-    if valid and value['reason'] == 'logout_viewer':
+    if valid and value['reason'] in ('login', 'logout_viewer'):
         checkpoint = value.get('checkpoint')
-        if isinstance(checkpoint, str) and checkpoint in BROWSER_AUTH_CHECKPOINTS:
+        checkpoints = BROWSER_LOGIN_CHECKPOINTS if value['reason'] == 'login' else BROWSER_AUTH_CHECKPOINTS
+        if isinstance(checkpoint, str) and checkpoint in checkpoints:
             result['checkpoint'] = checkpoint
         if value.get('failure_kind') in ('timeout', 'assertion', 'evaluation', 'protocol', 'other'):
             result['failure_kind'] = value['failure_kind']
@@ -201,10 +206,13 @@ def main():
             reference = record_session(owner, str(owned.pk), 'synthetic-browser-provider-session')
             artifact = store_artifact(owner, str(owned.pk), reference, b'synthetic browser resource payload\x00')
             assert read_artifact(owner, str(owned.pk), reference, artifact.artifact_id) == b'synthetic browser resource payload\x00'
+            # Trusted synthetic session setup, not a provider readiness claim.
+            from backend.maipa.agent_accounts.ui import open_ui_lease
+            ui_lease = open_ui_lease(owner, str(owned.pk), reference)
             enable_intake_failure = True
             evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
                 'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk),
-                'service_reference': reference, 'artifact_reference': artifact.artifact_id})
+                'service_reference': reference, 'artifact_reference': artifact.artifact_id, 'ui_lease': ui_lease})
             if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
                 raise ValueError('Ordinary browser exceptions and cleanup required')
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,

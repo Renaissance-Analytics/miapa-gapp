@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-19",
+    "label": "Development update 19",
+    "cards": [
+      {
+        "title": "Private agent UI tools",
+        "description": "Agent UI requests now keep your account and access boundaries. Provider sign-in and live chat are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-18",
     "label": "Development update 18",
     "cards": [

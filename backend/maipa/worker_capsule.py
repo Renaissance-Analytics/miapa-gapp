@@ -19,13 +19,16 @@ from .windows_sandbox import SandboxUnavailable, physical_path
 
 
 class WorkerCapsule:
-    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None):
+    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None, ui_tools=False):
         # A server-configured Node install may use a version-manager alias.
         # Resolve that trusted executable once, then validate and copy its
         # physical bytes. Runtime and writable paths never accept reparse hops.
         self.root, self.runtime, self.node = Path(root), physical_path(runtime), physical_path(Path(node).resolve(strict=True), directory=False)
         self.scope, self.provider, self.temporary = scope, provider, None
         self.profile_lease = profile_lease
+        if type(ui_tools) is not bool or (ui_tools and provider != 'codex'):
+            raise SandboxUnavailable('Worker UI transport unavailable')
+        self.ui_tools = ui_tools
         if not self.root.is_absolute() or provider not in {"codex", "claude"}:
             raise SandboxUnavailable("Worker layout unavailable")
         self._leased_home()
@@ -78,6 +81,8 @@ class WorkerCapsule:
             package = self.runtime / "node_modules/@particle-academy/prism-acp"
             physical_path(package)
             files = [self.runtime / name for name in ("host.mjs", "package.json", "package-lock.json")]
+            if self.ui_tools:
+                files.append(self.runtime / 'ui-mcp.mjs')
             files.extend(path for path in package.rglob("*") if not path.is_dir())
             total, self.files_sha256 = 0, {}
             for source in files:
@@ -105,6 +110,8 @@ class WorkerCapsule:
                 stderr=subprocess.DEVNULL, check=True, timeout=30, creationflags=subprocess.CREATE_NO_WINDOW)
             self.profile = {"user_id": self.scope.user_id, "account_id": self.scope.account_id, "provider": self.provider,
                 "workspace": str(self.workspace), "home": str(self.home), "supervisor_directory": str(self.supervisor)}
+            if self.ui_tools:
+                self.profile['ui_tools'] = True
             # All capsule ancestors/files are already checked for reparse
             # points by the server. Avoid Node's extra realpath traversal into
             # inaccessible parent directories; do not broaden their ACLs.

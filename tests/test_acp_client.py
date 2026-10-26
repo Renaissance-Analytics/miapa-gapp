@@ -78,12 +78,12 @@ class AcpClientTests(unittest.TestCase):
         async def case(client, owner):
             self.assertEqual((await client.initialize(owner))["protocolVersion"], 1)
             with self.assertRaisesRegex(AcpError, "^ACP connection unavailable$"):
-                await client._request(owner, "break", {})
+                await client._request(owner, "break", {}, timeout=0.15)
             with self.assertRaises(AcpError):
                 await client.initialize(owner)
             with self.assertRaises(AcpError):
                 await client.new_session(owner)
-        self.run_case(case, mode="hang", timeout=0.15)
+        self.run_case(case, mode="hang")
 
     def test_invalid_scope_and_relative_executable_are_refused_before_spawn(self):
         with self.assertRaises(ValueError):
