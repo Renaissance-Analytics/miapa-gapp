@@ -309,6 +309,23 @@ class AcpClient:
             self._sessions[handle] = result
             return handle
 
+    async def subscription_status(self, scope, *, login=False):
+        self._authorize(scope)
+        if type(login) is not bool:
+            raise ValueError('Invalid account operation')
+        result = await self._request(scope, 'maipa/account/login' if login else 'maipa/account/status', {})
+        if (type(result) is not dict or set(result) - {'state', 'login'} or
+                result.get('state') not in ('ready', 'sign_in')):
+            raise AcpError('Account unavailable')
+        if 'login' in result:
+            import re
+            consent = result['login']
+            if (type(consent) is not dict or set(consent) != {'url', 'code'} or
+                    consent['url'] != 'https://auth.openai.com/codex/device' or type(consent['code']) is not str or
+                    not re.fullmatch(r'[A-Z0-9]{4,8}-[A-Z0-9]{4,8}', consent['code'])):
+                raise AcpError('Account unavailable')
+        return result
+
     def session_details(self, scope, session):
         self._authorize(scope, session)
         return self._sessions[session].copy()

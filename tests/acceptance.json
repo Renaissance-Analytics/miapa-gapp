@@ -1516,8 +1516,8 @@
           "id": "P04-LAYOUT.durable",
           "kind": "positive",
           "given": "An active preparer with an unsaved default layout",
-          "when": "Save 33.75 percent and sign out, then open an independent authenticated session",
-          "then": "The same private layout identity returns revision one and 3375 basis points without cache",
+          "when": "Save 68 percent and sign out, then open an independent authenticated session",
+          "then": "Start at the chat-first60percent default; return the same private layout identity at revision one and6800basis points without cache",
           "tests": [
             "tests.test_workspace_layout.WorkspaceLayoutTests.test_personal_width_survives_logout_and_an_independent_session"
           ]
@@ -1536,7 +1536,7 @@
           "id": "P04-LAYOUT.concurrency",
           "kind": "negative",
           "given": "Two gestures refer to the same server revision",
-          "when": "Save the maximum width, replay the old revision, then reread and save the minimum",
+          "when": "Save a valid previously supported width, replay the old revision, then reread and save the minimum",
           "then": "Only the first write wins until reread and the second accepted write has revision two",
           "tests": [
             "tests.test_workspace_layout.WorkspaceLayoutTests.test_revision_conflict_preserves_the_winner_and_requires_reread"
@@ -1570,6 +1570,16 @@
           "then": "CSRF and membership deny reads or writes immediately and unsupported methods cannot mutate layout",
           "tests": [
             "tests.test_workspace_layout.WorkspaceLayoutTests.test_live_membership_authentication_csrf_and_method_guards_apply"
+          ]
+        },
+        {
+          "id": "P04-LAYOUT.upgrade",
+          "kind": "positive",
+          "given": "An untouched old28percent default and an explicitly chosen28percent width",
+          "when": "Apply the chat-first preference data migration",
+          "then": "Change only the untouched default to60percent and preserve the exact explicitly chosen width and revision",
+          "tests": [
+            "tests.test_workspace_layout.WorkspaceLayoutTests.test_chat_first_upgrade_changes_only_an_untouched_old_default"
           ]
         }
       ]
@@ -2931,6 +2941,178 @@
           "then": "The complete exact state survives a reply above64KiB while request limits and verified native cleanup remain intact",
           "tests": [
             "tests.test_ui_mcp.UiMcpTests.test_valid_maximum_component_tree_survives_mcp_text_and_structured_output"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CONVERSATION",
+      "risk": "An unbound or unacknowledged conversation can leak original private data, run duplicate turns, lose partial replies or mistake transport for a working agent.",
+      "scenarios": [
+        {
+          "id": "A01-CONVERSATION.empty",
+          "kind": "positive",
+          "given": "An active preparer with no conversation",
+          "when": "Read the conversation",
+          "then": "Return an empty transcript, no contextual composition and offline provider state",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_empty_chat_has_no_predefined_composition_or_provider_readiness"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.ack",
+          "kind": "positive",
+          "given": "An owned account and one immutable request identity",
+          "when": "Acknowledge a turn and replay the exact request",
+          "then": "Persist the owned user message, start the consumer once, and keep another user transcript empty",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_acknowledged_turn_is_durable_and_duplicate_is_not_run_twice"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.stale",
+          "kind": "negative",
+          "given": "A pending turn followed by stale revision or lost membership role",
+          "when": "Attempt another turn or read under the changed authority",
+          "then": "Refuse stale/current-role operations while preserving the first owned message",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_stale_or_changed_authority_cannot_submit_or_replay"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.original",
+          "kind": "negative",
+          "given": "An original persisted transcript and a reassigned account or changed installation storage ID",
+          "when": "Read as the new account owner or new storage identity",
+          "then": "Refuse adoption of the original transcript and preserve its exact text for the restored original binding",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_original_owner_and_storage_binding_cannot_be_adopted_after_reassignment"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.http",
+          "kind": "negative",
+          "given": "An authenticated browser actor",
+          "when": "Omit actor identity or add a provider executable field",
+          "then": "Reject mismatched actor409 and command-shaped request400 before any provider startup",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_http_requires_actor_and_csrf_and_does_not_accept_provider_or_commands"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.csrf",
+          "kind": "negative",
+          "given": "A real authenticated cookie without a CSRF token",
+          "when": "Post connect through the production route",
+          "then": "Reject403, leave the conversation offline and create no worker",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_browser_write_requires_csrf_before_starting_any_provider"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.loop",
+          "kind": "positive",
+          "given": "The actual app consumer with a finite deterministic ACP test peer",
+          "when": "Discover tools before session ACK, refuse premature tool calls, then stream a turn and present update dismiss shared UI",
+          "then": "Only static tool definitions precede ACK; real app UI callbacks advance the same controlled lease after a human revision, text checkpoints persist and dismissal retains all six messages; this is not real-model evidence",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.cancel",
+          "kind": "positive",
+          "given": "An acknowledged live session with a partial reply",
+          "when": "Cancel, repeat a late cancel and submit another turn",
+          "then": "Preserve the interrupted text and continue the same acknowledged UI/session without cancelling the next turn",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.logout",
+          "kind": "negative",
+          "given": "A live owned conversation and composition",
+          "when": "Delete the original login session",
+          "then": "Stop the process, revoke its private UI reference and deny anonymous reads while preserving the owned saved transcript after a new login",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_logout_revokes_live_worker_and_private_ui_but_keeps_owned_transcript"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.epoch",
+          "kind": "negative",
+          "given": "An original worker under a known primary role",
+          "when": "Change an unrelated access epoch, then change that worker owner role",
+          "then": "Mint a freshly authorized lease for the same actor while refusing the old lease; an actual role change stops the worker and denies its old chat access",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_reauthorizes_same_actor_but_role_change_stops_worker"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.reader",
+          "kind": "positive",
+          "given": "A separate real worker connection publishes startup while another request holds a brief read transaction",
+          "when": "Release the actual read lock after200ms without retrying or weakening startup assertions",
+          "then": "The file-backed installed database semantics permit the acknowledged worker checkpoint and the real contextual note appears; shared-memory SQLite contention is not treated as a model/provider failure",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_brief_concurrent_reader_does_not_abort_startup_checkpoint"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.capacity",
+          "kind": "recovery",
+          "given": "The original user sends a valid message when all 16 worker slots are occupied",
+          "when": "The server refuses to start another worker and the owner later reconnects explicitly",
+          "then": "Retain the exact queued message, expose a recoverable unavailable connection state, and reconnect without duplicating or losing that message",
+          "tests": [
+            "tests.test_agent_chat.AgentChatTests.test_full_worker_capacity_keeps_queued_message_and_allows_explicit_reconnect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-PROVIDER-CODE",
+      "risk": "Native runtime installation can adopt corrupt or extra bytes or silently repair a tampered cache.",
+      "scenarios": [
+        {
+          "id": "A01-PROVIDER-CODE.publish",
+          "kind": "positive",
+          "given": "A synthetic public archive with exact SRI and per-file digest",
+          "when": "Install it and connect again with the same cache",
+          "then": "Publish the exact bytes atomically with no download leftovers and perform only one download; no CLI or real network executes",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_exact_archive_is_published_atomically_and_unchanged_cache_avoids_network"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CODE.refuse",
+          "kind": "negative",
+          "given": "Corrupt archive integrity, extra cache entries or changed native bytes",
+          "when": "Verify or install the runtime",
+          "then": "Refuse each invalid candidate and publish no target or leftover download directory for the corrupt archive",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_corrupt_archive_and_changed_or_extra_cache_bytes_are_refused"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CODE.cancel",
+          "kind": "negative",
+          "given": "The owner stops provider preparation before its public-code download",
+          "when": "Provision the pinned native code with the trusted cancellation callback already set",
+          "then": "Make no network request and publish no executable cache; keep reproducible public code outside durable user-data backups",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_cancellation_before_download_makes_no_network_request_or_published_runtime"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CODE.windows-path",
+          "kind": "negative",
+          "given": "An SRI-matching public-code archive contains a Windows backslash or drive path",
+          "when": "The owned installer validates it before materializing archive entries",
+          "then": "Refuse the archive before any escaped file write and leave no executable cache or temporary archive",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_windows_archive_traversal_is_refused_before_any_escaped_write"
           ]
         }
       ]

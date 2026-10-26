@@ -1,5 +1,8 @@
 # Maipa
 
+The current agent-first integration is described in [Agent and shared shell](docs/agent-chat.md).
+Chat is the only fixed view; reusable components are presented on demand by the in-app agent.
+
 My AI Professional Accountant. Product repository spelling: `miapa-gapp`.
 
 This public repository contains a Python/Django API foundation and a TypeScript

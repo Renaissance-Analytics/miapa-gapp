@@ -102,3 +102,19 @@ class UiComposition(models.Model):
             models.CheckConstraint(condition=models.Q(role__in=('administrator', 'preparer')), name='agent_ui_known_role'),
             models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='agent_ui_revision_budget'),
         ]
+
+
+class Conversation(models.Model):
+    """A user's durable transcript. Worker identity and UI authority stay server-owned."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    account = models.OneToOneField(AgentAccount, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    storage_id = models.UUIDField(editable=False)
+    revision = models.PositiveIntegerField(default=0)
+    messages = models.JSONField(default=list)
+    requests = models.JSONField(default=list)
+    phase = models.CharField(max_length=16, default='offline')
+    worker = models.UUIDField(null=True, default=None, editable=False)
+    heartbeat = models.DateTimeField(null=True, editable=False)
+    ui = models.ForeignKey(UiComposition, null=True, on_delete=models.PROTECT)

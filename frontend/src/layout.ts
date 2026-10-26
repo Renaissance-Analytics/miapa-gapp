@@ -34,7 +34,7 @@ async function parse(response: Response, userId: string): Promise<LayoutSnapshot
   if (!value || Array.isArray(value) || Object.keys(value).sort().join(',') !== 'layout_id,revision,split_basis_points,user_id'
     || value.user_id !== userId || typeof value.layout_id !== 'string' || !uuid.test(value.layout_id)
     || !Number.isInteger(value.revision) || value.revision < 0 || value.revision >= 2_000_000_000
-    || !Number.isInteger(value.split_basis_points) || value.split_basis_points < 2200 || value.split_basis_points > 4500) throw Error('Layout unavailable');
+    || !Number.isInteger(value.split_basis_points) || value.split_basis_points < 2200 || value.split_basis_points > 7200) throw Error('Layout unavailable');
   return value as LayoutSnapshot;
 }
 
@@ -45,7 +45,7 @@ export async function readLayout(userId: string, fetcher: Fetcher = fetch): Prom
 
 export async function saveLayout(previous: LayoutSnapshot, points: number, fetcher: Fetcher = fetch): Promise<Result> {
   try {
-    if (!Number.isInteger(points) || points < 2200 || points > 4500) return unavailable();
+    if (!Number.isInteger(points) || points < 2200 || points > 7200) return unavailable();
     const token = await csrfToken(fetcher);
     const response = await fetcher('/api/workspace/layout/', { ...options(), method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': token, 'X-Maipa-Layout': previous.layout_id },
@@ -61,7 +61,7 @@ export interface LayoutState { phase: 'loading' | 'ready' | 'saving' | 'conflict
 
 /** One mounted principal owns one controller; never automatically retry a write. */
 export class LayoutController {
-  current: LayoutState = { phase: 'loading', split: 28 };
+  current: LayoutState = { phase: 'loading', split: 60 };
   private saved: LayoutSnapshot | null = null;
   private generation = 0;
   private disposed = false;
@@ -79,11 +79,11 @@ export class LayoutController {
     this.update({ phase: 'ready', split: result.value.split_basis_points / 100 });
   }
   change(split: number) {
-    if (!this.disposed && this.current.phase === 'ready' && Number.isFinite(split) && split >= 22 && split <= 45)
+    if (!this.disposed && this.current.phase === 'ready' && Number.isFinite(split) && split >= 22 && split <= 72)
       this.update({ phase: 'ready', split: Math.round(split * 100) / 100 });
   }
   async commit(split: number) {
-    if (this.disposed || this.current.phase !== 'ready' || !this.saved || !Number.isFinite(split) || split < 22 || split > 45) return;
+    if (this.disposed || this.current.phase !== 'ready' || !this.saved || !Number.isFinite(split) || split < 22 || split > 72) return;
     this.change(split);
     const points = Math.round(split * 100);
     if (points === this.saved.split_basis_points) return;

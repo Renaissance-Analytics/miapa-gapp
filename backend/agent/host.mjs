@@ -17,6 +17,13 @@ export function validateProfile(value) {
   const result = { provider: value.provider, user_id: value.user_id, account_id: value.account_id };
   if (value.ui_tools !== undefined && typeof value.ui_tools !== 'boolean') throw new Error('Invalid UI capability');
   result.ui_tools = value.ui_tools === true;
+  if (value.provider_binary !== undefined) {
+    const expected = fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin/codex.exe', import.meta.url));
+    if (value.provider !== 'codex' || value.provider_binary !== expected || lstatSync(expected).isSymbolicLink() || !lstatSync(expected).isFile()) {
+      throw new Error('Invalid provider executable');
+    }
+    result.provider_binary = expected;
+  }
   for (const key of ["workspace", "home", "supervisor_directory"]) {
     const path = value[key];
     if (typeof path !== "string" || !isAbsolute(path) || lstatSync(path).isSymbolicLink() || !lstatSync(path).isDirectory()) {
@@ -32,7 +39,7 @@ export function validateProfile(value) {
 
 // The optional constructors are an in-process test seam. CLI/environment input
 // cannot replace the published drivers, executable, argv, policy or MCP list.
-export function serveProfile(value, { input, output, constructors = {}, uiMcp }) {
+export function serveProfile(value, { input, output, constructors = {}, uiMcp, account }) {
   const profile = validateProfile(value);
   // Only the trusted bootstrap supplies this application-owned stdio adapter.
   // Published Claude LOCAL mode currently refuses generated MCP configuration.
@@ -42,17 +49,24 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp })
   const parentEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
     ["PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP"].includes(key.toUpperCase())));
   Object.assign(parentEnv, { HOME: profile.home, USERPROFILE: profile.home,
+    LOCALAPPDATA: profile.home, APPDATA: profile.home,
     [profile.provider === "codex" ? "CODEX_HOME" : "CLAUDE_CONFIG_DIR"]: profile.home });
+  if (profile.provider_binary) parentEnv.PATH = `${fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin', import.meta.url))};${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32`;
   const served = serve({
     input, output,
     agentInfo: { name: "maipa-prism-acp", title: "Maipa ACP host", version: packageVersion },
     driverCapabilities: profile.provider === "codex" ? CODEX_DRIVER_CAPABILITIES : CLAUDE_DRIVER_CAPABILITIES,
     driverFactory(options, events) {
+      // Authenticated model turns stay closed until the published driver supplies
+      // the measured MCP-only tool policy requested from its package owner.
+      if (profile.provider_binary) throw new Error('Provider UI-only policy unavailable');
       if (closing || options.cwd !== profile.workspace || options.resumeSessionId || options.mcpServers?.length
           || (uiMcp && drivers.length > 0)) {
         throw new Error("Worker session refused");
       }
       const configured = { ...options, cwd: profile.workspace, parentEnv,
+        ...(profile.provider_binary ? { binary: profile.provider_binary,
+          binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'] } : {}),
         mcpServers: uiMcp ? [uiMcp] : [],
         processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
         credentials: { mode: "subscription" } };
@@ -73,6 +87,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp })
     closing = true;
     shutdownPromise ??= (async () => {
       const results = await Promise.allSettled(drivers.map(driver => driver.stop({ graceMs: 1000 })));
+      if (account) results.push(...await Promise.allSettled([account.stop()]));
       const known = results.every(item => item.status === "fulfilled" && Number.isInteger(item.value.survivors) && item.value.survivors >= 0);
       return {
         verified: results.every(item => item.status === "fulfilled" && item.value.verified === true && item.value.empty === true && item.value.survivors === 0),
@@ -83,6 +98,16 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp })
     return shutdownPromise;
   }
   served.peer.handle("maipa/shutdown", shutdown);
+  if (account) {
+    served.peer.handle('maipa/account/status', async params => {
+      if (closing || !params || Object.keys(params).length) throw Error('Account unavailable');
+      return account.status();
+    });
+    served.peer.handle('maipa/account/login', async params => {
+      if (closing || drivers.length || !params || Object.keys(params).length) throw Error('Account unavailable');
+      return account.start();
+    });
+  }
   return { ...served, shutdown };
 }
 
@@ -100,7 +125,15 @@ async function main() {
       const { createUiRelay } = await import('./ui-mcp.mjs');
       relay = await createUiRelay(request => host.peer.request('maipa/ui', request));
     }
-    host = serveProfile(profile, { input: process.stdin, output: process.stdout, uiMcp: relay?.mcp });
+    let account;
+    if (profile.provider_binary) {
+      const { subscriptionAccount } = await import('./account.mjs');
+      const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => ['SYSTEMROOT', 'WINDIR', 'TEMP', 'TMP'].includes(key.toUpperCase())));
+      Object.assign(env, { HOME: profile.home, USERPROFILE: profile.home, LOCALAPPDATA: profile.home, APPDATA: profile.home,
+        CODEX_HOME: profile.home, PATH: `${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32` });
+      account = subscriptionAccount(profile, env);
+    }
+    host = serveProfile(profile, { input: process.stdin, output: process.stdout, uiMcp: relay?.mcp, account });
     await host.closed;
     const verdict = await host.shutdown();
     if (!verdict.verified) process.exitCode = 1;

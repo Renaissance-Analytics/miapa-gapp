@@ -1,0 +1,116 @@
+import type { ScreenSchema } from '@particle-academy/fancy-screens';
+import { csrfToken } from './api.js';
+
+export type ChatPhase = 'offline' | 'connecting' | 'sign_in' | 'ready' | 'thinking' | 'stopping' | 'unavailable';
+export interface ChatMessage { id: string; role: 'user' | 'assistant'; text: string; state: 'queued' | 'streaming' | 'complete' | 'interrupted' }
+export interface Composition { account_id: string; id: string; revision: number; composition: { title: string; schema: ScreenSchema } | null }
+export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null;
+  login?: { url: string; code: string }; }
+export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null });
+const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+const fail = (): never => { throw Error('Conversation unavailable'); };
+const closed = (v: Record<string, unknown>, fields: string[]) => Object.keys(v).every(k => fields.includes(k));
+const identifier = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 200;
+
+export function compositionSchema(input: unknown): ScreenSchema {
+  const ids = new Set<string>(), controls = new Set<string>();
+  let count = 0;
+  function node(v: unknown, depth: number): ScreenSchema {
+    if (!object(v) || !closed(v, ['id', 'type', 'props', 'children']) || typeof v.id !== 'string'
+      || !/^[a-z][a-z0-9-]{0,47}$/.test(v.id) || ids.has(v.id) || ++count > 16 || depth > 4) return fail();
+    ids.add(v.id);
+    if (v.type === 'Maipa.Stack') {
+      if (v.props !== undefined || !Array.isArray(v.children) || !v.children.length || v.children.length > 16) return fail();
+      return { id: v.id, type: v.type, children: v.children.map(child => node(child, depth + 1)) };
+    }
+    if (v.children !== undefined) return fail();
+    if (v.type === 'Maipa.Note') {
+      if (!object(v.props) || !closed(v.props, ['text']) || typeof v.props.text !== 'string' || !v.props.text.trim()
+        || v.props.text.length > 2000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v.props.text)) return fail();
+      return { id: v.id, type: v.type, props: { text: v.props.text } };
+    }
+    if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers'].includes(v.type)
+      || v.props !== undefined || controls.has(v.type)) return fail();
+    controls.add(v.type);
+    return { id: v.id, type: v.type };
+  }
+  return node(input, 0);
+}
+
+export function parseChatState(v: unknown): ChatState {
+  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login'])
+    || (v.id !== null && !identifier(v.id)) || !Number.isSafeInteger(v.revision) || Number(v.revision) < 0
+    || !['offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'].includes(String(v.phase))
+    || !Array.isArray(v.messages) || v.messages.length > 128) return fail();
+  const messages = v.messages.map((m: unknown): ChatMessage => {
+    if (!object(m) || !closed(m, ['id', 'role', 'text', 'state']) || !identifier(m.id)
+      || !['user', 'assistant'].includes(String(m.role)) || typeof m.text !== 'string' || m.text.length > 65536
+      || !['queued', 'streaming', 'complete', 'interrupted'].includes(String(m.state))) return fail();
+    return m as unknown as ChatMessage;
+  });
+  let ui: Composition | null = null;
+  if (v.ui !== null) {
+    const u = v.ui;
+    if (!object(u) || !closed(u, ['account_id', 'id', 'revision', 'composition']) || !identifier(u.id)
+      || !identifier(u.account_id) || !Number.isSafeInteger(u.revision) || Number(u.revision) < 0) return fail();
+    let composition: Composition['composition'] = null;
+    if (u.composition !== null) {
+      if (!object(u.composition) || !closed(u.composition, ['title', 'schema']) || typeof u.composition.title !== 'string'
+        || !u.composition.title.trim() || u.composition.title.length > 80) return fail();
+      composition = { title: u.composition.title, schema: compositionSchema(u.composition.schema) };
+    }
+    ui = { id: u.id, account_id: u.account_id, revision: Number(u.revision), composition };
+  }
+  let login: ChatState['login'];
+  if (v.login !== undefined) {
+    if (!object(v.login) || !closed(v.login, ['url', 'code']) || v.login.url !== 'https://auth.openai.com/codex/device'
+      || typeof v.login.code !== 'string' || !/^[A-Z0-9]{4,8}-[A-Z0-9]{4,8}$/.test(v.login.code)) return fail();
+    login = { url: v.login.url, code: v.login.code };
+  }
+  return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
+    ...(login ? { login } : {}) };
+}
+
+export async function readEventStream(body: ReadableStream<Uint8Array>, receive: (state: ChatState) => void) {
+  const reader = body.getReader(), decoder = new TextDecoder('utf-8', { fatal: true });
+  let buffer = '';
+  try {
+    while (true) {
+      const next = await reader.read();
+      if (next.done) { buffer += decoder.decode(); if (buffer.trim()) fail(); return; }
+      buffer += decoder.decode(next.value, { stream: true });
+      if (buffer.length > 1_048_576) fail();
+      let end: number;
+      while ((end = buffer.indexOf('\n\n')) >= 0) {
+        const frame = buffer.slice(0, end); buffer = buffer.slice(end + 2);
+        const lines = frame.split('\n');
+        if (lines.includes('event: revoked')) throw Error('Session changed');
+        if (lines.includes('event: state')) {
+          const data = lines.filter(line => line.startsWith('data: ')).map(line => line.slice(6)).join('\n');
+          receive(parseChatState(JSON.parse(data)));
+        }
+      }
+    }
+  } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+}
+
+export async function chatRequest(userId: string, payload?: Record<string, unknown>, signal?: AbortSignal): Promise<ChatState> {
+  const headers: Record<string, string> = { 'X-Maipa-Agent-Actor': userId };
+  if (payload) { headers['Content-Type'] = 'application/json'; headers['X-CSRFToken'] = await csrfToken(fetch); }
+  const response = await fetch('/api/agent/chat/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+    method: payload ? 'POST' : 'GET', headers, ...(payload ? { body: JSON.stringify(payload) } : {}),
+    signal: signal ?? AbortSignal.timeout(15000) });
+  if (response.status === 409) throw Error('Conversation changed. Reconnect to load the latest conversation.');
+  if (response.status !== 200) fail();
+  return parseChatState(await response.json());
+}
+
+export async function dismissComposition(userId: string, ui: Composition): Promise<void> {
+  const token = await csrfToken(fetch);
+  const response = await fetch(`/api/agent/accounts/${encodeURIComponent(ui.account_id)}/ui/${encodeURIComponent(ui.id)}/`, {
+    method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(15000),
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': token, 'X-Maipa-Agent-Actor': userId },
+    body: JSON.stringify({ method: 'tools/call', params: { name: 'maipa_ui_dismiss', arguments: { revision: ui.revision } } }),
+  });
+  if (response.status !== 200) throw Error('The shared panel changed. Reconnect before closing it.');
+}

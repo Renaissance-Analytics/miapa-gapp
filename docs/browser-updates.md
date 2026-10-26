@@ -2,7 +2,7 @@
 
 Maipa mounts the published `@particle-academy/fancy-app-update` detector once
 in its workspace and uses `@particle-academy/fancy-whats-new` for release cards.
-The footer shows the installed release name, build and **What's new** button. Newer deployed
+The compact header shows the installed release name, build and **What's new** button. Newer deployed
 builds offer **Refresh Maipa**; refresh is always the person's choice. There is
 no automatic reload.
 

@@ -44,6 +44,14 @@ class _SecurityCapabilities(c.Structure):
     _fields_ = [("sid", c.c_void_p), ("capabilities", c.c_void_p), ("count", w.DWORD), ("reserved", w.DWORD)]
 
 
+class _SidAndAttributes(c.Structure):
+    _fields_ = [('sid', c.c_void_p), ('attributes', w.DWORD)]
+
+
+class _TokenGroups(c.Structure):
+    _fields_ = [('count', w.DWORD), ('groups', _SidAndAttributes * 1)]
+
+
 class _BasicLimits(c.Structure):
     _fields_ = [("process_time", c.c_int64), ("job_time", c.c_int64), ("flags", w.DWORD),
         ("min_working", c.c_size_t), ("max_working", c.c_size_t), ("active_limit", w.DWORD),
@@ -83,6 +91,7 @@ class _Api:
         define(u, "DestroyEnvironmentBlock", [c.c_void_p])
         define(k, "GetCurrentProcess", [], w.HANDLE)
         define(a, "ConvertSidToStringSidW", [c.c_void_p, c.POINTER(w.LPWSTR)])
+        define(a, 'ConvertStringSidToSidW', [w.LPCWSTR, c.POINTER(c.c_void_p)])
         define(a, "FreeSid", [c.c_void_p], c.c_void_p)
         define(a, "OpenProcessToken", [w.HANDLE, w.DWORD, c.POINTER(w.HANDLE)])
         define(a, "GetTokenInformation", [w.HANDLE, c.c_int, c.c_void_p, w.DWORD, c.POINTER(w.DWORD)])
@@ -271,10 +280,13 @@ class _NativeProcess:
 
 
 class WindowsSandbox:
-    def __init__(self, scope, root, *, writable, readonly, installation_id):
+    def __init__(self, scope, root, *, writable, readonly, installation_id, internet=False):
         if not isinstance(scope, Scope) or not isinstance(installation_id, str) or not 1 <= len(installation_id) <= 200:
             raise SandboxUnavailable("Worker identity unavailable")
         self.scope, self.root = scope, physical_path(root)
+        if type(internet) is not bool:
+            raise SandboxUnavailable('Worker network authority unavailable')
+        self.internet = internet
         self.writable = tuple(physical_path(path) for path in writable)
         self.readonly = tuple(physical_path(path) for path in readonly)
         paths = (*self.writable, *self.readonly)
@@ -341,6 +353,25 @@ class WindowsSandbox:
             _checked(a.GetTokenInformation(token, 31, buffer, size.value, c.byref(size)))
             native_sid = c.cast(buffer, c.POINTER(c.c_void_p)).contents.value
             _checked(a.EqualSid(native_sid, self.sid))
+            # Verify the exact trusted network grant before resuming the suspended process.
+            a.GetTokenInformation(token, 30, None, 0, c.byref(size))
+            if not 4 <= size.value <= 4096:
+                raise SandboxUnavailable('Worker capability token unavailable')
+            groups_buffer = c.create_string_buffer(size.value)
+            _checked(a.GetTokenInformation(token, 30, groups_buffer, size.value, c.byref(size)))
+            count = c.cast(groups_buffer, c.POINTER(w.DWORD)).contents.value
+            if count != int(self.internet):
+                raise SandboxUnavailable('Worker capability token unavailable')
+            if self.internet:
+                expected = c.c_void_p()
+                _checked(a.ConvertStringSidToSidW('S-1-15-3-1', c.byref(expected)))
+                try:
+                    group = c.cast(groups_buffer, c.POINTER(_TokenGroups)).contents.groups[0]
+                    _checked(a.EqualSid(group.sid, expected))
+                    if group.attributes != 4:
+                        raise SandboxUnavailable('Worker capability token unavailable')
+                finally:
+                    k.LocalFree(expected)
             inside = w.BOOL()
             _checked(k.IsProcessInJob(process, job, c.byref(inside)))
             _checked(inside.value)
@@ -351,6 +382,7 @@ class WindowsSandbox:
         import msvcrt
         k, pi, attributes, job = self.api.kernel, _ProcessInfo(), None, None
         descriptors = []
+        internet_sid = c.c_void_p()
         operation = "attributes"
         try:
             size = c.c_size_t()
@@ -359,6 +391,12 @@ class WindowsSandbox:
             attributes = c.cast(buffer, c.c_void_p)
             _checked(k.InitializeProcThreadAttributeList(attributes, 2, 0, c.byref(size)))
             security = _SecurityCapabilities(self.sid, None, 0, 0)
+            if self.internet:
+                # Internet client only: no private-network, server or loopback exemption.
+                _checked(self.api.advapi.ConvertStringSidToSidW('S-1-15-3-1', c.byref(internet_sid)))
+                capability = _SidAndAttributes(internet_sid, 4)
+                security.capabilities = c.cast(c.pointer(capability), c.c_void_p)
+                security.count = 1
             _checked(k.UpdateProcThreadAttribute(attributes, 0, 0x20009, c.byref(security), c.sizeof(security), None, None))
             operation = "pipes"
             input_read, input_write = os.pipe()
@@ -409,6 +447,8 @@ class WindowsSandbox:
                 k.WaitForSingleObject(pi.process, 5000)
             raise error from None
         finally:
+            if internet_sid:
+                self.api.kernel.LocalFree(internet_sid)
             if pi.thread: k.CloseHandle(pi.thread)
             if pi.process: k.CloseHandle(pi.process)
             if job: k.CloseHandle(job)

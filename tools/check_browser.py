@@ -9,9 +9,11 @@ import sys
 import tempfile
 import threading
 from wsgiref.simple_server import make_server, WSGIRequestHandler
+from wsgiref.simple_server import WSGIServer
+from socketserver import ThreadingMixIn
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog", "agent_shell",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
@@ -89,6 +91,10 @@ class QuietHandler(WSGIRequestHandler):
         pass
 
 
+class ThreadedFixtureServer(ThreadingMixIn, WSGIServer):
+    daemon_threads = True
+
+
 def main():
     (ROOT / "artifacts/ci/browser-failure.log").unlink(missing_ok=True)
     # This module is invoked in a dedicated child, never in the running Genie app.
@@ -110,6 +116,23 @@ def main():
                 or settings.ACP_CHECK_ROOT != data_root / 'workers'):
             raise ValueError('Synthetic installation storage binding')
         django.setup()
+        # Only this dedicated synthetic fixture substitutes the provider process.
+        # All HTTP, transcript, session authority and UI tool handling remain real.
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from backend.maipa.acp import Scope
+        from backend.maipa.agent_accounts import chat_runtime
+        def synthetic_prepare(worker):
+            worker.check()
+            workspace = fixture_root / ('chat-' + str(worker.identity))
+            workspace.mkdir(exist_ok=True)
+            scope = Scope(str(worker.owner), str(worker.account_id))
+            worker.lease = SimpleNamespace(scope=scope, revalidate=lambda: None)
+            capsule = SimpleNamespace(command=(sys.executable, str(ROOT / 'tests/fixtures/agent_chat_peer.py')),
+                workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id, 'workspace': str(workspace)})
+            return capsule, None
+        synthetic = patch.object(chat_runtime._Worker, 'prepare', synthetic_prepare)
+        synthetic.start()
         from django.core.management import call_command
         from django.contrib.auth import get_user_model
         from backend.maipa.agent_accounts.models import AgentAccount
@@ -153,7 +176,7 @@ def main():
                 return [payload]
             return application(environ, start_response)
 
-        server = make_server("127.0.0.1", 0, first_intake_failure, handler_class=QuietHandler)
+        server = make_server("127.0.0.1", 0, first_intake_failure, server_class=ThreadedFixtureServer, handler_class=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
@@ -230,6 +253,15 @@ def main():
             evidence['scenarios'] = first_only + evidence['scenarios'][:-2] + resumed['scenarios']
             evidence['checks'] = len(evidence['scenarios'])
         finally:
+            with chat_runtime._lock:
+                workers = list(chat_runtime._workers.values())
+                for worker in workers:
+                    worker.stopping.set()
+            for worker in workers:
+                worker.thread.join(timeout=15)
+                if worker.thread.is_alive():
+                    raise ValueError('Synthetic agent worker cleanup failed')
+            synthetic.stop()
             server.shutdown()
             server.server_close()
             thread.join(timeout=5)

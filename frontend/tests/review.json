@@ -4,72 +4,72 @@
     {
       "scenario": "K05-CLIENT-IDENTITY.valid",
       "test": "workspace.test.mjs#session reads only the same-origin authenticated session with no-store",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
       "scenario_sha256": "ad80559a2002109a43fce4c1131d78f23c5d91dfd91419e0fa6928b0751da865",
       "expected_observation": "Use same-origin credentials and no-store; retain only the string principal ID, never the CSRF token",
       "decision": "aligned",
-      "reason": "Request path/options and exact output identity are asserted. The synthetic token must not appear in the retained model.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Use same-origin credentials and no-store; retain only the string principal ID, never the CSRF token. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-CLIENT-IDENTITY.refuse",
       "test": "workspace.test.mjs#anonymous sessions stay signed out",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
       "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
       "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
       "decision": "aligned",
-      "reason": "Exact anonymous/unavailable states are compared for every failure, including numeric/empty/path-like IDs. Mock transport does not establish real browser/backend behavior.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: 401 stays anonymous; every invalid or failed response stays unavailable without leaking server details. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-CLIENT-IDENTITY.refuse",
       "test": "workspace.test.mjs#malformed identity, server failures and network errors never claim authentication",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
       "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
       "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
       "decision": "aligned",
-      "reason": "Exact anonymous/unavailable states are compared for every failure, including numeric/empty/path-like IDs. Mock transport does not establish real browser/backend behavior.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: 401 stays anonymous; every invalid or failed response stays unavailable without leaking server details. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-APP-SHELL.structure",
-      "test": "workspace.test.mjs#workspace keeps two named panels and the published accessible splitter",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
-      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
-      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "test": "workspace.test.mjs#workspace starts with chat space and no empty work panel or fixed navigation",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
+      "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
-      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-APP-SHELL.structure",
       "test": "workspace.test.mjs#workspace exposes System, Light and Dark choices without fake finance or provider controls",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
-      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
-      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
+      "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
-      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-APP-SHELL.structure",
       "test": "workspace.test.mjs#theme storage is separate for each authenticated user and the signed-out workspace",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
-      "scenario_sha256": "9b722a027c947042cc27cd6293d7060ef1c8eb8dff07252cbab6bdde724cd2e3",
-      "expected_observation": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
+      "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
-      "reason": "Checks meaningful names/value, explicit appearance choices, no fake records/provider/composer controls and differing keys for user1/user2/signed-out. Markup does not prove interaction or computed contrast.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-APP-SHELL.recovery",
       "test": "workspace.test.mjs#failed session checks show recovery without leaking response details or showing data",
-      "source_sha256": "8fe1c643531cceb3025225d073ca1ea95a9232ddcb72a1e15fc757e346078848",
+      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
       "scenario_sha256": "6e6cb0dbdbbfd25271c4be777167c5594e8747bd577f7e1b467a7f317b65bc19",
       "expected_observation": "Show Workspace unavailable and a recovery action with no private diagnostic/token content",
       "decision": "aligned",
-      "reason": "The exact recovery state is required; raw response/key fragments must not appear.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Show Workspace unavailable and a recovery action with no private diagnostic/token content. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K04-FRONTEND-ALIGNMENT.valid",
@@ -352,6 +352,16 @@
       "reviewer": "Maipa independent native-browser readiness review; no external reviewer claimed"
     },
     {
+      "scenario": "BROWSER-CONNECTION-READINESS.file-open",
+      "test": "browser-profile.test.mjs#browser startup tolerates transient file open races but never accepts an unread or unsafe record",
+      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "scenario_sha256": "b723b8d9a9f663194f96bc14742cc8afc21a60993239fe38f8bf7659d6a2fd19",
+      "expected_observation": "Keep waiting on those transient opens; accept only the exact subsequently readable valid record, refuse unsafe records and propagate unrelated I/O errors.",
+      "decision": "aligned",
+      "reason": "Real owned file bytes and exact path/encoding/read counts are checked across each injected OS open race, then compared to the precise validated endpoint. Foreign URLs still return null and EIO still throws. Prior four test bodies are proved unchanged against HEAD after removing this new case; no timeout or app scenario is waived.",
+      "reviewer": "Maipa independent startup acceptance-to-test review; no external reviewer claimed"
+    },
+    {
       "scenario": "P03-CLIENT-AUTHORITY.1",
       "test": "authority.test.mjs#authority reads preserve exact decimal evidence and current server scope",
       "source_sha256": "fb041fcacf7661b65e332f38ecc42937affa8a9d3e4712ec08673d08b29260b3",
@@ -404,182 +414,122 @@
     {
       "scenario": "P04-LAYOUT-CLIENT.read",
       "test": "layout.test.mjs#saved layout reads are bounded same-origin and bound to the expected user",
-      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "source_sha256": "c5427c5ca16ed25926b9a9ab4ee7c17cccbd7bfebc8c16604bbc52c107c2b841",
       "scenario_sha256": "9a5082a4601fe3f3b26354f698b81895f6de7d5537533d7cebce954db5d111af",
       "expected_observation": "Accept only a bounded exact valid snapshot from the same-origin current principal",
       "decision": "aligned",
-      "reason": "Checks credentials, redirect policy, deadline and exact parsed snapshot. Wrong owner, fields, bounds, types, MIME, failures and oversized responses cannot produce ready.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Accept only a bounded exact valid snapshot from the same-origin current principal. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P04-LAYOUT-CLIENT.write",
       "test": "layout.test.mjs#layout writes use fresh CSRF identity and exact revision and verify the acknowledged change",
-      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "source_sha256": "c5427c5ca16ed25926b9a9ab4ee7c17cccbd7bfebc8c16604bbc52c107c2b841",
       "scenario_sha256": "41ae7bdae21cc447f17535b9620b8a142c92018e1113ffef43ead9685e4b11e4",
       "expected_observation": "Use fresh CSRF, scoped identity and expected revision and accept only the exact acknowledged next snapshot",
       "decision": "aligned",
-      "reason": "Captures both actual requests and exact mutation body. Wrong owner, layout ID, revision or saved width cannot be accepted as success; a conflict is explicit.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Use fresh CSRF, scoped identity and expected revision and accept only the exact acknowledged next snapshot. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P04-LAYOUT-CLIENT.uncertain",
       "test": "layout.test.mjs#layout gesture state saves once and unknown outcome requires an explicit reread",
-      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "source_sha256": "c5427c5ca16ed25926b9a9ab4ee7c17cccbd7bfebc8c16604bbc52c107c2b841",
       "scenario_sha256": "880171021a2f55812af7f50af3c42567e3c8f1b23e81feca27cc63db5a2d2820",
       "expected_observation": "Make only one mutation and preserve the unsaved width with unavailable state until explicit reread",
       "decision": "aligned",
-      "reason": "The production controller is exercised with a lost transport acknowledgement; the count proves no blind retry and reread restores server state.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Make only one mutation and preserve the unsaved width with unavailable state until explicit reread. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P04-LAYOUT-CLIENT.identity",
       "test": "layout.test.mjs#stale loads and disposed identities cannot publish another users saved width",
-      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "source_sha256": "c5427c5ca16ed25926b9a9ab4ee7c17cccbd7bfebc8c16604bbc52c107c2b841",
       "scenario_sha256": "bedf96276bd0d9ae6b682f534873e22b33d677552e56eb5557a08f91ec89a4d9",
       "expected_observation": "Ignore stale publications and never display the other principals width",
       "decision": "aligned",
-      "reason": "Deferred promises control response order. Asserts the winning width, no post-disposal notifications and failure for a cookie-principal mismatch.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Ignore stale publications and never display the other principals width. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P04-LAYOUT-CLIENT.inflight",
       "test": "layout.test.mjs#a pending commit locks further writes and stale acknowledgements after reload are ignored",
-      "source_sha256": "8a6d468571c8f80c4485d842fffbf6fde2ed41542b5d13e98b06d84fa00d3e9a",
+      "source_sha256": "c5427c5ca16ed25926b9a9ab4ee7c17cccbd7bfebc8c16604bbc52c107c2b841",
       "scenario_sha256": "22f769b55c01c9bb8d74d386116d7fa17210940df9375fde3a75a8d04943095b",
       "expected_observation": "Lock overlapping writes and ignore the stale mutation response",
       "decision": "aligned",
-      "reason": "Counts real client calls while a mutation promise is pending and checks the final server-read width survives a late otherwise-valid acknowledgement.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
-      "scenario": "P04-WORK-VIEWS.composition",
-      "test": "user-panel.test.mjs#published screen bridge creates navigates updates and removes bounded work views",
-      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
-      "scenario_sha256": "a46c2bfa0f07925f9aa51202b25a8052a67d26350b99dede65a3f9c7b2aed364",
-      "expected_observation": "The controlled active view and schema change through actual package tools and the real panel renders a Fancy screen",
-      "decision": "aligned",
-      "reason": "Calls the real published bridge rather than a fake dispatcher; compares active ID and full schema, then renders the product component and verifies Fancy screen markup.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
-      "scenario": "P04-WORK-VIEWS.validation",
-      "test": "user-panel.test.mjs#schema validation rejects arbitrary code bindings unsafe props and unbounded documents",
-      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
-      "scenario_sha256": "622c0dd1121262fd646063d9f9af4a8290f3e7f62d2ecee47984fb3db6fa57f7",
-      "expected_observation": "Reject the document before rendering while accepting a registered bounded composition",
-      "decision": "aligned",
-      "reason": "Tests code/URL surfaces, dangerous props, identity mass assignment, large strings, duplicate handles and duplicate fact surfaces; the valid document is compared exactly.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
-      "scenario": "P04-WORK-VIEWS.isolation",
-      "test": "user-panel.test.mjs#invalid bridge changes preserve the current catalog and never gain another principals views",
-      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
-      "scenario_sha256": "f8aa9125aa60f12b4257780f0176550d3089b1e8532315e6f70f9148251b3104",
-      "expected_observation": "Invalid operations preserve the complete catalog, other users cannot enumerate or select the view, and disposed tools are withdrawn",
-      "decision": "aligned",
-      "reason": "Compares the full before/after state after every rejection and checks the other instance remains at its two builtins; old-session calls must reject after disposal. Added direct checks that published undo/history cannot select a foreign agent identity, unknown owner arguments are refused, and disposal withdraws all tools including the shared undo tools. Security review adds own JSON __proto__ and constructor argument names: neither is a declared tool property, so both must return isError and preserve state. This observed red catches inherited Object.prototype membership checks rather than an authorization bypass.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
-      "scenario": "P04-WORK-VIEWS.bounds",
-      "test": "user-panel.test.mjs#accepted schema is copied and view quotas and reserved builtins remain enforced",
-      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
-      "scenario_sha256": "bfa0ca7f801bbe8c941b2122fe085ed3f8921094675928bc3539d3c0b7fa09ef",
-      "expected_observation": "The accepted schema remains unchanged and the rejected ninth view changes no state",
-      "decision": "aligned",
-      "reason": "Mutates the original nested note, fills all six generated slots, and compares the full catalog after overflow. Builtin protection is also exercised by the isolation case.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
-      "scenario": "BROWSER-CONNECTION-READINESS.file-open",
-      "test": "browser-profile.test.mjs#browser startup tolerates transient file open races but never accepts an unread or unsafe record",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
-      "scenario_sha256": "b723b8d9a9f663194f96bc14742cc8afc21a60993239fe38f8bf7659d6a2fd19",
-      "expected_observation": "Keep waiting on those transient opens; accept only the exact subsequently readable valid record, refuse unsafe records and propagate unrelated I/O errors.",
-      "decision": "aligned",
-      "reason": "Real owned file bytes and exact path/encoding/read counts are checked across each injected OS open race, then compared to the precise validated endpoint. Foreign URLs still return null and EIO still throws. Prior four test bodies are proved unchanged against HEAD after removing this new case; no timeout or app scenario is waived.",
-      "reviewer": "Maipa independent startup acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Lock overlapping writes and ignore the stale mutation response. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.1",
       "test": "preferences.test.mjs#personal preference reads are bounded same-origin and reject foreign or unsupported state",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "bc8058b358ec45a3a84bef77c119092a6bfaca1d68a294ee2e34ca1fbfb86d20",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Use bounded same-origin no-store requests and reject foreign identities, unsupported fields/choices, oversized data and wrong media types.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Use bounded same-origin no-store requests and reject foreign identities, unsupported fields/choices, oversized data and wrong media types.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.2",
       "test": "preferences.test.mjs#preference writes send exact choices identity revision and fresh CSRF and verify the acknowledgement",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "9d0803373170e06ca6e43d065ca07a2b30881c3d88589f6f233f644ff215b102",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Use fresh CSRF and exact safe fields; accept only an acknowledgement with the same owner/identity, next revision and exact requested choices.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Use fresh CSRF and exact safe fields; accept only an acknowledgement with the same owner/identity, next revision and exact requested choices.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.3",
       "test": "preferences.test.mjs#invalid preference fields and unsafe HTTP outcomes never become accepted settings",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "0b7aed83b03dfe6125a21fc61bf8e1b29c16b81f931311d2facdca3cc98279dc",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Send no invalid request and expose only fixed unavailable/conflict results without inventing success.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Send no invalid request and expose only fixed unavailable/conflict results without inventing success.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.4",
       "test": "preferences.test.mjs#an unknown preference save pauses writes until an explicit authoritative reload",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "203e575374032d48aba01850255e8386dcced6d72b28be17ef290704b39d248e",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Pause additional writes and reconcile authoritative state through a deliberate reload; expose no raw diagnostics.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Pause additional writes and reconcile authoritative state through a deliberate reload; expose no raw diagnostics.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.5",
       "test": "preferences.test.mjs#late preference loads and disposed identities cannot publish into another principal",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "e710569c212780b5b192b9b7750c89a75d9adf6f82a69aba4d1d3614b69c80f6",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Keep the newest live principal state and reject foreign snapshots; disposed callbacks never publish.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Keep the newest live principal state and reject foreign snapshots; disposed callbacks never publish.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.6",
       "test": "preferences.test.mjs#pending preference writes lock further mutations and stale acknowledgements cannot overwrite a reload",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
       "scenario_sha256": "c4057ee73073657a48bc55b0759ccaa82676324edc5b360f10b9e0847e294020",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
       "expected_observation": "Issue one write only and ignore the stale acknowledgement after reload.",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
-    },
-    {
-      "scenario": "P05-PREFERENCES-UI.7",
-      "test": "preferences.test.mjs#human and published screen navigation share the preference boundary and restore never writes",
-      "scenario_sha256": "5fea6ff2b77ef2716a1311434ed4ee0d24345d0dce30ecf9b965376404caa10c",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
-      "expected_observation": "Both navigation paths use the same gate and accepted built-in handles; restoration updates controlled state without writing and rejects arbitrary handles.",
-      "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Issue one write only and ignore the stale acknowledgement after reload.. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P05-PREFERENCES-UI.8",
       "test": "preferences.test.mjs#authenticated workspace exposes loading and recovery state before allowing preference edits",
-      "scenario_sha256": "2f59966b1c69a6ad1e2f7aebd841424e2df34e22d5be61a9f5ad0c89bb582633",
-      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
-      "expected_observation": "Show honest loading state, disable appearance edits and avoid provider/finance readiness claims.",
+      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "scenario_sha256": "fbb8842257f8de80e5350460b39d7afb302e9e0c57b93d30c03a11b1a0cb3963",
+      "expected_observation": "Expose loading through controlled state, disable appearance edits, retain the actual chat composer and render no fixed guide or redundant loading banner",
       "decision": "aligned",
-      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
-      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Expose loading through controlled state, disable appearance edits, retain the actual chat composer and render no fixed guide or redundant loading banner. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-ACCESS-UI.read",
@@ -622,84 +572,144 @@
       "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
     },
     {
-      "scenario": "P06-ACCESS-UI.shared-view",
-      "test": "user-panel.test.mjs#administration is a fixed optional shared view without changing saved work preferences",
-      "source_sha256": "ebbd071e5e655e57f4c2dd0ca4d0cc6e1ddd4aa7f928858c96db81d0db699b6b",
-      "scenario_sha256": "d04773d21baa15811d1cb40f0e44ebc4cab11e7c8004907632c177a150afd733",
-      "expected_observation": "Only one fixed admin screen is added; shared navigation preserves work preferences and arbitrary schemas/reserved-ID impersonation stay refused",
-      "decision": "aligned",
-      "reason": "Reviewed exact request/response/state assertions against the independent admin outcomes; fixed synthetic fetches test the adapter only, actual backend/browser gates remain required.",
-      "reviewer": "Maipa acceptance-to-test review; no external reviewer claimed"
-    },
-    {
       "scenario": "P06-CLIENT-CATALOG-UI-01-01",
       "test": "client-catalog.test.mjs#catalog reads bind the mounted actor selected engagement and bounded private response",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Checks parsed empty and populated state plus exact request and transport protections.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "e9ae8912a03d45eb8f0ca006eae8e504bea3108c94cd2b4127419036f76758c6",
       "expected_observation": "Only actor/selection-bound exact catalog state is accepted with same-origin no-store no-redirect and deadline options",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "e9ae8912a03d45eb8f0ca006eae8e504bea3108c94cd2b4127419036f76758c6"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Only actor/selection-bound exact catalog state is accepted with same-origin no-store no-redirect and deadline options. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-02",
       "test": "client-catalog.test.mjs#foreign malformed duplicate and oversized catalog snapshots never enter UI state",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Independent adversarial payloads exercise identity, selected-page count, duplicate IDs, private-field rejection and actual response byte bounds.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "aac42f8df51f7223a5016fe82c2167775c3c87b33c4c21764e433484c5f1cb27",
       "expected_observation": "Every malformed or overbudget response is unavailable and malformed selection makes no network call",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "aac42f8df51f7223a5016fe82c2167775c3c87b33c4c21764e433484c5f1cb27"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Every malformed or overbudget response is unavailable and malformed selection makes no network call. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-03",
       "test": "client-catalog.test.mjs#catalog writes send only the closed command and bind csrf original actor identity install and revision",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Checks all four action shapes, HTTP methods/statuses, headers, wire body and complete receipt, not only a truthy save result.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "ffd2fa516d374af0f838aaa27a2717a15b3cedb1612dd43ca5c63629a3040e0f",
       "expected_observation": "One CSRF-protected write sends exact action fields with original actor/state/install/revision and accepts its exact next-revision receipt",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "ffd2fa516d374af0f838aaa27a2717a15b3cedb1612dd43ca5c63629a3040e0f"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: One CSRF-protected write sends exact action fields with original actor/state/install/revision and accepts its exact next-revision receipt. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-04",
       "test": "client-catalog.test.mjs#stale denied unconfirmed and mismatched catalog receipts never claim success or retry a write",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Actor/state/install/revision/action/target/engagement and unexpected private receipt fields are tested separately alongside status handling and write count.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "cd6c46c5d7db807dac1b0a4439d67cc54e2f1203010c0bda30211f5ac19fdb6c",
       "expected_observation": "No incorrect result claims success and each attempt performs exactly one write without retry",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "cd6c46c5d7db807dac1b0a4439d67cc54e2f1203010c0bda30211f5ac19fdb6c"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: No incorrect result claims success and each attempt performs exactly one write without retry. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-05",
       "test": "client-catalog.test.mjs#unknown targets authority fields unsafe names and unsupported commands are refused before network use",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "No-network assertions test that only closed supported UI choices cross the client boundary; the server independently enforces current scope.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "98baf386cee54ea8b707eb93689e67fb7c6b4504df961a6f603cc9eabc1078fd",
       "expected_observation": "Every invalid choice is refused before any fetch",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "98baf386cee54ea8b707eb93689e67fb7c6b4504df961a6f603cc9eabc1078fd"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Every invalid choice is refused before any fetch. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-06",
       "test": "client-catalog.test.mjs#client administration discovery admits preparers and administrators with actual server authority still required",
-      "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Exercises both allowed roles and denied roles/invalid response shapes; it grants no server authorization.",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "12805d230506be6496d7715083f0ad7c40e73702d645d86dd6b77443f4903170",
       "expected_observation": "Only valid preparer/administrator discovery enables the optional view",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "12805d230506be6496d7715083f0ad7c40e73702d645d86dd6b77443f4903170"
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Only valid preparer/administrator discovery enables the optional view. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     },
     {
       "scenario": "P06-CLIENT-CATALOG-UI-01-07",
-      "test": "client-catalog.test.mjs#client setup is a reserved optional shared screen which preserves saved view choices and principal scope",
+      "test": "client-catalog.test.mjs#client setup is an on-demand registered component with server-owned bindings",
+      "source_sha256": "088e33095d3669e3eb426737ff585351229d3c915d92a3190e47fe54741be8fa",
+      "scenario_sha256": "49adc17d29e1d174cd1a4f2f12a86d31782650e2c92d8a36f214c37e1d0cf462",
+      "expected_observation": "Accept the registered leaf with its stable handle and refuse every model-selected data or authority binding",
       "decision": "aligned",
-      "reviewer": "Maipa: independent client administration UI review (no external reviewer)",
-      "reason": "Actual published MCP bridge calls prove reservation, shared navigation and principal separation; callback assertions protect saved work preferences and disposal removes tools.",
-      "expected_observation": "Only the fixed optional view can be shared by its own principal; arbitrary schema, reserved creation, mutation and deletion refuse while saved work preference stays unchanged",
-      "source_sha256": "3853882892525854d1d00010fc3530e624608e97ed649bceb6f89b25b20ff835",
-      "scenario_sha256": "0d40c1323464e7db5c38476fc8a0dfbabc4814e8ef0f4bc43d0518241e511363"
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Accept the registered leaf with its stable handle and refuse every model-selected data or authority binding. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SHARED-SURFACE.render",
+      "test": "agent-surface.test.mjs#Fancy renders the controlled authored composition without fixed navigation or executable text",
+      "source_sha256": "2ce47deb836a09dbef87b5f3002ecec4ea243c72053865421de159d27bdb6507",
+      "scenario_sha256": "856af52941c629d7384dd557c7f0a91f51cca83020971a17b95b4b00473fe1d1",
+      "expected_observation": "Render the stable user-scoped Fancy screen with escaped commentary and no fixed navigation; a null composition renders nothing",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Render the stable user-scoped Fancy screen with escaped commentary and no fixed navigation; a null composition renders nothing. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SHARED-SURFACE.schema",
+      "test": "agent-surface.test.mjs#composition validation refuses code selectors repeated controls duplicate IDs and oversized trees",
+      "source_sha256": "2ce47deb836a09dbef87b5f3002ecec4ea243c72053865421de159d27bdb6507",
+      "scenario_sha256": "a04318316a05e2f6a73993050547b84b365bb935893ff4f968cc6e993cf4ce32",
+      "expected_observation": "Refuse executable types/props, foreign selectors, repeated controls, duplicate IDs, overlong notes and oversized trees; recognized admin components still require server authority",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Refuse executable types/props, foreign selectors, repeated controls, duplicate IDs, overlong notes and oversized trees; recognized admin components still require server authority. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SHARED-SURFACE.copy",
+      "test": "agent-surface.test.mjs#accepted composition is detached from caller-owned schema and preserves stable handles",
+      "source_sha256": "2ce47deb836a09dbef87b5f3002ecec4ea243c72053865421de159d27bdb6507",
+      "scenario_sha256": "4a4a1f1ab6a6000a09e5cdb60338edeaa217caba83488e32f6bafac60b89261b",
+      "expected_observation": "Retain the exact accepted text and authored handle without a mutable alias",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Retain the exact accepted text and authored handle without a mutable alias. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SHARED-SURFACE.receipt",
+      "test": "agent-surface.test.mjs#published Human+ host awaits the owned server receipt and rejects stale foreign or disposed controls",
+      "source_sha256": "2ce47deb836a09dbef87b5f3002ecec4ea243c72053865421de159d27bdb6507",
+      "scenario_sha256": "0012e908934d66b863a2976c2832cd02db46baa169cb81eceabd864fc1888877",
+      "expected_observation": "Refuse stale or authority-shaped controls without a write; do not acknowledge the valid close before its exact owned server receipt; withdraw disposed tools",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Refuse stale or authority-shaped controls without a write; do not acknowledge the valid close before its exact owned server receipt; withdraw disposed tools. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-CHAT-CLIENT.state",
+      "test": "agent-chat.test.mjs#an empty conversation has no predefined panel and never claims a provider connection",
+      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "scenario_sha256": "84ad12b5cde42e55bb95df4edff14db6508096efa281051cecdd6bc59f70157f",
+      "expected_observation": "Keep empty state free of predefined panels and false provider readiness; refuse malformed fields",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Keep empty state free of predefined panels and false provider readiness; refuse malformed fields. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-CHAT-CLIENT.stream",
+      "test": "agent-chat.test.mjs#stream parsing survives split UTF-8 and frames and stops after revocation",
+      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "scenario_sha256": "dde0496d184024d6355364107fa097e1268e5904e265d89d05359fe171f59407",
+      "expected_observation": "Deliver one exact Unicode state and stop on session revocation",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Deliver one exact Unicode state and stop on session revocation. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-CHAT-CLIENT.composition",
+      "test": "agent-chat.test.mjs#server composition preserves authored handles and rejects executable props",
+      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "scenario_sha256": "bdc7ce7657d4063a24b2e44001a46f25f7eeb20a87a2b542cd6c29839baec8d5",
+      "expected_observation": "Preserve the authored handle and refuse executable UI before rendering",
+      "decision": "aligned",
+      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Preserve the authored handle and refuse executable UI before rendering. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
+      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
     }
   ]
 }

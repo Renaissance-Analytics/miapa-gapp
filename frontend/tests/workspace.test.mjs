@@ -35,19 +35,16 @@ test("theme storage is separate for each authenticated user and the signed-out w
   assert.notEqual(themeStorageKey({ state: "anonymous" }), themeStorageKey({ state: "authenticated", userId: "1" }));
 });
 
-test("workspace keeps two named panels and the published accessible splitter", () => {
+test("workspace starts with chat space and no empty work panel or fixed navigation", () => {
   const html = renderToStaticMarkup(React.createElement(Workspace, { session: { state: "anonymous" }, refresh: () => {} }));
   assert.match(html, /aria-label="Conversation"/);
-  assert.match(html, /aria-label="Work area"/);
-  assert.match(html, /role="separator"/);
-  assert.match(html, /aria-label="Resize conversation and work area"/);
-  assert.match(html, /aria-valuenow="28"/);
+  assert.doesNotMatch(html, /aria-label="Work area"|role="separator"|Workspace guide|work-view-controls/);
 });
 
 test("workspace exposes System, Light and Dark choices without fake finance or provider controls", () => {
   const html = renderToStaticMarkup(React.createElement(Workspace, { session: { state: "anonymous" }, refresh: () => {} }));
   for (const name of ["System", "Light", "Dark"]) assert.match(html, new RegExp(`>${name}<`));
-  assert.match(html, /Sign in to begin/);
+  assert.match(html, /aria-label="Account and appearance"/);
   assert.doesNotMatch(html, /\$[\d,]+|<textarea|Send message|Connected to (Claude|Codex)/);
 });
 

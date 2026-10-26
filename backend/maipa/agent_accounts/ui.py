@@ -7,6 +7,7 @@ from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import DatabaseError, transaction
+from django.db import connections
 from django.db.models import F
 
 from backend.maipa.workspace.models import Membership
@@ -220,7 +221,17 @@ def bind_ui_handler(actor, account_id, identity):
 
     @sync_to_async(thread_sensitive=True)
     def dispatch(request):
-        return dispatch_ui(get_user_model().objects.get(pk=user_id), account_id, identity, request)
+        for connection in connections.all():
+            if not connection.in_atomic_block:
+                connection.close_if_unusable_or_obsolete()
+        try:
+            return dispatch_ui(get_user_model().objects.get(pk=user_id), account_id, identity, request)
+        finally:
+            # Background consumers have no Django request-finished hook. Keep an
+            # enclosing test/request transaction intact, otherwise release handles.
+            for connection in connections.all():
+                if not connection.in_atomic_block:
+                    connection.close()
 
     async def handle(request):
         return await dispatch(request)

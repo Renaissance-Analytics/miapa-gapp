@@ -19,13 +19,16 @@ from .windows_sandbox import SandboxUnavailable, physical_path
 
 
 class WorkerCapsule:
-    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None, ui_tools=False):
+    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None, ui_tools=False, provider_runtime=None):
         # A server-configured Node install may use a version-manager alias.
         # Resolve that trusted executable once, then validate and copy its
         # physical bytes. Runtime and writable paths never accept reparse hops.
         self.root, self.runtime, self.node = Path(root), physical_path(runtime), physical_path(Path(node).resolve(strict=True), directory=False)
         self.scope, self.provider, self.temporary = scope, provider, None
         self.profile_lease = profile_lease
+        self.provider_runtime = provider_runtime
+        if provider_runtime is not None and (provider != 'codex' or profile_lease is None):
+            raise SandboxUnavailable('Provider runtime unavailable')
         if type(ui_tools) is not bool or (ui_tools and provider != 'codex'):
             raise SandboxUnavailable('Worker UI transport unavailable')
         self.ui_tools = ui_tools
@@ -83,6 +86,8 @@ class WorkerCapsule:
             files = [self.runtime / name for name in ("host.mjs", "package.json", "package-lock.json")]
             if self.ui_tools:
                 files.append(self.runtime / 'ui-mcp.mjs')
+            if self.provider_runtime is not None:
+                files.append(self.runtime / 'account.mjs')
             files.extend(path for path in package.rglob("*") if not path.is_dir())
             total, self.files_sha256 = 0, {}
             for source in files:
@@ -101,6 +106,18 @@ class WorkerCapsule:
                 if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
                     raise SandboxUnavailable("Worker runtime unavailable")
                 self.files_sha256[relative.as_posix()] = digest
+            if self.provider_runtime is not None:
+                from .agent_accounts.provider_runtime import verify_codex, codex_lock
+                native = verify_codex(self.provider_runtime)
+                for name, expected in codex_lock()['files'].items():
+                    source = physical_path(native / name, directory=False)
+                    target = self.code / 'provider' / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with source.open('rb') as input_file, target.open('xb') as output_file:
+                        shutil.copyfileobj(input_file, output_file, length=1048576)
+                    with target.open('rb') as copied:
+                        if target.stat().st_size != expected['size'] or hashlib.file_digest(copied, 'sha256').hexdigest() != expected['sha256']:
+                            raise SandboxUnavailable('Provider runtime unavailable')
             entry = (self.code / "node_modules/@particle-academy/prism-acp/dist/index.js").as_uri()
             script = "import {prepareProcessTree} from " + json.dumps(entry) + "; await prepareProcessTree({directory:process.argv[1]});"
             allowed = {"PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA"}
@@ -112,6 +129,8 @@ class WorkerCapsule:
                 "workspace": str(self.workspace), "home": str(self.home), "supervisor_directory": str(self.supervisor)}
             if self.ui_tools:
                 self.profile['ui_tools'] = True
+            if self.provider_runtime is not None:
+                self.profile['provider_binary'] = str(self.code / 'provider' / codex_lock()['entry'])
             # All capsule ancestors/files are already checked for reparse
             # points by the server. Avoid Node's extra realpath traversal into
             # inaccessible parent directories; do not broaden their ACLs.

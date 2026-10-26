@@ -150,4 +150,69 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .intake-history ol { list-style: none; padding: 0; max-height: 26rem; overflow: auto; }
 .intake-history li { padding: .85rem 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
 .intake-history li p { margin: .25rem 0; font-size: .85rem; }
+.agent-first { min-height: 0; }
+.agent-first .app-header { padding: 9px 18px; gap: 12px; height: 54px; flex-shrink: 0; }
+.agent-first .brand-mark { width: 28px; height: 28px; border-radius: 8px; font-size: 24px; }
+.agent-first .brand { gap: 8px; }
+.agent-first .brand h1 { font-size: 17px; }
+.shell-controls { display: flex; align-items: center; gap: 16px; }
+.account-menu { position: relative; }
+.account-menu summary { cursor: pointer; font-size: 12px; color: var(--muted); padding: 6px; }
+.account-popover { position: absolute; z-index: 30; right: 0; top: calc(100% + 12px); display: grid; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; box-shadow: 0 8px 30px #00000012; }
+.shell-recovery { font-size: 12px; padding: 4px 18px; border-bottom: 1px solid var(--border); }
+.local-access { margin: auto; padding: 24px; width: min(100%, 450px); }
+.local-access .sign-in-form { margin-top: 20px; }
+.agent-workspace { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.agent-shell-panels { flex: 1; min-height: 0; }
+.agent-shell-panels > [role="separator"] { background: var(--border); }
+.chat-only .agent-shell-panels > [role="separator"], .chat-only .agent-shell-panels > :has(> .contextual-panel) { display: none; }
+.chat-only .agent-shell-panels > :has(> .conversation) { flex: 1 !important; width: 100% !important; }
+.conversation { height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--surface); }
+.conversation-body { flex: 1; min-height: 0; overflow: auto; padding: 24px max(18px, calc((100% - 780px) / 2)); scrollbar-gutter: stable; }
+.conversation-welcome { margin: min(12dvh, 100px) 0 28px; max-width: 620px; }
+.conversation-welcome h2 { font-size: clamp(24px, 3vw, 34px); line-height: 1.2; letter-spacing: -.9px; margin: 12px 0; font-weight: 550; }
+.conversation-welcome p { font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 56ch; }
+.chat-message { margin: 0 0 24px; overflow-wrap: anywhere; }
+.chat-message > span { font-size: 11px; font-weight: 650; color: var(--muted); }
+.chat-message p { margin: 6px 0; white-space: pre-wrap; line-height: 1.75; }
+.chat-message.user { background: var(--canvas); border-radius: 12px; padding: 12px 16px; margin-left: min(12%, 80px); }
+.chat-message small { color: var(--muted); }
+.chat-controls { padding: 8px max(18px, calc((100% - 780px) / 2)) 16px; }
+.chat-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.chat-status > span { margin-right: auto; }
+.chat-status button { min-height: 28px; padding-block: 3px; }
+.chat-composer { display: flex; align-items: end; gap: 8px; border: 1px solid var(--control-border); border-radius: 13px; padding: 8px; background: var(--surface); }
+.chat-composer:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chat-composer textarea { flex: 1; min-width: 0; resize: vertical; max-height: 180px; min-height: 48px; padding: 6px 8px;
+  border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; line-height: 1.6; }
+.chat-composer > button { background: var(--accent); color: var(--on-accent); border-radius: 8px; }
+.contextual-panel { height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--canvas); }
+.contextual-panel[hidden] { display: none; }
+.contextual-panel > header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+.contextual-panel > header h2 { font-size: 14px; margin: 0; }
+.composition-body { flex: 1; min-height: 0; overflow: auto; padding: 16px; }
+.composition-stack { display: grid; gap: 14px; }
+.agent-commentary { padding: 12px 14px; border-left: 2px solid var(--accent); background: var(--surface); }
+.agent-commentary small { color: var(--muted); }
+.agent-commentary p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; margin: 6px 0; }
+.provider-signin { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; }
+.provider-signin h3 { margin-top: 0; }
+.provider-signin p { color: var(--muted); line-height: 1.6; }
+.provider-signin a { color: var(--accent); text-decoration: underline; }
+.device-code { color: var(--ink); font-family: ui-monospace, monospace; }
+.context-switch { display: none; }
+@media (max-width: 700px) {
+  .agent-first .app-header { padding-inline: 12px; }
+  .shell-controls { gap: 6px; }
+  .agent-first .build-version { display: none; }
+  .context-switch { display: flex; gap: 6px; padding: 4px 10px; border-bottom: 1px solid var(--border); }
+  .agent-shell-panels > [role="separator"] { display: none; }
+  .agent-shell-panels > :has(> section) { flex: 1 !important; width: 100% !important; }
+  .has-composition.focus-panel .agent-shell-panels > :has(> .conversation),
+  .has-composition.focus-chat .agent-shell-panels > :has(> .contextual-panel) { display: none; }
+  .conversation-body { padding: 20px 14px; }
+  .chat-controls { padding: 6px 12px 12px; }
+  .composition-body { padding: 12px; }
+}
 @media (max-width: 700px) { .intake-facts > div { grid-template-columns: 1fr auto; } .intake-facts dd { grid-column: 1; } .intake-facts button { grid-row: 1 / 3; grid-column: 2; } }

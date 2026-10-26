@@ -3,7 +3,6 @@ import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { PreferencesController, readPreferences, savePreferences } from '../.test-build/preferences.js';
-import { UserPanelModel } from '../.test-build/user-panel.js';
 import { Workspace } from '../.test-build/App.js';
 
 const snapshot = { preferences_id: '61525eda-df14-4e4b-a369-4f8c20dc95ed', user_id: '1', revision: 0, theme: 'system', active_view: 'client-facts' };
@@ -121,28 +120,11 @@ test('pending preference writes lock further mutations and stale acknowledgement
   assert.deepEqual(controller.current, { phase: 'ready', theme: 'system', active_view: 'client-facts' });
 });
 
-test('human and published screen navigation share the preference boundary and restore never writes', async () => {
-  const chosen = [];
-  let ready = false;
-  const model = new UserPanelModel('1', id => { if (!ready) return false; chosen.push(id); return true; });
-  assert.equal((await model.server.callTool('screens_navigate', { screen: 'workspace-guide' })).isError, true);
-  assert.equal(model.current.active, 'client-facts');
-  ready = true;
-  model.navigate('workspace-guide');
-  assert.equal(model.current.active, 'workspace-guide');
-  await model.server.callTool('screens_navigate', { screen: 'client-facts' });
-  assert.deepEqual(chosen, ['workspace-guide', 'client-facts']);
-  model.restoreBuiltin('workspace-guide');
-  assert.equal(model.current.active, 'workspace-guide');
-  assert.deepEqual(chosen, ['workspace-guide', 'client-facts']);
-  assert.throws(() => model.restoreBuiltin('untrusted-view'));
-  model.dispose();
-});
-
 test('authenticated workspace exposes loading and recovery state before allowing preference edits', () => {
   const html = renderToStaticMarkup(React.createElement(Workspace, { session: { state: 'authenticated', userId: '1' }, refresh() {} }));
   assert.match(html, /data-preferences-state="loading"/);
-  assert.match(html, /Loading your appearance and view/);
+  assert.match(html, /aria-label="Message Maipa"/);
+  assert.doesNotMatch(html, /Workspace guide|work-view-controls|Loading your appearance and view/);
   const dark = html.match(/<button\b[^>]*id="maipa-theme-dark"[^>]*>/)?.[0];
   assert.ok(dark);
   assert.match(dark, /\bdisabled=""/);

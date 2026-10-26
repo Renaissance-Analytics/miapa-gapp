@@ -11,7 +11,7 @@ export function SetupReview({ value }: { value: OnboardingState }) {
       <dd>{item === null ? 'Unknown for now' : key === 'workspace' ? item === 'new' ? 'New client' : item === 'later' ? 'Do this later' : 'Existing client' : String(item)}</dd></div>)}</dl>;
 }
 
-export function AccountSetupChat({ onOpenFacts }: { onOpenFacts: () => void }) {
+export function AccountSetupChat({ onOpenFacts, providerReady = false }: { onOpenFacts: () => void; providerReady?: boolean }) {
   const [value, setValue] = useState<OnboardingState | null>(null);
   const [answer, setAnswer] = useState('');
   const [busy, setBusy] = useState(true);
@@ -53,7 +53,7 @@ export function AccountSetupChat({ onOpenFacts }: { onOpenFacts: () => void }) {
         <span>{item.role === 'guide' ? 'Maipa setup guide' : 'You'}</span><p>{item.text}</p></div>)}
       {value && step === 'review' && <SetupReview value={value} />}
       {value && step === 'complete' && <p className="setup-provider-note">{value.deferred ? 'Client setup is deferred. You can continue it here when ready.' : value.entity_id ? 'Your confirmed client facts are saved.' : 'Your account profile is saved. Your role allows read-only client access.'}
-        {' '}Agent connection still requires setup. This guide does not connect a model account.</p>}
+        {!providerReady && ' Connect your ChatGPT subscription from the conversation when you are ready.'}</p>}
       <div ref={end} />
     </div>
     {busy && !value && <p role="status">Opening your saved setup…</p>}

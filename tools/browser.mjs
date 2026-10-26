@@ -1,7 +1,7 @@
 // Owned native-browser fixture only. No installed driver, arbitrary debug URL or human profile.
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
@@ -69,13 +69,44 @@ function command(method, params = {}) {
   });
 }
 async function click(label) {
-  const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`), `Visible enabled button ${label}`);
+  if (['Dark', 'Light', 'System', 'Sign out'].includes(label)
+      && !await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
+  if (label === 'Account setup' && await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Account setup')?.getAttribute('aria-expanded')==='true'")) return;
+  const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button, summary')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled || b.closest('[inert]')) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`), `Visible enabled button ${label}`);
   assert.ok(point, `Visible button ${label}`);
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
 }
+
+async function waitForAgent(type) {
+  await until(() => evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();
+    const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();
+    return c.phase==='ready'&&c.messages.at(-1)?.state==='complete'&&c.ui?.composition?.schema.type===${JSON.stringify(type)};})()`), 'agent completed a shared composition');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'stream acknowledged completed agent turn');
+}
+async function requestComponent(prompt, type) {
+  if (await evaluate("matchMedia('(max-width:700px)').matches && document.querySelector('.has-composition') && document.querySelector('.focus-panel')")) await click('Conversation');
+  await until(() => evaluate("!!document.querySelector('textarea[aria-label=\"Message Maipa\"]')"), 'live chat composer');
+  await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').focus();true");
+  await command('Input.dispatchKeyEvent', {type:'keyDown',key:'a',windowsVirtualKeyCode:65,modifiers:2});
+  await command('Input.dispatchKeyEvent', {type:'keyUp',key:'a',windowsVirtualKeyCode:65,modifiers:2});
+  await command('Input.insertText', {text:prompt});
+  await click('Send');
+  await waitForAgent(type);
+  if (await evaluate("matchMedia('(max-width:700px)').matches")) await click('Shared work');
+  const screenshot = await command('Page.captureScreenshot', { format: 'png' });
+  writeFileSync('artifacts/ci/agent-shell-preview.png', Buffer.from(screenshot.data, 'base64'));
+}
+
+async function typeChat(text) {
+  await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').focus();true");
+  await command('Input.dispatchKeyEvent', {type:'keyDown',key:'a',windowsVirtualKeyCode:65,modifiers:2});
+  await command('Input.dispatchKeyEvent', {type:'keyUp',key:'a',windowsVirtualKeyCode:65,modifiers:2});
+  await command('Input.insertText', {text});
+}
+
 async function preferencesReady() {
-  await until(() => evaluate("document.querySelector('[data-preferences-state]')?.dataset.preferencesState === 'ready'"), 'saved preferences ready');
+  await until(() => evaluate("!!document.querySelector('.agent-workspace') && document.querySelector('[data-preferences-state]')?.dataset.preferencesState === 'ready'"), 'saved preferences ready');
 }
 async function fill(id, value) {
   assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
@@ -144,7 +175,7 @@ try {
     await fill('maipa-username', fixture.username);
     await fill('maipa-password', fixture.password);
     await click('Sign in');
-    await until(() => evaluate("document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'fresh-profile saved layout');
+    await until(() => evaluate("!!document.querySelector('.agent-workspace') && document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'fresh-profile saved layout');
     const restored = await evaluate("(async()=>({value:document.querySelector('[role=separator]').getAttribute('aria-valuenow'),layout:await(await fetch('/api/workspace/layout/')).json()}))()");
     assert.equal(restored.layout.user_id, fixture.user_id);
     assert.equal(restored.layout.split_basis_points, fixture.expected_points);
@@ -155,7 +186,7 @@ try {
     assert.equal(preferences.user_id, fixture.user_id);
     assert.equal(preferences.theme, 'dark');
     assert.equal(preferences.active_view, 'workspace-guide');
-    await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'fresh-profile saved appearance and view');
+    await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'fresh-profile appearance and conversation restored');
     assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), '#111714');
     record('preferences-fresh-browser-restore');
   } else if (fixture.first_run) {
@@ -169,7 +200,7 @@ try {
     await fill('maipa-admin-password', fixture.password);
     await fill('maipa-admin-confirmation', fixture.password);
     await click('Create administrator');
-    await until(() => evaluate("document.body.innerText.includes('Signed in')"), 'created administrator session');
+    await until(() => evaluate("!!document.querySelector('.agent-workspace')"), 'created administrator session');
     await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), 'new-account update notes');
     await click('Got it');
     const admin = await evaluate("(async()=>({workspace:await(await fetch('/api/workspace/')).json(),setup:await(await fetch('/api/setup/')).json()}))()");
@@ -191,7 +222,7 @@ try {
     await atStep('workspace');
     checkpoint = 'setup_resume';
     await command('Page.reload');
-    await until(() => evaluate("!![...document.querySelectorAll('button')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
+    await until(() => evaluate("!![...document.querySelectorAll('button, summary')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
     await click('Account setup');
     await atStep('workspace');
     assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup conversation\"]').innerText.includes('Synthetic onboarding owner')"));
@@ -223,7 +254,7 @@ try {
     const stale = await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/onboarding/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Setup':${JSON.stringify(before.setup.setup_id)}},body:JSON.stringify({expected_revision:${before.setup.revision},action:'reply',answer:'confirm'})})).status;})()`);
     assert.equal(stale, 409);
     checkpoint = 'setup_open_facts';
-    await click('Open saved client facts');
+    await click('Open saved client facts'); await click('Send'); await waitForAgent('Maipa.ClientFacts'); await click('Shared work');
     await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert && !!document.querySelector('[data-entity-id]')"), 'confirmed client in work panel');
     assert.equal(await evaluate("document.querySelector('[data-fact-key=currency] dd').textContent"), 'USD');
     record('account-chat-resume-and-confirm');
@@ -232,7 +263,7 @@ try {
     await preferencesReady();
     const beforeCatalog = await evaluate("(async()=>({preferences:await(await fetch('/api/workspace/preferences/')).json(),layout:await(await fetch('/api/workspace/layout/')).json(),setup:await(await fetch('/api/onboarding/')).json()}))()");
     await evaluate("window.maipaCatalogChat=document.querySelector('[data-pane=agent]'); true");
-    await click('Client setup');
+    await requestComponent('Open client setup', 'Maipa.ClientCatalog');
     const catalogReady = revision => until(() => evaluate(`document.querySelector('[data-catalog-state]')?.dataset.catalogState === 'ready' && ${revision === undefined ? 'true' : `document.querySelector('[data-catalog-revision]')?.dataset.catalogRevision === '${revision}'`}`), 'current client administration');
     const catalogState = () => evaluate("(async()=>{const id=document.getElementById('catalog-client')?.value;return(await fetch('/api/intake/catalog/'+(id?'?engagement_id='+id:''))).json();})()");
     await catalogReady();
@@ -270,7 +301,7 @@ try {
     assert.deepEqual(await evaluate("(async()=>({preferences:await(await fetch('/api/workspace/preferences/')).json(),layout:await(await fetch('/api/workspace/layout/')).json(),setup:await(await fetch('/api/onboarding/')).json()}))()"), beforeCatalog);
     assert.deepEqual(await evaluate(`(async()=> (await fetch('/api/intake/entities/'+${JSON.stringify(saved.setup.entity_id)}+'/')).json())()`), saved.entity);
     record('client-catalog-create-rename-conflict');
-    await click('Client facts');
+    await requestComponent('Open client facts', 'Maipa.ClientFacts');
     await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(saved.setup.entity_id)}`), 'original setup facts remain reachable');
     phase = 'admin_users';
     await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
@@ -278,7 +309,7 @@ try {
     await preferencesReady();
     const beforeAdmin = await evaluate("(async()=>({preferences:await(await fetch('/api/workspace/preferences/')).json(),layout:await(await fetch('/api/workspace/layout/')).json(),setup:await(await fetch('/api/onboarding/')).json()}))()");
     await evaluate("window.maipaAdminChat=document.querySelector('[data-pane=agent]'); true");
-    await click('Users and access');
+    await requestComponent('Open users and access', 'Maipa.AdminUsers');
     const accessReady = revision => until(() => evaluate(`document.querySelector('[data-access-state]')?.dataset.accessState === 'ready' && ${revision === undefined ? 'true' : `document.querySelector('[data-access-revision]')?.dataset.accessRevision === '${revision}'`}`), 'current administrator state');
     await accessReady();
     await fill('admin-new-username', 'synthetic-access-user');
@@ -328,7 +359,7 @@ try {
     if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click('Got it');
     await fill('maipa-username', 'synthetic-access-user'); await fill('maipa-password', fixture.password);
     await click('Sign in');
-    await until(() => evaluate("document.body.innerText.includes('Signed in')"), 'created user can sign in');
+    await until(() => evaluate("!!document.querySelector('.agent-workspace')"), 'created user can sign in');
     await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), 'new-user release notes');
     await click('Got it');
     const restricted = await evaluate("(async()=>({role:(await(await fetch('/api/workspace/')).json()).role,admin:(await fetch('/api/admin/users/')).status,clients:await(await fetch('/api/intake/engagements/')).json()}))()");
@@ -345,7 +376,7 @@ try {
     record('client-catalog-restricted-scope');
   } else {
   phase = "anonymous";
-  await until(() => evaluate("document.body.innerText.includes('Sign in required')"), "anonymous workspace");
+  await until(() => evaluate("!!document.getElementById('maipa-username')"), "anonymous workspace");
   assert.equal(await evaluate("document.querySelector('[data-maipa-build-id]')?.dataset.maipaBuildId"), fixture.build_id);
   const publicApi = await evaluate(`(async () => {
     const paths=['health','version','session','agent/accounts']; const values=[];
@@ -371,22 +402,10 @@ try {
   await command("Page.reload");
   await until(() => evaluate("document.querySelector('.appearance button[aria-pressed=true]')?.textContent === 'Dark'"), "persisted theme");
   record("theme-and-reload");
-  phase = "keyboard_divider";
-  const divider = await evaluate("(() => {const d=document.querySelector('[role=separator]'); d.focus(); return +d.getAttribute('aria-valuenow');})()");
-  await command("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
-  await command("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
-  await until(async () => (await evaluate("+document.querySelector('[role=separator]').getAttribute('aria-valuenow')")) > divider, "keyboard divider");
-  record("keyboard-divider");
-  phase = "mobile_panels";
-  await command("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert"), "mobile work area");
-  await click("Conversation");
-  await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), "mobile conversation");
-  record("mobile-panels");
   phase = "login";
   checkpoint = 'login_viewport';
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
-  await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
+
   async function login(username) {
     if (phase === 'login') checkpoint = 'login_username';
     if (phase === 'logout_viewer') checkpoint = 'viewer_username';
@@ -399,7 +418,7 @@ try {
     await click("Sign in");
     if (phase === 'login') checkpoint = 'login_workspace';
     if (phase === 'logout_viewer') checkpoint = 'viewer_workspace';
-    await until(() => evaluate("document.body.innerText.includes('Signed in')"), "real authenticated workspace");
+    await until(() => evaluate("!!document.querySelector('.agent-workspace')"), "real authenticated workspace");
     if (phase === 'login') checkpoint = 'login_notes';
     if (phase === 'logout_viewer') checkpoint = 'viewer_notes';
     if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
@@ -490,6 +509,25 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
+  await requestComponent('Open client facts', 'Maipa.ClientFacts');
+  phase = "keyboard_divider";
+  const divider = await evaluate("(() => {const d=document.querySelector('[role=separator]'); d.focus(); return +d.getAttribute('aria-valuenow');})()");
+  await command("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
+  await command("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
+  await until(async () => (await evaluate("+document.querySelector('[role=separator]').getAttribute('aria-valuenow')")) > divider, "keyboard divider");
+  record("keyboard-divider");
+  await until(() => evaluate("document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'keyboard layout saved');
+  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'ArrowLeft', windowsVirtualKeyCode: 37 });
+  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowLeft', windowsVirtualKeyCode: 37 });
+  await until(() => evaluate("document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && +document.querySelector('[role=separator]').getAttribute('aria-valuenow') === 60"), 'keyboard layout restored');
+  phase = "mobile_panels";
+  await command("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), "mobile work area");
+  await click("Shared work");
+  await until(() => evaluate("document.querySelector('[data-pane=agent]').inert && !document.querySelector('[data-pane=work]').inert"), "mobile contextual panel");
+  record("mobile-panels");
+  await click('Conversation');
+  await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   phase = "intake_recovery";
   await until(() => intakeListResponses.includes(503), "deliberate first intake read failure");
   await until(() => evaluate("document.querySelector('.intake-card [role=alert]')?.textContent.includes('could not confirm')"), "honest initial-list error");
@@ -524,25 +562,49 @@ try {
   await until(() => evaluate("!!document.getElementById('maipa-setup-answer') && document.querySelector('[data-setup-step]').getAttribute('aria-busy') === 'false'"), 'available saved conversation');
   await fill('maipa-setup-answer', 'Synthetic unsent setup draft');
   await evaluate("window.maipaFixtureChat = document.querySelector('[aria-label=\"Account onboarding\"]'); window.maipaFixtureComposer = document.getElementById('maipa-setup-answer'); true");
-  await click('Workspace guide');
-  await until(() => evaluate("document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'published guide view');
+  await requestComponent('Present a note', 'Maipa.Note');
+  await until(() => evaluate("!!document.querySelector('.agent-commentary')"), 'published guide view');
   assert.equal(await evaluate("document.querySelector('[aria-label=\"Account onboarding\"]') === window.maipaFixtureChat && document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
-  await click('Client facts');
+  await requestComponent('Open client facts', 'Maipa.ClientFacts');
   await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(clientEntityId)}`), 'facts remain reachable as a view');
   await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await click('Conversation');
   await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert"), 'mobile conversation remains mounted');
-  await click('Work area');
+  await click('Shared work');
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), 'desktop view restored');
   assert.equal(await evaluate("document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
   record('persistent-chat-work-views');
+  phase = 'agent_shell';
+  if (await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
+  await typeChat('Present a note with a delayed update'); await click('Send');
+  await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic shared note'"), 'agent first presentation');
+  await evaluate("window.maipaDraftNode=document.querySelector('textarea[aria-label=\"Message Maipa\"]');window.maipaConversationNode=document.querySelector('.conversation');true");
+  await typeChat('Unsent follow-up Ω');
+  await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic delayed update' && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'agent updates existing shared component');
+  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]')===window.maipaDraftNode && window.maipaDraftNode.value==='Unsent follow-up Ω' && document.querySelector('.conversation')===window.maipaConversationNode"), true);
+  record('agent-chat-stream-and-ui-control');
+  await click('Close contextual panel');
+  await until(() => evaluate("!!document.querySelector('.chat-only')"), 'human dismissal reaches shared composition');
+  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('textarea[aria-label=\"Message Maipa\"]') && window.maipaDraftNode.value==='Unsent follow-up Ω'"), true);
+  assert.equal(await evaluate("document.querySelector('.conversation').getBoundingClientRect().width >= innerWidth-5 && getComputedStyle(document.querySelector('[role=separator]')).display==='none'"), true);
+  record('chat-draft-and-space-recovery');
+  await typeChat('Present a note and wait for cancellation'); await click('Send');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Maipa is working…' && document.querySelector('.chat-message.assistant:last-child p')?.textContent==='Synthetic agent '"), 'streaming partial reply');
+  await click('Stop');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && document.querySelector('.chat-message.assistant:last-child small')?.textContent.includes('Interrupted')"), 'cancelled partial reply retained');
+  const savedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
+  await command('Page.reload'); await preferencesReady();
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'live chat restored after reload');
+  assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), savedChat);
+  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child small')?.textContent.includes('Interrupted')"), true);
+  record('agent-cancel-and-chat-restore');
   phase = 'preferences';
   await preferencesReady();
   await click('Dark'); await preferencesReady();
-  await click('Workspace guide'); await preferencesReady();
+  await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();
   await command('Page.reload'); await preferencesReady();
-  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'saved preferences after reload');
+  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.agent-commentary')"), 'saved preferences after reload');
   const winner = await evaluate("(async()=>{const p=await(await fetch('/api/workspace/preferences/')).json();const s=await(await fetch('/api/session/csrf/')).json();const r=await fetch('/api/workspace/preferences/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Preferences':p.preferences_id},body:JSON.stringify({expected_revision:p.revision,theme:'light',active_view:'workspace-guide'})});return {status:r.status,body:await r.json()};})()");
   assert.equal(winner.status, 200);
   await click('System');
@@ -552,27 +614,28 @@ try {
   await click('Reload saved preferences'); await preferencesReady();
   await until(() => evaluate("document.getElementById('maipa-theme-light')?.getAttribute('aria-pressed') === 'true'"), 'authoritative theme restored');
   await click('Dark'); await preferencesReady();
-  await click('Client facts'); await preferencesReady();
+  await requestComponent('Open client facts', 'Maipa.ClientFacts'); await preferencesReady();
   await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(clientEntityId)}`), 'facts available after preference recovery');
   record('preferences-save-conflict-recovery');
   phase = 'layout';
-  const layoutReady = () => until(() => evaluate("document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'saved layout ready');
+  const layoutReady = () => until(() => evaluate("!!document.querySelector('.agent-workspace') && document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready'"), 'saved layout ready');
   await layoutReady();
-  assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 28);
+  const layoutBaseline = await evaluate("(async()=> (await(await fetch('/api/workspace/layout/')).json()).revision)()");
+  assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 60);
   assert.equal(await evaluate("(() => { const s=document.querySelector('[role=separator]'); s.scrollIntoView({block:'center'}); s.focus(); return document.activeElement===s; })()"), true);
   await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'ArrowRight', windowsVirtualKeyCode: 39 });
   await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowRight', windowsVirtualKeyCode: 39 });
-  await until(() => evaluate("(async()=> document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && (await(await fetch('/api/workspace/layout/')).json()).split_basis_points === 3300)()"), 'keyboard width persisted');
+  await until(() => evaluate("(async()=> document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && (await(await fetch('/api/workspace/layout/')).json()).split_basis_points === 6500)()"), 'keyboard width persisted');
   await layoutReady();
-  assert.equal(await evaluate("(async()=> (await(await fetch('/api/workspace/layout/')).json()).split_basis_points)()"), 3300);
-  const drag = await evaluate("(() => { const s=document.querySelector('[role=separator]'); const r=s.getBoundingClientRect(); const p=document.querySelector('.workspace-panels').getBoundingClientRect(); const x=Math.ceil(r.x),y=Math.round(r.y+r.height/2); return {x,y,target:Math.round(p.x+p.width*.37),hit:document.elementFromPoint(x,y)===s}; })()");
+  assert.equal(await evaluate("(async()=> (await(await fetch('/api/workspace/layout/')).json()).split_basis_points)()"), 6500);
+  const drag = await evaluate("(() => { const s=document.querySelector('[role=separator]'); const r=s.getBoundingClientRect(); const p=document.querySelector('.agent-shell-panels').getBoundingClientRect(); const x=Math.ceil(r.x),y=Math.round(r.y+r.height/2); return {x,y,target:Math.round(p.x+p.width*.37),hit:document.elementFromPoint(x,y)===s}; })()");
   assert.equal(drag.hit, true, 'Native pointer hits the actual separator');
   await command('Input.dispatchMouseEvent', { type: 'mouseMoved', x: drag.x, y: drag.y });
   await command('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', buttons: 1, clickCount: 1, x: drag.x, y: drag.y });
   await command('Input.dispatchMouseEvent', { type: 'mouseMoved', button: 'left', buttons: 1, x: drag.target, y: drag.y });
   await command('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, x: drag.target, y: drag.y });
   try {
-    await until(() => evaluate("(async()=> document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && (await(await fetch('/api/workspace/layout/')).json()).revision === 2)()"), 'pointer width persisted');
+    await until(() => evaluate(`(async()=> document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && (await(await fetch('/api/workspace/layout/')).json()).revision === ${layoutBaseline + 2})()`), 'pointer width persisted');
   } catch (error) {
     console.error('Owned synthetic pointer diagnostic', JSON.stringify({ drag, observed: await evaluate("(async()=> {const l=await(await fetch('/api/workspace/layout/')).json();const s=document.querySelector('[role=separator]');return {phase:document.querySelector('[data-layout-state]')?.dataset.layoutState, value:s.getAttribute('aria-valuenow'), disabled:s.getAttribute('aria-disabled'), revision:l.revision, points:l.split_basis_points};})()") }));
     throw error;
@@ -581,7 +644,7 @@ try {
   const dragged = await evaluate("(async()=> ({layout:await(await fetch('/api/workspace/layout/')).json(),value:Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))}))()");
   assert.ok(dragged.layout.split_basis_points >= 3670 && dragged.layout.split_basis_points <= 3730);
   assert.equal(dragged.layout.split_basis_points, Math.round(dragged.value * 100));
-  assert.equal(dragged.layout.revision, 2);
+  assert.equal(dragged.layout.revision, layoutBaseline + 2);
   const concurrentLayout = await evaluate("(async()=> {const l=await(await fetch('/api/workspace/layout/')).json(); const s=await(await fetch('/api/session/csrf/')).json(); const r=await fetch('/api/workspace/layout/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Layout':l.layout_id},body:JSON.stringify({expected_revision:l.revision,split_basis_points:3500})}); return {status:r.status,body:await r.json()};})()");
   assert.equal(concurrentLayout.status, 200);
   await evaluate("document.querySelector('[role=separator]').focus(); true");
@@ -635,7 +698,7 @@ try {
   await select("intake-recorded-value", "partnership");
   await click("Save fact revision");
   await until(() => evaluate("document.querySelector('[aria-label=\"Record client fact\"] [role=alert]')?.textContent.includes('This record changed')"), "stale-edit refusal");
-  assert.equal(await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='Save fact revision').disabled"), true);
+  assert.equal(await evaluate("[...document.querySelectorAll('button, summary')].find(b=>b.textContent==='Save fact revision').disabled"), true);
   const actual = await evaluate(`(async()=> (await fetch('/api/intake/entities/'+${JSON.stringify(clientEntityId)}+'/')).json())()`);
   assert.equal(actual.revision, 4); assert.equal(actual.facts.legal_form.value, "corporation");
   await click("Reload current record");
@@ -668,7 +731,7 @@ try {
   assert.equal(await evaluate("document.querySelector('.authority-panel').textContent.includes('synthetic-browser-authority')"), false);
   record('client-authority-and-revocation');
   await preferencesReady();
-  await click('Workspace guide'); await preferencesReady();
+  await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();
   const ownerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
   phase = "logout_viewer";
   checkpoint = 'logout_click';
@@ -712,17 +775,15 @@ try {
   record("intake-user-isolation");
   phase = 'layout';
   await layoutReady();
-  assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 28);
-  await evaluate("document.querySelector('[role=separator]').focus(); true");
-  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'End', windowsVirtualKeyCode: 35 });
-  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'End', windowsVirtualKeyCode: 35 });
-  await until(() => evaluate("(async()=> document.querySelector('[data-layout-state]')?.dataset.layoutState === 'ready' && (await(await fetch('/api/workspace/layout/')).json()).split_basis_points === 4500)()"), 'viewer width persisted');
-  await layoutReady();
-  assert.equal(await evaluate("(async()=> (await(await fetch('/api/workspace/layout/')).json()).split_basis_points)()"), 4500);
+  assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 60);
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('[role=separator]')).display"), 'none');
+  const viewerWidth = await evaluate("(async()=>{const l=await(await fetch('/api/workspace/layout/')).json();const s=await(await fetch('/api/session/csrf/')).json();const r=await fetch('/api/workspace/layout/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Layout':l.layout_id},body:JSON.stringify({expected_revision:l.revision,split_basis_points:7200})});return{status:r.status,body:await r.json()};})()");
+  assert.equal(viewerWidth.status, 200);
+  assert.equal(viewerWidth.body.split_basis_points, 7200);
   await click('Sign out');
   await until(() => evaluate("!!document.getElementById('maipa-username')"), 'layout logout');
   if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click('Got it');
-  assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 28);
+  assert.equal(await evaluate("document.querySelector('[role=separator]')"), null);
   await login(fixture.username);
   await layoutReady();
   assert.equal(await evaluate("Number(document.querySelector('[role=separator]').getAttribute('aria-valuenow'))"), 35);
@@ -732,7 +793,7 @@ try {
   record('layout-user-isolation-and-login');
   await preferencesReady();
   assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), ownerPreferences);
-  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && document.querySelector('[data-fancy-screens-screen]')?.dataset.screenId === 'workspace-guide'"), 'owner preferences restored after other account');
+  await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'owner preferences restored after other account');
   record('preferences-user-isolation');
   }
   phase = "browser_exceptions";

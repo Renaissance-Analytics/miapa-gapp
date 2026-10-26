@@ -1,11 +1,12 @@
 {
   "schema": 1,
   "decision": "aligned",
-  "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
+  "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "273fff088f0f64ebaa0bdd31bf15a7f92739e722031ebb55ffe48059cc675fd5",
-    "tools/check_browser.py": "c5b769f2af2acecbfa97c9f4e857873df2a3aa6da8eea5ceb1c25cccffaf88fa",
-    "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
+    "tools/browser.mjs": "3f5513e67dafb621a2150dbd23e55b7dd286d6dfebaf6fd25d9b923c97033ee0",
+    "tools/check_browser.py": "d6cd886fa8f509b52f396afcb730318fc7214aa10ea8646b0f31954ca6708019",
+    "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4",
+    "tests/fixtures/agent_chat_peer.py": "a5d9fc310d01aeb3703e5658b62f051651340f4e5ad216361e17db1438993588"
   },
   "cases": [
     {
@@ -16,17 +17,17 @@
     {
       "id": "account-chat-resume-and-confirm",
       "kind": "positive",
-      "expected": "Native mobile chat replies survive page reload, collect explicit client/currency/unknown basis and date, review with zero preconfirmation clients, then create actual intake facts once. Stale confirmation409; explicit Open saved client facts shows USD in the work panel."
+      "expected": "Native mobile onboarding replies survive reload, review with zero preconfirmation clients and save exact owned facts once. Stale confirmation409 remains. Open saved facts prepares the chat request; actual Send reaches the deterministic ACP peer, whose authorized UI call presents the real facts component. No real-model claim."
     },
     {
       "id": "client-catalog-create-rename-conflict",
       "kind": "positive",
-      "expected": "The actual first-run administrator opens the fixed shared Client setup screen. Native input/pointer creates a real owned client and initial entity, renames both display labels and adds another entity with exact persisted audit revisions. An independent real authorized write causes stale409, clears forms/list and requires explicit reload/selection. Original financial facts, saved preferences/layout/setup and the exact persistent conversation pane node remain unchanged."
+      "expected": "A native chat request reaches the test ACP peer and actual authorized UI broker to present ClientCatalog. Existing native create/rename/entity actions, exact audited revisions, stale409 and explicit reload preserve original finance data, preferences/layout/onboarding and conversation DOM identity. There is no fixed navigation page."
     },
     {
       "id": "admin-users-create-update-conflict",
       "kind": "positive",
-      "expected": "Actual first-run administrator opens the fixed published Users and access view. Native username/password/confirmation/role entry creates a real user; native role/access changes persist with safe audit. A separate real authorized write causes stale409 and erases forms until explicit reload. Last-admin demotion is refused without revision or audit change. Saved preferences/layout/setup and the exact conversation pane node remain unchanged."
+      "expected": "A native chat request presents the registered administrator component through the actual consumer/UI broker. Original native user creation, role/access changes, safe audit, stale409/reload and last-admin protection remain. Unrelated access epochs receive a fresh same-actor/same-role lease while old leases remain invalid; stable authored component state and conversation identity persist."
     },
     {
       "id": "first-run-stays-closed",
@@ -59,19 +60,9 @@
       "expected": "Pointer-selected Dark has the approved computed canvas color and survives reload."
     },
     {
-      "id": "keyboard-divider",
-      "kind": "positive",
-      "expected": "Focused published divider increases its announced value after a real ArrowRight key."
-    },
-    {
-      "id": "mobile-panels",
-      "kind": "positive",
-      "expected": "Narrow work panel is active, then pointer-selected Conversation reverses both inert states."
-    },
-    {
       "id": "real-login-and-server-role",
       "kind": "positive",
-      "expected": "Actual native input and pointer submission rejects an incorrect password with generic feedback, clears it, then authenticates the synthetic preparer and reads the exact server role/transport permission."
+      "expected": "Real native password input rejects an incorrect password generically and clears it; a correct password mounts the actual conversation and reads the exact preparer role/transport permission. Account controls live in the compact account menu."
     },
     {
       "id": "onboarding-user-isolation",
@@ -80,8 +71,8 @@
     },
     {
       "id": "authenticated-account-scope",
-      "kind": "negative",
-      "expected": "A real password-authenticated synthetic preparer sees Signed in and its own account ID, excluding another owner account."
+      "kind": "positive",
+      "expected": "A real password-authenticated preparer mounts the conversation and reads only its owned account metadata, excluding a foreign account."
     },
     {
       "id": "owned-service-storage-private",
@@ -99,6 +90,16 @@
       "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."
     },
     {
+      "id": "keyboard-divider",
+      "kind": "positive",
+      "expected": "Focused published divider increases its announced value after a real ArrowRight key."
+    },
+    {
+      "id": "mobile-panels",
+      "kind": "positive",
+      "expected": "With an actual contextual composition open, chat is initially active on mobile. Native Shared work switches focus and inert states, and Conversation returns to chat. With no composition there is no empty work pane."
+    },
+    {
       "id": "intake-initial-load-recovery",
       "kind": "negative",
       "expected": "Isolated WSGI fixture returns one deliberate503 for the initial intake list. Actual UI shows fixed failure, real pointer Reload facts triggers a separately observed200response from actual Django/auth/database, and clears the error. No success response or app state is faked. A separate authorized second-entity creation appears after actual list reload. Native selection moves to that entity; another observed list request, settled busy state, exact select value and profile identity prove reload retains it. Switching back preserves the original entity and all previous fact/history tests."
@@ -106,17 +107,32 @@
     {
       "id": "persistent-chat-work-views",
       "kind": "positive",
-      "expected": "Actual native typing leaves an unsent setup reply. Pointer navigation between published guide/facts screens and mobile panels preserves the exact conversation/composer DOM nodes and value. Facts remain reachable through the real authorized server."
+      "expected": "Native chat requests present registered notes and facts through the actual deterministic test ACP consumer. Stable conversation/onboarding/composer nodes and an unsent setup draft survive contextual changes and native mobile switching. No predefined page identity or real-model behavior is claimed."
+    },
+    {
+      "id": "agent-chat-stream-and-ui-control",
+      "kind": "positive",
+      "expected": "Actual native chat Send reaches the deterministic ACP test peer. A real authorized present callback is followed by a delayed update of the same shared node while native input types a new Unicode draft. The actual rendered note updates, streamed turn completes, and composer/conversation DOM identity plus draft remain exact. Not real-model acceptance."
+    },
+    {
+      "id": "chat-draft-and-space-recovery",
+      "kind": "positive",
+      "expected": "Native Close uses the published Human+ host and actual actor/CSRF/revision-bound shared endpoint. The accepted dismissal removes contextual UI and separator, gives full width back to chat and preserves the exact unsent Unicode draft and composer node."
+    },
+    {
+      "id": "agent-cancel-and-chat-restore",
+      "kind": "positive",
+      "expected": "A deterministic ACP turn deliberately waits after a partial reply. Native Stop interrupts it; the actual consumer persists the interrupted partial text and returns Ready. Page reload restores the exact saved message array and interruption state without uncaught errors."
     },
     {
       "id": "preferences-save-conflict-recovery",
-      "kind": "negative",
-      "expected": "Actual native theme and built-in view selection persist through reload. An independently accepted server write wins; the stale UI save reports conflict and disables further changes, and explicit reload restores the winner before another native save. Existing client facts remain reachable."
+      "kind": "positive",
+      "expected": "Native appearance controls, reload, independent concurrent preference write, exact stale conflict, disabled controls and explicit authoritative reload retain their original outcomes. Contextual notes/facts are chosen by actual chat requests and stay independent of legacy saved-view metadata."
     },
     {
       "id": "layout-gestures-conflict-recovery",
-      "kind": "negative",
-      "expected": "Actual keyboard and pointer gestures persist 3300 then approximately3700 basis points with exact rendered/server agreement. A separate authorized concurrent write saves3500. Stale native gesture gets conflict, disables resize and preserves the winner; explicit pointer reload restores35percent."
+      "kind": "positive",
+      "expected": "A new contextual composition starts with chat60percent. Actual keyboard and pointer resizing save exact acknowledged revisions relative to earlier tested gestures. A concurrent save wins; a stale gesture becomes conflicted/disabled and explicit reload restores35percent. Chosen legacy widths remain supported."
     },
     {
       "id": "intake-facts-and-evidence",
@@ -145,23 +161,23 @@
     },
     {
       "id": "layout-user-isolation-and-login",
-      "kind": "negative",
-      "expected": "Viewer login starts at its independent28percent, native End persists45percent, signed-out layout resets28percent, and real preparer login plus page reload restores its own35percent."
+      "kind": "positive",
+      "expected": "The viewer starts with its own60percent default and a hidden separator because there is no contextual composition. A real authenticated CSRF/identity-bound save of its own72percent preference cannot alter the owner35percent layout. Anonymous access has no splitter; owner login/reload restores35percent."
     },
     {
       "id": "preferences-user-isolation",
-      "kind": "negative",
-      "expected": "A different viewer account starts with its own System/Client facts defaults and preference identity, saves its own Light choice, and never changes the first user\u2019s exact saved snapshot. Returning to the owner restores Dark and Workspace guide."
+      "kind": "positive",
+      "expected": "A different real user has its own appearance record and no private owner text. Returning to the owner restores the exact saved record and computed theme in the chat-only shell."
     },
     {
       "id": "layout-fresh-browser-restore",
       "kind": "positive",
-      "expected": "A third native browser process uses a fresh owned profile with no prior cookie/storage. Real password login restores the same private35percent server layout. Its own exception/cleanup evidence is independently required."
+      "expected": "A genuinely new native browser profile signs in and restores the owner private layout ID and35percent preference. The separator stays hidden until contextual UI exists."
     },
     {
       "id": "preferences-fresh-browser-restore",
       "kind": "positive",
-      "expected": "A new owned native-browser profile signs in to the same owner, loads the real preference API and restores the exact account\u2019s Dark appearance and Workspace guide without relying on the earlier browser\u2019s localStorage."
+      "expected": "A new native profile restores the exact owner theme/legacy preference record and computed dark canvas. The shell remains chat-only after the old session has closed; legacy preference data cannot create a fixed guide page."
     },
     {
       "id": "no-uncaught-exceptions",

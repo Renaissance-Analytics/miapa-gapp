@@ -15,13 +15,44 @@ import time
 
 STAGES = ("alignment", "dependencies", "static", "backend", "frontend", "migrations", "build", "browser")
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_CASES = ('local-first-run-admin', 'account-chat-resume-and-confirm', 'client-catalog-create-rename-conflict', 'admin-users-create-update-conflict',
-                 'first-run-stays-closed', 'admin-users-restricted-login', 'client-catalog-restricted-scope',
-                 "anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
-                 "mobile-panels", "real-login-and-server-role", 'onboarding-user-isolation', "authenticated-account-scope", 'owned-service-storage-private', 'scoped-ui-composition-api', "csrf-and-real-zero-provider-transport",
-                 "intake-initial-load-recovery", 'persistent-chat-work-views', 'preferences-save-conflict-recovery', 'layout-gestures-conflict-recovery', "intake-facts-and-evidence", "intake-history-and-conflicts", 'client-authority-and-revocation', "logout-and-viewer-denial", "intake-user-isolation",
-                 'layout-user-isolation-and-login', 'preferences-user-isolation', 'layout-fresh-browser-restore', 'preferences-fresh-browser-restore',
-                 "no-uncaught-exceptions", "owned-browser-cleanup")
+BROWSER_CASES = (
+    'local-first-run-admin',
+    'account-chat-resume-and-confirm',
+    'client-catalog-create-rename-conflict',
+    'admin-users-create-update-conflict',
+    'first-run-stays-closed',
+    'admin-users-restricted-login',
+    'client-catalog-restricted-scope',
+    'anonymous-authority-and-build',
+    'fancy-release-controls',
+    'theme-and-reload',
+    'real-login-and-server-role',
+    'onboarding-user-isolation',
+    'authenticated-account-scope',
+    'owned-service-storage-private',
+    'scoped-ui-composition-api',
+    'csrf-and-real-zero-provider-transport',
+    'keyboard-divider',
+    'mobile-panels',
+    'intake-initial-load-recovery',
+    'persistent-chat-work-views',
+    'agent-chat-stream-and-ui-control',
+    'chat-draft-and-space-recovery',
+    'agent-cancel-and-chat-restore',
+    'preferences-save-conflict-recovery',
+    'layout-gestures-conflict-recovery',
+    'intake-facts-and-evidence',
+    'intake-history-and-conflicts',
+    'client-authority-and-revocation',
+    'logout-and-viewer-denial',
+    'intake-user-isolation',
+    'layout-user-isolation-and-login',
+    'preferences-user-isolation',
+    'layout-fresh-browser-restore',
+    'preferences-fresh-browser-restore',
+    'no-uncaught-exceptions',
+    'owned-browser-cleanup',
+)
 
 
 def _positive(value):
@@ -148,7 +179,7 @@ class Commands:
             review = json.loads((self.root / "tools/browser-review.json").read_text(encoding="utf-8"))
             if review.get("decision") != "aligned" or tuple(item["id"] for item in review["cases"]) != BROWSER_CASES:
                 raise ValueError("Browser review missing")
-            for name in ("tools/browser.mjs", "tools/check_browser.py", "tools/browser-profile.mjs"):
+            for name in ("tools/browser.mjs", "tools/check_browser.py", "tools/browser-profile.mjs", "tests/fixtures/agent_chat_peer.py"):
                 digest = hashlib.sha256((self.root / name).read_text(encoding="utf-8").encode()).hexdigest()
                 if review["source_sha256"][name] != digest:
                     raise ValueError("Browser source review stale")
