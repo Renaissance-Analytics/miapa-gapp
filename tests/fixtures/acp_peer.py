@@ -7,6 +7,11 @@ import time
 mode = sys.argv[1]
 pending = []
 
+# The deadline scenario deliberately has a slow setup handshake. The deadline
+# being tested belongs to its subsequent hung request, not interpreter startup.
+if mode == 'hang':
+    time.sleep(0.25)
+
 
 def send(value):
     sys.stdout.write(json.dumps(value) + "\r\n")
