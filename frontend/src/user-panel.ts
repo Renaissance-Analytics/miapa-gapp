@@ -72,7 +72,7 @@ export class UserPanelModel {
         description: 'Bounded schema using Maipa.Stack, Maipa.ClientFacts, Maipa.WorkspaceGuide and Maipa.Note. Stable unique node IDs required. Notes are unverified agent commentary; client facts always load through the signed-in server scope.' }],
       createScreen: spec => {
         this.ensureActive();
-        if (!handle(spec.id) || this.value.views.length >= 8 || this.value.views.some(view => view.id === spec.id)
+        if (!handle(spec.id) || spec.id === 'users-access' || this.value.views.filter(view => !view.builtin).length >= 6 || this.value.views.some(view => view.id === spec.id)
           || spec.kind !== 'maipa-composition' || !record(spec.config) || !keys(spec.config, ['schema'])
           || (spec.title !== undefined && (typeof spec.title !== 'string' || !spec.title.trim() || spec.title.length > 80 || /[\u0000-\u001f]/.test(spec.title)))) return refuse();
         const schema = validateWorkSchema(spec.config.schema);
@@ -97,12 +97,19 @@ export class UserPanelModel {
     } });
   }
   private ensureActive() { if (this.disposed) refuse(); }
+  enableAdministration() {
+    this.ensureActive();
+    if (this.value.views.some(view => view.id === 'users-access')) return;
+    this.value = { ...this.value, views: [...this.value.views, { id: 'users-access', title: 'Users and access',
+      builtin: true, schema: { id: 'users-access-root', type: 'Maipa.AdminUsers' } }] };
+    this.emit();
+  }
   private emit() { this.listener?.(this.current); }
   subscribe(listener: (state: UserPanelState) => void) { this.ensureActive(); this.listener = listener; listener(this.current); return () => { this.listener = null; }; }
   navigate(id: string) {
     this.ensureActive();
     const view = this.value.views.find(item => item.id === id);
-    if (!view || (view.builtin && this.selectBuiltin && !this.selectBuiltin(id))) return refuse();
+    if (!view || (view.builtin && id !== 'users-access' && this.selectBuiltin && !this.selectBuiltin(id))) return refuse();
     this.value = { ...this.value, active: id }; this.emit();
   }
   restoreBuiltin(id: string) {

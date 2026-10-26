@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "noEmit": false, "outDir": ".test-build", "rootDir": "src" },
-  "include": ["src/api.ts", "src/App.tsx", "src/updates.ts", "src/BuildUpdates.tsx", "src/intake.ts"]
+  "include": ["src/api.ts", "src/App.tsx", "src/updates.ts", "src/BuildUpdates.tsx", "src/intake.ts", "src/admin-users.ts"]
 }

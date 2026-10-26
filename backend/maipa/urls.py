@@ -6,6 +6,7 @@ from .workspace import views as workspace
 from .workspace import setup_views
 from .workspace.layout import personal_layout
 from .workspace.preferences import personal_preferences
+from .workspace.access import users as admin_users
 from .intake import views as intake
 from .policies import views as policies
 
@@ -18,6 +19,8 @@ urlpatterns = [
     path("api/session/csrf/", workspace.csrf_bootstrap, name="session-csrf"),
     path("api/session/login/", workspace.session_login, name="session-login"),
     path("api/workspace/", workspace.workspace_state, name="workspace"),
+    path('api/admin/users/', admin_users, name='admin-users'),
+    path('api/admin/users/<int:target>/', admin_users, name='admin-user'),
     path('api/workspace/layout/', personal_layout, name='workspace-layout'),
     path('api/workspace/preferences/', personal_preferences, name='workspace-preferences'),
     path('api/setup/', setup_views.first_run, name='first-run'),

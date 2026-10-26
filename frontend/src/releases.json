@@ -1,5 +1,13 @@
 [
   {
+    "id": "development-17",
+    "label": "Development update 17",
+    "cards": [
+      { "title": "Manage local users and roles", "description": "Administrators can add local users and update workspace roles and access in Users and access beside the conversation. Changes keep a revision history, conflicting edits require a reload, and the last active administrator stays protected." },
+      { "title": "Agent setup is still in progress", "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built." }
+    ]
+  },
+  {
     "id": "development-16",
     "label": "Development update 16",
     "cards": [
