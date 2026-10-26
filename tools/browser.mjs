@@ -8,12 +8,15 @@ import { readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false, checkpoint;
 let startupEvidence = {}, launchState = "starting", launchExit;
+let authEvidence = {};
+const authResponses = {};
 process.on("uncaughtException", error => {
   // Isolated synthetic fixture diagnostics stay in ignored local failure logs;
   // CI artifacts contain only the fixed phase/cleanup report below.
   console.error(error?.stack || 'Native browser fixture failed');
   console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence,
-    ...((failedPhase || phase) === 'setup_chat' ? { checkpoint } : {}) }));
+    ...((failedPhase || phase) === 'setup_chat' ? { checkpoint } : {}),
+    ...((failedPhase || phase) === 'logout_viewer' ? { checkpoint, ...authEvidence } : {}) }));
   process.exitCode = 1;
 });
 
@@ -119,6 +122,12 @@ try {
     if (message.method === "Runtime.exceptionThrown") exceptions.push(true);
     if (message.method === "Network.responseReceived" && message.params.response.url === `${fixture.origin}/api/intake/engagements/`)
       intakeListResponses.push(message.params.response.status);
+    if (message.method === 'Network.responseReceived' && phase === 'logout_viewer') {
+      for (const [path, key] of [['/api/session/', 'session'], ['/api/session/login/', 'login'],
+        ['/api/session/logout/', 'logout'], ['/api/workspace/', 'workspace']]) {
+        if (message.params.response.url === fixture.origin + path) authResponses[key] = message.params.response.status;
+      }
+    }
     if (message.id && pending.has(message.id)) {
       const entry = pending.get(message.id); pending.delete(message.id); clearTimeout(entry.timer);
       if (message.error) entry.reject(Error(`CDP ${entry.method} rejected: ${String(message.error.message).slice(0, 200)}`)); else entry.resolve(message.result);
@@ -378,10 +387,15 @@ try {
   await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), "desktop work panel active");
   async function login(username) {
+    if (phase === 'logout_viewer') checkpoint = 'viewer_username';
     await fill("maipa-username", username);
+    if (phase === 'logout_viewer') checkpoint = 'viewer_password';
     await fill("maipa-password", fixture.password);
+    if (phase === 'logout_viewer') checkpoint = 'viewer_submit';
     await click("Sign in");
+    if (phase === 'logout_viewer') checkpoint = 'viewer_workspace';
     await until(() => evaluate("document.body.innerText.includes('Signed in')"), "real authenticated workspace");
+    if (phase === 'logout_viewer') checkpoint = 'viewer_notes';
     if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
   }
   await fill("maipa-username", fixture.username);
@@ -612,17 +626,23 @@ try {
   await click('Workspace guide'); await preferencesReady();
   const ownerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
   phase = "logout_viewer";
+  checkpoint = 'logout_click';
   await click("Sign out");
+  checkpoint = 'logout_form';
   await until(() => evaluate("!!document.getElementById('maipa-username')"), "logged-out password form");
+  checkpoint = 'logout_session';
   assert.equal(await evaluate("(async()=> (await fetch('/api/session/')).status)()"), 401);
+  checkpoint = 'logout_notes';
   if (await evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')")) await click("Got it");
   await login(fixture.viewer_username);
+  checkpoint = 'viewer_scope';
   const viewer = await evaluate(`(async()=>{const s=await (await fetch('/api/session/')).json();
     const role=await (await fetch('/api/workspace/?role=administrator')).json();
     const denied=await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.foreign_account_id)}+'/transport-checks/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Role':'administrator'},body:'{}'});
     const history=await (await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.foreign_account_id)}+'/transport-checks/')).json();
     const foreign=await fetch('/api/agent/accounts/'+${JSON.stringify(fixture.account_id)}+'/transport-checks/');
     return {role:role.role,denied:denied.status,error:await denied.json(),history,foreign:foreign.status};})()`);
+  checkpoint = 'viewer_assertions';
   assert.equal(viewer.role, "viewer"); assert.equal(viewer.denied, 403);
   assert.deepEqual(viewer.error, { error: { code: "permission_denied" } });
   assert.deepEqual(viewer.history, { checks: [] }); assert.equal(viewer.foreign, 404);
@@ -676,6 +696,24 @@ try {
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
+  if (phase === 'logout_viewer') {
+    // Only fixed codes, booleans and bounded status numbers cross the CI report.
+    // No DOM text, user values, cookies, bodies, paths, URLs or raw errors.
+    authEvidence = { auth_responses: { ...authResponses }, failure_kind:
+      error?.code === 'ERR_ASSERTION' ? 'assertion' :
+      error?.message?.startsWith('Timeout:') ? 'timeout' :
+      error?.message === 'Browser evaluation failure' ? 'evaluation' :
+      error?.message?.startsWith('CDP ') ? 'protocol' : 'other' };
+    try {
+      authEvidence.auth_ui = await evaluate(`(() => ({
+        login_form: !!document.getElementById('maipa-username'),
+        sign_out: !![...document.querySelectorAll('.sign-out-controls button')].find(b=>b.textContent.trim()==='Sign out'),
+        sign_out_pending: !!document.querySelector('.sign-out-controls button:disabled'),
+        sign_out_failed: !!document.querySelector('.sign-out-controls [role=alert]'),
+        release_notes: !!document.querySelector('[aria-label="What\\'s new in Maipa"]')
+      }))()`);
+    } catch { /* Preserve the original failure and cleanup when diagnostics cannot be read. */ }
+  }
   if (phase === "browser_launch") {
     startupEvidence = { startup_state: launchState };
     if (Number.isInteger(launchExit) && launchExit >= -(2 ** 31) && launchExit < 2 ** 32) startupEvidence.launch_exit = launchExit;

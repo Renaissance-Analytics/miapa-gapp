@@ -17,6 +17,9 @@ BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',
     'setup_engagement', 'setup_entity', 'setup_currency', 'setup_reporting_basis', 'setup_effective_from',
     'setup_review', 'setup_confirm', 'setup_stale', 'setup_open_facts'}
+BROWSER_AUTH_CHECKPOINTS = {'logout_click', 'logout_form', 'logout_session', 'logout_notes',
+    'viewer_username', 'viewer_password', 'viewer_submit', 'viewer_workspace', 'viewer_notes',
+    'viewer_scope', 'viewer_assertions'}
 
 
 class BrowserFailure(Exception):
@@ -31,6 +34,24 @@ def browser_failure_evidence(value):
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
         if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
             result['checkpoint'] = value['checkpoint']
+    if valid and value['reason'] == 'logout_viewer':
+        checkpoint = value.get('checkpoint')
+        if isinstance(checkpoint, str) and checkpoint in BROWSER_AUTH_CHECKPOINTS:
+            result['checkpoint'] = checkpoint
+        if value.get('failure_kind') in ('timeout', 'assertion', 'evaluation', 'protocol', 'other'):
+            result['failure_kind'] = value['failure_kind']
+        responses = value.get('auth_responses')
+        if isinstance(responses, dict):
+            responses = {key: responses[key] for key in ('session', 'login', 'logout', 'workspace')
+                         if type(responses.get(key)) is int and 100 <= responses[key] <= 599}
+            if responses:
+                result['auth_responses'] = responses
+        ui = value.get('auth_ui')
+        if isinstance(ui, dict):
+            ui = {key: ui[key] for key in ('login_form', 'sign_out', 'sign_out_pending',
+                  'sign_out_failed', 'release_notes') if type(ui.get(key)) is bool}
+            if ui:
+                result['auth_ui'] = ui
     if valid and value["reason"] == "browser_launch":
         if value.get("startup_state") in ("starting", "spawn_error", "exited", "devtools_file"):
             result["startup_state"] = value["startup_state"]
