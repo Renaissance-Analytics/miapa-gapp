@@ -500,6 +500,86 @@
       "decision": "aligned",
       "reason": "Real owned file bytes and exact path/encoding/read counts are checked across each injected OS open race, then compared to the precise validated endpoint. Foreign URLs still return null and EIO still throws. Prior four test bodies are proved unchanged against HEAD after removing this new case; no timeout or app scenario is waived.",
       "reviewer": "Maipa independent startup acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.1",
+      "test": "preferences.test.mjs#personal preference reads are bounded same-origin and reject foreign or unsupported state",
+      "scenario_sha256": "bc8058b358ec45a3a84bef77c119092a6bfaca1d68a294ee2e34ca1fbfb86d20",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Use bounded same-origin no-store requests and reject foreign identities, unsupported fields/choices, oversized data and wrong media types.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.2",
+      "test": "preferences.test.mjs#preference writes send exact choices identity revision and fresh CSRF and verify the acknowledgement",
+      "scenario_sha256": "9d0803373170e06ca6e43d065ca07a2b30881c3d88589f6f233f644ff215b102",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Use fresh CSRF and exact safe fields; accept only an acknowledgement with the same owner/identity, next revision and exact requested choices.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.3",
+      "test": "preferences.test.mjs#invalid preference fields and unsafe HTTP outcomes never become accepted settings",
+      "scenario_sha256": "0b7aed83b03dfe6125a21fc61bf8e1b29c16b81f931311d2facdca3cc98279dc",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Send no invalid request and expose only fixed unavailable/conflict results without inventing success.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.4",
+      "test": "preferences.test.mjs#an unknown preference save pauses writes until an explicit authoritative reload",
+      "scenario_sha256": "203e575374032d48aba01850255e8386dcced6d72b28be17ef290704b39d248e",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Pause additional writes and reconcile authoritative state through a deliberate reload; expose no raw diagnostics.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.5",
+      "test": "preferences.test.mjs#late preference loads and disposed identities cannot publish into another principal",
+      "scenario_sha256": "e710569c212780b5b192b9b7750c89a75d9adf6f82a69aba4d1d3614b69c80f6",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Keep the newest live principal state and reject foreign snapshots; disposed callbacks never publish.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.6",
+      "test": "preferences.test.mjs#pending preference writes lock further mutations and stale acknowledgements cannot overwrite a reload",
+      "scenario_sha256": "c4057ee73073657a48bc55b0759ccaa82676324edc5b360f10b9e0847e294020",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Issue one write only and ignore the stale acknowledgement after reload.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.7",
+      "test": "preferences.test.mjs#human and published screen navigation share the preference boundary and restore never writes",
+      "scenario_sha256": "5fea6ff2b77ef2716a1311434ed4ee0d24345d0dce30ecf9b965376404caa10c",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Both navigation paths use the same gate and accepted built-in handles; restoration updates controlled state without writing and rejects arbitrary handles.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P05-PREFERENCES-UI.8",
+      "test": "preferences.test.mjs#authenticated workspace exposes loading and recovery state before allowing preference edits",
+      "scenario_sha256": "2f59966b1c69a6ad1e2f7aebd841424e2df34e22d5be61a9f5ad0c89bb582633",
+      "source_sha256": "d956a3ad0cf047437ac29fec4bddf3bc71959b7620aee8a7b0c11f7c40855b10",
+      "expected_observation": "Show honest loading state, disable appearance edits and avoid provider/finance readiness claims.",
+      "decision": "aligned",
+      "reason": "Independent consumer expectations precede implementation. Exact request/acknowledgement assertions, delayed promises, disposal and shared bridge navigation verify observable state; real browser acceptance remains separately required. No fake provider or financial readiness is accepted.",
+      "reviewer": "Maipa independent personal-preferences UI review; no external reviewer claimed"
     }
   ]
 }

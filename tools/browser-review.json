@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent browser acceptance review; no external reviewer claimed",
   "source_sha256": {
-    "tools/browser.mjs": "36325778589b7719bd5b44b130dbc474ba52d4920d6184b7ce5aa5f9bc66862d",
-    "tools/check_browser.py": "10226a8e83727288678c7da862101485b191407e49a8d978889b6e10248db9be",
+    "tools/browser.mjs": "65c9db9e037eb0d262264583bb67e4693e77f533ec8e398348f3eec290881e30",
+    "tools/check_browser.py": "ac2ee2896f5c43663d8d0eb6df4a68b2100230d9c5f58e4975f5962cbb02145b",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4"
   },
   "cases": [
@@ -79,6 +79,11 @@
       "expected": "Actual native typing leaves an unsent setup reply. Pointer navigation between published guide/facts screens and mobile panels preserves the exact conversation/composer DOM nodes and value. Facts remain reachable through the real authorized server."
     },
     {
+      "id": "preferences-save-conflict-recovery",
+      "kind": "negative",
+      "expected": "Actual native theme and built-in view selection persist through reload. An independently accepted server write wins; the stale UI save reports conflict and disables further changes, and explicit reload restores the winner before another native save. Existing client facts remain reachable."
+    },
+    {
       "id": "layout-gestures-conflict-recovery",
       "kind": "negative",
       "expected": "Actual keyboard and pointer gestures persist 3300 then approximately3700 basis points with exact rendered/server agreement. A separate authorized concurrent write saves3500. Stale native gesture gets conflict, disables resize and preserves the winner; explicit pointer reload restores35percent."
@@ -114,9 +119,19 @@
       "expected": "Viewer login starts at its independent28percent, native End persists45percent, signed-out layout resets28percent, and real preparer login plus page reload restores its own35percent."
     },
     {
+      "id": "preferences-user-isolation",
+      "kind": "negative",
+      "expected": "A different viewer account starts with its own System/Client facts defaults and preference identity, saves its own Light choice, and never changes the first user\u2019s exact saved snapshot. Returning to the owner restores Dark and Workspace guide."
+    },
+    {
       "id": "layout-fresh-browser-restore",
       "kind": "positive",
       "expected": "A third native browser process uses a fresh owned profile with no prior cookie/storage. Real password login restores the same private35percent server layout. Its own exception/cleanup evidence is independently required."
+    },
+    {
+      "id": "preferences-fresh-browser-restore",
+      "kind": "positive",
+      "expected": "A new owned native-browser profile signs in to the same owner, loads the real preference API and restores the exact account\u2019s Dark appearance and Workspace guide without relying on the earlier browser\u2019s localStorage."
     },
     {
       "id": "no-uncaught-exceptions",
@@ -144,5 +159,6 @@
   "p04_review": "Reviewed all four new actual-browser scenarios against the independent P04 acceptance. All twenty previous cases retain relative order and assertions. No success response, session, React state or package is faked. DOM references are fixture observations only; typing, pointer, keyboard and media transitions operate the real app. Saved widths are verified through actual Django/SQLite; a separate real authorized API write establishes the conflict. A third owned browser proves cross-profile server persistence. All three processes require no uncaught exceptions, exact build/browser identity and owned cleanup before aggregation. New diagnostic phases remain a fixed public-safe allowlist. General live model acceptance is not claimed.",
   "p04_pointer_review": "The first full development candidate passed242tests/119static but failed final pointer persistence with native server width3300/revision1 unchanged; cleanup passed. The corrected fixture uses an integer point inside the one-pixel separator, proves actual elementFromPoint hit, moves the real pointer there, and supplies pressed left-button state throughout the drag. No app event/state or backend success is fabricated. All24actual browser cases then pass. Fixed numeric-only synthetic pointer diagnostics remain local failure context; public report still contains only an allowlisted phase/cleanup. Server revision/value and conflict assertions are unchanged; full candidate CI remains required.",
   "p04_file_open_review": "Initial push40129158967 passed242tests/24browser and artifact/job-log verification; PR40129162571 passed242tests/119static/build then failed browser_launch with devtools_file and verified cleanup. Exact OS cause is unconfirmed because startup reporting discarded raw diagnostics. Inspection found a concrete unhandled file-open race between existsSync and readFileSync: an existing Windows DevTools file may still report sharing/access or replacement errors. Added independent read-race test observed48passes/1failure. The owned-file reader now returns pending only for ENOENT/EBUSY/EPERM/EACCES under the unchanged150poll deadline; unexpected errors still fail. Full port/UUID validation and every24app/cleanup case remain mandatory. No blind rerun of the failed app scenarios or arbitrary endpoint fallback.",
-  "code_free_onboarding_review": "User-requested local browser onboarding removes code generation, code-file reads and code entry. Reviewed real physical data-root fixture preparation, exact three-field DOM assertions and native credential submission; retained actual Django CSRF/auth, one-time closure, full saved chat confirmation/reload/mobile flow, all previous cases, no uncaught exceptions and owned-profile cleanup. Legacy backup files remain private optional historical content."
+  "code_free_onboarding_review": "User-requested local browser onboarding removes code generation, code-file reads and code entry. Reviewed real physical data-root fixture preparation, exact three-field DOM assertions and native credential submission; retained actual Django CSRF/auth, one-time closure, full saved chat confirmation/reload/mobile flow, all previous cases, no uncaught exceptions and owned-profile cleanup. Legacy backup files remain private optional historical content.",
+  "preferences_review": "All previous 24 cases retain their assertions and order. The native click helper now waits for the same visible enabled button before actual pointer events; it still rejects disabled/missing controls. Three independent real-account preference cases are added. The fresh-profile fixture now requires four cases including preferences and both cleanup/exception proofs. Native browser profile ownership, startup validation and cleanup algorithms are unchanged; no provider/finance success is mocked."
 }

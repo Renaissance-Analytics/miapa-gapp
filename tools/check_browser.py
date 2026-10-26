@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 ROOT = Path(__file__).resolve().parents[1]
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
-                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "browser_exceptions", "cleanup"}
+                  "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 
 
 class BrowserFailure(Exception):
@@ -176,8 +176,8 @@ def main():
                 raise ValueError('Ordinary browser exceptions and cleanup required')
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,
                 'password': password, 'user_id': str(owner.pk), 'expected_points': 3500})
-            if (resumed.get('cleanup') is not True or resumed.get('checks') != 3
-                    or resumed.get('scenarios') != ['layout-fresh-browser-restore', 'no-uncaught-exceptions', 'owned-browser-cleanup']
+            if (resumed.get('cleanup') is not True or resumed.get('checks') != 4
+                    or resumed.get('scenarios') != ['layout-fresh-browser-restore', 'preferences-fresh-browser-restore', 'no-uncaught-exceptions', 'owned-browser-cleanup']
                     or resumed.get('build_id') != evidence.get('build_id') or resumed.get('browser') != evidence.get('browser')):
                 raise ValueError('Fresh-profile layout acceptance and cleanup required')
             if first_run.get('build_id') != evidence.get('build_id') or first_run.get('browser') != evidence.get('browser'):

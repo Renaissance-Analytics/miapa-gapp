@@ -8,6 +8,7 @@ import { LocalAccess } from './FirstRun.js';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { DynamicUserPanel } from './DynamicUserPanel.js';
 import { LayoutController, type LayoutState } from './layout.js';
+import { PreferencesController, initialPreferences, type PersonalChoices } from './preferences.js';
 
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const identity = session.state === 'authenticated' ? `user.${session.userId}` : session.state;
@@ -18,6 +19,8 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
   const theme = useTheme();
   const [layout, setLayout] = useState<LayoutState>({ phase: session.state === 'authenticated' ? 'loading' : 'ready', split: 28 });
   const layoutController = useRef<LayoutController | null>(null);
+  const [preferences, setPreferences] = useState(initialPreferences);
+  const preferencesController = useRef<PreferencesController | null>(null);
   const [pane, setPane] = useState<"agent" | "work">("work");
   const [narrow, setNarrow] = useState(false);
   const [factsAttempt, setFactsAttempt] = useState(0);
@@ -30,12 +33,30 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
     return () => { controller.dispose(); layoutController.current = null; };
   }, [session.state === 'authenticated' ? session.userId : null]);
 
+  useEffect(() => {
+    if (session.state !== 'authenticated') return;
+    const controller = new PreferencesController(session.userId, setPreferences);
+    preferencesController.current = controller;
+    void controller.load();
+    return () => { controller.dispose(); preferencesController.current = null; };
+  }, [session.state === 'authenticated' ? session.userId : null]);
+
+  function savePreferences(changes: Partial<PersonalChoices>): boolean {
+    const controller = preferencesController.current;
+    if (!controller || controller.current.phase !== 'ready') return false;
+    void controller.save(changes);
+    return true;
+  }
+
   function changeSplit(split: number) {
     if (session.state === 'authenticated') layoutController.current?.change(split);
     else setLayout({ phase: 'ready', split });
   }
 
   useEffect(() => initTheme({ storageKey: themeStorageKey(session) }), [session]);
+  useEffect(() => {
+    if (session.state === 'authenticated') theme.setPreference(preferences.theme);
+  }, [session.state, preferences.theme]);
   useEffect(() => {
     const query = window.matchMedia("(max-width: 700px)");
     const changed = () => setNarrow(query.matches);
@@ -53,7 +74,11 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
       <div className="brand"><span className="brand-mark" aria-hidden="true">m</span><div><h1>Maipa</h1><p>My AI Professional Accountant</p></div></div>
       <div className="appearance" role="group" aria-label="Appearance">
         {(["system", "light", "dark"] as const).map(value => <Button key={value} size="sm" variant="ghost"
-          aria-pressed={theme.preference === value} onClick={() => theme.setPreference(value)}>
+          id={`maipa-theme-${value}`} disabled={session.state === 'authenticated' && preferences.phase !== 'ready'}
+          aria-pressed={theme.preference === value} onClick={() => {
+            if (session.state === 'authenticated') savePreferences({ theme: value });
+            else theme.setPreference(value);
+          }}>
           {value === "system" ? "System" : value === "light" ? "Light" : "Dark"}
         </Button>)}
       </div>
@@ -81,13 +106,22 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
             {session.state === "authenticated" && <SignOutButton refresh={refresh} />}</div>
         </div>
         <div className="work-content">
+          {session.state === 'authenticated' && <div className="layout-status" data-preferences-state={preferences.phase}>
+            <span role="status">{preferences.phase === 'loading' ? 'Loading your appearance and view…'
+              : preferences.phase === 'saving' ? 'Saving appearance and view…' : preferences.phase === 'ready' ? 'Appearance and view saved.'
+              : preferences.phase === 'conflict' ? 'Your saved preferences changed. Reload them before making another change.'
+              : 'Your preferences could not be confirmed. Reload them before making another change.'}</span>
+            {(preferences.phase === 'conflict' || preferences.phase === 'unavailable') && <Button variant="ghost"
+              onClick={() => { void preferencesController.current?.load(); }}>Reload saved preferences</Button>}
+          </div>}
           {session.state === 'authenticated' && <div className="layout-status" data-layout-state={layout.phase}>
             <span role="status">{layout.phase === 'loading' ? 'Loading your pane width…' : layout.phase === 'saving' ? 'Saving pane width…'
               : layout.phase === 'ready' ? 'Pane width ready.' : layout.phase === 'conflict' ? 'Your saved layout changed. Reload it before resizing.'
               : 'Pane width could not be confirmed. Reload the saved layout before resizing.'}</span>
             {(layout.phase === 'conflict' || layout.phase === 'unavailable') && <Button variant="ghost" onClick={() => { void layoutController.current?.load(); }}>Reload saved layout</Button>}
           </div>}
-          {session.state === "authenticated" ? <DynamicUserPanel key={session.userId} userId={session.userId} factsAttempt={factsAttempt} /> : <Card className="welcome-card" variant="outlined" sections="plain">
+          {session.state === "authenticated" ? <DynamicUserPanel key={session.userId} userId={session.userId} factsAttempt={factsAttempt}
+            preferences={preferences} onSelectBuiltin={active_view => savePreferences({ active_view })} /> : <Card className="welcome-card" variant="outlined" sections="plain">
             <Card.Body><span className="eyebrow">A calm place to work</span>
               {!anonymous && <><h3>{failed ? "Workspace unavailable" : "Opening your workspace"}</h3>
               <p>{failed ? "We could not check your session. Try again to reconnect."
