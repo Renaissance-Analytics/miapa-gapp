@@ -1,8 +1,13 @@
 // Real MCP child/LOCAL pipe bytes and native stop verdict; synthetic tool data.
 // This intentionally starts no vendor CLI, authentication or model call.
 import { createUiRelay, rpcStreams } from './ui-mcp.mjs';
-import { launchProvider } from '@particle-academy/prism-acp';
+import { launchProvider, prepareProcessTree } from '@particle-academy/prism-acp';
+import { dirname } from 'node:path';
 const profile = JSON.parse(process.env.MAIPA_ACP_PROFILE);
+// A fresh isolated worker must use its explicitly prepared read-only supervisor.
+// Make the unrelated default cache unavailable, even on a warm development host.
+process.env.LOCALAPPDATA = dirname(process.execPath);
+await prepareProcessTree({ directory: profile.supervisor_directory });
 const mode = process.argv[2];
 const calls = [], verdicts = [];
 const relay = await createUiRelay(async request => {

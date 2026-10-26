@@ -3224,31 +3224,31 @@
     {
       "scenario": "A01-UI-MCP.native",
       "test": "tests.test_ui_mcp.UiMcpTests.test_actual_mcp_child_lists_and_calls_over_local_pipe_in_zero_capability_worker",
-      "scenario_sha256": "36075a4be9b5e6bf27b6efd00ba1a6c512ee3ae2afc4f78f9506fc55e036d4a1",
+      "scenario_sha256": "af6dee58472f435729cb529642a6310ba4b0512195ec480999359d5ba36c2868",
       "source_sha256": "9fe20ec216b5072333d889e1b9b6a00407d944282722a2d8ff384058a69807c5",
       "expected_observation": "Exact synthetic results return, foreign capability never dispatches and both process-tree stops plus outer job/profile/capsule cleanup are verified",
       "decision": "aligned",
-      "reason": "Real Node descendants use published launchProvider local-pipes inside the actual AppContainer. Exact RPC arguments/results, verified stop counts and cleanup are asserted; no vendor/model proof is claimed.",
+      "reason": "Real Node descendants use published launchProvider local-pipes inside the actual AppContainer. Exact RPC arguments/results, verified stop counts and cleanup are asserted; no vendor/model proof is claimed. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-MCP.limits",
       "test": "tests.test_ui_mcp.UiMcpTests.test_relay_redacts_callback_errors_rejects_oversized_frames_and_foreign_capability",
-      "scenario_sha256": "a7a0793d037affe39dc6cd085818fd5dd4a6c5814e8495581513e9968745a5c1",
+      "scenario_sha256": "5fff36c9d8d7d10145aca2abce63f74b9ff49b1a1c7bd5ce70cc52d978a66240",
       "source_sha256": "9fe20ec216b5072333d889e1b9b6a00407d944282722a2d8ff384058a69807c5",
       "expected_observation": "Only fixed safe errors return, excess or foreign requests never reach the callback, and real child and worker cleanup succeeds",
       "decision": "aligned",
-      "reason": "The callback invocation list is exact, each error string is exact, a private sentinel is absent, and both native stop verdicts and outer cleanup must verify.",
+      "reason": "The callback invocation list is exact, each error string is exact, a private sentinel is absent, and both native stop verdicts and outer cleanup must verify. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-MCP.valid-large",
       "test": "tests.test_ui_mcp.UiMcpTests.test_valid_maximum_component_tree_survives_mcp_text_and_structured_output",
-      "scenario_sha256": "c599ff6f6f55616c501f31f3f61d0eedf800a1627fa171b52f4a04b40b978ed5",
+      "scenario_sha256": "d58a8ee66e84dd464d536da3bcc7524e6d560e7f39e4618ea1e1ce3acf7ac189",
       "source_sha256": "9fe20ec216b5072333d889e1b9b6a00407d944282722a2d8ff384058a69807c5",
       "expected_observation": "The complete exact state survives a reply above64KiB while request limits and verified native cleanup remain intact",
       "decision": "aligned",
-      "reason": "Native MCP result must exceed65536bytes while its actual schema is within32768bytes; exact full text/structured equivalence,15notes and real process-tree/outer/profile/capsule cleanup are asserted. The original oversized-request test remains unchanged.",
+      "reason": "Native MCP result must exceed65536bytes while its actual schema is within32768bytes; exact full text/structured equivalence,15notes and real process-tree/outer/profile/capsule cleanup are asserted. The original oversized-request test remains unchanged. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {

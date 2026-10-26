@@ -2906,7 +2906,7 @@
         {
           "id": "A01-UI-MCP.native",
           "kind": "positive",
-          "given": "A fresh zero-capability native Windows worker and exact locked published Prism transport",
+          "given": "A fresh zero-capability native Windows worker and exact locked published Prism transport The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
           "when": "Launch actual MCP children and exchange initialize/catalog/tool bytes over an authenticated LOCAL pipe",
           "then": "Exact synthetic results return, foreign capability never dispatches and both process-tree stops plus outer job/profile/capsule cleanup are verified",
           "tests": [
@@ -2916,7 +2916,7 @@
         {
           "id": "A01-UI-MCP.limits",
           "kind": "negative",
-          "given": "A callback carrying a private failure, an oversized frame or a foreign capability",
+          "given": "A callback carrying a private failure, an oversized frame or a foreign capability The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
           "when": "Call through actual native MCP processes",
           "then": "Only fixed safe errors return, excess or foreign requests never reach the callback, and real child and worker cleanup succeeds",
           "tests": [
@@ -2926,7 +2926,7 @@
         {
           "id": "A01-UI-MCP.valid-large",
           "kind": "positive",
-          "given": "A valid sixteen-node component tree with escaped note text inside the reviewed32KiB schema budget",
+          "given": "A valid sixteen-node component tree with escaped note text inside the reviewed32KiB schema budget The native fixture explicitly selects its prepared capsule supervisor while the unrelated default cache is unavailable.",
           "when": "Return both MCP text and structured output through real native child processes",
           "then": "The complete exact state survives a reply above64KiB while request limits and verified native cleanup remain intact",
           "tests": [
