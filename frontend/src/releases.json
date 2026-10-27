@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-30",
+    "label": "Development update 30",
+    "cards": [
+      {
+        "title": "Fancy content and composer controls",
+        "description": "Agent replies, setup guidance and shared notes use Fancy’s content renderer. The message input uses Fancy’s multiline component while keeping drafts and confirmed sends."
+      },
+      {
+        "title": "Consistent connection controls",
+        "description": "When a connection changes, model choices and sign-in controls stay with the current conversation."
+      }
+    ]
+  },
+  {
     "id": "development-29",
     "label": "Development update 29",
     "cards": [
@@ -242,16 +256,6 @@
       {
         "title": "Set up your local Maipa",
         "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step."
-      }
-    ]
-  },
-  {
-    "id": "development-10",
-    "label": "Development update 10",
-    "cards": [
-      {
-        "title": "Reload your client facts",
-        "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity."
       }
     ]
   }

@@ -2104,7 +2104,7 @@
           "id": "P05-PREFERENCES.8",
           "kind": "negative",
           "given": "A damaged preference row bound outside the current installation",
-          "when": "GET and POST that user’s preferences",
+          "when": "GET and POST that user\u2019s preferences",
           "then": "Fail closed without adopting/rebinding the row; after explicit test repair the exact original snapshot remains.",
           "tests": [
             "tests.test_workspace_preferences.WorkspacePreferencesTests.test_mismatched_install_binding_is_denied_without_rebinding"
@@ -3851,6 +3851,36 @@
             "tests.test_model_selection.ModelSelectionTests.test_older_browser_contract_does_not_receive_unknown_model_fields",
             "tests.test_model_selection.ModelSelectionTests.test_foreign_browser_session_and_busy_turn_cannot_change_live_model",
             "tests.test_model_selection.ModelSelectionTests.test_native_refusal_cannot_report_the_requested_model_as_selected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-SNAPSHOT-STATE",
+      "risk": "Snapshot/worker transitions can mix phase/account-bound fields and break a valid live client or disclose stale challenge/catalog metadata.",
+      "scenarios": [
+        {
+          "id": "A01-SNAPSHOT-STATE.ready",
+          "kind": "positive",
+          "given": "A current owned worker with advertised models/challenge and an independently read HTTP/SSE snapshot",
+          "when": "Phase transitions interleave with transient-field collection",
+          "then": "Ready snapshots carry only models; sign-in snapshots carry only the original stream challenge; ordinary GET never returns login challenges",
+          "tests": [
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_sign_in_snapshot_keeps_its_challenge_without_ready_models",
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_ready_snapshot_keeps_models_without_a_late_sign_in_challenge"
+          ]
+        },
+        {
+          "id": "A01-SNAPSHOT-STATE.refused",
+          "kind": "negative",
+          "given": "An older offline/stopping/sign-in phase or another worker/account identity while transient state has advanced",
+          "when": "The server assembles an authenticated snapshot",
+          "then": "No out-of-phase or other-binding login/model state is appended; existing response shape remains valid and private",
+          "tests": [
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_new_worker_models_do_not_corrupt_an_older_offline_or_stopping_snapshot",
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_sign_in_snapshot_keeps_its_challenge_without_ready_models",
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_ready_snapshot_keeps_models_without_a_late_sign_in_challenge",
+            "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_a_different_worker_identity_or_account_cannot_attach_transient_fields"
           ]
         }
       ]

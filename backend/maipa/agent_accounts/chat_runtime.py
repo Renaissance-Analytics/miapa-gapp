@@ -81,11 +81,20 @@ def start(actor, row, session_key):
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
 
-def transient(owner, session_key, *, include_login=True, include_models=True):
+def transient(owner, session_key, *, include_login=True, include_models=True, snapshot=None):
     with _lock:
         worker = _workers.get(owner)
         if not worker or worker.session_key != session_key or worker.stopping.is_set():
             return {}
+        if snapshot is not None:
+            # Primary state and in-memory provider state are read separately.
+            # A transition between them must not produce a different binding or
+            # fields forbidden in the already-read phase.
+            if (snapshot['id'] != str(worker.identity)
+                    or snapshot['connection']['account_id'] != str(worker.account_id)):
+                return {}
+            include_login = include_login and snapshot['phase'] == 'sign_in'
+            include_models = include_models and snapshot['phase'] in ('connecting', 'ready', 'thinking')
         return {**({'login': dict(worker.consent)} if include_login and worker.consent else {}),
                 **({'models': json.loads(json.dumps(worker.models))} if include_models and worker.models else {})}
 

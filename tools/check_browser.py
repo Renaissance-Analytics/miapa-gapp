@@ -255,7 +255,7 @@ def main():
             worker.lease = SimpleNamespace(scope=scope, revalidate=lambda: None)
             capsule = SimpleNamespace(command=(sys.executable, str(ROOT / 'tests/fixtures/agent_chat_peer.py')),
                 workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id,
-                    'provider': worker.provider, 'workspace': str(workspace), 'synthetic_models': True,
+                    'provider': worker.provider, 'workspace': str(workspace), 'synthetic_models': True, 'synthetic_rich_content': True,
                     'synthetic_private_login': worker.provider == 'claude'})
             return capsule, None
         synthetic = patch.object(chat_runtime._Worker, 'prepare', synthetic_prepare)

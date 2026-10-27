@@ -31,8 +31,10 @@ def conversation(request):
     try:
         if request.method == 'GET':
             from .chat_runtime import transient
-            return JsonResponse({**chat.snapshot(request.user), **transient(request.user.pk, request.session.session_key,
-                include_login=False, include_models=request.headers.get('X-Maipa-Agent-Models') == '1')})
+            state = chat.snapshot(request.user)
+            state.update(transient(request.user.pk, request.session.session_key, snapshot=state,
+                include_login=False, include_models=request.headers.get('X-Maipa-Agent-Models') == '1'))
+            return JsonResponse(state)
         if request.content_type != 'application/json':
             raise ValueError('Invalid request')
         raw = request.read(32769)
@@ -57,7 +59,7 @@ def conversation(request):
             state = chat.set_model(request.user, value['revision'], value['selection_revision'], value['model_id'],
                                    session_key=request.session.session_key)
             from .chat_runtime import transient
-            state.update(transient(request.user.pk, request.session.session_key, include_login=False))
+            state.update(transient(request.user.pk, request.session.session_key, include_login=False, snapshot=state))
         elif action in ('login', 'cancel', 'disconnect') and set(value) == {'action', 'selection_revision'}:
             state = chat.control(request.user, action, session_key=request.session.session_key,
                                  selection_revision=value['selection_revision'])
@@ -98,7 +100,7 @@ def stream(request):
                     return
                 state = chat.snapshot(actor)
                 from .chat_runtime import transient
-                state.update(transient(owner, key, include_models=request.headers.get('X-Maipa-Agent-Models') == '1'))
+                state.update(transient(owner, key, snapshot=state, include_models=request.headers.get('X-Maipa-Agent-Models') == '1'))
             except (chat.ChatUnavailable, get_user_model().DoesNotExist):
                 yield b'event: revoked\ndata: {}\n\n'
                 return

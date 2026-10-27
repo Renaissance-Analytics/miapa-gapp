@@ -106,10 +106,24 @@ async function click(label) {
 }
 
 async function waitForAgent(type) {
+  try {
   await until(() => evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();
     const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();
     return c.phase==='ready'&&c.messages.at(-1)?.state==='complete'&&c.ui?.composition?.schema.type===${JSON.stringify(type)};})()`), 'agent completed a shared composition');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'stream acknowledged completed agent turn');
+  } catch (error) {
+    // Dedicated synthetic fixture only, fixed classifications/counts in PRIVATE
+    // failure log. No transcript, identifiers, credentials or raw DOM/error text.
+    console.error('Synthetic shared-composition diagnostic', JSON.stringify(await evaluate(`(async()=>{
+      const s=await(await fetch('/api/session/')).json();const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();
+      const a=document.querySelector('.chat-controls [role=alert]')?.textContent??'';
+      return {phase:c.phase,messages:c.messages?.length,revision:c.revision,uiRevision:c.ui?.revision??null,
+        errorKind:a.includes('disconnected')?'stream':a.includes('changed')?'conflict':a?'unavailable':'none',
+        lastMessageState:c.messages?.at(-1)?.state??null,
+        reconnectNoteReceived:c.messages?.some(m=>m.role==='user'&&m.text==='Present a note after reconnect')??false,
+        responseFailures:[...new Set(performance.getEntriesByType('resource').filter(e=>e.name.endsWith('/api/agent/chat/')).map(e=>e.responseStatus).filter(n=>n>=400))]};})()`)));
+    throw error;
+  }
 }
 async function requestComponent(prompt, type) {
   await chooseAgent();
@@ -640,6 +654,17 @@ try {
   await select('maipa-agent-model', 'synthetic-b');
   await until(() => evaluate("document.getElementById('maipa-agent-model')?.value==='synthetic-b' && !document.getElementById('maipa-agent-model').disabled && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'confirmed owned model choice');
   assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('textarea[aria-label=\"Message Maipa\"]') && window.maipaDraftNode.value==='Unsent follow-up Ω' && window.maipaModelPanelNode===document.querySelector('.contextual-panel')"), true);
+  await typeChat('Check kit formatting and literal <user-text> **raw**'); await click('Send');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && document.querySelector('.chat-message.assistant:last-child')?.textContent.includes('Formatted reply')"), 'kit renderer reply completed');
+  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] strong')?.textContent"), 'Formatted reply');
+  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] h2')?.textContent"), 'Kit reply');
+  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] li')?.textContent"), 'One item');
+  assert.equal(await evaluate("document.querySelector('.agent-commentary [data-react-fancy-content-renderer] strong')?.textContent"), 'Kit note');
+  assert.equal(await evaluate("document.querySelector('.chat-message.user:last-of-type')?.textContent.includes('literal <user-text> **raw**') || [...document.querySelectorAll('.chat-message.user')].at(-1)?.textContent.includes('literal <user-text> **raw**')"), true);
+  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').hasAttribute('data-react-fancy-textarea')"), true);
+  assert.equal(await evaluate("!!window.maipaUnsafeRender || !!document.querySelector('.chat-message.assistant:last-child img, .chat-message.assistant:last-child iframe, .chat-message.assistant:last-child script, .chat-message.assistant:last-child [onerror], .agent-commentary img, .agent-commentary script')"), false);
+  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child a')?.hasAttribute('href')"), false);
+  await typeChat('Unsent follow-up Ω');
   record('agent-chat-stream-and-ui-control');
   await click('Close contextual panel');
   await until(() => evaluate("!!document.querySelector('.chat-only')"), 'human dismissal reaches shared composition');

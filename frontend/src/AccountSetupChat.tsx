@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, DatePicker, Input, Select } from '@particle-academy/react-fancy';
+import { Button, ContentRenderer, DatePicker, Input, Select, Text, renderMarkdown } from '@particle-academy/react-fancy';
 import { answerOnboarding, readOnboarding, type OnboardingState } from './onboarding.js';
+import { CHAT_PROSE } from './content-policy.js';
 
 const labels: Record<string, string> = { display_name: 'Your name', engagement_name: 'Engagement', entity_name: 'Entity',
   currency: 'Currency', reporting_basis: 'Reporting basis', effective_from: 'Applies from', workspace: 'Client setup' };
@@ -50,10 +51,12 @@ export function AccountSetupChat({ onOpenFacts, providerReady = false }: { onOpe
     <p className="setup-guide-label">Account setup · Guided conversation</p>
     <div className="setup-transcript" role="log" aria-label="Account setup conversation" aria-live="polite">
       {value?.messages.map((item, index) => <div className={`setup-message ${item.role}`} key={index}>
-        <span>{item.role === 'guide' ? 'Maipa setup guide' : 'You'}</span><p>{item.text}</p></div>)}
+        <span>{item.role === 'guide' ? 'Maipa setup guide' : 'You'}</span>
+        {item.role === 'guide' ? <ContentRenderer value={renderMarkdown(item.text, CHAT_PROSE)} format="html" className="maipa-content" />
+          : <Text size="sm">{item.text}</Text>}</div>)}
       {value && step === 'review' && <SetupReview value={value} />}
       {value && step === 'complete' && <p className="setup-provider-note">{value.deferred ? 'Client setup is deferred. You can continue it here when ready.' : value.entity_id ? 'Your confirmed client facts are saved.' : 'Your account profile is saved. Your role allows read-only client access.'}
-        {!providerReady && ' Connect your ChatGPT subscription from the conversation when you are ready.'}</p>}
+        {!providerReady && ' Connect your agent provider from the conversation when you are ready.'}</p>}
       <div ref={end} />
     </div>
     {busy && !value && <p role="status">Opening your saved setup…</p>}

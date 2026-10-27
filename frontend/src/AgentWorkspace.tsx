@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, Input, ResizablePanels, Select } from '@particle-academy/react-fancy';
+import { Button, ContentRenderer, Input, ResizablePanels, Select, Text, Textarea, renderMarkdown } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
+import { CHAT_PROSE } from './content-policy.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -120,7 +121,9 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
             <h2>What would you like to work on?</h2><p>Ask Maipa. The tools and records you need will open alongside our conversation.</p></div>}
           <div className="chat-transcript" role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text">
             {state.messages.map(message => <article className={`chat-message ${message.role}`} key={message.id} data-message-id={message.id}>
-              <span>{message.role === 'user' ? 'You' : 'Maipa'}</span><p>{message.text}</p>
+              <span>{message.role === 'user' ? 'You' : 'Maipa'}</span>
+              {message.role === 'user' ? <Text size="sm" className="chat-user-text">{message.text}</Text>
+                : <ContentRenderer value={renderMarkdown(message.text, CHAT_PROSE)} format="html" className="maipa-content" />}
               {message.state === 'interrupted' && <small>Interrupted · partial reply retained</small>}
             </article>)}
           </div>
@@ -166,8 +169,8 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
             {state.phase === 'ready' && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void action({ action: 'disconnect' })}>Disconnect</Button>}
           </div>
           <form className="chat-composer" onSubmit={submit} aria-label="Message Maipa">
-            <textarea aria-label="Message Maipa" placeholder="Ask Maipa…" value={draft} maxLength={8000} rows={2}
-              onChange={event => setDraft(event.target.value)} onKeyDown={event => {
+            <Textarea id="maipa-chat-message" aria-label="Message Maipa" placeholder="Ask Maipa…" value={draft} maxLength={8000} minRows={2}
+              onValueChange={setDraft} onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (state.connection.available && !running && !busy && !error) submit(event); }
               }} />
             {running ? <Button type="button" disabled={busy || state.phase === 'stopping'}

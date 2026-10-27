@@ -4430,6 +4430,66 @@
       "decision": "aligned",
       "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
       "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.ready",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_sign_in_snapshot_keeps_its_challenge_without_ready_models",
+      "scenario_sha256": "15e9ffcc8461c78fd22b721687bb481cd35c936d3f6b671dcfa6fc9bab77a002",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "Ready snapshots carry only models; sign-in snapshots carry only the original stream challenge; ordinary GET never returns login challenges",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.ready",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_ready_snapshot_keeps_models_without_a_late_sign_in_challenge",
+      "scenario_sha256": "15e9ffcc8461c78fd22b721687bb481cd35c936d3f6b671dcfa6fc9bab77a002",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "Ready snapshots carry only models; sign-in snapshots carry only the original stream challenge; ordinary GET never returns login challenges",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.refused",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_new_worker_models_do_not_corrupt_an_older_offline_or_stopping_snapshot",
+      "scenario_sha256": "f1b841e5c72f8ad7487c0793d89e127dbe3edf382e14f49f1fe60bfa38014bfa",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "No out-of-phase or other-binding login/model state is appended; existing response shape remains valid and private",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.refused",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_sign_in_snapshot_keeps_its_challenge_without_ready_models",
+      "scenario_sha256": "f1b841e5c72f8ad7487c0793d89e127dbe3edf382e14f49f1fe60bfa38014bfa",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "No out-of-phase or other-binding login/model state is appended; existing response shape remains valid and private",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.refused",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_ready_snapshot_keeps_models_without_a_late_sign_in_challenge",
+      "scenario_sha256": "f1b841e5c72f8ad7487c0793d89e127dbe3edf382e14f49f1fe60bfa38014bfa",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "No out-of-phase or other-binding login/model state is appended; existing response shape remains valid and private",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SNAPSHOT-STATE.refused",
+      "test": "tests.test_chat_snapshot_consistency.ChatSnapshotConsistencyTests.test_a_different_worker_identity_or_account_cannot_attach_transient_fields",
+      "scenario_sha256": "f1b841e5c72f8ad7487c0793d89e127dbe3edf382e14f49f1fe60bfa38014bfa",
+      "source_sha256": "0ede75696822ef6f7cf61213711f0bdc031f6612483b44b50da96a98b747cfd7",
+      "expected_observation": "No out-of-phase or other-binding login/model state is appended; existing response shape remains valid and private",
+      "decision": "aligned",
+      "reason": "Reviewed real authenticated HTTP/SSE assertions with deterministic app-worker metadata scheduling, actual owned conversation/installation/session and four distinct phase/identity outcomes. Only app worker runtime is finite; no authority/parser is mocked and no existing test body changed. Browser transitions independently exercise the actual streaming consumer.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
     }
   ]
 }

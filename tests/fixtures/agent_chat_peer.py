@@ -108,9 +108,14 @@ for line in sys.stdin:
                 schema = {'id': 'shared-root', 'type': component}
                 if component == 'Maipa.Note':
                     schema['props'] = {'text': 'Synthetic updated note' if 'update' in text and 'delayed update' not in text else 'Synthetic shared note'}
+                    if profile.get('synthetic_rich_content') and 'kit formatting' in text:
+                        schema['props']['text'] = '**Kit note**\n\n- Shared content\n\n<img src="https://example.invalid/track" onerror="window.maipaUnsafeRender=true"><script>window.maipaUnsafeRender=true</script>'
                 callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present', {
                     'revision': revision, 'title': 'Shared work', 'schema': schema})
-            for chunk in ('Synthetic agent ', 'reply. Shared UI ', 'is synchronized.'):
+            chunks = ('Synthetic agent ', 'reply. Shared UI ', 'is synchronized.')
+            if profile.get('synthetic_rich_content') and 'kit formatting' in text:
+                chunks += ('\n\n## Kit reply\n\n**Formatted reply**\n\n- One item\n\n`literal code`\n\n<a href="javascript:window.maipaUnsafeRender=true">Unsafe link</a><iframe src="https://example.invalid/frame"></iframe><img src="https://example.invalid/track" onerror="window.maipaUnsafeRender=true"><script>window.maipaUnsafeRender=true</script>',)
+            for chunk in chunks:
                 send({'method': 'session/update', 'params': {'sessionId': session,
                     'update': {'sessionUpdate': 'agent_message_chunk', 'content': {'type': 'text', 'text': chunk}}}})
                 time.sleep(.1)

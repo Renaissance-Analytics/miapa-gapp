@@ -175,7 +175,10 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .conversation-welcome p { font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 56ch; }
 .chat-message { margin: 0 0 24px; overflow-wrap: anywhere; }
 .chat-message > span { font-size: 11px; font-weight: 650; color: var(--muted); }
-.chat-message p { margin: 6px 0; white-space: pre-wrap; line-height: 1.75; }
+.chat-message .chat-user-text { margin: 6px 0; white-space: pre-wrap; line-height: 1.75; }
+.maipa-content { overflow-wrap: anywhere; }
+.maipa-content :is(p, ul, ol, blockquote, pre, table) { margin-block: 6px; }
+.maipa-content pre { max-width: 100%; overflow-x: auto; }
 .chat-message.user { background: var(--canvas); border-radius: 12px; padding: 12px 16px; margin-left: min(12%, 80px); }
 .chat-message small { color: var(--muted); }
 .chat-controls { padding: 8px max(18px, calc((100% - 780px) / 2)) 16px; }
@@ -185,6 +188,7 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .chat-status button { min-height: 28px; padding-block: 3px; }
 .chat-composer { display: flex; align-items: end; gap: 8px; border: 1px solid var(--control-border); border-radius: 13px; padding: 8px; background: var(--surface); }
 .chat-composer:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chat-composer > div { flex: 1; min-width: 0; }
 .chat-composer textarea { flex: 1; min-width: 0; resize: vertical; max-height: 180px; min-height: 48px; padding: 6px 8px;
   border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; line-height: 1.6; }
 .chat-composer > button { background: var(--accent); color: var(--on-accent); border-radius: 8px; }
@@ -196,7 +200,6 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .composition-stack { display: grid; gap: 14px; }
 .agent-commentary { padding: 12px 14px; border-left: 2px solid var(--accent); background: var(--surface); }
 .agent-commentary small { color: var(--muted); }
-.agent-commentary p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; margin: 6px 0; }
 .provider-signin { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; }
 .provider-signin h3 { margin-top: 0; }
 .provider-signin p { color: var(--muted); line-height: 1.6; }
