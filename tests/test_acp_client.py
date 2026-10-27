@@ -66,6 +66,26 @@ class AcpClientTests(unittest.TestCase):
             self.assertNotIn("acp-local-1", session)
         self.run_case(case)
 
+    def test_native_status_is_closed_and_requires_original_owner_and_session(self):
+        for expected in ('starting', 'ready', 'unavailable'):
+            async def case(client, owner):
+                session = await client.new_session(owner)
+                for foreign in (Scope('user-2', 'account-1'), Scope('user-1', 'account-2')):
+                    with self.assertRaises(PermissionError):
+                        await client.native_status(foreign, session)
+                with self.assertRaises(PermissionError):
+                    await client.native_status(owner, 'acp-local-1')
+                self.assertEqual(await client.native_status(owner, session), expected)
+            with self.subTest(state=expected): self.run_case(case, mode='native-' + expected)
+
+    def test_native_status_rejects_unknown_or_private_payloads(self):
+        async def case(client, owner):
+            session = await client.new_session(owner)
+            with self.assertRaisesRegex(AcpError, '^Native session unavailable$'):
+                await client.native_status(owner, session)
+        for mode in ('native-extra', 'native-malformed', 'native-array', 'native-unknown'):
+            with self.subTest(mode=mode): self.run_case(case, mode=mode)
+
     def test_bad_frames_fail_pending_requests_without_reflecting_provider_data(self):
         for mode in ("malformed", "oversized", "exit", "duplicate", "bool-id", "unknown-id"):
             async def case(client, owner):

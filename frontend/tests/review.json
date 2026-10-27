@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "source_sha256": "cfd3bf53660c29ac472d7514d4f5638cbc405f833030d938e54560e6c22f8c25",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "source_sha256": "cfd3bf53660c29ac472d7514d4f5638cbc405f833030d938e54560e6c22f8c25",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "source_sha256": "cfd3bf53660c29ac472d7514d4f5638cbc405f833030d938e54560e6c22f8c25",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification.",
+      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "e266933732d628766daf97584cb2d5a0e1ceac72abef2cf87e90892428056a17",
+      "source_sha256": "cfd3bf53660c29ac472d7514d4f5638cbc405f833030d938e54560e6c22f8c25",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Every failure must reject with the exact generic error; success or reflecting private response/error text would fail.",
+      "reason": "Every failure must reject with the exact generic error; success or reflecting private response/error text would fail. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -165,7 +165,7 @@
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#browser fixture accepts its actual owned temporary parent",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -175,7 +175,7 @@
       "scenario": "K06-BROWSER-PARENT.positive",
       "test": "browser-profile.test.mjs#Windows aliases and path casing identify the same physical temporary directory",
       "scenario_sha256": "bbf7ace672ec2790fd053e96e50c847a8c7a80d0ef34052f1e226dc2a64ecf29",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "expected_observation": "Actual owned directories and alternate names for the same physical parent pass",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -185,7 +185,7 @@
       "scenario": "K06-BROWSER-PARENT.negative",
       "test": "browser-profile.test.mjs#browser fixture refuses a different physical parent and unowned directory name",
       "scenario_sha256": "be6b76702496764787dc0accc91f89eee8d1950edc6c723d8ab212441d14b6f1",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "expected_observation": "A different physical parent or directory without the owned fixture prefix is rejected",
       "decision": "aligned",
       "reason": "Same real filesystem cases retained; assertions now compare independently observed file identity rather than path spelling, including actual alternate Windows casing. Wrong physical parent and unowned prefix still fail before cleanup. Existing ownership/cleanup assertions remain unchanged; the import now also exposes the separately reviewed connection readiness parser.",
@@ -334,7 +334,7 @@
     {
       "scenario": "BROWSER-CONNECTION-READINESS.complete",
       "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "scenario_sha256": "12f570098f676e9c97be3792ee7712243c59226f804f82bb894fcc234baa5c82",
       "expected_observation": "Return the exact validated port/path only after the final chunk is present.",
       "decision": "aligned",
@@ -344,7 +344,7 @@
     {
       "scenario": "BROWSER-CONNECTION-READINESS.partial",
       "test": "browser-profile.test.mjs#browser connection readiness waits through partial file writes and rejects unsafe records",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "scenario_sha256": "6deee54f9e47acd29a899c1beb746b11d4fb14e6e38313bef0d36b8f7936bc97",
       "expected_observation": "Keep waiting for partial records and refuse zero/out-of-range/address ports, foreign URLs and extra lines.",
       "decision": "aligned",
@@ -354,7 +354,7 @@
     {
       "scenario": "BROWSER-CONNECTION-READINESS.file-open",
       "test": "browser-profile.test.mjs#browser startup tolerates transient file open races but never accepts an unread or unsafe record",
-      "source_sha256": "cb8df3ae9af064fd82f5c75e8e7f2cc327796e45b58c4315ad88a02451929688",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
       "scenario_sha256": "b723b8d9a9f663194f96bc14742cc8afc21a60993239fe38f8bf7659d6a2fd19",
       "expected_observation": "Keep waiting on those transient opens; accept only the exact subsequently readable valid record, refuse unsafe records and propagate unrelated I/O errors.",
       "decision": "aligned",
@@ -750,6 +750,26 @@
       "expected_observation": "Only one GET occurs; the selected provider is retained and no connect POST or fallback occurs.",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-GRACEFUL-CLOSE.exit",
+      "test": "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence",
+      "scenario_sha256": "db23011ff4c27698caba3076795732b8faf8a68f8bce9dd38e2c6c7645dad8a6",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
+      "expected_observation": "The close request finishes on the owned process exit and removes its temporary listener",
+      "decision": "aligned",
+      "reason": "Confirmed taskkill ETIMEDOUT after successful first-run UI checks motivates graceful CDP close before the retained force fallback. The test covers observable exit-without-reply, already-closed and rejected-close behavior. The helper does not attest cleanup; real browser assertions still require actual process exit, unreachable owned debugger and removal of its guarded fresh profile.",
+      "reviewer": "Maipa independent semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-GRACEFUL-CLOSE.failure",
+      "test": "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence",
+      "scenario_sha256": "f6daab41792d7fc0cc9f1ac1a5422105f090a9397a84b38eba6c3c9dd7793edd",
+      "source_sha256": "a0a8f997d38bccd1144b624083ea8baff50d4c03acc14410b75fca249d4c3faf",
+      "expected_observation": "An already closed process receives no command; a rejected close propagates its error and removes its listener without attesting cleanup",
+      "decision": "aligned",
+      "reason": "Confirmed taskkill ETIMEDOUT after successful first-run UI checks motivates graceful CDP close before the retained force fallback. The test covers observable exit-without-reply, already-closed and rejected-close behavior. The helper does not attest cleanup; real browser assertions still require actual process exit, unreachable owned debugger and removal of its guarded fresh profile.",
+      "reviewer": "Maipa independent semantic acceptance review; no external reviewer claimed"
     }
   ]
 }

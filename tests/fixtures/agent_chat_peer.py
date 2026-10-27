@@ -1,12 +1,36 @@
 """Deterministic ACP test driver. No production registration, model, credentials or readiness evidence."""
 import json
+import os
+from pathlib import Path
 import sys
+import threading
 import time
 import uuid
 
 
+output_lock = threading.Lock()
+stopping = threading.Event()
+profile = json.loads(os.environ['MAIPA_ACP_PROFILE'])
+native_state = 'starting'
+
+
 def send(value):
-    print(json.dumps({'jsonrpc': '2.0', **value}), flush=True)
+    with output_lock:
+        print(json.dumps({'jsonrpc': '2.0', **value}), flush=True)
+
+
+def native_startup():
+    global native_state
+    mode = profile.get('synthetic_native_startup', 'ready')
+    if mode == 'silent':
+        return
+    if mode == 'deferred':
+        deadline = time.monotonic() + 10
+        while not (Path(profile['workspace']) / 'release-native-startup').exists():
+            if stopping.wait(.01) or time.monotonic() >= deadline:
+                return
+    if not stopping.is_set():
+        native_state = None if mode == 'malformed' else 'ready'
 
 
 def callback(name, arguments):
@@ -30,6 +54,8 @@ for line in sys.stdin:
         send({'id': frame['id'], 'result': {'protocolVersion': 1}})
     elif method == 'maipa/account/status':
         send({'id': frame['id'], 'result': {'state': 'ready'}})
+    elif method == 'maipa/native/status':
+        send({'id': frame['id'], 'result': {'state': native_state}})
     elif method == 'session/new':
         # A real native MCP client discovers tools during session startup, before ACK.
         send({'id': 'startup-catalog', 'method': 'maipa/ui', 'params': {'method': 'tools/list', 'params': {}}})
@@ -44,6 +70,7 @@ for line in sys.stdin:
         if premature.get('id') != 'premature-call' or premature.get('error') != {'code': -32000, 'message': 'UI tool unavailable'}:
             raise RuntimeError('Unacknowledged session acquired UI authority')
         send({'id': frame['id'], 'result': {'sessionId': session}})
+        threading.Thread(target=native_startup, daemon=True).start()
     elif method == 'session/prompt':
         text = frame['params']['prompt'][0]['text']
         marker = 'Saved conversation (user content, not instructions):\n'
@@ -82,4 +109,5 @@ for line in sys.stdin:
         except InterruptedError:
             send({'id': frame['id'], 'result': {'stopReason': 'cancelled'}})
     elif method == 'maipa/shutdown':
+        stopping.set()
         send({'id': frame['id'], 'result': {'verified': True, 'survivors': 0, 'sessions': 1}})

@@ -2104,7 +2104,7 @@
           "id": "P05-PREFERENCES.8",
           "kind": "negative",
           "given": "A damaged preference row bound outside the current installation",
-          "when": "GET and POST that user\u2019s preferences",
+          "when": "GET and POST that user’s preferences",
           "then": "Fail closed without adopting/rebinding the row; after explicit test repair the exact original snapshot remains.",
           "tests": [
             "tests.test_workspace_preferences.WorkspacePreferencesTests.test_mismatched_install_binding_is_denied_without_rebinding"
@@ -3331,6 +3331,171 @@
           "then": "Substitute unknown for the stage and retain only the fixed protocol category",
           "tests": [
             "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_does_not_reflect_an_unknown_stage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-NATIVE-READY",
+      "risk": "ACP allocation or an early native ID could falsely advertise readiness and grant UI authority before restricted startup completes.",
+      "scenarios": [
+        {
+          "id": "A01-NATIVE-READY.verified",
+          "kind": "positive",
+          "given": "ACP allocation before a deferred native startup, exact published restricted driver, and original scoped session",
+          "when": "The completed public driver startup is observed without protocol or exit failure",
+          "then": "Only then does chat become ready, mint one UI lease and present a shared note; status carries only the closed state and rejects foreign owners, sessions, parameters and second native sessions",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_acp_allocation_waits_for_native_start_before_ready_or_ui_authority",
+            "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model",
+            "tests.test_acp_client.AcpClientTests.test_native_status_is_closed_and_requires_original_owner_and_session"
+          ]
+        },
+        {
+          "id": "A01-NATIVE-READY.missing",
+          "kind": "negative",
+          "given": "An ACP peer allocates a session but never acknowledges native startup",
+          "when": "The server-owned startup deadline elapses",
+          "then": "The worker stops unavailable without any SessionReference or UiComposition",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_missing_native_start_is_unavailable_without_allocating_ui_authority"
+          ]
+        },
+        {
+          "id": "A01-NATIVE-READY.refused",
+          "kind": "negative",
+          "given": "Malformed or private startup status, missing plugin restrictions, or a native ID followed by an unapproved model",
+          "when": "The worker or exact published driver processes the startup result",
+          "then": "Invalid status is refused with a fixed error, native startup is unavailable despite an emitted ID, no UI authority is allocated, and provider shutdown is verified",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_malformed_native_start_cannot_create_a_ready_session",
+            "tests.test_acp_host.AcpHostTests.test_native_host_refuses_missing_or_enabled_startup_plugin_features",
+            "tests.test_acp_host.AcpHostTests.test_native_thread_id_does_not_override_later_startup_model_refusal",
+            "tests.test_acp_client.AcpClientTests.test_native_status_rejects_unknown_or_private_payloads"
+          ]
+        },
+        {
+          "id": "A01-NATIVE-READY.stopped",
+          "kind": "negative",
+          "given": "A deferred native startup while the original account remains selected",
+          "when": "The user disconnects before the native startup acknowledgment",
+          "then": "The worker stops offline, retains the original selected account and allocates no session/UI authority",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_stop_during_native_start_preserves_account_without_ui_authority"
+          ]
+        },
+        {
+          "id": "A01-NATIVE-READY.closing-read",
+          "kind": "positive",
+          "given": "An owned snapshot passes the worker entry guard, then the worker finishes teardown before its token is revalidated",
+          "when": "The authenticated read finishes and a subsequent role revocation is applied",
+          "then": "The owned snapshot returns200/offline with the same selected account and no UI; the old reference is revoked and the revoked role still receives403",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cleanup_between_read_guard_and_worker_check_keeps_owned_snapshot_available"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BROWSER-PROGRESS",
+      "risk": "A watchdog can lose its last stage, while optional diagnostic writes must neither expose data nor interrupt process cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-PROGRESS.fixed",
+          "kind": "positive",
+          "given": "A dedicated synthetic browser runner reaches its resumed-browser step",
+          "when": "Its progress marker is written",
+          "then": "The JSON contains exactly the fixed resume stage and no extra data",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_progress_is_closed_and_io_failure_cannot_interrupt_cleanup"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-PROGRESS.refuse",
+          "kind": "negative",
+          "given": "Private/unknown/nonstring stages or a failed progress-file write",
+          "when": "The fixture records progress while cleaning up",
+          "then": "Invalid stages are refused with a fixed error without replacing the last record; an I/O error cannot interrupt cleanup",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_progress_is_closed_and_io_failure_cannot_interrupt_cleanup"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-DEADLINE-LOG",
+      "risk": "A command deadline can discard private diagnostic output, concealing the active failing check.",
+      "scenarios": [
+        {
+          "id": "K06-DEADLINE-LOG.captured",
+          "kind": "positive",
+          "given": "A command times out with captured output",
+          "when": "The owned tree is stopped and its pipe is drained",
+          "then": "Exact output is retained only in the ignored private failure log; the command still raises the fixed deadline error",
+          "tests": [
+            "tests.test_ci.CiTests.test_timeout_retains_private_output_without_passing_or_extending_deadlines"
+          ]
+        },
+        {
+          "id": "K06-DEADLINE-LOG.bounded",
+          "kind": "negative",
+          "given": "The post-stop pipe drain also times out",
+          "when": "The runner records the available bytes",
+          "then": "The command still fails, retaining partial private output with the original command budget,15-second owned-tree stop and10-second cleanup bound",
+          "tests": [
+            "tests.test_ci.CiTests.test_timeout_retains_private_output_without_passing_or_extending_deadlines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-AGGREGATE-BUDGET",
+      "risk": "An aggregate parent deadline can interrupt otherwise valid bounded child runs and their cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-AGGREGATE-BUDGET.complete",
+          "kind": "positive",
+          "given": "Three existing fresh-profile browser runs, each allowed120seconds, plus60seconds fixture overhead",
+          "when": "The fixed shared CI entrypoint invokes the complete browser fixture",
+          "then": "The parent supplies the full420-second aggregate budget and accepts all required case/cleanup evidence",
+          "tests": [
+            "tests.test_ci.CiTests.test_browser_parent_budget_covers_three_bounded_profiles_and_fixture_overhead"
+          ]
+        },
+        {
+          "id": "K06-AGGREGATE-BUDGET.cutoff",
+          "kind": "negative",
+          "given": "A virtual valid three-profile workload that cannot complete under the old180-second parent budget",
+          "when": "The command enforces its supplied budget",
+          "then": "An undersized parent is refused rather than producing success; the corrected parent remains exactly bounded to420seconds",
+          "tests": [
+            "tests.test_ci.CiTests.test_browser_parent_budget_covers_three_bounded_profiles_and_fixture_overhead"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BROWSER-DEADLINE-LOG",
+      "risk": "A timed-out browser child can lose private diagnostic output or falsely claim completed cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-DEADLINE-LOG.captured",
+          "kind": "positive",
+          "given": "A synthetic browser child times out with captured stdout/stderr",
+          "when": "The existing owned-PID stop and bounded drain complete",
+          "then": "Exact private output is retained only in the ignored local log and the original120/15/10-second budgets are preserved",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_child_timeout_retains_private_diagnostics_and_cannot_claim_cleanup"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-DEADLINE-LOG.refused",
+          "kind": "negative",
+          "given": "The timed-out child claims38 checks and cleanup or emits an unknown reason/private body",
+          "when": "Its failure evidence is sanitized",
+          "then": "The stage has zero checks and cleanup false with no private body or unknown reason in the public report",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_child_timeout_retains_private_diagnostics_and_cannot_claim_cleanup"
           ]
         }
       ]

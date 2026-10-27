@@ -22,6 +22,18 @@ The same entrypoint runs in GitHub Actions, with the same runtime pins and order
 7. Native Vite production build and generated build identity.
 8. Real browser acceptance against that built frontend and Django backend, last.
 
+The backend suite has a420-second aggregate budget: a measured375-case run
+completed in313seconds. The browser parent also has420seconds for three existing
+120-second fresh-profile runs plus60seconds of fixture overhead. Individual test,
+native startup/stop and browser interaction limits remain unchanged. The same
+budgets apply locally and in Actions; a timed-out stage always fails. Its output
+is retained only in the ignored private failure log after the owned process tree
+is stopped, within the existing15-second stop and10-second drain limits.
+
+Optional browser progress files contain only fixed stage codes, a bounded count
+and a cleanup boolean. They help locate a watchdog failure and never replace the
+required final browser result or establish verified cleanup by themselves.
+
 The finite browser fixture creates a temporary synthetic database, server-owned
 user/session/account metadata, fresh browser profile and an ephemeral loopback
 WSGI listener. It checks anonymous/authenticated UI, actual API authority/CSRF,

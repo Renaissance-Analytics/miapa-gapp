@@ -37,7 +37,9 @@ test("release notes describe the installed build and Fancy selects only unseen r
   const groups = loadReleaseNotes(null);
   assert.equal(groups.length >= 2, true);
   assert.equal(new Set(groups.map(group => group.id)).size, groups.length);
-  assert.equal(groups.some(group => group.id === "development-2" && group.cards.some(card => card.title === "Track app updates")), true);
+  assert.equal(groups.length, 20);
+  assert.equal(groups[0].id, "development-25");
+  assert.equal(groups[0].cards.some(card => card.title === "Ready after agent startup"), true);
   assert.deepEqual(selectNew(groups, String(groups[1].id), { missed: "all", firstVisit: "latest" }).show.map(group => group.id), [groups[0].id]);
   assert.deepEqual(selectNew(groups, String(groups[0].id), { missed: "all", firstVisit: "latest" }).show, []);
   assert.notEqual(updatesStorageKey({ state: "authenticated", userId: "1" }), updatesStorageKey({ state: "authenticated", userId: "2" }));

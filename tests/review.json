@@ -525,140 +525,140 @@
       "scenario": "K05-ACP-CLIENT.positive",
       "test": "tests.test_acp_client.AcpClientTests.test_correlates_reversed_responses_and_negotiates_protocol",
       "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Two requests finish in reverse wire order but retain independent exact values; initialize must negotiate protocol1.",
+      "reason": "Two requests finish in reverse wire order but retain independent exact values; initialize must negotiate protocol1. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.positive",
       "test": "tests.test_acp_client.AcpClientTests.test_reads_updates_and_denies_permission_before_prompt_finishes",
       "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Peer withholds turn completion until a permission cancellation and unsupported-method error arrive; exact returned update and empty second drain reject lost/duplicate/foreign routing.",
+      "reason": "Peer withholds turn completion until a permission cancellation and unsupported-method error arrive; exact returned update and empty second drain reject lost/duplicate/foreign routing. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.positive",
       "test": "tests.test_acp_client.AcpClientTests.test_session_launch_uses_fixed_workspace_and_no_browser_mcp_configuration",
       "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "The peer echoes the actual sent launch fields; exact equality requires the configured workspace and empty MCP list, plus a distinct application handle.",
+      "reason": "The peer echoes the actual sent launch fields; exact equality requires the configured workspace and empty MCP list, plus a distinct application handle. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.positive",
       "test": "tests.test_acp_client.AcpClientTests.test_shutdown_report_is_distinct_from_process_exit",
       "scenario_sha256": "8efaa5a9f86b3db65cb3d0f2c1189fa81fccabdfd82b1a7076bae85575c045c5",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "An explicit exact shutdown verdict is required separately from the fixture's actual process exit checked by the common harness.",
+      "reason": "An explicit exact shutdown verdict is required separately from the fixture's actual process exit checked by the common harness. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_foreign_user_or_account_cannot_send_or_read_session_data",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Foreign user and foreign account requests/reads must raise before routing; raw ACP IDs cannot authorize prompts, while the proper app handle must still complete a turn.",
+      "reason": "Foreign user and foreign account requests/reads must raise before routing; raw ACP IDs cannot authorize prompts, while the proper app handle must still complete a turn. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_bad_frames_fail_pending_requests_without_reflecting_provider_data",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Malformed, overbudget and exited peers must fail both pending requests with the same generic exception rather than leak provider stderr/data or leave a waiter hanging. Extended with duplicate object fields, boolean response IDs and unknown response IDs, all of which must fail both waiters generically.",
+      "reason": "Malformed, overbudget and exited peers must fail both pending requests with the same generic exception rather than leak provider stderr/data or leave a waiter hanging. Extended with duplicate object fields, boolean response IDs and unknown response IDs, all of which must fail both waiters generically. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_deadline_closes_connection_without_retry_or_late_authority",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "A hanging peer must fail at the deadline and refuse a subsequent new session; the harness verifies process termination. Initialization occurs before failure; a second initialize must reject, so stale cached capabilities cannot masquerade as a working connection. The controlled fixture now delays startup250ms; arrangement uses the normal2s budget, while only the hung break request retains the exact150ms deadline. Original exact error and post-timeout initialize/new-session denials remain. This corrects the observed initialization failure without increasing the deadline under test or changing production code.",
+      "reason": "A hanging peer must fail at the deadline and refuse a subsequent new session; the harness verifies process termination. Initialization occurs before failure; a second initialize must reject, so stale cached capabilities cannot masquerade as a working connection. The controlled fixture now delays startup250ms; arrangement uses the normal2s budget, while only the hung break request retains the exact150ms deadline. Original exact error and post-timeout initialize/new-session denials remain. This corrects the observed initialization failure without increasing the deadline under test or changing production code. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_invalid_scope_and_relative_executable_are_refused_before_spawn",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Empty owner identity and a relative executable must be rejected before any child is started.",
+      "reason": "Empty owner identity and a relative executable must be rejected before any child is started. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_worker_profile_must_match_account_user_and_fixed_workspace",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "Each otherwise valid trusted profile is mutated in exactly one owner/account/workspace field; constructor refusal must occur before spawning, catching accidental cross-account launch configuration.",
+      "reason": "Each otherwise valid trusted profile is mutated in exactly one owner/account/workspace field; constructor refusal must occur before spawning, catching accidental cross-account launch configuration. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_parent_secrets_and_runtime_injection_variables_are_not_inherited",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "A real subprocess reports only the names of prohibited inherited variables; exact empty equality proves removal, and the parent retains the exact synthetic values. No secret values are returned or logged.",
+      "reason": "A real subprocess reports only the names of prohibited inherited variables; exact empty equality proves removal, and the parent retains the exact synthetic values. No secret values are returned or logged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-CLIENT.negative",
       "test": "tests.test_acp_client.AcpClientTests.test_oversized_outgoing_request_is_refused_without_breaking_initialization",
       "scenario_sha256": "a1009689154c63cd2660621a0864e75c7dfcc73dfdadce08130e44eb190c986c",
-      "source_sha256": "1ec9f33a1dcc9b5a04d8d22ce9f852ac98b0fda96efa03b2f3b3ecb023950e18",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
       "expected_observation": "Owned sessions and replies route exactly while permission requests cancel and unsupported calls error; foreign authority, malformed/oversized/failed peers and deadlines fail closed without private diagnostics or retries",
       "decision": "aligned",
-      "reason": "An overbudget request must fail locally, then initialization still succeeds; this distinguishes safe preflight refusal from an actual protocol/connection failure.",
+      "reason": "An overbudget request must fail locally, then initialization still succeeds; this distinguishes safe preflight refusal from an actual protocol/connection failure. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-HOST.positive",
       "test": "tests.test_acp_host.AcpHostTests.test_real_entry_initializes_published_host_and_reports_zero_provider_shutdown",
       "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
-      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-HOST.positive",
       "test": "tests.test_acp_host.AcpHostTests.test_python_host_published_codex_driver_session_and_stream_round_trip",
       "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
-      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-HOST.negative",
       "test": "tests.test_acp_host.AcpHostTests.test_host_refuses_foreign_workspace_or_mcp_before_constructing_a_driver",
       "scenario_sha256": "31f120918aec34c2e368ac0e9265cb7ca8bd5b851a88670e5aafcedd7b07471d",
-      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -805,70 +805,70 @@
       "scenario": "K06-PIPELINE.positive",
       "test": "tests.test_ci.CiTests.test_complete_run_binds_identity_and_browser_is_last",
       "scenario_sha256": "8a4c1b28bfef556176a2644de8bb667248a8b2e7fffb7e68561e39cf17621922",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "A complete unchanged candidate passes in alignment-first/browser-last order with exact build evidence",
       "decision": "aligned",
-      "reason": "Asserts a literal independent eight-stage sequence, preserved candidate identity and matching final browser build.",
+      "reason": "Asserts a literal independent eight-stage sequence, preserved candidate identity and matching final browser build. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_alignment_failure_prevents_all_later_work",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "A failing first gate must leave the execution trace containing alignment only.",
+      "reason": "A failing first gate must leave the execution trace containing alignment only. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_failure_at_every_stage_stops_later_effects",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Injects each of eight failures and asserts no later command was called.",
+      "reason": "Injects each of eight failures and asserts no later command was called. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_empty_skipped_failed_or_missing_test_evidence_cannot_pass",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Zero, skipped, failed, mismatched and missing counts with exit zero must stop at backend.",
+      "reason": "Zero, skipped, failed, mismatched and missing counts with exit zero must stop at backend. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_browser_missing_cleanup_or_wrong_build_cannot_pass",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Independently corrupts cleanup, browser identity, exact build and checks; every apparently successful child must fail.",
+      "reason": "Independently corrupts cleanup, browser identity, exact build and checks; every apparently successful child must fail. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_source_change_even_after_browser_invalidates_candidate",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Changes only source digest at the last boundary and requires failure after the browser, without accepting an earlier snapshot.",
+      "reason": "Changes only source digest at the last boundary and requires failure after the browser, without accepting an earlier snapshot. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.negative",
       "test": "tests.test_ci.CiTests.test_command_exception_and_unstructured_success_fail_closed",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Missing results, boolean exit codes and exceptions cannot green or reflect private diagnostics.",
+      "reason": "Missing results, boolean exit codes and exceptions cannot green or reflect private diagnostics. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
@@ -876,9 +876,9 @@
       "test": "tests.test_ci.CiTests.test_missing_or_malformed_candidate_identity_prevents_execution",
       "expected_observation": "Failure, incomplete evidence or changed source invalidates the run and prevents subsequent stage effects without diagnostic leakage",
       "decision": "aligned",
-      "reason": "Missing identity, branch-name commit and unknown fingerprint must fail before any stage command; literal empty execution trace catches a false candidate pass.",
+      "reason": "Missing identity, branch-name commit and unknown fingerprint must fail before any stage command; literal empty execution trace catches a false candidate pass. Private timeout-output retention reviewed; all original pipeline test methods/identity/privacy/failure assertions remain AST-identical. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
-      "source_sha256": "93070fa96baf361d4f6bffa94c3e3faf6d7df3734b3130202527472887ef86bf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
       "scenario_sha256": "2f1506e2cadcf460f8045af28aa468c795b4f2af5b33fad850ae3ea68194a77e"
     },
     {
@@ -925,20 +925,20 @@
       "scenario": "K06-BROWSER-REPORT.positive",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only",
       "scenario_sha256": "1907a9996ddf96d8f091fc959601b749785d4609e22999fc4244717686f2fa9c",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-REPORT.negative",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified",
       "scenario_sha256": "2e982f64e234ff77c55b4ddb529ddd75d95fec330ec399f164d7601c8fea3cc4",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -1285,30 +1285,30 @@
       "scenario": "K06-BROWSER-START.paths",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials",
       "scenario_sha256": "d6af91671984e09eaa533f35162efca937ea0846109d7b17d9e2409331711efd",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
       "decision": "aligned",
-      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.code",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text",
       "scenario_sha256": "71f48ef6984f2108db4f27c8f1b178cfa42700725a8dec758563938e62f1e573",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
       "decision": "aligned",
-      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.reject",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded",
       "scenario_sha256": "397520df2333b2e6654b56d863d33b7f353a7758b6fcc1afd199406936cdc8a9",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
       "decision": "aligned",
-      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -2645,20 +2645,20 @@
       "scenario": "P05-BROWSER-DIAGNOSTICS.known",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_setup_checkpoint_survives_without_browser_text_or_answer",
       "scenario_sha256": "f3072da429010911f7bfb535d1cd1d838d2568e80c76d6ef2e6bb9cf174df5a9",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Keep only allowed setup checkpoint, phase and verified cleanup",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.hostile",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_misplaced_or_nonstring_checkpoints_are_discarded",
       "scenario_sha256": "bf47e02e4b7215fca49df04e53b5149a48a8f76188991a53257d22b43214a95a",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "expected_observation": "Discard checkpoint and private content rather than expanding public diagnostics",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -3334,51 +3334,51 @@
     {
       "scenario": "A01-CONVERSATION.csrf",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_browser_write_requires_csrf_before_starting_any_provider",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "a3acd790216ff676def365499a103ae1398c273245069e216780c51ffdb802d7",
       "expected_observation": "Reject403, leave the conversation offline and create no worker",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.loop",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "c9093d2eb7c1967a5a901ed038650b50dd7b75d3d5da73fe28eaa6f743338277",
       "expected_observation": "Only static tool definitions precede ACK; real app UI callbacks advance the same controlled lease after a human revision, text checkpoints persist and dismissal retains all six messages; this is not real-model evidence",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.cancel",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "d978ffce2d30a4be06aa70cf40234b969e4bc0fe65fe9b2ad4b871755f1fa530",
       "expected_observation": "Preserve the interrupted text and continue the same acknowledged UI/session without cancelling the next turn",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.logout",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_logout_revokes_live_worker_and_private_ui_but_keeps_owned_transcript",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "e6b55c35e8bed3f5d445100d21ec91456f7383c8455576eefb79d28f91270708",
       "expected_observation": "Stop the process, revoke its private UI reference and deny anonymous reads while preserving the owned saved transcript after a new login",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_reauthorizes_same_actor_but_role_change_stops_worker",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "1090bd16642754cb0330037a6b151222741ac6a378091f72c8c6fe58759036ed",
       "expected_observation": "Mint a freshly authorized lease for the same actor while refusing the old lease; an actual role change stops the worker and denies its old chat access",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -3404,11 +3404,11 @@
     {
       "scenario": "A01-CONVERSATION.reader",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_brief_concurrent_reader_does_not_abort_startup_checkpoint",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "fac94bc7a0a86d3722d8df85269668790031ccdf817ad67ad0a7dd8e4e9ba897",
       "expected_observation": "The file-backed installed database semantics permit the acknowledged worker checkpoint and the real contextual note appears; shared-memory SQLite contention is not treated as a model/provider failure",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -3444,52 +3444,52 @@
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained."
     },
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_between_actor_check_and_snapshot_does_not_return_private_ui",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained."
     },
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.shared-surface",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_shared_surface_diagnostics_keep_only_fixed_codes_statuses_and_booleans",
-      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
       "scenario_sha256": "7a1946923dce89f31e6e31e589fafbdeddfd31eac89d0a343e485dff6fc14811",
       "expected_observation": "Keep only fixed failure kinds, session/chat/admin integer HTTP statuses and whitelisted booleans; reject unknown keys, boolean statuses, nonboolean observations and misplaced diagnostic fields",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain."
+      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain. Closed optional progress marker reviewed; original reporting methods remain AST-identical and all privacy/cleanup assertions remain."
     },
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
+      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained."
     },
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_while_minting_ui_is_not_reauthorized",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
+      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained."
     },
     {
       "scenario": "A01-PROVIDER-SELECTION.first_connection_requires_a_choice_and_never_creates_a_codex_account",
@@ -3584,8 +3584,8 @@
     {
       "scenario": "A01-CONVERSATION.unexpected_peer_exit",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_unexpected_peer_exit_is_unavailable_and_keeps_the_acknowledged_turn",
-      "reason": "A real isolated peer exits. Controlled close hook reads after original native contexts close and before bookkeeping release, expecting stopping; final HTTP polling expects unavailable and exact acknowledged user text/state. Captured red closing phase and earlier503. Existing actual role/logout/original-account denial suite retained; no alternate principal or native permission is granted. The controlled post-close/pre-release hook attempts both valid-epoch connect and send, requires409 conflicts and exact unchanged revision/messages. Captured red demonstrates the prior late-refusal state mutation; server guards now reject before mutation.",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "reason": "A real isolated peer exits. Controlled close hook reads after original native contexts close and before bookkeeping release, expecting stopping; final HTTP polling expects unavailable and exact acknowledged user text/state. Captured red closing phase and earlier503. Existing actual role/logout/original-account denial suite retained; no alternate principal or native permission is granted. The controlled post-close/pre-release hook attempts both valid-epoch connect and send, requires409 conflicts and exact unchanged revision/messages. Captured red demonstrates the prior late-refusal state mutation; server guards now reject before mutation. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "scenario_sha256": "57cca01f7e65616fc531e8a1bc340c1e93abf2b28cc30ea1d90a281cc2f299b0",
       "expected_observation": "The failed connection remains stopping while its worker closes, becomes unavailable only after release, retains the exact acknowledged user message, and permits a primary-authorized saved read after native contexts close. Send/connect during closing conflict without changing the exact transcript or conversation revision.",
       "decision": "aligned",
@@ -3595,20 +3595,20 @@
       "scenario": "A01-RESTRICTED-STARTUP.launch",
       "test": "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model",
       "scenario_sha256": "4abe8c7a05916e6a5713332da3c4907b5dd4ff95f4455c8c95f9d4de5081fdd9",
-      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
       "expected_observation": "Host-fixed policy survives hints, plugin restrictions are present before initialization and a restricted native thread is acknowledged.",
       "decision": "aligned",
-      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-RESTRICTED-STARTUP.config",
       "test": "tests.test_acp_host.AcpHostTests.test_native_host_refuses_missing_or_enabled_startup_plugin_features",
       "scenario_sha256": "19c91a9b401dd6b653fbb02ff3ac907088f83e504e6141dfbf8b93d3fdcc2900",
-      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
       "expected_observation": "Both launch restrictions are still supplied, no native thread is created, startup is refused and shutdown remains verified with zero survivors.",
       "decision": "aligned",
-      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -3645,31 +3645,211 @@
       "scenario": "A01-FAILURE-DIAGNOSTIC.closed",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_reports_closed_stage_and_category_without_provider_output",
       "scenario_sha256": "7d0f17250581ea1047318986c396c9f5e94ba24ed92a3aea781dd7b9256bbd78",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "expected_observation": "Record only the fixed stage and error category, never provider output or account identifiers",
       "decision": "aligned",
-      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-FAILURE-DIAGNOSTIC.closed",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_profile_failure_is_distinct_without_logging_a_private_path",
       "scenario_sha256": "7d0f17250581ea1047318986c396c9f5e94ba24ed92a3aea781dd7b9256bbd78",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "expected_observation": "Record only the fixed stage and error category, never provider output or account identifiers",
       "decision": "aligned",
-      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-FAILURE-DIAGNOSTIC.unknown",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_does_not_reflect_an_unknown_stage",
       "scenario_sha256": "ffb7b46c23214197ee72268072cf5c55eed1a3c46a000d32eea219de2c118834",
-      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
       "expected_observation": "Substitute unknown for the stage and retain only the fixed protocol category",
       "decision": "aligned",
-      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed. Native-readiness delta reviewed: prior test bodies retained; the published-host policy cases add closed readiness, parameter and one-session checks. Finite fixture startup remains explicit; no old assertion or deadline was weakened. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.verified",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_acp_allocation_waits_for_native_start_before_ready_or_ui_authority",
+      "scenario_sha256": "59e831c4138cfe7860aca50c72eab201b9ad911e92ad3c37cd5fe53b7480c5b1",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
+      "expected_observation": "Only then does chat become ready, mint one UI lease and present a shared note; status carries only the closed state and rejects foreign owners, sessions, parameters and second native sessions",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.verified",
+      "test": "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model",
+      "scenario_sha256": "59e831c4138cfe7860aca50c72eab201b9ad911e92ad3c37cd5fe53b7480c5b1",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
+      "expected_observation": "Only then does chat become ready, mint one UI lease and present a shared note; status carries only the closed state and rejects foreign owners, sessions, parameters and second native sessions",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.verified",
+      "test": "tests.test_acp_client.AcpClientTests.test_native_status_is_closed_and_requires_original_owner_and_session",
+      "scenario_sha256": "59e831c4138cfe7860aca50c72eab201b9ad911e92ad3c37cd5fe53b7480c5b1",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
+      "expected_observation": "Only then does chat become ready, mint one UI lease and present a shared note; status carries only the closed state and rejects foreign owners, sessions, parameters and second native sessions",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.missing",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_missing_native_start_is_unavailable_without_allocating_ui_authority",
+      "scenario_sha256": "6e8e8d564c8ebbb2146a721473527c7988e6b0188ca4762e9c4e476e0330a377",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
+      "expected_observation": "The worker stops unavailable without any SessionReference or UiComposition",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.refused",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_malformed_native_start_cannot_create_a_ready_session",
+      "scenario_sha256": "b90cb52cca5adee41775d2d4784d7b54b629c5ae66e156fbecd5e0b253e2ea71",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
+      "expected_observation": "Invalid status is refused with a fixed error, native startup is unavailable despite an emitted ID, no UI authority is allocated, and provider shutdown is verified",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.refused",
+      "test": "tests.test_acp_host.AcpHostTests.test_native_host_refuses_missing_or_enabled_startup_plugin_features",
+      "scenario_sha256": "b90cb52cca5adee41775d2d4784d7b54b629c5ae66e156fbecd5e0b253e2ea71",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
+      "expected_observation": "Invalid status is refused with a fixed error, native startup is unavailable despite an emitted ID, no UI authority is allocated, and provider shutdown is verified",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.refused",
+      "test": "tests.test_acp_host.AcpHostTests.test_native_thread_id_does_not_override_later_startup_model_refusal",
+      "scenario_sha256": "b90cb52cca5adee41775d2d4784d7b54b629c5ae66e156fbecd5e0b253e2ea71",
+      "source_sha256": "424e7eaa41da9d40b09171469646075a6019428f1fe2d59f73e90e61477357e5",
+      "expected_observation": "Invalid status is refused with a fixed error, native startup is unavailable despite an emitted ID, no UI authority is allocated, and provider shutdown is verified",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.refused",
+      "test": "tests.test_acp_client.AcpClientTests.test_native_status_rejects_unknown_or_private_payloads",
+      "scenario_sha256": "b90cb52cca5adee41775d2d4784d7b54b629c5ae66e156fbecd5e0b253e2ea71",
+      "source_sha256": "a923427761565fd6d8e39eeaecf7a02b90ae6fc701f3fed933c6063dd9a0c970",
+      "expected_observation": "Invalid status is refused with a fixed error, native startup is unavailable despite an emitted ID, no UI authority is allocated, and provider shutdown is verified",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.stopped",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_stop_during_native_start_preserves_account_without_ui_authority",
+      "scenario_sha256": "76d868b6e67c6f5ec1f332871eab95d33b88e297f9aaf02f254932349315dc2b",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
+      "expected_observation": "The worker stops offline, retains the original selected account and allocates no session/UI authority",
+      "decision": "aligned",
+      "reason": "Reviewed actual assertions and finite fixtures: deferred/silent/malformed startup controls, no pre-ready database authority, retained original selection on Stop, public driver model refusal after real native-ID emission, and exact scoped closed wire status. The initial old-source Ready-versus-Connecting failure is preserved separately. No real-model claim. Added deterministic closing-read interleaving; prior runtime methods remain AST-identical and every polling HTTP200 assertion/deadline is retained.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-NATIVE-READY.closing-read",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cleanup_between_read_guard_and_worker_check_keeps_owned_snapshot_available",
+      "scenario_sha256": "d97ccfe77c4a76353194745e839eec6e279ab06ef7085dccca35568cd6d8bf6d",
+      "source_sha256": "ac5c83fc76b44f30aef9f4523974557d52efec1b23d2d70353dcb23ae82294c6",
+      "expected_observation": "The owned snapshot returns200/offline with the same selected account and no UI; the old reference is revoked and the revoked role still receives403",
+      "decision": "aligned",
+      "reason": "The request-thread-only check wrapper stops and joins the real worker after refresh_actor entry, then invokes the original check against its released token. Old production deterministically returns503. The correction permits primary snapshot checks to finish; exact200/offline/same account/no UI/revoked reference plus a subsequent primary403 are asserted. It does not prove the exact cause of the earlier intermittent timeout503.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PROGRESS.fixed",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_progress_is_closed_and_io_failure_cannot_interrupt_cleanup",
+      "scenario_sha256": "ff8ecc46991f2e504d6b08df631c7f71e5993cd60476b999b2edb210ec832c2a",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
+      "expected_observation": "The JSON contains exactly the fixed resume stage and no extra data",
+      "decision": "aligned",
+      "reason": "The actual writer emits exactly one fixed field, refuses unknown/bool/dict/empty input and preserves the previous record. Injected OSError reproduces an exception that could block finally cleanup; after the fix it returns normally. No raw error or user data enters marker contents. Markers are never final pass evidence.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-PROGRESS.refuse",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_progress_is_closed_and_io_failure_cannot_interrupt_cleanup",
+      "scenario_sha256": "b0bbe0d045b7ff7e1dda7b1fec38fde2b61676e65420cdef7e4c970d5d13300c",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
+      "expected_observation": "Invalid stages are refused with a fixed error without replacing the last record; an I/O error cannot interrupt cleanup",
+      "decision": "aligned",
+      "reason": "The actual writer emits exactly one fixed field, refuses unknown/bool/dict/empty input and preserves the previous record. Injected OSError reproduces an exception that could block finally cleanup; after the fix it returns normally. No raw error or user data enters marker contents. Markers are never final pass evidence.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-DEADLINE-LOG.captured",
+      "test": "tests.test_ci.CiTests.test_timeout_retains_private_output_without_passing_or_extending_deadlines",
+      "scenario_sha256": "2c23927ee0d346143d1720bc2590941e92eb2bac62c81d492ac6c06492fbf005",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
+      "expected_observation": "Exact output is retained only in the ignored private failure log; the command still raises the fixed deadline error",
+      "decision": "aligned",
+      "reason": "Mocked actual runner commands exercise initial timeout and a second drain timeout, including bytes decoding. Exact private log, fixed raised error, original command timeout and15/10 cleanup bounds plus the exact own-PID tree-stop argv are asserted. The old code fails with absent log. No timeout report can pass and raw output is not added to JSON. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-DEADLINE-LOG.bounded",
+      "test": "tests.test_ci.CiTests.test_timeout_retains_private_output_without_passing_or_extending_deadlines",
+      "scenario_sha256": "32d7ed3050e1899b4f27cff4f014ee8e1db30272484c24914bd843fd9a6f10e0",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
+      "expected_observation": "The command still fails, retaining partial private output with the original command budget,15-second owned-tree stop and10-second cleanup bound",
+      "decision": "aligned",
+      "reason": "Mocked actual runner commands exercise initial timeout and a second drain timeout, including bytes decoding. Exact private log, fixed raised error, original command timeout and15/10 cleanup bounds plus the exact own-PID tree-stop argv are asserted. The old code fails with absent log. No timeout report can pass and raw output is not added to JSON. Aggregate budget review: all prior pipeline methods retained; virtual three-profile workload asserts the independently required3x120+60 window. No individual child/case bound or missing/failed/cleanup evidence gate is relaxed.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-AGGREGATE-BUDGET.complete",
+      "test": "tests.test_ci.CiTests.test_browser_parent_budget_covers_three_bounded_profiles_and_fixture_overhead",
+      "scenario_sha256": "b58d68a891c9fe8e62e22020561acf93dca7d259bf944e19a74d544caa5749d7",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
+      "expected_observation": "The parent supplies the full420-second aggregate budget and accepts all required case/cleanup evidence",
+      "decision": "aligned",
+      "reason": "Actual Commands browser stage runs against a virtual independently specified3x120+60 workload; it fails under old180, then returns all required evidence with exactly420. Original case order/count/cleanup/build checks remain. Separately, the real375-test timing run passes in313.026seconds with no individual test over9.747seconds; this justifies the backend aggregate420, not longer per-test operations.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-AGGREGATE-BUDGET.cutoff",
+      "test": "tests.test_ci.CiTests.test_browser_parent_budget_covers_three_bounded_profiles_and_fixture_overhead",
+      "scenario_sha256": "3aa3f2e2d0f4f22672d57acac5f56bb2fe2c21a198273eae6d9182a2f7ccc5cf",
+      "source_sha256": "095bec74eb4b5a62febb49fb13f0bbb5d1f379ccc3322722752c0778bf87efd2",
+      "expected_observation": "An undersized parent is refused rather than producing success; the corrected parent remains exactly bounded to420seconds",
+      "decision": "aligned",
+      "reason": "Actual Commands browser stage runs against a virtual independently specified3x120+60 workload; it fails under old180, then returns all required evidence with exactly420. Original case order/count/cleanup/build checks remain. Separately, the real375-test timing run passes in313.026seconds with no individual test over9.747seconds; this justifies the backend aggregate420, not longer per-test operations.",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-DEADLINE-LOG.captured",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_child_timeout_retains_private_diagnostics_and_cannot_claim_cleanup",
+      "scenario_sha256": "339a28d7a009ee0ad1508990d273ac3c9b3a66b9125776026945f45d71c9dd9d",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
+      "expected_observation": "Exact private output is retained only in the ignored local log and the original120/15/10-second budgets are preserved",
+      "decision": "aligned",
+      "reason": "Observed browser-exit timeout was previously reduced to a generic ValueError. The new regression fails the prior body, uses exact stdout/stderr and own-PID argv/budgets, and asserts claimed cleanup is forced false. Original reporting methods and privacy allowlists remain unchanged. Private logs are not uploaded by Actions.",
+      "reviewer": "Maipa independent semantic acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "K06-BROWSER-DEADLINE-LOG.refused",
+      "test": "tests.test_browser_reporting.BrowserReportingTests.test_child_timeout_retains_private_diagnostics_and_cannot_claim_cleanup",
+      "scenario_sha256": "78c4e7659969dd538cdf6afddc318d7cf8ae89490b6fc5d982e63fc757df9095",
+      "source_sha256": "8f6d1592840d127747e2ecef88b25bc9fba4cf1a00122d2386c1bac481ed0fe8",
+      "expected_observation": "The stage has zero checks and cleanup false with no private body or unknown reason in the public report",
+      "decision": "aligned",
+      "reason": "Observed browser-exit timeout was previously reduced to a generic ValueError. The new regression fails the prior body, uses exact stdout/stderr and own-PID argv/budgets, and asserts claimed cleanup is forced false. Original reporting methods and privacy allowlists remain unchanged. Private logs are not uploaded by Actions.",
+      "reviewer": "Maipa independent semantic acceptance review; no external reviewer claimed"
     }
   ]
 }

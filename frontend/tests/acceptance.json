@@ -786,6 +786,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K06-BROWSER-GRACEFUL-CLOSE",
+      "risk": "A browser can exit without replying to its close request, while a failed close must not be mistaken for verified cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-GRACEFUL-CLOSE.exit",
+          "kind": "positive",
+          "given": "The fixture owns one browser process and its existing debugger connection",
+          "when": "Browser.close causes that process to exit before replying",
+          "then": "The close request finishes on the owned process exit and removes its temporary listener",
+          "tests": [
+            "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-GRACEFUL-CLOSE.failure",
+          "kind": "negative",
+          "given": "The owned process is already closed or its close command is rejected",
+          "when": "The finite lifecycle helper is invoked",
+          "then": "An already closed process receives no command; a rejected close propagates its error and removes its listener without attesting cleanup",
+          "tests": [
+            "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence"
+          ]
+        }
+      ]
     }
   ]
 }

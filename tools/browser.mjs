@@ -4,7 +4,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
+import { closeBrowserThroughDebugger, readDebuggingPortFile, ownedProfileRoot } from "./browser-profile.mjs";
 
 let phase = "fixture_input", failedPhase, cleanupVerified = false, checkpoint;
 let startupEvidence = {}, launchState = "starting", launchExit;
@@ -50,6 +50,30 @@ const exceptions = [];
 const intakeListResponses = [];
 const passed = [];
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
+const progressPhases = new Set(['fixture_input', 'browser_binary', 'profile_parent', 'browser_launch',
+  'debug_endpoint', 'service_storage', 'ui_composition', 'admin_users', 'client_catalog', 'agent_shell',
+  'anonymous', 'release_controls', 'theme', 'keyboard_divider', 'mobile_panels', 'login', 'logout_viewer',
+  'authenticated_scope', 'transport_csrf', 'intake_recovery', 'intake_facts', 'intake_history', 'intake_scope',
+  'authority', 'first_run', 'setup_chat', 'setup_isolation', 'work_views', 'layout', 'layout_resume',
+  'preferences', 'browser_exceptions', 'cleanup']);
+let cleanupCheckpoint = 'not_started';
+let stopStatus = null, stopError = null, rootAliveAfterStop = null;
+const cleanupCheckpoints = new Set(['not_started', 'browser_close', 'socket_close', 'pending_close', 'stop_tree', 'browser_exit', 'endpoint', 'profile_remove', 'complete']);
+const recordProgress = () => {
+  // Closed fixture metadata survives an outer watchdog without DOM/user data.
+  try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
+    phase: progressPhases.has(phase) ? phase : 'unknown',
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 38 ? passed.length : 0,
+    cleanup_verified: cleanupVerified === true,
+    cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
+    stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
+    stop_error: ['ENOENT','ETIMEDOUT','EACCES','EPERM','ESRCH','EINVAL'].includes(stopError) ? stopError : null,
+    root_alive_after_stop: typeof rootAliveAfterStop === 'boolean' ? rootAliveAfterStop : null,
+  })); } catch { /* Progress cannot replace the required final result. */ }
+};
+const progressTimer = setInterval(recordProgress, 1000);
+progressTimer.unref();
+recordProgress();
 async function until(predicate, label) {
   for (let attempt = 0; attempt < 150; attempt++) {
     const result = await predicate();
@@ -594,7 +618,7 @@ try {
   await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert"), 'mobile conversation remains mounted');
   await click('Shared work');
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
-  await until(() => evaluate("!document.querySelector('[data-pane=work]').inert"), 'desktop view restored');
+  await until(() => evaluate("innerWidth===1440 && !document.querySelector('[data-pane=work]').inert && !document.querySelector('[data-pane=agent]').inert"), 'desktop view restored');
   assert.equal(await evaluate("document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
   record('persistent-chat-work-views');
   phase = 'agent_shell';
@@ -920,23 +944,42 @@ try {
   throw error;
 } finally {
   phase = "cleanup";
+  recordProgress();
+  clearInterval(progressTimer);
+  if (socket?.readyState === WebSocket.OPEN && !closed) {
+    cleanupCheckpoint = 'browser_close'; recordProgress();
+    try {
+      await closeBrowserThroughDebugger(command, child, () => closed);
+      await until(() => closed, 'graceful browser exit');
+    } catch { /* The bounded force-stop fallback and all cleanup assertions still apply. */ }
+  }
+  cleanupCheckpoint = 'socket_close'; recordProgress();
   socket?.close();
+  cleanupCheckpoint = 'pending_close'; recordProgress();
   for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(Error("Fixture ended")); }
   if (child.pid && !closed) {
+    cleanupCheckpoint = 'stop_tree'; recordProgress();
     // Only the newly spawned test browser's process tree is targeted.
-    spawnSync("taskkill.exe", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "ignore", timeout: 10_000 });
+    const stopped = spawnSync("taskkill.exe", ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, stdio: "pipe", encoding: 'utf8', timeout: 10_000 });
+    stopStatus = stopped.status; stopError = stopped.error?.code;
+    try { process.kill(child.pid, 0); rootAliveAfterStop = true; } catch { rootAliveAfterStop = false; }
+    if (stopped.status !== 0) console.error('Owned synthetic browser stop failed', stopped.stderr || stopped.stdout || stopped.error?.code);
+    cleanupCheckpoint = 'browser_exit'; recordProgress();
     await until(() => closed, "browser exit");
   }
   assert.ok(closed || launchError, "Owned browser process exited");
   if (debugOrigin) {
+    cleanupCheckpoint = 'endpoint'; recordProgress();
     let reachable = false;
     try { await fetch(`${debugOrigin}/json/version`, { signal: AbortSignal.timeout(1000) }); reachable = true; } catch {}
     assert.equal(reachable, false, "Owned debugging endpoint closed");
   }
   assert.equal(dirname(realpathSync.native(profile)), parent);
+  cleanupCheckpoint = 'profile_remove'; recordProgress();
   rmSync(profile, { recursive: true, maxRetries: 5, retryDelay: 200 });
   assert.equal(existsSync(profile), false);
   cleanupVerified = true;
+  cleanupCheckpoint = 'complete'; recordProgress();
   if (evidence) { record("owned-browser-cleanup"); evidence.checks = passed.length; evidence.cleanup = true; }
 }
 console.log(JSON.stringify(evidence));

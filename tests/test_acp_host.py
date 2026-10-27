@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AcpHostTests(unittest.TestCase):
-    def run_host(self, body, *, real_entry=False, native_policy=False, startup_features=None):
+    def run_host(self, body, *, real_entry=False, native_policy=False, startup_features=None, model_reply=None):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 base = Path(directory)
@@ -41,6 +41,9 @@ class AcpHostTests(unittest.TestCase):
                     # The real host's validated profile discards it; keep the ACP env closed.
                     profile['synthetic_startup_features'] = startup_features
                     environment['MAIPA_ACP_PROFILE'] = json.dumps(profile)
+                if model_reply is not None:
+                    profile['synthetic_model_reply'] = model_reply
+                    environment['MAIPA_ACP_PROFILE'] = json.dumps(profile)
                 client = AcpClient([node, str(script)], owner, base / "workspace", env=environment, timeout=15)
                 await client.start()
                 try:
@@ -49,6 +52,15 @@ class AcpHostTests(unittest.TestCase):
                     await client.close()
                 self.assertEqual(client.returncode, 0)
         asyncio.run(run())
+
+    async def native_result(self, client, owner):
+        async with asyncio.timeout(5):
+            while True:
+                result = await client._request(owner, 'maipa/native/status', {})
+                self.assertEqual(set(result), {'state'})
+                self.assertIn(result['state'], ('starting', 'ready', 'unavailable'))
+                if result['state'] != 'starting': return result
+                await asyncio.sleep(.01)
 
     def test_real_entry_initializes_published_host_and_reports_zero_provider_shutdown(self):
         async def case(client, owner):
@@ -70,6 +82,11 @@ class AcpHostTests(unittest.TestCase):
             self.assertEqual(policy['startupArgs'][-4:], ['-c', 'features.plugins=false', '-c', 'features.remote_plugin=false'])
             self.assertTrue(policy['threadStarted'])
             self.assertFalse(policy['refused'])
+            self.assertEqual(await self.native_result(client, owner), {'state': 'ready'})
+            with self.assertRaises(AcpError):
+                await client._request(owner, 'maipa/native/status', {'sessionId': 'foreign'})
+            with self.assertRaises(AcpError):
+                await client.new_session(owner)
             self.assertEqual((await client.shutdown(owner))['sessions'], 1)
         self.run_host(case, native_policy=True)
 
@@ -81,11 +98,25 @@ class AcpHostTests(unittest.TestCase):
             self.assertEqual(policy['startupArgs'][-4:], ['-c', 'features.plugins=false', '-c', 'features.remote_plugin=false'])
             self.assertFalse(policy['threadStarted'])
             self.assertTrue(policy['refused'])
+            self.assertEqual(await self.native_result(client, owner), {'state': 'unavailable'})
             self.assertEqual(await client.shutdown(owner), {'verified': True, 'survivors': 0, 'sessions': 1})
         for features in ({}, {'plugins': False}, {'plugins': True, 'remote_plugin': False},
                          {'plugins': False, 'remote_plugin': True}):
             with self.subTest(features=features):
                 self.run_host(case, native_policy=True, startup_features=features)
+
+    def test_native_thread_id_does_not_override_later_startup_model_refusal(self):
+        async def case(client, owner):
+            await client.initialize(owner)
+            session = await client.new_session(owner)
+            self.assertTrue((await client._request(owner, 'fixture/policy-result', {}))['threadStarted'])
+            self.assertEqual(await self.native_result(client, owner), {'state': 'unavailable'})
+            self.assertEqual(await client.native_status(owner, session), 'unavailable')
+            updates = client.drain_updates(owner, session)
+            self.assertTrue(any(item.get('_meta', {}).get('particle.academy/cli_session_id')
+                                for item in updates), 'Fixture must reach native ID before the model refusal')
+            self.assertEqual(await client.shutdown(owner), {'verified': True, 'survivors': 0, 'sessions': 1})
+        self.run_host(case, native_policy=True, model_reply='synthetic-unapproved-model')
 
     def test_python_host_published_codex_driver_session_and_stream_round_trip(self):
         async def case(client, owner):

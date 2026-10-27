@@ -37,6 +37,12 @@ for line in sys.stdin:
         send({"jsonrpc": "2.0", "method": "session/update", "params": {"sessionId": "acp-local-1", "update": {"sessionUpdate": "agent_message_chunk", "content": {"type": "text", "text": "synthetic reply"}}}})
         send({"jsonrpc": "2.0", "id": "permission-1", "method": "session/request_permission", "params": {"sessionId": "acp-local-1", "options": [{"optionId": "allow", "kind": "allow_once"}]}})
         send({"jsonrpc": "2.0", "id": "client-unknown", "method": "terminal/create", "params": {"command": "do-not-run"}})
+    elif method == 'maipa/native/status':
+        result = {'state': mode.removeprefix('native-')}
+        if mode == 'native-extra': result = {'state': 'ready', 'private': 'synthetic-private-value'}
+        if mode == 'native-malformed': result = {'state': None}
+        if mode == 'native-array': result = ['ready']
+        send({'jsonrpc': '2.0', 'id': message['id'], 'result': result})
     elif message.get("id") == "permission-1" and "result" in message:
         permission = message["result"]
     elif message.get("id") == "client-unknown" and "error" in message:

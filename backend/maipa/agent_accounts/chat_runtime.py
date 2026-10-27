@@ -16,7 +16,7 @@ from django.db import close_old_connections, connections, DatabaseError
 from django.db.models import F
 from django.utils import timezone
 
-from backend.maipa.acp import AcpClient
+from backend.maipa.acp import AcpClient, AcpError
 from backend.maipa.worker_capsule import WorkerCapsule
 from backend.maipa.windows_sandbox import WindowsSandbox, SandboxUnavailable
 from . import chat
@@ -27,6 +27,7 @@ from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
 
 _workers, _lock = {}, threading.RLock()
+NATIVE_START_TIMEOUT = 30
 
 
 def _database(operation):
@@ -95,6 +96,11 @@ def refresh_actor(actor):
         try:
             worker.check()
         except Exception:
+            # Closing can begin after the entry guard, while this read is
+            # revalidating the old worker token. Snapshot still checks primary
+            # membership, ownership and the original conversation binding.
+            if worker.stopping.is_set():
+                return
             worker.stopping.set()
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
@@ -223,10 +229,26 @@ class _Worker:
         self.handler = bind_ui_handler(actor, str(self.account_id), self.ui_id)
         self.publish(ui_id=self.ui_id, phase='ready')
 
+    async def native_ready(self, session):
+        deadline = time.monotonic() + NATIVE_START_TIMEOUT
+        while not self.stopping.is_set():
+            state = await self.client.native_status(self.lease.scope, session)
+            if self.stopping.is_set():
+                return False
+            if time.monotonic() >= deadline:
+                raise AcpError('Native session unavailable')
+            if state == 'ready':
+                await db(self.check)
+                return not self.stopping.is_set()
+            if state == 'unavailable':
+                raise AcpError('Native session unavailable')
+            await asyncio.sleep(.05)
+        return False
+
     async def handle_ui(self, request):
         await db(self.check)
         if not self.ui_id:
-            # Native MCP discovery precedes the acknowledged ACP session. Only
+            # Native MCP discovery precedes verified native startup. Only
             # static definitions are available here: no catalog data or UI calls.
             if request == {'method': 'tools/list', 'params': {}}:
                 return {'tools': _tools()}
@@ -321,6 +343,8 @@ class _Worker:
         if self.stopping.is_set(): return
         self.stage = 'session-start'
         session = await self.client.new_session(self.lease.scope)
+        self.stage = 'native-start'
+        if not await self.native_ready(session): return
         details = self.client.session_details(self.lease.scope, session)
         await db(self.bind, details['sessionId'])
         self.last_active = time.monotonic()
@@ -358,7 +382,6 @@ class _Worker:
             asyncio.run(self.main())
         except Exception as error:
             failed = not (isinstance(error, InterruptedError) and self.stopping.is_set())
-            from backend.maipa.acp import AcpError
             categories = ((DatabaseError, 'database'), (AcpError, 'protocol'), (ProfileUnavailable, 'profile'),
                           (SandboxUnavailable, 'sandbox'), (chat.ChatUnavailable, 'authority'))
             self.failure_kind = next((label for kind, label in categories if isinstance(error, kind)), 'other')
@@ -366,7 +389,7 @@ class _Worker:
                 # Fixed operational labels only: no exception, provider output, IDs or paths.
                 import logging
                 stage = self.stage if type(self.stage) is str and self.stage in (
-                    'preparation', 'host-start', 'subscription-status', 'session-start', 'turn') else 'unknown'
+                    'preparation', 'host-start', 'subscription-status', 'session-start', 'native-start', 'turn') else 'unknown'
                 logging.getLogger(__name__).error('Agent connection failed: stage=%s category=%s', stage, self.failure_kind)
         finally:
             self.stopping.set()

@@ -326,6 +326,15 @@ class AcpClient:
                 raise AcpError('Account unavailable')
         return result
 
+    async def native_status(self, scope, session):
+        """Closed startup status for the application's current native adapter."""
+        self._authorize(scope, session)
+        result = await self._request(scope, 'maipa/native/status', {}, timeout=min(self._timeout, 5))
+        if (type(result) is not dict or set(result) != {'state'} or
+                type(result['state']) is not str or result['state'] not in ('starting', 'ready', 'unavailable')):
+            raise AcpError('Native session unavailable')
+        return result['state']
+
     def session_details(self, scope, session):
         self._authorize(scope, session)
         return self._sessions[session].copy()

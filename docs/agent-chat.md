@@ -37,6 +37,15 @@ Failed workers record only an allowlisted runtime stage and fixed error category
 for local troubleshooting. Unknown stages are replaced with `unknown`; exception
 messages, provider output, account identifiers and private paths are excluded.
 
+ACP session allocation is earlier than native startup. The current Codex adapter
+keeps chat connecting and withholds the session/UI lease until the published
+driver's startup promise has settled without protocol or exit failure and has a
+native session ID. An early ID alone is insufficient: model validation can still
+refuse startup. The private host exposes only `starting`, `ready` or `unavailable`,
+with a server-owned startup deadline and responsive disconnect; no native ID or
+provider error is returned by that status operation. These adapter checks do not
+establish authentication, a successful model turn or generic ACP interoperability.
+
 Messages and accepted text deltas are durable. Stop preserves an interrupted
 reply; disconnect ends the supervised process tree. Reload can reconnect to a
 live worker. A new worker explicitly reconstructs the owned saved transcript;

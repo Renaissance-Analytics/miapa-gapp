@@ -44,7 +44,7 @@ const host = serveProfile(profile, { input: process.stdin, output: process.stdou
             assert.equal(frame.params.config.features.shell_tool, false);
             assert.equal(frame.params.config.features.multi_agent, false);
             assert.equal(frame.params.config.web_search, 'disabled');
-            result = { thread: { id: threadId }, model: 'gpt-5.3-codex' }; break;
+            result = { thread: { id: threadId }, model: profile.synthetic_model_reply ?? 'gpt-5.3-codex' }; break;
           case 'account/rateLimits/read': result = {}; break;
           case 'model/list': result = { data: [], nextCursor: null }; break;
           default: throw Error('Unexpected synthetic restricted transport method');

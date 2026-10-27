@@ -48,6 +48,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
   if (profile.ui_tools !== Boolean(uiMcp) || (uiMcp && profile.provider !== 'codex')) throw new Error('UI transport unavailable');
   const drivers = [];
   let closing = false, shutdownPromise;
+  let nativeState = 'starting', observedReady = false;
   const parentEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
     ["PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP"].includes(key.toUpperCase())));
   Object.assign(parentEnv, { HOME: profile.home, USERPROFILE: profile.home,
@@ -60,7 +61,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
     driverCapabilities: profile.provider === "codex" ? CODEX_DRIVER_CAPABILITIES : CLAUDE_DRIVER_CAPABILITIES,
     driverFactory(options, events) {
       if (closing || options.cwd !== profile.workspace || options.resumeSessionId || options.mcpServers?.length
-          || (uiMcp && drivers.length > 0)) {
+          || ((uiMcp || profile.provider_binary) && drivers.length > 0)) {
         throw new Error("Worker session refused");
       }
       const configured = { ...options, cwd: profile.workspace, parentEnv,
@@ -72,13 +73,23 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
         mcpServers: uiMcp ? [uiMcp] : [],
         processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
         credentials: { mode: "subscription" } };
+      const callbacks = profile.provider_binary ? { ...events,
+        onProtocolError(...args) {
+          nativeState = 'unavailable';
+          events.onProtocolError?.(...args);
+        },
+        onExit(...args) {
+          nativeState = 'unavailable';
+          events.onExit?.(...args);
+        },
+      } : events;
       const driver = profile.provider === "codex"
         ? (constructors.codex ?? ((config, callbacks) => new CodexDriver(config, callbacks)))({
             ...configured, approvalPolicy: "untrusted", sandbox: "read-only",
-            mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, events)
+            mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, callbacks)
         : (constructors.claude ?? ((config, callbacks) => new ClaudeDriver(config, callbacks)))({
             ...configured, permissionMode: "plan",
-            disallowedTools: ["Bash", "Write", "Edit", "MultiEdit", "NotebookEdit"] }, events);
+            disallowedTools: ["Bash", "Write", "Edit", "MultiEdit", "NotebookEdit"] }, callbacks);
       drivers.push(driver);
       return driver;
     },
@@ -87,6 +98,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
   });
   async function shutdown() {
     closing = true;
+    nativeState = 'unavailable';
     shutdownPromise ??= (async () => {
       const results = await Promise.allSettled(drivers.map(driver => driver.stop({ graceMs: 1000 })));
       if (account) results.push(...await Promise.allSettled([account.stop()]));
@@ -100,6 +112,29 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
     return shutdownPromise;
   }
   served.peer.handle("maipa/shutdown", shutdown);
+  if (profile.provider_binary) {
+    served.peer.handle('maipa/native/status', params => {
+      if (closing || drivers.length !== 1 || !params || typeof params !== 'object'
+          || Array.isArray(params) || Object.keys(params).length) throw Error('Native session unavailable');
+      // session/new allocates ACP state before asynchronous native startup. Read
+      // the published ready promise only after start(), and remember failures:
+      // the driver catches startup refusals, so settlement alone is insufficient.
+      if (!observedReady) {
+        observedReady = true;
+        const driver = drivers[0], ready = driver.ready;
+        if (!ready || typeof ready.then !== 'function') nativeState = 'unavailable';
+        else ready.then(() => {
+          if (!closing && nativeState !== 'unavailable') {
+            nativeState = typeof driver.cliSessionId === 'string' && driver.cliSessionId.trim()
+              ? 'ready' : 'unavailable';
+          }
+        }, () => { nativeState = 'unavailable'; });
+      }
+      // This immediate response keeps Stop independent of native startup time.
+      // Never expose the native ID, raw driver errors or provider output.
+      return { state: nativeState };
+    });
+  }
   if (account) {
     served.peer.handle('maipa/account/status', async params => {
       if (closing || !params || Object.keys(params).length) throw Error('Account unavailable');

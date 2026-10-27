@@ -8,11 +8,15 @@ import subprocess
 import sys
 import tempfile
 import threading
+import traceback
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from wsgiref.simple_server import WSGIServer
 from socketserver import ThreadingMixIn
 
 ROOT = Path(__file__).resolve().parents[1]
+BROWSER_RUN_SECONDS = 120
+BROWSER_PROFILE_RUNS = 3  # First administrator, ordinary session, fresh-profile restore.
+BROWSER_FIXTURE_OVERHEAD_SECONDS = 60
 BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog", "agent_shell",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
@@ -113,9 +117,58 @@ def save_result(value):
     target.write_text(json.dumps(value), encoding="utf-8")
 
 
+def save_progress(stage):
+    if type(stage) is not str or stage not in ('preparation', 'migrations', 'first_run', 'ordinary', 'resume', 'cleanup', 'complete'):
+        raise ValueError('Invalid fixture progress')
+    target = ROOT / 'artifacts/ci/browser-runner-progress.json'
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps({'stage': stage}), encoding='utf-8')
+    except OSError:
+        pass  # Optional progress must never prevent native/fixture cleanup.
+
+
 class QuietHandler(WSGIRequestHandler):
     def log_message(self, *args):
         pass
+
+
+def browser_process(data, node, environment):
+    process = subprocess.Popen([node, "tools/browser.mjs"], cwd=ROOT,
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment)
+    try:
+        stdout, stderr = process.communicate(json.dumps(data), timeout=BROWSER_RUN_SECONDS)
+    except subprocess.TimeoutExpired as expired:
+        subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
+            capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
+        try:
+            stdout, stderr = process.communicate(timeout=10)
+        except subprocess.TimeoutExpired as remaining:
+            stdout = remaining.stdout if remaining.stdout is not None else expired.stdout
+            stderr = remaining.stderr if remaining.stderr is not None else expired.stderr
+        def captured(value):
+            return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else value or ''
+        stdout, stderr = captured(stdout), captured(stderr)
+        artifact = ROOT / 'artifacts/ci/browser-failure.log'
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_text(stdout + '\n' + stderr, encoding='utf-8')
+        try:
+            failure = json.loads(stdout)
+        except ValueError:
+            failure = None
+        evidence = browser_failure_evidence(failure)
+        evidence['cleanup'] = False  # A timed-out child cannot attest its own completed cleanup.
+        raise BrowserFailure(evidence)
+    if process.returncode:
+        artifact = ROOT / "artifacts/ci/browser-failure.log"
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_text(stderr, encoding="utf-8")
+        try:
+            failure = json.loads(stdout)
+        except ValueError:
+            failure = None
+        raise BrowserFailure(browser_failure_evidence(failure))
+    return json.loads(stdout)
 
 
 class ThreadedFixtureServer(ThreadingMixIn, WSGIServer):
@@ -123,6 +176,7 @@ class ThreadedFixtureServer(ThreadingMixIn, WSGIServer):
 
 
 def main():
+    save_progress('preparation')
     (ROOT / "artifacts/ci/browser-failure.log").unlink(missing_ok=True)
     # This module is invoked in a dedicated child, never in the running Genie app.
     if os.environ.get("DJANGO_SETTINGS_MODULE"):
@@ -167,6 +221,7 @@ def main():
         from django.core.wsgi import get_wsgi_application
         from django.db import connections
         with open(os.devnull, "w") as silent:
+            save_progress('migrations')
             call_command("migrate", interactive=False, verbosity=0, stdout=silent)
         if (data_root / 'local-setup-code').exists():
             raise ValueError('First-run fixture must not require a setup-code file')
@@ -234,25 +289,8 @@ def main():
             from backend.maipa.windows_sandbox import _Api, _windows_paths
             environment = browser_environment(os.environ, _windows_paths(_Api()))
             def run_browser(data):
-                process = subprocess.Popen([node, "tools/browser.mjs"], cwd=ROOT,
-                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment)
-                try:
-                    stdout, stderr = process.communicate(json.dumps(data), timeout=120)
-                except subprocess.TimeoutExpired:
-                    subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
-                               capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
-                    process.wait(timeout=10)
-                    raise ValueError("Owned browser fixture deadline")
-                if process.returncode:
-                    artifact = ROOT / "artifacts/ci/browser-failure.log"
-                    artifact.parent.mkdir(parents=True, exist_ok=True)
-                    artifact.write_text(stderr, encoding="utf-8")
-                    try:
-                        failure = json.loads(stdout)
-                    except ValueError:
-                        failure = None
-                    raise BrowserFailure(browser_failure_evidence(failure))
-                return json.loads(stdout)
+                return browser_process(data, node, environment)
+            save_progress('first_run')
             first_run = run_browser(base_data | {'first_run': True,
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
             if (first_run.get('cleanup') is not True or first_run.get('checks') != 9
@@ -278,11 +316,13 @@ def main():
             from backend.maipa.agent_accounts.ui import open_ui_lease
             ui_lease = open_ui_lease(owner, str(owned.pk), reference)
             enable_intake_failure = True
+            save_progress('ordinary')
             evidence = run_browser(base_data | {'username': owner.username, 'viewer_username': other.username,
                 'password': password, 'user_id': str(owner.pk), 'account_id': str(owned.pk), 'foreign_account_id': str(foreign.pk),
                 'service_reference': reference, 'artifact_reference': artifact.artifact_id, 'ui_lease': ui_lease})
             if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
                 raise ValueError('Ordinary browser exceptions and cleanup required')
+            save_progress('resume')
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,
                 'password': password, 'user_id': str(owner.pk), 'expected_points': 3500})
             if (resumed.get('cleanup') is not True or resumed.get('checks') != 4
@@ -298,6 +338,7 @@ def main():
             evidence['scenarios'] = first_only + evidence['scenarios'][:-2] + resumed['scenarios']
             evidence['checks'] = len(evidence['scenarios'])
         finally:
+            save_progress('cleanup')
             with chat_runtime._lock:
                 workers = list(chat_runtime._workers.values())
                 for worker in workers:
@@ -314,6 +355,7 @@ def main():
         if thread.is_alive():
             raise ValueError("Fixture cleanup failed")
         save_result(evidence)
+        save_progress('complete')
         print(json.dumps(evidence))
 
 
@@ -321,6 +363,12 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as error:
+        # This dedicated synthetic fixture's raw failure remains local. Public
+        # CI evidence below contains only the closed failure allowlist.
+        try:
+            (ROOT / 'artifacts/ci/browser-runner-failure.log').write_text(traceback.format_exc(), encoding='utf-8')
+        except OSError:
+            pass
         evidence = error.evidence if isinstance(error, BrowserFailure) else browser_failure_evidence(None)
         save_result(evidence)
         print(json.dumps(evidence))

@@ -117,6 +117,96 @@ class AgentChatRuntimeTests(TransactionTestCase):
         self.assertEqual(self.failed_worker_log('preparation', ProfileUnavailable('SYNTHETIC_PRIVATE_PATH')),
             ['ERROR:' + chat_runtime.__name__ + ':Agent connection failed: stage=preparation category=profile'])
 
+    def native_start(self, mode, *, wait_at_gate=True):
+        original_prepare = chat_runtime._Worker.prepare
+        def prepare(worker):
+            capsule, sandbox = original_prepare(worker)
+            capsule.profile['synthetic_native_startup'] = mode
+            return capsule, sandbox
+        before = self.state()
+        with patch.object(chat_runtime._Worker, 'prepare', prepare):
+            response = self.client.post('/api/agent/chat/', {'action': 'connect', 'revision': before['revision'],
+                'selection_revision': before['connection']['revision']}, content_type='application/json',
+                HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+            self.assertEqual(response.status_code, 200)
+            if wait_at_gate:
+                value = self.until(lambda state: state['phase'] in ('ready', 'unavailable')
+                    or any(worker.stage == 'native-start' for worker in self.started_workers))
+            else:
+                value = self.until(lambda state: state['phase'] in ('ready', 'unavailable'))
+        return value, self.started_workers[-1]
+
+    def assert_no_native_authority(self):
+        from backend.maipa.agent_accounts.models import UiComposition
+        self.assertFalse(SessionReference.objects.filter(account=self.account).exists())
+        self.assertFalse(UiComposition.objects.filter(session__account=self.account).exists())
+
+    def test_acp_allocation_waits_for_native_start_before_ready_or_ui_authority(self):
+        pending, worker = self.native_start('deferred')
+        self.assertEqual(pending['phase'], 'connecting')
+        self.assertIsNone(pending['ui'])
+        self.assert_no_native_authority()
+        (self.root / 'workspace/release-native-startup').write_text('release', encoding='utf-8')
+        ready = self.until(lambda state: state['phase'] == 'ready')
+        self.assertIsNotNone(ready['ui'])
+        self.assertEqual(SessionReference.objects.filter(account=self.account).count(), 1)
+        self.assertEqual(self.send('Present a note')['ui']['composition']['schema']['type'], 'Maipa.Note')
+
+    def test_missing_native_start_is_unavailable_without_allocating_ui_authority(self):
+        with patch.object(chat_runtime, 'NATIVE_START_TIMEOUT', .5, create=True):
+            failed, worker = self.native_start('silent', wait_at_gate=False)
+        worker.thread.join(timeout=10)
+        self.assertFalse(worker.thread.is_alive())
+        self.assertEqual(failed['phase'], 'unavailable')
+        self.assert_no_native_authority()
+
+    def test_malformed_native_start_cannot_create_a_ready_session(self):
+        failed, worker = self.native_start('malformed', wait_at_gate=False)
+        worker.thread.join(timeout=10)
+        self.assertFalse(worker.thread.is_alive())
+        self.assertEqual(failed['phase'], 'unavailable')
+        self.assert_no_native_authority()
+
+    def test_stop_during_native_start_preserves_account_without_ui_authority(self):
+        pending, worker = self.native_start('deferred')
+        self.assertEqual(pending['phase'], 'connecting')
+        response = self.client.post('/api/agent/chat/', {'action': 'disconnect',
+            'selection_revision': pending['connection']['revision']}, content_type='application/json',
+            HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+        self.assertEqual(response.status_code, 200)
+        worker.thread.join(timeout=10)
+        self.assertFalse(worker.thread.is_alive())
+        stopped = self.state()
+        self.assertEqual(stopped['phase'], 'offline')
+        self.assertEqual(stopped['connection']['account_id'], str(self.account.pk))
+        self.assert_no_native_authority()
+
+    def test_cleanup_between_read_guard_and_worker_check_keeps_owned_snapshot_available(self):
+        import threading
+        before = self.state()
+        response = self.client.post('/api/agent/chat/', {'action': 'connect', 'revision': before['revision'],
+            'selection_revision': before['connection']['revision']}, content_type='application/json',
+            HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+        self.assertEqual(response.status_code, 200)
+        self.until(lambda state: state['phase'] == 'ready')
+        worker = self.started_workers[-1]
+        original_check, reader = worker.check, threading.get_ident()
+        def close_before_revalidation():
+            if threading.get_ident() == reader:
+                worker.stopping.set()
+                worker.thread.join(timeout=10)
+                self.assertFalse(worker.thread.is_alive())
+            return original_check()
+        with patch.object(worker, 'check', close_before_revalidation):
+            stopped = self.state()
+        self.assertEqual(stopped['phase'], 'offline')
+        self.assertIsNone(stopped['ui'])
+        self.assertEqual(stopped['connection']['account_id'], str(self.account.pk))
+        self.assertIsNotNone(SessionReference.objects.get(account=self.account).revoked_at)
+        Membership.objects.filter(user=self.owner).update(role='viewer')
+        denied = self.client.get('/api/agent/chat/', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+        self.assertEqual(denied.status_code, 403)
+
     def test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss(self):
         import copy
         checkpoints = []

@@ -1,9 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { EventEmitter } from "node:events";
 import { mkdtempSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { debuggingPort, ownedProfileRoot } from "../../tools/browser-profile.mjs";
+
+test('owned browser close tolerates exit without a reply and preserves failed-close evidence', async () => {
+  const { closeBrowserThroughDebugger } = await import('../../tools/browser-profile.mjs');
+  const child = new EventEmitter();
+  let requests = 0;
+  await closeBrowserThroughDebugger(method => {
+    assert.equal(method, 'Browser.close'); requests++;
+    child.emit('exit', 0);
+    return new Promise(() => {});
+  }, child, () => false);
+  assert.equal(requests, 1);
+  assert.equal(child.listenerCount('exit'), 0);
+  await closeBrowserThroughDebugger(() => { throw Error('already closed'); }, child, () => true);
+  await assert.rejects(closeBrowserThroughDebugger(() => Promise.reject(Error('close refused')), child, () => false), /close refused/);
+  assert.equal(child.listenerCount('exit'), 0);
+});
 
 test("browser fixture accepts its actual owned temporary parent", () => {
   const parent = realpathSync(tmpdir()), root = mkdtempSync(join(parent, "maipa-browser-fixture-"));

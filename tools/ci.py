@@ -159,10 +159,19 @@ class Commands:
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as expired:
             subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
                            capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
-            process.wait(timeout=10)
+            try:
+                stdout, stderr = process.communicate(timeout=10)
+            except subprocess.TimeoutExpired as remaining:
+                stdout = remaining.stdout if remaining.stdout is not None else expired.stdout
+                stderr = remaining.stderr if remaining.stderr is not None else expired.stderr
+            def captured(value):
+                return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else value or ''
+            # Retain private diagnostics even when an outer deadline wins. The
+            # stage still fails; raw output never enters the public JSON report.
+            (self.artifacts / 'last-failure.log').write_text(captured(stdout) + captured(stderr), encoding='utf-8')
             raise ValueError("Required command deadline")
         if process.returncode:
             # Raw child logs remain local; sanitized reports alone are artifact candidates.
@@ -204,7 +213,9 @@ class Commands:
             target = self.artifacts / "backend.json"
             target.unlink(missing_ok=True)
             try:
-                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)])
+                # The complete375-case diagnostic took313s; this aggregate
+                # budget covers the suite without changing any test's limits.
+                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=420)
             except ValueError:
                 from tools.alignment import discovered_test_ids
                 from tools.backend_reporting import failure_evidence
@@ -234,7 +245,9 @@ class Commands:
             target = self.artifacts / "browser-result.json"
             target.unlink(missing_ok=True)
             try:
-                output = self.command([sys.executable, "-m", "tools.check_browser"], timeout=180)
+                from tools.check_browser import BROWSER_RUN_SECONDS, BROWSER_PROFILE_RUNS, BROWSER_FIXTURE_OVERHEAD_SECONDS
+                output = self.command([sys.executable, "-m", "tools.check_browser"],
+                    timeout=BROWSER_RUN_SECONDS * BROWSER_PROFILE_RUNS + BROWSER_FIXTURE_OVERHEAD_SECONDS)
             except Exception:
                 if target.is_file():
                     from tools.check_browser import browser_failure_evidence
