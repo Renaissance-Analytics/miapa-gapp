@@ -42,6 +42,30 @@ def _invalid_number(value):
     raise ValueError("Invalid number")
 
 
+def model_catalog(value):
+    """A bounded provider-owned display catalog; no vendor metadata/authority."""
+    def text(item, maximum):
+        return type(item) is str and bool(item.strip()) and len(item) <= maximum and not any(ord(c) < 32 or ord(c) == 127 for c in item)
+    if type(value) is not dict or set(value) != {'availableModels', 'currentModelId'}:
+        raise ValueError('Model catalog unavailable')
+    available = value['availableModels']
+    if type(available) is not list or len(available) > 128:
+        raise ValueError('Model catalog unavailable')
+    if not available:
+        return None  # A provider without advertised choices remains non-selectable.
+    models, ids = [], set()
+    for item in available:
+        if (type(item) is not dict or not text(item.get('modelId'), 200) or not text(item.get('name'), 120)
+                or item['modelId'] != item['modelId'].strip() or item['modelId'] in ids):
+            raise ValueError('Model catalog unavailable')
+        ids.add(item['modelId'])
+        models.append({'modelId': item['modelId'], 'name': item['name']})
+    current = value['currentModelId']
+    if current is not None and (type(current) is not str or current not in ids):
+        raise ValueError('Model catalog unavailable')
+    return {'availableModels': models, 'currentModelId': current}
+
+
 class AcpClient:
     def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576, launcher=None, ui_handler=None):
         if (not isinstance(scope, Scope) or not isinstance(command, (list, tuple)) or
@@ -309,8 +333,37 @@ class AcpClient:
                 await self._terminate()
                 raise AcpError("ACP session unavailable")
             handle = str(uuid.uuid4())
+            if 'models' in result:
+                try:
+                    result = {**result, 'models': model_catalog(result['models'])}
+                except ValueError:
+                    self._fail()
+                    await self._terminate()
+                    raise AcpError('ACP model catalog unavailable') from None
             self._sessions[handle] = result
             return handle
+
+    def model_state(self, scope, session):
+        self._authorize(scope, session)
+        value = self._sessions[session].get('models')
+        return json.loads(json.dumps(value)) if value is not None else None
+
+    async def set_model(self, scope, session, model_id):
+        self._authorize(scope, session)
+        models = self.model_state(scope, session)
+        if not models or type(model_id) is not str or model_id not in {m['modelId'] for m in models['availableModels']}:
+            raise ValueError('Model unavailable')
+        if session in self._turns:
+            raise AcpError('Session busy')
+        self._turns.add(session)
+        try:
+            result = await self._request(scope, 'session/set_model',
+                {'sessionId': self._sessions[session]['sessionId'], 'modelId': model_id}, timeout=min(self._timeout, 10))
+            if type(result) is not dict or result:
+                raise AcpError('Model switch unconfirmed')
+            self._sessions[session]['models'] = {**models, 'currentModelId': model_id}
+        finally:
+            self._turns.discard(session)
 
     async def subscription_status(self, scope, *, login=False):
         self._authorize(scope)
@@ -366,7 +419,7 @@ class AcpClient:
 
     def session_details(self, scope, session):
         self._authorize(scope, session)
-        return self._sessions[session].copy()
+        return json.loads(json.dumps(self._sessions[session]))
 
     async def prompt(self, scope, session, text):
         self._authorize(scope, session)

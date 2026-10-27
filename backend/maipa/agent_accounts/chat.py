@@ -238,6 +238,15 @@ def control(actor, action, *, session_key, selection_revision=None, authorizatio
     return snapshot(actor)
 
 
+def set_model(actor, revision, selection_revision, model_id, *, session_key):
+    account = _account(actor, create=True)
+    if not account:
+        raise ChatUnavailable('Conversation unavailable')
+    from .chat_runtime import change_model
+    change_model(actor, account, model_id, revision, selection_revision, session_key)
+    return snapshot(actor)
+
+
 def worker_update(actor, identity, token, **changes):
     """Only the originally claimed worker may publish a stream checkpoint."""
     authority(actor)

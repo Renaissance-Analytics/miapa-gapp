@@ -4330,6 +4330,106 @@
       "decision": "aligned",
       "reason": "Reviewed complete assertions and synthetic fixtures against independent host-mode expectations. Actual native process/job/token and immutable descendant witnesses verify Stop/owner death; cross-scope failure is tested before spawn. Actual public ClaudeDriver fixture asserts original machine environment, subscription, nativeTools:none and omitted processTree, plus completed turn/sticky prior refusal coverage. Status checks readiness-only output and API-key refusal. Finite fixtures do not claim authenticated model proof; separate actual startup evidence does. Existing account/profile authority and prior isolated tests are retained.",
       "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.advertised",
+      "test": "tests.test_model_selection.ModelClientTests.test_catalog_and_model_switch_are_provider_reported_scoped_and_detached",
+      "scenario_sha256": "db8f41149ee86544947f9dd206db244faa82ad7807dc64d01c6745f7d61c48f4",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "Only detached model IDs/names/current choice are exposed; exact public session/set_model confirms the change while chat/UI/account identity stay unchanged",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.advertised",
+      "test": "tests.test_model_selection.ModelSelectionTests.test_owned_switch_confirms_provider_model_without_replacing_chat_or_ui",
+      "scenario_sha256": "db8f41149ee86544947f9dd206db244faa82ad7807dc64d01c6745f7d61c48f4",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "Only detached model IDs/names/current choice are exposed; exact public session/set_model confirms the change while chat/UI/account identity stay unchanged",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelClientTests.test_no_advertised_models_cannot_enable_invented_model_selection",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelClientTests.test_catalog_and_model_switch_are_provider_reported_scoped_and_detached",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelClientTests.test_malformed_model_catalog_never_becomes_a_selectable_session",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelClientTests.test_provider_refusal_keeps_the_confirmed_model_and_does_not_claim_success",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelSelectionTests.test_owned_switch_confirms_provider_model_without_replacing_chat_or_ui",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelSelectionTests.test_older_browser_contract_does_not_receive_unknown_model_fields",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelSelectionTests.test_foreign_browser_session_and_busy_turn_cannot_change_live_model",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-MODEL-SELECTION.refused",
+      "test": "tests.test_model_selection.ModelSelectionTests.test_native_refusal_cannot_report_the_requested_model_as_selected",
+      "scenario_sha256": "e04bfd576fb814e37daaa47bfa0a2268304777a3ecb748a73977cd989f94c4a1",
+      "source_sha256": "5b2bcf26c5ebf2afa191d6de1b8f60bdbeb47bc14933cba2c1ac8d05ef876774",
+      "expected_observation": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+      "decision": "aligned",
+      "reason": "Complete assertions reviewed: actual finite wire roundtrip and closed detached provider catalog, original HTTP/session/worker/CAS, unchanged transcript/UI/account, queued and thinking refusal, foreign browser session denial, malformed/absent catalog and native refusal. The fixture is not a real-provider claim; separate opt-in actual native probe verifies current published catalog/control. Prior tests remain unchanged.",
+      "reviewer": "Maipa semantic review; no external reviewer claimed"
     }
   ]
 }

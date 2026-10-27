@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "4260ca2c049f9a72c9d498a73b625d8e677f544efc88a617001739cb83b0673d",
-    "tools/check_browser.py": "1ad8a3cc39e267bfa191704a3bd6bfd423019f53d1162a9066f4463ec0961b48",
+    "tools/browser.mjs": "621fcc271c422cad851f99b0852e22b045351c6026f5ee2ab74632aaf941575f",
+    "tools/check_browser.py": "db6a09e6774fcd342528a77fb4089503de42d3c3eebdfed753aaf4d96a6548cb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "ae9a10a2ed8c6e9414be5baef0fad42d09a1621142dbd7e80f1e8941f64f6f5a"
+    "tests/fixtures/agent_chat_peer.py": "c20df3cea6e8b2e7f5561fd77ebb455f2c2dca1ad6d63eb0fd8d68db277b42d1"
   },
   "cases": [
     {
@@ -112,7 +112,7 @@
     {
       "id": "agent-chat-stream-and-ui-control",
       "kind": "positive",
-      "expected": "Actual native chat Send reaches the deterministic ACP test peer. A real authorized present callback is followed by a delayed update of the same shared node while native input types a new Unicode draft. The actual rendered note updates, streamed turn completes, and composer/conversation DOM identity plus draft remain exact. Not real-model acceptance. Failure evidence additionally admits only boolean composer focus/nonempty/button/ready flags, never the draft. No original action, assertion or deadline changes; prior Send-readiness timeout is not claimed fixed by instrumentation."
+      "expected": "Actual native chat Send reaches the deterministic ACP test peer. A real authorized present callback is followed by a delayed update of the same shared node while native input types a new Unicode draft. The actual rendered note updates, streamed turn completes, and composer/conversation DOM identity plus draft remain exact. Not real-model acceptance. Failure evidence additionally admits only boolean composer focus/nonempty/button/ready flags, never the draft. No original action, assertion or deadline changes; prior Send-readiness timeout is not claimed fixed by instrumentation. Model selection: use native Select interaction on provider-advertised synthetic A/B, wait for confirmed B/Ready and preserve the same unsent Unicode draft node/value and contextual panel node. Dedicated browser fixture alone advertises finite models; all original38 actions/cases/assertions/deadlines remain."
     },
     {
       "id": "chat-draft-and-space-recovery",

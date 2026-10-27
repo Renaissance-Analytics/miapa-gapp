@@ -812,6 +812,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-MODEL-CATALOG",
+      "risk": "Browser model state could contain invented or authority-shaped data",
+      "scenarios": [
+        {
+          "id": "A01-MODEL-CATALOG.frontend",
+          "kind": "positive",
+          "given": "Provider-neutral choices with two advertised models",
+          "when": "The browser parses runtime state",
+          "then": "It preserves the closed provider catalog and rejects duplicate/unknown/control-valued/authority-shaped fields and an offline catalog",
+          "tests": [
+            "agent-chat.test.mjs#model choices come from a closed provider catalog and require a known current model"
+          ]
+        },
+        {
+          "id": "A01-MODEL-CATALOG.refused",
+          "kind": "negative",
+          "given": "A duplicate/unknown model, control-valued name, command/account-shaped extra field or offline model state",
+          "when": "The browser validates the session model catalog",
+          "then": "The entire invalid catalog is refused; no unadvertised model or authority field becomes a UI choice",
+          "tests": [
+            "agent-chat.test.mjs#model choices come from a closed provider catalog and require a known current model"
+          ]
+        }
+      ]
     }
   ]
 }

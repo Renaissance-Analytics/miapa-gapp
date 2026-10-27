@@ -1,5 +1,6 @@
 """Live original-account ACP consumer. The browser never selects a process or principal."""
 import asyncio
+from concurrent.futures import CancelledError as FutureCancelled
 from contextlib import ExitStack
 import json
 from pathlib import Path
@@ -12,7 +13,7 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.backends.db import SessionStore
-from django.db import close_old_connections, connections, DatabaseError
+from django.db import close_old_connections, connections, DatabaseError, transaction
 from django.db.models import F
 from django.utils import timezone
 
@@ -80,10 +81,33 @@ def start(actor, row, session_key):
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
 
-def transient(owner, session_key):
+def transient(owner, session_key, *, include_login=True, include_models=True):
     with _lock:
         worker = _workers.get(owner)
-        return {'login': dict(worker.consent)} if worker and worker.session_key == session_key and worker.consent else {}
+        if not worker or worker.session_key != session_key or worker.stopping.is_set():
+            return {}
+        return {**({'login': dict(worker.consent)} if include_login and worker.consent else {}),
+                **({'models': json.loads(json.dumps(worker.models))} if include_models and worker.models else {})}
+
+
+def change_model(actor, account, model_id, revision, selection_revision, session_key):
+    chat._revision(revision)
+    with _lock:
+        worker = _workers.get(actor.pk)
+        if (not worker or worker.account_id != account.pk or worker.session_key != session_key
+                or worker.stopping.is_set() or worker.loop is None):
+            raise chat.ChatUnavailable('Conversation unavailable')
+    operation = worker.choose_model(model_id, revision, selection_revision)
+    try:
+        future = asyncio.run_coroutine_threadsafe(operation, worker.loop)
+    except RuntimeError:
+        operation.close()
+        raise chat.ChatUnavailable('Conversation unavailable') from None
+    try:
+        future.result(timeout=15)
+    except (TimeoutError, FutureCancelled):
+        future.cancel(); worker.stopping.set()
+        raise chat.ChatUnavailable('Model change unavailable') from None
 
 
 def refresh_actor(actor):
@@ -152,6 +176,7 @@ class _Worker:
         self.stage = 'preparation'
         self.failure_kind = None
         self.last_active = time.monotonic()
+        self.models, self.loop = None, None
 
     def check(self):
         with self.authority_mutex:
@@ -227,6 +252,40 @@ class _Worker:
     def publish(self, **changes):
         actor = self.check()
         chat.worker_update(actor, self.identity, self.token, **changes)
+
+    def reserve_model(self, revision, selection_revision):
+        with transaction.atomic():
+            actor = self.check()
+            chat._lock_selection(actor, selection_revision)
+            saved = Conversation.objects.get(pk=self.identity, worker=self.token)
+            if any(m.get('state') in ('queued', 'streaming') for m in saved.messages):
+                raise chat.ChatConflict('Conversation changed')
+            if Conversation.objects.filter(pk=self.identity, worker=self.token, revision=revision, phase='ready').update(
+                    phase='connecting', revision=F('revision') + 1) != 1:
+                raise chat.ChatConflict('Conversation changed')
+
+    async def choose_model(self, model_id, revision, selection_revision):
+        if not self.models or type(model_id) is not str or model_id not in {m['modelId'] for m in self.models['availableModels']}:
+            raise ValueError('Model unavailable')
+        # Same actor/account/selection and exact conversation revision reserve
+        # the idle session before native I/O. Send and other model changes then
+        # see connecting and cannot race a turn across the model boundary.
+        await db(self.reserve_model, revision, selection_revision)
+        try:
+            await self.client.set_model(self.lease.scope, self.session, model_id)
+            await db(self.check)
+            if self.stopping.is_set():
+                raise chat.ChatUnavailable('Conversation unavailable')
+            with _lock:
+                self.models = self.client.model_state(self.lease.scope, self.session)
+            await db(self.publish, phase='ready')
+            self.last_active = time.monotonic()
+        except asyncio.CancelledError:
+            self.stopping.set()
+            raise
+        except Exception:
+            self.stopping.set()
+            raise chat.ChatUnavailable('Model change unavailable') from None
 
     async def heartbeat(self):
         while True:
@@ -365,6 +424,9 @@ class _Worker:
         session = await self.client.new_session(self.lease.scope)
         self.stage = 'native-start'
         if not await self.native_ready(session): return
+        self.session = session
+        with _lock:
+            self.models = self.client.model_state(self.lease.scope, session)
         details = self.client.session_details(self.lease.scope, session)
         await db(self.bind, details['sessionId'])
         self.last_active = time.monotonic()
@@ -380,6 +442,7 @@ class _Worker:
                 await asyncio.sleep(.2)
 
     async def main(self):
+        self.loop = asyncio.get_running_loop()
         heartbeat = asyncio.create_task(self.heartbeat())
         conversation = asyncio.create_task(self.conversation())
         try:

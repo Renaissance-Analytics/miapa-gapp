@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-29",
+    "label": "Development update 29",
+    "cards": [
+      {
+        "title": "Choose your agent model",
+        "description": "Choose from models offered by your connected provider. A confirmed change keeps your conversation, draft and shared panel in place."
+      }
+    ]
+  },
+  {
     "id": "development-28",
     "label": "Development update 28",
     "cards": [
@@ -242,16 +252,6 @@
       {
         "title": "Reload your client facts",
         "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity."
-      }
-    ]
-  },
-  {
-    "id": "development-9",
-    "label": "Development update 9",
-    "cards": [
-      {
-        "title": "Client facts with a history",
-        "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save."
       }
     ]
   }

@@ -5,6 +5,19 @@ import { parseChatState, readEventStream, reconnectChat, newerChat } from '../.t
 const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: 'owned', provider: 'independent-acp', label: 'Independent ACP', available: true },
   providers: [{ id: 'independent-acp', label: 'Independent ACP', available: true }] };
+
+test('model choices come from a closed provider catalog and require a known current model', () => {
+  const models = { currentModelId: 'provider-a', availableModels: [
+    { modelId: 'provider-a', name: 'Provider model A' }, { modelId: 'provider-b', name: 'Provider model B' },
+  ] };
+  assert.deepEqual(parseChatState({ ...state, phase: 'ready', models }).models, models);
+  for (const invalid of [{ ...models, currentModelId: 'foreign' },
+    { ...models, availableModels: [...models.availableModels, models.availableModels[0]] },
+    { ...models, availableModels: [{ modelId: 'provider-a', name: 'Private\nvalue' }] },
+    { ...models, availableModels: [{ modelId: 'provider-a', name: 'A', command: 'untrusted' }] },
+    { ...models, account_id: 'foreign' }]) assert.throws(() => parseChatState({ ...state, phase: 'ready', models: invalid }));
+  assert.throws(() => parseChatState({ ...state, models }));
+});
 test('reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry', async () => {
   const saved = { ...state, id: 'owned-conversation', revision: 19, phase: 'unavailable', messages: [
     { id: 'queued', role: 'user', text: 'Keep my saved request', state: 'queued' },

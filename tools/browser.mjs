@@ -635,6 +635,11 @@ try {
   await typeChat('Unsent follow-up Ω');
   await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic delayed update' && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'agent updates existing shared component');
   assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]')===window.maipaDraftNode && window.maipaDraftNode.value==='Unsent follow-up Ω' && document.querySelector('.conversation')===window.maipaConversationNode"), true);
+  await until(() => evaluate("document.getElementById('maipa-agent-model')?.value==='synthetic-a' && !document.getElementById('maipa-agent-model').disabled"), 'provider-reported model choices');
+  await evaluate("window.maipaModelPanelNode=document.querySelector('.contextual-panel');true");
+  await select('maipa-agent-model', 'synthetic-b');
+  await until(() => evaluate("document.getElementById('maipa-agent-model')?.value==='synthetic-b' && !document.getElementById('maipa-agent-model').disabled && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'confirmed owned model choice');
+  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('textarea[aria-label=\"Message Maipa\"]') && window.maipaDraftNode.value==='Unsent follow-up Ω' && window.maipaModelPanelNode===document.querySelector('.contextual-panel')"), true);
   record('agent-chat-stream-and-ui-control');
   await click('Close contextual panel');
   await until(() => evaluate("!!document.querySelector('.chat-only')"), 'human dismissal reaches shared composition');

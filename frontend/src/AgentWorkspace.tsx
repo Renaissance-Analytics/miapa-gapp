@@ -62,7 +62,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         setState(previous => newerChat(previous, initial)); setError('');
         while (active) {
           const response = await fetch('/api/agent/chat/stream/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
-            headers: { 'X-Maipa-Agent-Actor': userId }, signal: abort.signal });
+            headers: { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1' }, signal: abort.signal });
           if (response.status !== 200 || !response.body) throw Error('Conversation unavailable');
           await readEventStream(response.body, next => { if (active) setState(previous => newerChat(previous, next)); });
         }
@@ -156,6 +156,10 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
                 ...(state.connection.provider && !state.providers.some(p => p.id === state.connection.provider)
                   ? [{ value: state.connection.provider, label: providerLabel }] : []),
               ]} onValueChange={provider => void action({ action: 'select_provider', provider })} /></div>
+            {state.models && <div className="chat-provider-choice"><Select id="maipa-agent-model" size="sm" label="Agent model" labelHidden
+              value={state.models.currentModelId ?? ''} placeholder="Provider default" disabled={busy || state.phase !== 'ready' || !!error}
+              list={state.models.availableModels.map(model => ({ value: model.modelId, label: model.name }))}
+              onValueChange={model_id => void action({ action: 'set_model', revision: current.current.revision, model_id })} /></div>}
             <Button size="sm" variant="ghost" aria-expanded={setup} onClick={() => setSetup(value => !value)}>Account setup</Button>
             {state.connection.available && ['offline', 'unavailable'].includes(state.phase) && <Button size="sm" variant="ghost" disabled={busy}
               onClick={() => void reconnect()}>Connect {providerLabel}</Button>}

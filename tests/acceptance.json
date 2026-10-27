@@ -3820,6 +3820,40 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-MODEL-SELECTION",
+      "risk": "Invented/stale model choices, another browser session or an in-flight turn can reroute a scoped native session or falsely display successful selection.",
+      "scenarios": [
+        {
+          "id": "A01-MODEL-SELECTION.advertised",
+          "kind": "positive",
+          "given": "A provider-reported bounded ACP catalog and original live session",
+          "when": "The owner reads the catalog and chooses a listed model",
+          "then": "Only detached model IDs/names/current choice are exposed; exact public session/set_model confirms the change while chat/UI/account identity stay unchanged",
+          "tests": [
+            "tests.test_model_selection.ModelClientTests.test_catalog_and_model_switch_are_provider_reported_scoped_and_detached",
+            "tests.test_model_selection.ModelSelectionTests.test_owned_switch_confirms_provider_model_without_replacing_chat_or_ui"
+          ]
+        },
+        {
+          "id": "A01-MODEL-SELECTION.refused",
+          "kind": "negative",
+          "given": "Duplicate/absent catalogs, foreign scope/browser session, queued input/busy turn, stale revision, unlisted choice or native refusal",
+          "when": "Model selection is attempted",
+          "then": "No unadvertised or foreign model can be selected; stale/busy writes conflict and provider refusal cannot claim the requested model as active",
+          "tests": [
+            "tests.test_model_selection.ModelClientTests.test_no_advertised_models_cannot_enable_invented_model_selection",
+            "tests.test_model_selection.ModelClientTests.test_catalog_and_model_switch_are_provider_reported_scoped_and_detached",
+            "tests.test_model_selection.ModelClientTests.test_malformed_model_catalog_never_becomes_a_selectable_session",
+            "tests.test_model_selection.ModelClientTests.test_provider_refusal_keeps_the_confirmed_model_and_does_not_claim_success",
+            "tests.test_model_selection.ModelSelectionTests.test_owned_switch_confirms_provider_model_without_replacing_chat_or_ui",
+            "tests.test_model_selection.ModelSelectionTests.test_older_browser_contract_does_not_receive_unknown_model_fields",
+            "tests.test_model_selection.ModelSelectionTests.test_foreign_browser_session_and_busy_turn_cannot_change_live_model",
+            "tests.test_model_selection.ModelSelectionTests.test_native_refusal_cannot_report_the_requested_model_as_selected"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -6,8 +6,9 @@ export interface ChatMessage { id: string; role: 'user' | 'assistant'; text: str
 export interface Composition { account_id: string; id: string; revision: number; composition: { title: string; schema: ScreenSchema } | null }
 export interface ProviderChoice { id: string; label: string; available: boolean }
 export interface ChatConnection { revision: number; account_id: string | null; provider: string | null; label: string | null; available: boolean }
+export interface ModelState { currentModelId: string | null; availableModels: { modelId: string; name: string }[] }
 export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null;
-  connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string; accepts_code?: boolean }; }
+  connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string; accepts_code?: boolean }; models?: ModelState; }
 export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] });
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -49,7 +50,7 @@ export function compositionSchema(input: unknown): ScreenSchema {
 }
 
 export function parseChatState(v: unknown): ChatState {
-  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers'])
+  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers', 'models'])
     || (v.id !== null && !identifier(v.id)) || !Number.isSafeInteger(v.revision) || Number(v.revision) < 0
     || !['offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'].includes(String(v.phase))
     || !Array.isArray(v.messages) || v.messages.length > 128) return fail();
@@ -66,6 +67,23 @@ export function parseChatState(v: unknown): ChatState {
       || typeof p.available !== 'boolean' || keys.has(p.id)) return fail();
     keys.add(p.id); return { id: p.id, label: p.label, available: p.available };
   });
+  let models: ModelState | undefined;
+  if (v.models !== undefined) {
+    const value = v.models;
+    if (!connection.account_id || !['ready', 'thinking', 'connecting'].includes(String(v.phase))
+      || !object(value) || !closed(value, ['currentModelId', 'availableModels'])
+      || !Array.isArray(value.availableModels) || !value.availableModels.length || value.availableModels.length > 128) return fail();
+    const ids = new Set<string>();
+    const availableModels = value.availableModels.map(item => {
+      if (!object(item) || !closed(item, ['modelId', 'name']) || !identifier(item.modelId)
+        || item.modelId.trim() !== item.modelId || /[\u0000-\u001f\u007f]/.test(item.modelId)
+        || typeof item.name !== 'string' || !item.name.trim() || item.name.length > 120 || /[\u0000-\u001f\u007f]/.test(item.name)
+        || ids.has(item.modelId)) return fail();
+      ids.add(item.modelId); return { modelId: item.modelId, name: item.name };
+    });
+    if (value.currentModelId !== null && (typeof value.currentModelId !== 'string' || !ids.has(value.currentModelId))) return fail();
+    models = { currentModelId: value.currentModelId as string | null, availableModels };
+  }
   const messages = v.messages.map((m: unknown): ChatMessage => {
     if (!object(m) || !closed(m, ['id', 'role', 'text', 'state']) || !identifier(m.id)
       || !['user', 'assistant'].includes(String(m.role)) || typeof m.text !== 'string' || m.text.length > 65536
@@ -98,7 +116,7 @@ export function parseChatState(v: unknown): ChatState {
       ...(v.login.accepts_code !== undefined ? { accepts_code: v.login.accepts_code as boolean } : {}) };
   }
   return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
-    connection, providers, ...(login ? { login } : {}) };
+    connection, providers, ...(login ? { login } : {}), ...(models ? { models } : {}) };
 }
 
 export async function readEventStream(body: ReadableStream<Uint8Array>, receive: (state: ChatState) => void) {
@@ -125,7 +143,7 @@ export async function readEventStream(body: ReadableStream<Uint8Array>, receive:
 }
 
 export async function chatRequest(userId: string, payload?: Record<string, unknown>, signal?: AbortSignal): Promise<ChatState> {
-  const headers: Record<string, string> = { 'X-Maipa-Agent-Actor': userId };
+  const headers: Record<string, string> = { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1' };
   if (payload) { headers['Content-Type'] = 'application/json'; headers['X-CSRFToken'] = await csrfToken(fetch); }
   const response = await fetch('/api/agent/chat/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
     method: payload ? 'POST' : 'GET', headers, ...(payload ? { body: JSON.stringify(payload) } : {}),

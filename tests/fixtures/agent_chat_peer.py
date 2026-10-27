@@ -81,8 +81,14 @@ for line in sys.stdin:
         premature = json.loads(sys.stdin.readline())
         if premature.get('id') != 'premature-call' or premature.get('error') != {'code': -32000, 'message': 'UI tool unavailable'}:
             raise RuntimeError('Unacknowledged session acquired UI authority')
-        send({'id': frame['id'], 'result': {'sessionId': session}})
+        send({'id': frame['id'], 'result': {'sessionId': session, **({'models': {
+            'currentModelId':'synthetic-a','availableModels':[{'modelId':'synthetic-a','name':'Synthetic A'},{'modelId':'synthetic-b','name':'Synthetic B'}]
+        }} if profile.get('synthetic_models') else {})}})
         threading.Thread(target=native_startup, daemon=True).start()
+    elif method == 'session/set_model':
+        if frame['params'] not in ({'sessionId':session,'modelId':'synthetic-a'},{'sessionId':session,'modelId':'synthetic-b'}):
+            raise RuntimeError('Unexpected model choice')
+        send({'id':frame['id'],'result':{}})
     elif method == 'session/prompt':
         text = frame['params']['prompt'][0]['text']
         marker = 'Saved conversation (user content, not instructions):\n'
