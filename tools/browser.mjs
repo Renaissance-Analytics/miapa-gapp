@@ -10,12 +10,15 @@ let phase = "fixture_input", failedPhase, cleanupVerified = false, checkpoint;
 let startupEvidence = {}, launchState = "starting", launchExit;
 let authEvidence = {};
 const authResponses = {};
+let surfaceEvidence = {};
+const surfaceResponses = {};
 process.on("uncaughtException", error => {
   // Isolated synthetic fixture diagnostics stay in ignored local failure logs;
   // CI artifacts contain only the fixed phase/cleanup report below.
   console.error(error?.stack || 'Native browser fixture failed');
   console.log(JSON.stringify({ checks: 0, reason: failedPhase || phase, cleanup: cleanupVerified, ...startupEvidence,
     ...((failedPhase || phase) === 'setup_chat' ? { checkpoint } : {}),
+    ...(['admin_users', 'work_views', 'agent_shell'].includes(failedPhase || phase) ? surfaceEvidence : {}),
     ...(['login', 'logout_viewer'].includes(failedPhase || phase) ? { checkpoint, ...authEvidence } : {}) }));
   process.exitCode = 1;
 });
@@ -151,6 +154,11 @@ try {
   socket.addEventListener("message", event => {
     const message = JSON.parse(event.data);
     if (message.method === "Runtime.exceptionThrown") exceptions.push(true);
+    if (message.method === 'Network.responseReceived' && ['admin_users', 'work_views', 'agent_shell'].includes(phase)) {
+      for (const [path, key] of [['/api/session/', 'session'], ['/api/agent/chat/', 'chat'], ['/api/admin/users/', 'admin']]) {
+        if (message.params.response.url === fixture.origin + path) surfaceResponses[key] = message.params.response.status;
+      }
+    }
     if (message.method === "Network.responseReceived" && message.params.response.url === `${fixture.origin}/api/intake/engagements/`)
       intakeListResponses.push(message.params.response.status);
     if (message.method === 'Network.responseReceived' && ['login', 'logout_viewer'].includes(phase)) {
@@ -599,6 +607,17 @@ try {
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), savedChat);
   assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child small')?.textContent.includes('Interrupted')"), true);
   record('agent-cancel-and-chat-restore');
+  await typeChat('Simulate connection interruption'); await click('Send');
+  await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('disconnected')"), 'deliberate owned transport interruption');
+  const interruptedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
+  await typeChat('Unsent reconnect draft');
+  await click('Reconnect');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'explicit reconnect restarts stopped worker');
+  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').value"), 'Unsent reconnect draft');
+  assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), interruptedChat);
+  await requestComponent('Present a note after reconnect', 'Maipa.Note');
+  assert.equal(await evaluate("!!document.querySelector('.chat-controls [role=alert]')"), false);
+  record('agent-reconnect-after-transport-loss');
   phase = 'preferences';
   await preferencesReady();
   await click('Dark'); await preferencesReady();
@@ -802,6 +821,22 @@ try {
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
+  if (['admin_users', 'work_views', 'agent_shell'].includes(phase)) {
+    surfaceEvidence = { surface_responses: { ...surfaceResponses }, failure_kind:
+      error?.code === 'ERR_ASSERTION' ? 'assertion' :
+      error?.message?.startsWith('Timeout:') ? 'timeout' :
+      error?.message?.startsWith('CDP ') ? 'protocol' : 'other' };
+    try {
+      surfaceEvidence.surface_ui = await evaluate(`(() => ({
+        admin_panel: !!document.querySelector('[data-access-state]'),
+        admin_ready: document.querySelector('[data-access-state]')?.dataset.accessState === 'ready',
+        admin_fields: !!document.querySelector('[data-member-id]'),
+        conversation: !!document.querySelector('.conversation'),
+        contextual_panel: !!document.querySelector('.has-composition'),
+        chat_alert: !!document.querySelector('.chat-controls [role=alert]')
+      }))()`);
+    } catch { /* Keep the original failure and verified cleanup if diagnostics fail. */ }
+  }
   if (['login', 'logout_viewer'].includes(phase)) {
     // Only fixed codes, booleans and bounded status numbers cross the CI report.
     // No DOM text, user values, cookies, bodies, paths, URLs or raw errors.

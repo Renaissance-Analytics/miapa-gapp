@@ -44,7 +44,7 @@ def _account(actor, *, create=False):
     return account
 
 
-def _state(actor, row):
+def _state(actor, row, *, refresh_stale_ui=False):
     if row is None:
         return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'ui': None}
     ui = None
@@ -52,6 +52,8 @@ def _state(actor, row):
         try:
             ui = {'account_id': str(row.account_id), **ui_snapshot(actor, str(row.account_id), str(row.ui_id))}
         except UiUnavailable:
+            if refresh_stale_ui:
+                raise
             pass  # A revoked composition is removed; its contents never reach the browser.
     return {'id': str(row.pk), 'revision': row.revision, 'phase': row.phase,
             'messages': row.messages, 'ui': ui}
@@ -77,8 +79,16 @@ def _conversation(actor, account, *, create=False):
 def snapshot(actor):
     account = _account(actor)
     from .chat_runtime import refresh_actor
-    refresh_actor(actor)
-    row = _conversation(actor, account) if account else None
+    for attempt in range(2):
+        refresh_actor(actor)
+        row = _conversation(actor, account) if account else None
+        try:
+            return _state(actor, row, refresh_stale_ui=attempt == 0)
+        except UiUnavailable:
+            # A committed unrelated epoch can race the actor check above.
+            # Reauthorize once from primary state before publishing absence;
+            # otherwise a healthy shared form would briefly unmount and lose drafts.
+            continue
     return _state(actor, row)
 
 

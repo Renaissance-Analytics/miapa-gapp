@@ -24,7 +24,7 @@ from .models import AgentAccount, Conversation, ProviderProfile, SessionReferenc
 from .profiles import lease_profile, provision_profile
 from .provider_runtime import ensure_codex
 from .references import record_session, _binding
-from .ui import bind_ui_handler, open_ui_lease, dispatch_ui, _tools
+from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
 
 _workers, _lock = {}, threading.RLock()
 
@@ -135,7 +135,15 @@ class _Worker:
 
     def check(self):
         with self.authority_mutex:
-            return self._check()
+            for attempt in range(2):
+                try:
+                    return self._check()
+                except UiUnavailable:
+                    if attempt:
+                        raise
+                    # A separate access commit can invalidate the replacement
+                    # while it is being bound. Recheck all original authority
+                    # once; a changed role/session/account is still refused.
 
     def _check(self):
         actor = get_user_model().objects.get(pk=self.owner, is_active=True)
@@ -157,16 +165,16 @@ class _Worker:
             # Unrelated access administration expires the old lease too. Reauthorize
             # from the primary store, with the SAME original actor/role/account, and
             # mint a fresh lease; never make a stale lease valid again.
-            self.binding = (member.installation_id, member.role, member.installation.access_revision)
             if self.ui_id:
                 previous = UiComposition.objects.get(pk=self.ui_id, session_id=self.reference)
                 fresh = open_ui_lease(actor, str(self.account_id), self.reference)
                 if previous.composition:
                     dispatch_ui(actor, str(self.account_id), fresh, {'method': 'tools/call', 'params': {
                         'name': 'maipa_ui_present', 'arguments': {'revision': 0, **previous.composition}}})
-                self.ui_id = fresh
-                self.handler = bind_ui_handler(actor, str(self.account_id), fresh)
+                handler = bind_ui_handler(actor, str(self.account_id), fresh)
                 Conversation.objects.filter(pk=self.identity, worker=self.token).update(ui_id=fresh, revision=F('revision') + 1)
+                self.ui_id, self.handler = fresh, handler
+            self.binding = (member.installation_id, member.role, member.installation.access_revision)
         if self.lease:
             self.lease.revalidate()
         return actor

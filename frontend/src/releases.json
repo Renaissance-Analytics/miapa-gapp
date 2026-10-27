@@ -1,5 +1,13 @@
 [
   {
+    "id": "development-21",
+    "label": "Development update 21",
+    "cards": [
+      { "title": "Reconnect a stopped conversation", "description": "Reconnect now checks your saved conversation and restarts a stopped connection, keeping the transcript and your unsent draft." },
+      { "title": "Provider startup correction in progress", "description": "The connection can still stop shortly after subscription sign-in. The provider startup correction and real agent verification are still in progress." }
+    ]
+  },
+  {
     "id": "development-20",
     "label": "Development update 20",
     "cards": [
@@ -141,13 +149,6 @@
     "cards": [
       { "title": "Track app updates", "description": "Maipa now checks for a newer build and offers a refresh when one is available. You choose when to refresh." },
       { "title": "What's new, whenever you need it", "description": "Use What's new beside the build number to reopen the latest changes. After refreshing, new release notes appear once in this browser for each signed-in account." }
-    ]
-  },
-  {
-    "id": "development-1",
-    "label": "Workspace foundation",
-    "cards": [
-      { "title": "A calm workspace, in both themes", "description": "Conversation and Work area stay together, with System, Light and Dark appearance choices. Your private workspace still requires sign-in; accounting and agent workflows are being built." }
     ]
   }
 ]

@@ -148,6 +148,66 @@ class AgentChatRuntimeTests(TransactionTestCase):
         self.assertFalse(worker.thread.is_alive())
         self.assertEqual(self.client.get('/api/agent/chat/', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk)).status_code, 403)
 
+    def test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel(self):
+        from django.db.models import F
+        initial = self.send('Present a note')
+        snapshot = chat.ui_snapshot
+        advanced = False
+        def concurrent_epoch(*args):
+            nonlocal advanced
+            if not advanced:
+                advanced = True
+                Installation.objects.update(access_revision=F('access_revision') + 1)
+            return snapshot(*args)
+        with patch.object(chat, 'ui_snapshot', side_effect=concurrent_epoch):
+            current = self.state()
+        self.assertIsNotNone(current['ui'], 'A single unrelated access epoch must not unmount the shared panel')
+        self.assertNotEqual(current['ui']['id'], initial['ui']['id'])
+        self.assertEqual(current['ui']['composition'], initial['ui']['composition'])
+
+    def test_role_revoked_between_actor_check_and_snapshot_does_not_return_private_ui(self):
+        self.send('Present a note')
+        snapshot = chat.ui_snapshot
+        def revoked_role(*args):
+            Membership.objects.filter(user=self.owner).update(role='viewer')
+            return snapshot(*args)
+        with patch.object(chat, 'ui_snapshot', side_effect=revoked_role):
+            with self.assertRaises(chat.ChatUnavailable):
+                chat.snapshot(self.owner)
+
+    def test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker(self):
+        from django.db.models import F
+        initial = self.send('Present a note')
+        worker = self.started_workers[-1]
+        original = chat_runtime.bind_ui_handler
+        advanced = False
+        def concurrent_epoch(*args):
+            nonlocal advanced
+            if not advanced:
+                advanced = True
+                Installation.objects.update(access_revision=F('access_revision') + 1)
+            return original(*args)
+        Installation.objects.update(access_revision=F('access_revision') + 1)
+        with patch.object(chat_runtime, 'bind_ui_handler', side_effect=concurrent_epoch):
+            current = self.state()
+        self.assertTrue(advanced)
+        self.assertEqual(current['ui']['composition'], initial['ui']['composition'])
+        self.assertNotEqual(current['ui']['id'], initial['ui']['id'])
+        self.assertFalse(worker.stopping.is_set())
+        self.assertIsNone(worker.failure_kind)
+
+    def test_role_revoked_while_minting_ui_is_not_reauthorized(self):
+        from django.db.models import F
+        self.send('Present a note')
+        original = chat_runtime.bind_ui_handler
+        def revoked_role(*args):
+            Membership.objects.filter(user=self.owner).update(role='viewer')
+            return original(*args)
+        Installation.objects.update(access_revision=F('access_revision') + 1)
+        with patch.object(chat_runtime, 'bind_ui_handler', side_effect=revoked_role):
+            with self.assertRaises(chat.ChatUnavailable):
+                chat.snapshot(self.owner)
+
     def test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue(self):
         response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0,
             'request_id': str(uuid.uuid4()), 'text': 'Present a note and wait for cancellation'},

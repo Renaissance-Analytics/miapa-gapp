@@ -37,6 +37,21 @@ def browser_failure_evidence(value):
     valid = isinstance(value, dict) and isinstance(value.get("reason"), str) and value["reason"] in BROWSER_PHASES
     result = {"checks": 0, "reason": value["reason"] if valid else "browser_process",
               "cleanup": valid and value.get("cleanup") is True}
+    if valid and value['reason'] in ('admin_users', 'work_views', 'agent_shell'):
+        if value.get('failure_kind') in ('timeout', 'assertion', 'evaluation', 'protocol', 'other'):
+            result['failure_kind'] = value['failure_kind']
+        responses = value.get('surface_responses')
+        if isinstance(responses, dict):
+            responses = {key: responses[key] for key in ('session', 'chat', 'admin')
+                         if type(responses.get(key)) is int and 100 <= responses[key] <= 599}
+            if responses:
+                result['surface_responses'] = responses
+        ui = value.get('surface_ui')
+        if isinstance(ui, dict):
+            ui = {key: ui[key] for key in ('admin_panel', 'admin_ready', 'admin_fields',
+                  'conversation', 'contextual_panel', 'chat_alert') if type(ui.get(key)) is bool}
+            if ui:
+                result['surface_ui'] = ui
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
         if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
             result['checkpoint'] = value['checkpoint']
@@ -145,6 +160,7 @@ def main():
             raise ValueError('First-run fixture must not require a setup-code file')
         application = get_wsgi_application()
         failed_initial_intake = False
+        failed_chat_stream = False
         enable_intake_failure = False
         seeded_authority = False
 
@@ -174,7 +190,22 @@ def main():
                 start_response("503 Service Unavailable", [("Content-Type", "application/json"),
                     ("Cache-Control", "no-store"), ("Content-Length", str(len(payload)))])
                 return [payload]
-            return application(environ, start_response)
+            result = application(environ, start_response)
+            if enable_intake_failure and environ.get('PATH_INFO') == '/api/agent/chat/stream/':
+                def interrupted_stream():
+                    nonlocal failed_chat_stream
+                    from backend.maipa.agent_accounts.models import Conversation
+                    try:
+                        for chunk in result:
+                            if not failed_chat_stream and Conversation.objects.filter(account=owned, phase='unavailable').exists():
+                                failed_chat_stream = True
+                                yield b'event: revoked\ndata: {}\n\n'
+                                return
+                            yield chunk
+                    finally:
+                        result.close()
+                return interrupted_stream()
+            return result
 
         server = make_server("127.0.0.1", 0, first_intake_failure, server_class=ThreadedFixtureServer, handler_class=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)

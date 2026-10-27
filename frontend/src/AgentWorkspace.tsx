@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button, ResizablePanels } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
-import { chatRequest, emptyChat, readEventStream, type ChatState } from './agent-chat.js';
+import { chatRequest, emptyChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
@@ -75,6 +75,16 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
     finally { setBusy(false); }
   }
+  async function reconnect() {
+    if (busy) return;
+    setBusy(true); setError('');
+    try {
+      const next = await reconnectChat(userId);
+      setState(previous => next.revision >= previous.revision ? next : previous);
+      setAttempt(value => value + 1);
+    } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
+    finally { setBusy(false); }
+  }
   function submit(event: FormEvent) {
     event.preventDefault();
     if (!draft.trim()) return;
@@ -110,11 +120,11 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
           <div ref={end} />
         </div>
         <div className="chat-controls">
-          {error && <p role="alert" className="auth-message">{error} <Button size="sm" variant="ghost" onClick={() => setAttempt(n => n + 1)}>Reconnect</Button></p>}
+          {error && <p role="alert" className="auth-message">{error} <Button size="sm" variant="ghost" disabled={busy} onClick={() => void reconnect()}>Reconnect</Button></p>}
           <div className="chat-status"><span role="status">{phaseLabels[state.phase]}</span>
             <Button size="sm" variant="ghost" aria-expanded={setup} onClick={() => setSetup(value => !value)}>Account setup</Button>
             {['offline', 'unavailable'].includes(state.phase) && <Button size="sm" variant="ghost" disabled={busy}
-              onClick={() => void action({ action: 'connect', revision: state.revision })}>Connect ChatGPT</Button>}
+              onClick={() => void reconnect()}>Connect ChatGPT</Button>}
             {state.phase === 'ready' && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void action({ action: 'disconnect' })}>Disconnect</Button>}
           </div>
           <form className="chat-composer" onSubmit={submit} aria-label="Message Maipa">

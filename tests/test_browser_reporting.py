@@ -4,6 +4,25 @@ from tools.check_browser import browser_failure_evidence
 
 
 class BrowserReportingTests(unittest.TestCase):
+    def test_shared_surface_diagnostics_keep_only_fixed_codes_statuses_and_booleans(self):
+        for phase in ('admin_users', 'work_views', 'agent_shell'):
+            self.assertEqual(browser_failure_evidence({'reason':phase,'cleanup':True,
+                'failure_kind':'assertion','surface_responses':{'session':200,'chat':503,'admin':200,'token':200},
+                'surface_ui':{'admin_panel':True,'admin_ready':False,'admin_fields':False,
+                    'conversation':True,'contextual_panel':False,'chat_alert':True,'password':True},
+                'stderr':'synthetic-private-error','content':'synthetic-private-transcript'}),
+                {'checks':0,'reason':phase,'cleanup':True,'failure_kind':'assertion',
+                 'surface_responses':{'session':200,'chat':503,'admin':200},
+                 'surface_ui':{'admin_panel':True,'admin_ready':False,'admin_fields':False,
+                    'conversation':True,'contextual_panel':False,'chat_alert':True}})
+            self.assertEqual(browser_failure_evidence({'reason':phase,'cleanup':True,
+                'failure_kind':'synthetic-private-error','surface_responses':{'session':True,'chat':700,'admin':'secret'},
+                'surface_ui':{'admin_panel':'private-label','admin_ready':1,'token':True}}),
+                {'checks':0,'reason':phase,'cleanup':True})
+        self.assertEqual(browser_failure_evidence({'reason':'anonymous','cleanup':True,
+            'failure_kind':'assertion','surface_responses':{'chat':503},'surface_ui':{'conversation':True}}),
+            {'checks':0,'reason':'anonymous','cleanup':True})
+
     def test_known_setup_checkpoint_survives_without_browser_text_or_answer(self):
         self.assertEqual(browser_failure_evidence({'reason':'setup_chat','cleanup':True,
             'checkpoint':'setup_confirm','answer':'synthetic-private-answer','stderr':'private-path'}),

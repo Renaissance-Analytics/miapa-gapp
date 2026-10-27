@@ -1,8 +1,42 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseChatState, readEventStream } from '../.test-build/agent-chat.js';
+import { parseChatState, readEventStream, reconnectChat } from '../.test-build/agent-chat.js';
 
 const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null };
+test('reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry', async () => {
+  const saved = { ...state, id: 'owned-conversation', revision: 19, phase: 'unavailable', messages: [
+    { id: 'queued', role: 'user', text: 'Keep my saved request', state: 'queued' },
+  ] };
+  const original = globalThis.fetch;
+  const token = 'c'.repeat(64);
+  try {
+    for (const phase of ['unavailable', 'offline', 'ready', 'thinking', 'connecting']) {
+      const requests = [];
+      globalThis.fetch = async (path, options = {}) => {
+        requests.push([path, options]);
+        if (path === '/api/session/csrf/') return Response.json({ csrf_token: token });
+        assert.equal(options.headers['X-Maipa-Agent-Actor'], '7');
+        assert.equal(options.credentials, 'same-origin');
+        if (options.method === 'GET') return Response.json({ ...saved, phase });
+        assert.deepEqual(JSON.parse(options.body), { action: 'connect', revision: 19 });
+        assert.equal(options.headers['X-CSRFToken'], token);
+        return Response.json({ ...saved, phase: 'connecting', revision: 20 });
+      };
+      const result = await reconnectChat('7');
+      assert.deepEqual(result.messages, saved.messages);
+      assert.equal(requests.filter(([,options]) => options.method === 'POST').length,
+        ['unavailable', 'offline'].includes(phase) ? 1 : 0);
+    }
+    let writes = 0;
+    globalThis.fetch = async (path, options = {}) => {
+      if (path === '/api/session/csrf/') return Response.json({ csrf_token: token });
+      if (options.method === 'GET') return Response.json(saved);
+      writes++; return new Response('', { status: 409 });
+    };
+    await assert.rejects(() => reconnectChat('7'), /Conversation changed/);
+    assert.equal(writes, 1);
+  } finally { globalThis.fetch = original; }
+});
 test('an empty conversation has no predefined panel and never claims a provider connection', () => {
   assert.deepEqual(parseChatState(state), state);
   for (const bad of [{ ...state, phase: 'invented' }, { ...state, revision: -1 },

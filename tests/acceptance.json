@@ -2341,6 +2341,16 @@
           "tests": [
             "tests.test_browser_reporting.BrowserReportingTests.test_unknown_misplaced_or_nonstring_checkpoints_are_discarded"
           ]
+        },
+        {
+          "id": "P05-BROWSER-DIAGNOSTICS.shared-surface",
+          "kind": "negative",
+          "given": "A shared-surface failure with known statuses and boolean DOM observations mixed with private or malformed input",
+          "when": "Build its public failure evidence for the three registered shared-surface phases",
+          "then": "Keep only fixed failure kinds, session/chat/admin integer HTTP statuses and whitelisted booleans; reject unknown keys, boolean statuses, nonboolean observations and misplaced diagnostic fields",
+          "tests": [
+            "tests.test_browser_reporting.BrowserReportingTests.test_shared_surface_diagnostics_keep_only_fixed_codes_statuses_and_booleans"
+          ]
         }
       ]
     },
@@ -3077,6 +3087,28 @@
           "then": "Retain the exact queued message, expose a recoverable unavailable connection state, and reconnect without duplicating or losing that message",
           "tests": [
             "tests.test_agent_chat.AgentChatTests.test_full_worker_capacity_keeps_queued_message_and_allows_explicit_reconnect"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.snapshot-epoch",
+          "kind": "negative",
+          "given": "Current original authority is checked just before another request commits an access epoch or role revocation",
+          "when": "The same snapshot then validates the now-expired UI lease",
+          "then": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel",
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_between_actor_check_and_snapshot_does_not_return_private_ui"
+          ]
+        },
+        {
+          "id": "A01-CONVERSATION.lease-epoch",
+          "kind": "negative",
+          "given": "An original active consumer must renew its UI lease after an unrelated access epoch, then another epoch or role revocation commits during replacement binding",
+          "when": "Check original authority and bind the replacement shared UI",
+          "then": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker",
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_while_minting_ui_is_not_reauthorized"
           ]
         }
       ]

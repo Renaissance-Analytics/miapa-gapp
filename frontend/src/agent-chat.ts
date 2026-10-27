@@ -105,6 +105,13 @@ export async function chatRequest(userId: string, payload?: Record<string, unkno
   return parseChatState(await response.json());
 }
 
+/** Reload current authority/revision before restarting only a stopped consumer. */
+export async function reconnectChat(userId: string): Promise<ChatState> {
+  const saved = await chatRequest(userId);
+  return ['offline', 'unavailable'].includes(saved.phase)
+    ? chatRequest(userId, { action: 'connect', revision: saved.revision }) : saved;
+}
+
 export async function dismissComposition(userId: string, ui: Composition): Promise<void> {
   const token = await csrfToken(fetch);
   const response = await fetch(`/api/agent/accounts/${encodeURIComponent(ui.account_id)}/ui/${encodeURIComponent(ui.id)}/`, {

@@ -684,32 +684,42 @@
     {
       "scenario": "A01-CHAT-CLIENT.state",
       "test": "agent-chat.test.mjs#an empty conversation has no predefined panel and never claims a provider connection",
-      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "source_sha256": "17ecb3c24cdb8f954fa9320045da686c2b009c2e8797098698090d6d96ca6ab4",
       "scenario_sha256": "84ad12b5cde42e55bb95df4edff14db6508096efa281051cecdd6bc59f70157f",
       "expected_observation": "Keep empty state free of predefined panels and false provider readiness; refuse malformed fields",
       "decision": "aligned",
-      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Keep empty state free of predefined panels and false provider readiness; refuse malformed fields. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
-      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+      "reason": "Reviewed parser/UTF8/controlled schema cases unchanged and explicit reconnect against boundary outcomes. Fresh revision19 is read before any connect; same-origin actor/CSRF headers and exact saved messages are asserted, active states produce no write, and409 produces one refused write without retry. Browser separately proves actual pointer recovery, draft retention and streaming resubscription. No real-provider/model claim.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CHAT-CLIENT.stream",
       "test": "agent-chat.test.mjs#stream parsing survives split UTF-8 and frames and stops after revocation",
-      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "source_sha256": "17ecb3c24cdb8f954fa9320045da686c2b009c2e8797098698090d6d96ca6ab4",
       "scenario_sha256": "dde0496d184024d6355364107fa097e1268e5904e265d89d05359fe171f59407",
       "expected_observation": "Deliver one exact Unicode state and stop on session revocation",
       "decision": "aligned",
-      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Deliver one exact Unicode state and stop on session revocation. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
-      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+      "reason": "Reviewed parser/UTF8/controlled schema cases unchanged and explicit reconnect against boundary outcomes. Fresh revision19 is read before any connect; same-origin actor/CSRF headers and exact saved messages are asserted, active states produce no write, and409 produces one refused write without retry. Browser separately proves actual pointer recovery, draft retention and streaming resubscription. No real-provider/model claim.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CHAT-CLIENT.composition",
       "test": "agent-chat.test.mjs#server composition preserves authored handles and rejects executable props",
-      "source_sha256": "e8b587d77c064b25f39df491530e6eb0d82343250fbb17bae6b0b535e6415752",
+      "source_sha256": "17ecb3c24cdb8f954fa9320045da686c2b009c2e8797098698090d6d96ca6ab4",
       "scenario_sha256": "bdc7ce7657d4063a24b2e44001a46f25f7eeb20a87a2b542cd6c29839baec8d5",
       "expected_observation": "Preserve the authored handle and refuse executable UI before rendering",
       "decision": "aligned",
-      "reason": "Reviewed against the explicit agent-first acceptance and current source diff: Preserve the authored handle and refuse executable UI before rendering. Source hashes record that review; they are not a semantic proof. Deterministic peer/transport fixtures do not establish actual native model behavior. Obsolete fixed-screen expectations are superseded by controlled composition, full browser interaction and server authority tests.",
-      "reviewer": "Maipa acceptance-to-test review; independently stated outcomes, no external reviewer claimed"
+      "reason": "Reviewed parser/UTF8/controlled schema cases unchanged and explicit reconnect against boundary outcomes. Fresh revision19 is read before any connect; same-origin actor/CSRF headers and exact saved messages are asserted, active states produce no write, and409 produces one refused write without retry. Browser separately proves actual pointer recovery, draft retention and streaming resubscription. No real-provider/model claim.",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-CHAT-CLIENT.reconnect",
+      "test": "agent-chat.test.mjs#reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry",
+      "source_sha256": "17ecb3c24cdb8f954fa9320045da686c2b009c2e8797098698090d6d96ca6ab4",
+      "scenario_sha256": "4e2f2a00693c82d8277b90aecda5a5d6e13e453b7e0af7ee53ff849c82f20e1c",
+      "expected_observation": "Keep saved messages; start only offline/unavailable workers with current actor/CSRF/revision, leave active workers intact and do not retry a conflict",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Reviewed parser/UTF8/controlled schema cases unchanged and explicit reconnect against boundary outcomes. Fresh revision19 is read before any connect; same-origin actor/CSRF headers and exact saved messages are asserted, active states produce no write, and409 produces one refused write without retry. Browser separately proves actual pointer recovery, draft retention and streaming resubscription. No real-provider/model claim."
     }
   ]
 }

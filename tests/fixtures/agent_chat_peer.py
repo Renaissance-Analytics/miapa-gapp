@@ -2,6 +2,7 @@
 import json
 import sys
 import time
+import uuid
 
 
 def send(value):
@@ -21,7 +22,7 @@ def callback(name, arguments):
             raise InterruptedError()
 
 
-session = 'synthetic-chat-session'
+session = str(uuid.uuid4())
 for line in sys.stdin:
     frame = json.loads(line)
     method = frame.get('method')
@@ -49,6 +50,8 @@ for line in sys.stdin:
         if marker in text:
             text = json.loads(text.split(marker, 1)[1])[-1]['text']
         text = text.lower()
+        if 'simulate connection interruption' in text:
+            raise SystemExit(0)  # Deliberate test-only transport loss; never production wiring.
         try:
             catalog = callback('maipa_ui_catalog', {})
             revision = catalog['revision']

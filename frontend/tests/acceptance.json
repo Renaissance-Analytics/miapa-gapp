@@ -738,6 +738,16 @@
           "tests": [
             "agent-chat.test.mjs#server composition preserves authored handles and rejects executable props"
           ]
+        },
+        {
+          "id": "A01-CHAT-CLIENT.reconnect",
+          "kind": "recovery",
+          "given": "A disconnected client with a stopped saved worker or an already active owned worker",
+          "when": "Explicitly reconnect using a fresh server snapshot and its current revision",
+          "then": "Keep saved messages; start only offline/unavailable workers with current actor/CSRF/revision, leave active workers intact and do not retry a conflict",
+          "tests": [
+            "agent-chat.test.mjs#reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry"
+          ]
         }
       ]
     }
