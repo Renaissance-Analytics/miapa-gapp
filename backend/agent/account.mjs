@@ -16,10 +16,12 @@ export function subscriptionAccount(profile, env) {
   if (!['codex', 'claude'].includes(profile.provider)) throw Error('Account unavailable');
   const claude = profile.provider === 'claude';
   let login, consent, loginClosed = false, submitted = false, timer;
-  const options = { cwd: profile.workspace, env, windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 };
+  const host = profile.execution_mode === 'host';
+  const providerArgs = host ? ['-c', 'forced_login_method="chatgpt"'] : binaryArgs;
+  const options = { cwd: profile.workspace, env, ...(host ? {} : { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 }) };
   async function status() {
     if (login && !loginClosed) return { state: 'sign_in', ...(consent ? { login: consent } : {}) };
-    const process = launchProvider(profile.provider_binary, claude ? ['auth', 'status'] : [...binaryArgs, 'login', 'status'], options);
+    const process = launchProvider(profile.provider_binary, claude ? ['auth', 'status'] : [...providerArgs, 'login', 'status'], options);
     let text = '', errors = '', bytes = 0;
     const read = (chunk, stderr = false) => {
       bytes += chunk.length;
@@ -41,8 +43,8 @@ export function subscriptionAccount(profile, env) {
         let result;
         try { result = JSON.parse(text); } catch { throw Error('Account unavailable'); }
         const normalize = path => typeof path === 'string' ? path.replaceAll('\\', '/').replace(/\/+$/, '').toLowerCase() : null;
-        if (!result || Array.isArray(result) || errors.trim() || !profile.home
-            || normalize(result.configDirectory) !== normalize(profile.home)) throw Error('Account unavailable');
+        if (!result || Array.isArray(result) || errors.trim()
+            || (!host && (!profile.home || normalize(result.configDirectory) !== normalize(profile.home)))) throw Error('Account unavailable');
         if (code === 0 && result.loggedIn === true && result.authMethod === 'claude.ai') return { state: 'ready' };
         if (code === 1 && result.loggedIn === false && result.authMethod === 'none') return { state: 'sign_in' };
         throw Error('Account unavailable');
@@ -57,7 +59,7 @@ export function subscriptionAccount(profile, env) {
   async function start() {
     if (login && !loginClosed) return status();
     consent = undefined; loginClosed = false; submitted = false;
-    login = launchProvider(profile.provider_binary, claude ? ['auth', 'login', '--claudeai'] : [...binaryArgs, 'login', '--device-auth'], options);
+    login = launchProvider(profile.provider_binary, claude ? ['auth', 'login', '--claudeai'] : [...providerArgs, 'login', '--device-auth'], options);
     let text = '', bytes = 0;
     const io = login.io ?? login.child;
     const read = chunk => {

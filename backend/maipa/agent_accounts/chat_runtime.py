@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from backend.maipa.acp import AcpClient, AcpError
 from backend.maipa.worker_capsule import WorkerCapsule
-from backend.maipa.windows_sandbox import WindowsSandbox, SandboxUnavailable
+from backend.maipa.windows_sandbox import WindowsHostWorker, SandboxUnavailable
 from . import chat
 from .models import AgentAccount, Conversation, ProviderProfile, SessionReference, UiComposition
 from .profiles import lease_profile, provision_profile, ProfileUnavailable
@@ -216,11 +216,12 @@ class _Worker:
         self.lease = self.stack.enter_context(lease_profile(actor, str(self.account_id), profile_id))
         node = settings.ACP_NODE_EXECUTABLE or shutil.which('node')
         capsule = self.stack.enter_context(WorkerCapsule(self.lease.home.parent, settings.ACP_RUNTIME_ROOT,
-            node, self.lease.scope, self.provider, profile_lease=self.lease, ui_tools=True, provider_runtime=native))
+            node, self.lease.scope, self.provider, profile_lease=self.lease, ui_tools=True, provider_runtime=native, execution_mode='host'))
         self.check()
-        sandbox = self.stack.enter_context(WindowsSandbox(self.lease.scope, capsule.isolation_root,
-            writable=(capsule.home, capsule.workspace), readonly=(capsule.code, capsule.supervisor),
-            installation_id=str(self.binding[0]), internet=True))
+        # User-directed host mode: the CLI uses its own machine sign-in. The
+        # private app lease and scoped UI broker remain original-owner bound;
+        # the native kill-on-close job is lifetime containment, not a file ACL.
+        sandbox = self.stack.enter_context(WindowsHostWorker(self.lease.scope, capsule.workspace))
         return capsule, sandbox
 
     def publish(self, **changes):

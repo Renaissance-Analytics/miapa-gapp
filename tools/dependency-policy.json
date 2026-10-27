@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "review": "Explicit Django exception and reviewed published Fancy/Prism closure. Exact Prism ACP0.33.0 gitHead30555122a8cd093b767015eafd1f6ace8b928c2b, public SRI and all61 installed file digests verified; zero direct/peer/optional runtime closure, no lifecycle scripts. Native Claude exact2.1.311 official win32-x64 artifact is committed by SRI/four-file size/hash inventory, provisioned by the same bounded public-code installer outside private durable profiles. Restricted nativeTools:none/fresh sessions/supplied UI MCP only; EndConversation is a documented residual control helper. Codex0.163.0/gpt-5.3-codex restrictions retained. Private Claude subscription status/login/callback has its own original account home and never uses Codex auth. Effective own AppContainer Temp provisioning adds no capabilities/application ACL grants. Actual authenticated model/UI and generic client acceptance remain open. No package edits, alternate SDK, ambient auth adoption, guessed flags or new unrelated dependencies.",
+  "review": "Django exception and published Fancy/Prism closure retained. Prism ACP0.33.1 gitHeade6700cc974503c7118ca61a4071b2e8b2ee89e60/public SRI/all61 installed files independently verified; zero direct/peer/optional runtime dependencies and no install hooks. Native Claude2.1.311/Codex0.163.0 public locks unchanged. Explicit owner2417/user2388 host-mode subscription reuse uses the CLI own machine login; no credential read/copy/import/container lease, unrelated SDK or wider ACL. nativeTools:none/fresh sessions/exact scoped MCP remain, with verified native job containment and truthful absence of OS filesystem isolation. Codex only measured gpt-5.3-codex if account eligible; default exec exposure stays refused. Generic ACP remains open.",
   "inputs": {
     "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
     "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
     "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
-    "backend/agent/package.json": "e4223c626d533756ce42077868d3612757e8ff91d0f251ee8d16ac8045b2fb1a",
-    "backend/agent/package-lock.json": "47e81f78321ad4865d66ac5eab7d5ad69f9f64347278a5dde2b570c81098ce97"
+    "backend/agent/package.json": "4a24c8e411366bd06ea127ab54ec4b877b819173be9bcf3c904107397aaf04a2",
+    "backend/agent/package-lock.json": "2c0a206ba7b52fce0ec7633aa981b229d5a55f79d81b335fbbba93c4ee491e82"
   },
   "python": {
     "django": "5.2.18",

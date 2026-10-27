@@ -40,7 +40,7 @@ await app.link(specifier => {
 await app.evaluate();
 try {
   const controller = app.namespace.subscriptionAccount({ workspace: 'synthetic', home: 'C:/synthetic/account',
-    provider: scenario.provider ?? 'codex', provider_binary: 'synthetic' }, {});
+    provider: scenario.provider ?? 'codex', execution_mode: scenario.execution_mode, provider_binary: 'synthetic' }, {});
   let value;
   if (scenario.login) {
     await controller.start();

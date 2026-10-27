@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import ExitStack
 import json
 from pathlib import Path
 import shutil
@@ -6,20 +7,22 @@ import tempfile
 import unittest
 
 from backend.maipa.acp import AcpClient, AcpError, Scope
+from backend.maipa.windows_sandbox import WindowsHostWorker
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class AcpHostTests(unittest.TestCase):
     def run_host(self, body, *, real_entry=False, native_policy=False, startup_features=None, model_reply=None,
-                 claude_scenario=None):
+                 claude_scenario=None, host_mode=False):
         async def run():
-            with tempfile.TemporaryDirectory() as directory:
+            with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
                 base = Path(directory)
                 for name in ("workspace", "home", "supervisor"):
                     (base / name).mkdir()
                 profile = {"provider": "codex", "user_id": "user-1", "account_id": "account-1",
                     "workspace": str((base / "workspace").resolve()), "home": str(base / "home"), "supervisor_directory": str(base / "supervisor")}
+                if host_mode: profile['execution_mode'] = 'host'
                 script = ROOT / ("backend/agent/host.mjs" if real_entry else "tests/fixtures/acp_host.mjs")
                 if native_policy or claude_scenario is not None:
                     runtime = base / 'runtime'
@@ -49,7 +52,8 @@ class AcpHostTests(unittest.TestCase):
                 if model_reply is not None:
                     profile['synthetic_model_reply'] = model_reply
                     environment['MAIPA_ACP_PROFILE'] = json.dumps(profile)
-                client = AcpClient([node, str(script)], owner, base / "workspace", env=environment, timeout=15)
+                launcher = stack.enter_context(WindowsHostWorker(owner, base/'workspace')) if host_mode else None
+                client = AcpClient([node, str(script)], owner, base / "workspace", env=environment, timeout=15, launcher=launcher)
                 await client.start()
                 try:
                     await body(client, owner)
@@ -57,6 +61,14 @@ class AcpHostTests(unittest.TestCase):
                     await client.close()
                 self.assertEqual(client.returncode, 0)
         asyncio.run(run())
+
+    def test_host_claude_uses_machine_auth_environment_and_restricted_driver(self):
+        async def case(client, owner):
+            session = await client.new_session(owner)
+            self.assertEqual(await self.native_result(client, owner), {'state': 'ready'})
+            self.assertEqual((await client.prompt(owner, session, 'Synthetic host-mode turn'))['stopReason'], 'end_turn')
+            self.assertEqual(await client.shutdown(owner), {'verified': True, 'survivors': 0, 'sessions': 1})
+        self.run_host(case, claude_scenario='valid', host_mode=True)
 
     async def native_result(self, client, owner):
         async with asyncio.timeout(5):
@@ -71,7 +83,7 @@ class AcpHostTests(unittest.TestCase):
         async def case(client, owner):
             result = await client.initialize(owner)
             self.assertEqual(result["protocolVersion"], 1)
-            self.assertEqual(result["agentInfo"]["version"], "0.33.0")
+            self.assertEqual(result["agentInfo"]["version"], "0.33.1")
             self.assertEqual(result["authMethods"], [])
             self.assertEqual(await client.shutdown(owner), {"verified": True, "survivors": 0, "sessions": 0})
         self.run_host(case, real_entry=True)

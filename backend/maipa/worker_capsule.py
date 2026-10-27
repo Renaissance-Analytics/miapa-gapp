@@ -19,7 +19,7 @@ from .windows_sandbox import SandboxUnavailable, physical_path
 
 
 class WorkerCapsule:
-    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None, ui_tools=False, provider_runtime=None):
+    def __init__(self, root, runtime, node, scope, provider, *, profile_lease=None, ui_tools=False, provider_runtime=None, execution_mode='isolated'):
         # A server-configured Node install may use a version-manager alias.
         # Resolve that trusted executable once, then validate and copy its
         # physical bytes. Runtime and writable paths never accept reparse hops.
@@ -27,6 +27,9 @@ class WorkerCapsule:
         self.scope, self.provider, self.temporary = scope, provider, None
         self.profile_lease = profile_lease
         self.provider_runtime = provider_runtime
+        if execution_mode not in {'host', 'isolated'} or (execution_mode == 'host' and provider_runtime is None):
+            raise SandboxUnavailable('Worker execution mode unavailable')
+        self.execution_mode = execution_mode
         if provider_runtime is not None and (provider not in {'codex', 'claude'} or profile_lease is None):
             raise SandboxUnavailable('Provider runtime unavailable')
         if type(ui_tools) is not bool:
@@ -133,6 +136,8 @@ class WorkerCapsule:
                 self.profile['ui_tools'] = True
             if self.provider_runtime is not None:
                 self.profile['provider_binary'] = str(self.code / 'provider' / native_lock['entry'])
+            if self.execution_mode == 'host':
+                self.profile['execution_mode'] = 'host'
             # All capsule ancestors/files are already checked for reparse
             # points by the server. Avoid Node's extra realpath traversal into
             # inaccessible parent directories; do not broaden their ACLs.

@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-28",
+    "label": "Development update 28",
+    "cards": [
+      {
+        "title": "Recover connections after a restart",
+        "description": "A server restart now clears stale connection controls while keeping your accounts, saved chat and unfinished requests."
+      },
+      {
+        "title": "Use your existing Claude sign-in",
+        "description": "Claude checks the account already signed in on this machine. Maipa offers sign-in only when it is needed."
+      }
+    ]
+  },
+  {
     "id": "development-27",
     "label": "Development update 27",
     "cards": [
@@ -238,16 +252,6 @@
       {
         "title": "Client facts with a history",
         "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save."
-      }
-    ]
-  },
-  {
-    "id": "development-8",
-    "label": "Development update 8",
-    "cards": [
-      {
-        "title": "Private connection workers",
-        "description": "Connection checks now run in a separate Windows security boundary. Checks verify their worker has stopped, and private accounts and connection history continue to follow your workspace role and ownership. Live provider setup and conversations are still being built."
       }
     ]
   }

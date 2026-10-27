@@ -7,7 +7,7 @@ import {
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.33.0") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.33.1") throw new Error("Unexpected ACP runtime");
 if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
     || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 
@@ -17,6 +17,8 @@ export function validateProfile(value) {
     throw new Error("Invalid worker profile");
   }
   const result = { provider: value.provider, user_id: value.user_id, account_id: value.account_id };
+  if (value.execution_mode !== undefined && !['host', 'isolated'].includes(value.execution_mode)) throw Error('Invalid execution mode');
+  result.execution_mode = value.execution_mode ?? 'isolated';
   if (value.ui_tools !== undefined && typeof value.ui_tools !== 'boolean') throw new Error('Invalid UI capability');
   result.ui_tools = value.ui_tools === true;
   if (value.provider_binary !== undefined) {
@@ -45,16 +47,12 @@ export function validateProfile(value) {
 export function serveProfile(value, { input, output, constructors = {}, uiMcp, account }) {
   const profile = validateProfile(value);
   // Only the trusted bootstrap supplies this application-owned stdio adapter.
-  // Exact published0.33.0 supplies restricted Claude MCP under LOCAL transport.
+  // Exact published0.33.1 supports restricted host-user subscription reuse.
   if (profile.ui_tools !== Boolean(uiMcp)) throw new Error('UI transport unavailable');
   const drivers = [];
   let closing = false, shutdownPromise;
   let nativeState = 'starting', observedReady = false;
-  const parentEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-    ["PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP"].includes(key.toUpperCase())));
-  Object.assign(parentEnv, { HOME: profile.home, USERPROFILE: profile.home,
-    LOCALAPPDATA: profile.home, APPDATA: profile.home,
-    [profile.provider === "codex" ? "CODEX_HOME" : "CLAUDE_CONFIG_DIR"]: profile.home });
+  const parentEnv = providerEnvironment(profile);
   if (profile.provider_binary) parentEnv.PATH = `${profile.provider === 'codex' ? fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin', import.meta.url)) : fileURLToPath(new URL('./provider', import.meta.url))};${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32`;
   const served = serve({
     input, output,
@@ -67,12 +65,12 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
       }
       const configured = { cwd: profile.workspace, parentEnv,
         ...(profile.provider_binary ? { binary: profile.provider_binary,
-          ...(profile.provider === 'codex' ? { binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'], model: 'gpt-5.3-codex' } : {}),
+          ...(profile.provider === 'codex' ? { binaryArgs: profile.execution_mode === 'host' ? ['-c', 'forced_login_method="chatgpt"'] : ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'], model: 'gpt-5.3-codex' } : {}),
           // Only the exact published measured matrix can drive native sessions.
           // Neither browser/model input nor inherited CLI defaults select policy.
           nativeTools: 'none' } : {}),
         mcpServers: uiMcp ? [uiMcp] : [],
-        processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
+        ...(profile.execution_mode === 'host' ? {} : { processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 } }),
         credentials: { mode: "subscription" } };
       const callbacks = profile.provider_binary ? { ...events,
         onProtocolError(...args) {
@@ -158,6 +156,19 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
   return { ...served, shutdown };
 }
 
+export function providerEnvironment(profile) {
+  const host = profile.execution_mode === 'host';
+  const allowed = ['PATH', 'SYSTEMROOT', 'WINDIR', 'TEMP', 'TMP', ...(host ? ['USERPROFILE', 'LOCALAPPDATA', 'APPDATA'] : [])];
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => allowed.includes(key.toUpperCase())));
+  if (host) {
+    if (!env.USERPROFILE || !isAbsolute(env.USERPROFILE)) throw Error('Machine account environment unavailable');
+    env.HOME = env.USERPROFILE;
+  } else Object.assign(env, { HOME: profile.home, USERPROFILE: profile.home,
+    LOCALAPPDATA: profile.home, APPDATA: profile.home,
+    [profile.provider === 'codex' ? 'CODEX_HOME' : 'CLAUDE_CONFIG_DIR']: profile.home });
+  return env;
+}
+
 async function main() {
   const raw = process.env.MAIPA_ACP_PROFILE;
   if (!raw || Buffer.byteLength(raw) > 16384) throw new Error("Missing worker profile");
@@ -174,10 +185,8 @@ async function main() {
     let account;
     if (profile.provider_binary) {
       const { subscriptionAccount } = await import('./account.mjs');
-      const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => ['SYSTEMROOT', 'WINDIR', 'TEMP', 'TMP'].includes(key.toUpperCase())));
-      Object.assign(env, { HOME: profile.home, USERPROFILE: profile.home, LOCALAPPDATA: profile.home, APPDATA: profile.home,
-        [profile.provider === 'codex' ? 'CODEX_HOME' : 'CLAUDE_CONFIG_DIR']: profile.home,
-        PATH: `${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32` });
+      const env = providerEnvironment(profile);
+      env.PATH = `${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32`;
       account = subscriptionAccount(profile, env);
     }
     host = serveProfile(profile, { input: process.stdin, output: process.stdout, uiMcp: relay?.mcp, account });

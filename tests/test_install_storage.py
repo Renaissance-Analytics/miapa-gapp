@@ -49,7 +49,7 @@ class InstallLauncherTests(unittest.TestCase):
         (root / 'frontend/dist').mkdir(parents=True)
         (root / 'frontend/dist/index.html').write_text('Synthetic build', encoding='utf-8')
 
-    def launch(self, *, data=None, code=None, generate=None, command_hook=None, supplied_key=None):
+    def launch(self, *, data=None, code=None, generate=None, command_hook=None, supplied_key=None, recovery_hook=None):
         environment = {key: value for key, value in os.environ.items()
             if not key.startswith('MAIPA_') and key != 'DJANGO_SETTINGS_MODULE'}
         environment['MAIPA_DATA_DIR'] = str(self.data if data is None else data)
@@ -60,10 +60,37 @@ class InstallLauncherTests(unittest.TestCase):
                 patch('sys.argv', ['devserver', '4131']), \
                 patch.object(sys, 'path', list(sys.path)), \
                 patch('django.core.management.execute_from_command_line') as commands, \
+                patch('backend.maipa.agent_accounts.recovery.recover_connections') as recovery, \
                 patch('backend.devserver.secrets.token_urlsafe', side_effect=generate or (lambda _: 'synthetic-key-' * 6)):
             commands.side_effect = command_hook
+            # This launcher unit seam replaces migration/HTTP and recovery's ORM
+            # together. Actual DB/native crash recovery is tested independently.
+            recovery.side_effect = recovery_hook or (lambda guard: guard.revalidate(Path(environment['MAIPA_DATA_DIR'])))
             devserver.main()
             return commands.call_args_list, os.environ['MAIPA_SECRET_KEY']
+
+    def test_restart_recovery_runs_between_migration_and_http_under_live_installation_lock(self):
+        from backend.maipa.storage import install_lock, StorageUnavailable
+        events, guards = [], []
+        def commands(argv):
+            events.append(argv[1])
+        def recovery(guard):
+            guard.revalidate(self.data)
+            with self.assertRaises(StorageUnavailable):
+                with install_lock(self.data):pass
+            events.append('recover');guards.append(guard)
+        self.launch(command_hook=commands,recovery_hook=recovery)
+        self.assertEqual(events,['migrate','recover','runserver'])
+        with self.assertRaises(StorageUnavailable):guards[0].revalidate(self.data)
+
+    def test_recovery_refusal_never_opens_the_http_server(self):
+        from backend.maipa.storage import StorageUnavailable
+        events=[]
+        def refuse(_):
+            raise StorageUnavailable('SYNTHETIC unsafe recovery refused')
+        with self.assertRaises(SystemExit):
+            self.launch(command_hook=lambda argv:events.append(argv[1]),recovery_hook=refuse)
+        self.assertEqual(events,['migrate'])
 
     def assert_private(self, path, *, directory=False):
         if os.name == 'nt':

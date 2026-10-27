@@ -17,6 +17,23 @@ class StorageUnavailable(OSError):
     """A public-safe launcher failure; never includes paths or private bytes."""
 
 
+_LOCK_TOKEN = object()
+
+
+class InstallationLease:
+    """In-process proof of the exact native lock held by the trusted launcher."""
+    def __init__(self, root, handle, token):
+        if token is not _LOCK_TOKEN:
+            raise StorageUnavailable('Installation maintenance unavailable')
+        self._root, self._handle, self._pid = root, handle, os.getpid()
+        self._active = True
+
+    def revalidate(self, root):
+        if (not self._active or self._handle.closed or os.getpid() != self._pid
+                or physical_chain(root) != self._root):
+            raise StorageUnavailable('Installation maintenance unavailable')
+
+
 def physical_chain(path):
     """Check every existing ancestor without following a reparse/symlink hop."""
     path = Path(path)
@@ -192,14 +209,15 @@ def installation_metadata(root):
 @contextmanager
 def install_lock(root):
     """Held by the launcher for its whole life and by offline maintenance."""
-    path = physical_chain(Path(root) / 'maintenance.lock')
+    root = physical_chain(root)
+    path = physical_chain(root / 'maintenance.lock')
     try:
         write_private(path, b'')
     except FileExistsError:
         pass
     private_file(path)
     with path.open('r+b') as handle:
-        acquired = False
+        acquired, lease = False, None
         try:
             if os.name == 'nt':
                 import msvcrt
@@ -208,10 +226,13 @@ def install_lock(root):
                 import fcntl
                 fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             acquired = True
-            yield
+            lease = InstallationLease(root, handle, _LOCK_TOKEN)
+            yield lease
         except OSError:
             raise StorageUnavailable('Installation is active or maintenance is unavailable') from None
         finally:
+            if lease is not None:
+                lease._active = False
             if acquired:
                 handle.seek(0)
                 if os.name == 'nt':

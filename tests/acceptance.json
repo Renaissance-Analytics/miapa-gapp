@@ -3720,6 +3720,106 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-RESTART-RECOVERY",
+      "risk": "A stopped server leaves saved sign-in/Ready state and temporary capsules, so controls target a nonexistent worker or stale authority survives reconnect.",
+      "scenarios": [
+        {
+          "id": "A01-RESTART-RECOVERY.owned",
+          "kind": "positive",
+          "given": "An original owned profile with a stale sign-in worker, queued request, partial reply, old UI lease and generated runtime, under a real exclusive installation lock",
+          "when": "The launcher recovers before opening HTTP",
+          "then": "Only the generated runtime moves intact to private recovery storage; provider state is not read/moved/reset, original IDs/text/queued request remain, partial reply is marked interrupted, old session/UI is revoked and phase becomes offline; repeating recovery changes nothing",
+          "tests": [
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_restart_retires_signin_and_old_ui_without_losing_original_account_or_messages",
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_repeated_recovery_keeps_revision_and_quarantined_payload_unchanged",
+            "tests.test_install_storage.InstallLauncherTests.test_restart_recovery_runs_between_migration_and_http_under_live_installation_lock"
+          ]
+        },
+        {
+          "id": "A01-RESTART-RECOVERY.crash",
+          "kind": "positive",
+          "given": "A real synthetic server holds installation/profile native locks and an actual AppContainer job with a live worker and descendant",
+          "when": "Its owner process dies and a successor acquires the locks",
+          "then": "Immutable process witnesses prove both native processes exited before recovery; original provider bytes remain and only its owned capsule is quarantined, with the synthetic OS profile removed; actual native DACL inspection proves every retained profile/home/auth/quarantined root/code/workspace entry has only the launcher and LocalSystem grants with no retired AppContainer SID",
+          "tests": [
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_real_crashed_server_releases_locks_and_kernel_stops_descendants_before_recovery"
+          ]
+        },
+        {
+          "id": "A01-RESTART-RECOVERY.refused",
+          "kind": "negative",
+          "given": "No active correct-root installation guard, a live profile lease, aliased payload, foreign binding or unknown capsule layout, or a real owned staged Node process that outlives its former locks",
+          "when": "Recovery is attempted or refuses during startup",
+          "then": "It cannot alter the saved connection, quarantine foreign/aliased state or open HTTP after refusal; the guard expires when its real native lock is released; no quarantine move is attempted until owned staged processes and observed descendants have exited within a bounded read-only check",
+          "tests": [
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_missing_closed_or_other_installation_guard_cannot_recover",
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_active_native_profile_lease_prevents_restart_recovery",
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_aliased_runtime_payload_is_refused_before_quarantine_or_state_change",
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_foreign_binding_or_unknown_runtime_layout_is_not_adopted",
+            "tests.test_install_storage.InstallLauncherTests.test_recovery_refusal_never_opens_the_http_server",
+            "tests.test_install_storage.InstallLauncherTests.test_restart_recovery_runs_between_migration_and_http_under_live_installation_lock",
+            "tests.test_connection_recovery.ConnectionRecoveryTests.test_live_owned_runtime_is_not_touched_even_when_the_old_locks_are_free"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-HOST-REUSE",
+      "risk": "An app-owned empty home forces redundant login; host-mode changes must not expose secrets or lose owned process termination.",
+      "scenarios": [
+        {
+          "id": "A01-HOST-REUSE.environment",
+          "kind": "positive",
+          "given": "Actual local-user Windows process and finite native/public-driver fixtures with separate Maipa profile",
+          "when": "The trusted server selects host mode",
+          "then": "The OS host token and job are verified, native subscription home remains the machine home, billing/injection env is excluded, the public driver retains restricted tools/fresh subscription/no LOCAL transport, and native status returns only readiness without private identity",
+          "tests": [
+            "tests.test_host_account_reuse.HostAccountReuseTests.test_host_runs_as_local_user_with_closed_environment_and_kills_descendants",
+            "tests.test_acp_host.AcpHostTests.test_host_claude_uses_machine_auth_environment_and_restricted_driver",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_host_claude_reuses_cli_auth_without_private_home_or_identity_output"
+          ]
+        },
+        {
+          "id": "A01-HOST-REUSE.stop",
+          "kind": "negative",
+          "given": "A foreign principal, API-key native status, or an actual abruptly killed host owner with live descendants",
+          "when": "Launch/status or native owner death occurs",
+          "then": "Foreign scope and non-subscription credentials cannot claim readiness, while explicit Stop and kernel owner-death cleanup end the owned native worker and descendant with verified process witnesses; no credential file or AppContainer grant is used",
+          "tests": [
+            "tests.test_host_account_reuse.HostAccountReuseTests.test_host_runs_as_local_user_with_closed_environment_and_kills_descendants",
+            "tests.test_host_account_reuse.HostAccountReuseTests.test_owner_death_ends_host_worker_and_descendant_without_credential_access",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_host_claude_reuses_cli_auth_without_private_home_or_identity_output"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-MCP-CORRELATION",
+      "risk": "Native MCP correlation metadata is rejected before UI calls reach their authorized broker, or is incorrectly treated as app authority.",
+      "scenarios": [
+        {
+          "id": "A01-MCP-CORRELATION.bounded",
+          "kind": "positive",
+          "given": "The native-captured tools/call shape with claudecode/toolUseId and numeric progressToken metadata",
+          "when": "A real MCP child calls through the app relay",
+          "then": "The valid bounded metadata is discarded before forwarding exactly name/arguments, and the normal structured UI result succeeds with verified native process cleanup",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_native_claude_tool_metadata_is_bounded_and_never_becomes_app_authority"
+          ]
+        },
+        {
+          "id": "A01-MCP-CORRELATION.refused",
+          "kind": "negative",
+          "given": "Unknown metadata, null/object/oversized/control values, foreign top-level fields or the wrong nonce",
+          "when": "The same MCP relay receives the request",
+          "then": "It returns only the generic refusal and forwards no extra app call; metadata supplies no principal or tool authority",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_native_claude_tool_metadata_is_bounded_and_never_becomes_app_authority"
+          ]
+        }
+      ]
     }
   ]
 }

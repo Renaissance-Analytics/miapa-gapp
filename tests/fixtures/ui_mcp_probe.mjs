@@ -44,9 +44,20 @@ try {
   await child(relay.mcp, async peer => {
     results.initialize = await peer.request('initialize', { protocolVersion: mode === 'claude' ? '2025-11-25' : '2025-03-26', capabilities: {}, clientInfo: { name: 'synthetic', version: '1' } });
     if (mode === 'claude') peer.notify('notifications/initialized');
-    if (mode === 'normal' || mode === 'large' || mode === 'claude') {
+    if (mode === 'normal' || mode === 'large' || mode === 'claude' || mode === 'claude-meta') {
       results.list = await peer.request('tools/list', mode === 'claude' ? undefined : {});
-      results.call = await peer.request('tools/call', { name: 'synthetic_ui', arguments: { revision: 0 } });
+      results.call = await peer.request('tools/call', { name: 'synthetic_ui', arguments: { revision: 0 },
+        ...(mode === 'claude-meta' ? { _meta: { 'claudecode/toolUseId': 'synthetic-native-use', progressToken: 0 } } : {}) });
+      if (mode === 'claude-meta') {
+        results.invalid = [];
+        for (const extra of [{ _meta: { actor: 'foreign' } }, { _meta: null },
+          { _meta: { progressToken: {} } }, { _meta: { progressToken: 'x'.repeat(201) } },
+          { _meta: { 'claudecode/toolUseId': 'bad\nvalue' } },
+          { _meta: { progressToken: 1 }, actor: 'foreign' }]) {
+          try { await peer.request('tools/call', { name: 'synthetic_ui', arguments: { revision: 0 }, ...extra }); results.invalid.push('accepted'); }
+          catch (error) { results.invalid.push(error.message); }
+        }
+      }
     } else {
       try { await peer.request('tools/list', {}); } catch (error) { results.error = error.message; }
       try { await peer.request('tools/call', { name: 'synthetic_ui', arguments: { excessive: 'x'.repeat(70_000) } }); }

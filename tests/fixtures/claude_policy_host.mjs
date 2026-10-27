@@ -13,7 +13,13 @@ const host = serveProfile(profile, { input: process.stdin, output: process.stdou
     assert.equal(options.model, undefined);
     assert.equal(options.binaryArgs, undefined);
     assert.equal(options.resumeSessionId, undefined);
-    assert.equal(options.parentEnv.CLAUDE_CONFIG_DIR, profile.home);
+    if (profile.execution_mode === 'host') {
+      assert.notEqual(options.parentEnv.USERPROFILE, profile.home);
+      assert.ok(options.parentEnv.USERPROFILE);
+      assert.equal(options.parentEnv.CLAUDE_CONFIG_DIR, undefined);
+      assert.equal(options.processTree, undefined);
+      assert.equal(options.credentials.mode, 'subscription');
+    } else assert.equal(options.parentEnv.CLAUDE_CONFIG_DIR, profile.home);
     assert.equal(options.parentEnv.CODEX_HOME, undefined);
     assert.deepEqual(options.allowedTools, []);
     assert.deepEqual(options.mcpServers, []);

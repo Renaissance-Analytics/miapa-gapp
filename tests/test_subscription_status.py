@@ -9,6 +9,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SubscriptionStatusTests(unittest.TestCase):
+    def test_host_claude_reuses_cli_auth_without_private_home_or_identity_output(self):
+        for code, logged_in, method, state in ((0, True, 'claude.ai', 'ready'), (1, False, 'none', 'sign_in')):
+            self.assertEqual(self.status(provider='claude', execution_mode='host', code=code,
+                stdout=json.dumps({'loggedIn':logged_in,'authMethod':method,'configDirectory':'C:/machine/.claude',
+                    'email':'PRIVATE_IDENTITY_SENTINEL'}),expectedArgs=['auth','status']),
+                {'value':{'state':state},'stopCalls':2})
+        self.assertEqual(self.status(provider='claude', execution_mode='host', code=0,
+            stdout=json.dumps({'loggedIn':True,'authMethod':'api_key'})),
+            {'error':'Account unavailable','stopCalls':2})
+
     def status(self, **scenario):
         node = shutil.which('node')
         if node is None:
