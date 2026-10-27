@@ -18,10 +18,10 @@ from django.utils import timezone
 
 from backend.maipa.acp import AcpClient
 from backend.maipa.worker_capsule import WorkerCapsule
-from backend.maipa.windows_sandbox import WindowsSandbox
+from backend.maipa.windows_sandbox import WindowsSandbox, SandboxUnavailable
 from . import chat
 from .models import AgentAccount, Conversation, ProviderProfile, SessionReference, UiComposition
-from .profiles import lease_profile, provision_profile
+from .profiles import lease_profile, provision_profile, ProfileUnavailable
 from .provider_runtime import ensure_codex
 from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
@@ -359,7 +359,15 @@ class _Worker:
         except Exception as error:
             failed = not (isinstance(error, InterruptedError) and self.stopping.is_set())
             from backend.maipa.acp import AcpError
-            self.failure_kind = 'database' if isinstance(error, DatabaseError) else 'protocol' if isinstance(error, AcpError) else 'authority' if isinstance(error, chat.ChatUnavailable) else 'other'
+            categories = ((DatabaseError, 'database'), (AcpError, 'protocol'), (ProfileUnavailable, 'profile'),
+                          (SandboxUnavailable, 'sandbox'), (chat.ChatUnavailable, 'authority'))
+            self.failure_kind = next((label for kind, label in categories if isinstance(error, kind)), 'other')
+            if failed:
+                # Fixed operational labels only: no exception, provider output, IDs or paths.
+                import logging
+                stage = self.stage if type(self.stage) is str and self.stage in (
+                    'preparation', 'host-start', 'subscription-status', 'session-start', 'turn') else 'unknown'
+                logging.getLogger(__name__).error('Agent connection failed: stage=%s category=%s', stage, self.failure_kind)
         finally:
             self.stopping.set()
             self.consent = None

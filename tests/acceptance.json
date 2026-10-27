@@ -3307,6 +3307,33 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-FAILURE-DIAGNOSTIC",
+      "risk": "Silent failures conceal the actual runtime boundary; raw diagnostic logging could disclose credentials or account details.",
+      "scenarios": [
+        {
+          "id": "A01-FAILURE-DIAGNOSTIC.closed",
+          "kind": "positive",
+          "given": "An authenticated owned worker fails at a known runtime stage with private provider error text",
+          "when": "Its actual run lifecycle ends the worker and marks the conversation unavailable",
+          "then": "Record only the fixed stage and error category, never provider output or account identifiers",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_reports_closed_stage_and_category_without_provider_output",
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_profile_failure_is_distinct_without_logging_a_private_path"
+          ]
+        },
+        {
+          "id": "A01-FAILURE-DIAGNOSTIC.unknown",
+          "kind": "negative",
+          "given": "A failed worker has an unknown stage containing private text and a newline",
+          "when": "The actual run lifecycle reports its failure",
+          "then": "Substitute unknown for the stage and retain only the fixed protocol category",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_does_not_reflect_an_unknown_stage"
+          ]
+        }
+      ]
     }
   ]
 }

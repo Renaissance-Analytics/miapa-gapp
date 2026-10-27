@@ -33,6 +33,9 @@ that it is signed out. Configuration failures, unexpected status output, key-bas
 credentials and unverified process cleanup produce a closed connection error;
 they never claim subscription readiness or ask the user to repeat consent. Raw
 provider status output is not sent to the browser or retained in logs.
+Failed workers record only an allowlisted runtime stage and fixed error category
+for local troubleshooting. Unknown stages are replaced with `unknown`; exception
+messages, provider output, account identifiers and private paths are excluded.
 
 Messages and accepted text deltas are durable. Stop preserves an interrupted
 reply; disconnect ends the supervised process tree. Reload can reconnect to a

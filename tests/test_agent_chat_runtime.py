@@ -81,6 +81,42 @@ class AgentChatRuntimeTests(TransactionTestCase):
         return self.until(lambda s: s['phase'] == 'ready' and s['messages'][-1]['role'] == 'assistant'
                           and s['messages'][-1]['state'] == 'complete')
 
+    def failed_worker_log(self, stage, error=None):
+        import asyncio
+        import threading
+        from backend.maipa.acp import AcpError
+        release = threading.Event()
+        async def fail(worker):
+            await asyncio.to_thread(release.wait, 3)
+            worker.stage = stage
+            raise error or AcpError('SYNTHETIC_PRIVATE_PROVIDER_OUTPUT')
+        before = self.state()
+        with patch.object(chat_runtime._Worker, 'main', fail), self.assertLogs(chat_runtime.__name__, level='ERROR') as captured:
+            response = self.client.post('/api/agent/chat/', {'action': 'connect', 'revision': before['revision'],
+                'selection_revision': before['connection']['revision']}, content_type='application/json',
+                HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+            self.assertEqual(response.status_code, 200)
+            with chat_runtime._lock:
+                worker = chat_runtime._workers[self.owner.pk]
+            release.set()
+            worker.thread.join(timeout=10)
+            self.assertFalse(worker.thread.is_alive(), 'Failed worker must finish cleanup')
+            self.assertEqual(self.state()['phase'], 'unavailable')
+        return captured.output
+
+    def test_failed_worker_reports_closed_stage_and_category_without_provider_output(self):
+        self.assertEqual(self.failed_worker_log('subscription-status'),
+            ['ERROR:' + chat_runtime.__name__ + ':Agent connection failed: stage=subscription-status category=protocol'])
+
+    def test_failed_worker_does_not_reflect_an_unknown_stage(self):
+        self.assertEqual(self.failed_worker_log('SYNTHETIC_PRIVATE_STAGE\nCOOKIE=value'),
+            ['ERROR:' + chat_runtime.__name__ + ':Agent connection failed: stage=unknown category=protocol'])
+
+    def test_profile_failure_is_distinct_without_logging_a_private_path(self):
+        from backend.maipa.agent_accounts.profiles import ProfileUnavailable
+        self.assertEqual(self.failed_worker_log('preparation', ProfileUnavailable('SYNTHETIC_PRIVATE_PATH')),
+            ['ERROR:' + chat_runtime.__name__ + ':Agent connection failed: stage=preparation category=profile'])
+
     def test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss(self):
         import copy
         checkpoints = []

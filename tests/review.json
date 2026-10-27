@@ -3334,7 +3334,7 @@
     {
       "scenario": "A01-CONVERSATION.csrf",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_browser_write_requires_csrf_before_starting_any_provider",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "a3acd790216ff676def365499a103ae1398c273245069e216780c51ffdb802d7",
       "expected_observation": "Reject403, leave the conversation offline and create no worker",
       "decision": "aligned",
@@ -3344,7 +3344,7 @@
     {
       "scenario": "A01-CONVERSATION.loop",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "c9093d2eb7c1967a5a901ed038650b50dd7b75d3d5da73fe28eaa6f743338277",
       "expected_observation": "Only static tool definitions precede ACK; real app UI callbacks advance the same controlled lease after a human revision, text checkpoints persist and dismissal retains all six messages; this is not real-model evidence",
       "decision": "aligned",
@@ -3354,7 +3354,7 @@
     {
       "scenario": "A01-CONVERSATION.cancel",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "d978ffce2d30a4be06aa70cf40234b969e4bc0fe65fe9b2ad4b871755f1fa530",
       "expected_observation": "Preserve the interrupted text and continue the same acknowledged UI/session without cancelling the next turn",
       "decision": "aligned",
@@ -3364,7 +3364,7 @@
     {
       "scenario": "A01-CONVERSATION.logout",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_logout_revokes_live_worker_and_private_ui_but_keeps_owned_transcript",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "e6b55c35e8bed3f5d445100d21ec91456f7383c8455576eefb79d28f91270708",
       "expected_observation": "Stop the process, revoke its private UI reference and deny anonymous reads while preserving the owned saved transcript after a new login",
       "decision": "aligned",
@@ -3374,7 +3374,7 @@
     {
       "scenario": "A01-CONVERSATION.epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_reauthorizes_same_actor_but_role_change_stops_worker",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "1090bd16642754cb0330037a6b151222741ac6a378091f72c8c6fe58759036ed",
       "expected_observation": "Mint a freshly authorized lease for the same actor while refusing the old lease; an actual role change stops the worker and denies its old chat access",
       "decision": "aligned",
@@ -3404,7 +3404,7 @@
     {
       "scenario": "A01-CONVERSATION.reader",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_brief_concurrent_reader_does_not_abort_startup_checkpoint",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "fac94bc7a0a86d3722d8df85269668790031ccdf817ad67ad0a7dd8e4e9ba897",
       "expected_observation": "The file-backed installed database semantics permit the acknowledged worker checkpoint and the real contextual note appears; shared-memory SQLite contention is not treated as a model/provider failure",
       "decision": "aligned",
@@ -3444,7 +3444,7 @@
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
@@ -3454,7 +3454,7 @@
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_between_actor_check_and_snapshot_does_not_return_private_ui",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
@@ -3474,7 +3474,7 @@
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
@@ -3484,7 +3484,7 @@
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_while_minting_ui_is_not_reauthorized",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
@@ -3585,7 +3585,7 @@
       "scenario": "A01-CONVERSATION.unexpected_peer_exit",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_unexpected_peer_exit_is_unavailable_and_keeps_the_acknowledged_turn",
       "reason": "A real isolated peer exits. Controlled close hook reads after original native contexts close and before bookkeeping release, expecting stopping; final HTTP polling expects unavailable and exact acknowledged user text/state. Captured red closing phase and earlier503. Existing actual role/logout/original-account denial suite retained; no alternate principal or native permission is granted. The controlled post-close/pre-release hook attempts both valid-epoch connect and send, requires409 conflicts and exact unchanged revision/messages. Captured red demonstrates the prior late-refusal state mutation; server guards now reject before mutation.",
-      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
       "scenario_sha256": "57cca01f7e65616fc531e8a1bc340c1e93abf2b28cc30ea1d90a281cc2f299b0",
       "expected_observation": "The failed connection remains stopping while its worker closes, becomes unavailable only after release, retains the exact acknowledged user message, and permits a primary-authorized saved read after native contexts close. Send/connect during closing conflict without changing the exact transcript or conversation revision.",
       "decision": "aligned",
@@ -3640,6 +3640,36 @@
       "decision": "aligned",
       "reason": "Exact app module linked to a finite synthetic process: compare closed status/error and both cleanup calls. Six adversarial outputs reproduced false readiness/sign-in before the fix. Known native signed-out output is independently measured in a fresh synthetic home. No real auth or model claim.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-FAILURE-DIAGNOSTIC.closed",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_reports_closed_stage_and_category_without_provider_output",
+      "scenario_sha256": "7d0f17250581ea1047318986c396c9f5e94ba24ed92a3aea781dd7b9256bbd78",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "expected_observation": "Record only the fixed stage and error category, never provider output or account identifiers",
+      "decision": "aligned",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-FAILURE-DIAGNOSTIC.closed",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_profile_failure_is_distinct_without_logging_a_private_path",
+      "scenario_sha256": "7d0f17250581ea1047318986c396c9f5e94ba24ed92a3aea781dd7b9256bbd78",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "expected_observation": "Record only the fixed stage and error category, never provider output or account identifiers",
+      "decision": "aligned",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-FAILURE-DIAGNOSTIC.unknown",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_worker_does_not_reflect_an_unknown_stage",
+      "scenario_sha256": "ffb7b46c23214197ee72268072cf5c55eed1a3c46a000d32eea219de2c118834",
+      "source_sha256": "c0c4279e6e6bdfe230e6f49ce2f9a5ab6fd94e5b12845189ab0ab96e769d7808",
+      "expected_observation": "Substitute unknown for the stage and retain only the fixed protocol category",
+      "decision": "aligned",
+      "reason": "Authenticated HTTP starts a real app worker; a finite handshake releases its synthetic private protocol/profile failure only after the connect acknowledgement. Assert full log equals fixed stage/category and durable phase is unavailable. Unknown private/newline stage becomes unknown; profile errors expose no private path. Initial uncoordinated fixture raced the connect acknowledgement (503), not evidence for logging. Controlled old-source red must fail at no-log assertions. Existing runtime test methods are AST-identical to761c133; no old assertions or deadlines changed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     }
   ]
 }
