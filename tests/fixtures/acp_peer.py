@@ -43,6 +43,9 @@ for line in sys.stdin:
         if mode == 'native-malformed': result = {'state': None}
         if mode == 'native-array': result = ['ready']
         send({'jsonrpc': '2.0', 'id': message['id'], 'result': result})
+    elif method == 'maipa/account/authorize':
+        if message['params'] != {'code': 'SYNTHETIC_CODE'}: raise ValueError('Unexpected private payload')
+        send({'jsonrpc': '2.0', 'id': message['id'], 'result': {'state': 'sign_in'}})
     elif message.get("id") == "permission-1" and "result" in message:
         permission = message["result"]
     elif message.get("id") == "client-unknown" and "error" in message:

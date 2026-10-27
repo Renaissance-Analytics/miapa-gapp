@@ -39,3 +39,38 @@ class SubscriptionStatusTests(unittest.TestCase):
     def test_failed_process_cleanup_refuses_even_a_confirmed_subscription(self):
         self.assertEqual(self.status(code=0, stderr='Logged in using ChatGPT', unverified=True),
                          {'error': 'Account unavailable', 'stopCalls': 2})
+
+    def test_claude_status_is_bound_to_its_subscription_and_assigned_configuration(self):
+        for code, logged_in, method, state in ((0, True, 'claude.ai', 'ready'), (1, False, 'none', 'sign_in')):
+            self.assertEqual(self.status(provider='claude', code=code, stdout=json.dumps({
+                'loggedIn': logged_in, 'authMethod': method, 'configDirectory': 'C:\\synthetic\\account',
+                'email': 'synthetic@example.invalid'}), expectedArgs=['auth', 'status']),
+                {'value': {'state': state}, 'stopCalls': 2})
+
+    def test_claude_refuses_foreign_home_api_credentials_conflicts_and_private_output(self):
+        valid = {'loggedIn': True, 'authMethod': 'claude.ai', 'configDirectory': 'C:/synthetic/account'}
+        for output, code, stderr in ((json.dumps({**valid, 'configDirectory': 'C:/foreign'}), 0, ''),
+                (json.dumps({**valid, 'authMethod': 'api_key'}), 0, ''),
+                (json.dumps(valid), 1, ''), (json.dumps(valid), 0, 'PRIVATE_PROVIDER_ERROR'),
+                ('PRIVATE_PROVIDER_ERROR', 1, ''), ('{}', 0, '')):
+            self.assertEqual(self.status(provider='claude', code=code, stdout=output, stderr=stderr),
+                             {'error': 'Account unavailable', 'stopCalls': 2})
+
+    def test_claude_login_exposes_only_a_validated_transient_provider_link(self):
+        url = 'https://claude.ai/oauth/authorize?state=synthetic&code_challenge=synthetic'
+        result = self.status(provider='claude', login=True, stdout='Open this URL: '+url,
+                             expectedArgs=['auth', 'login', '--claudeai'])
+        self.assertEqual(result, {'value': {'state': 'sign_in', 'login': {'url': url, 'accepts_code': True}}, 'stopCalls': 1})
+        for unsafe in ('https://attacker.invalid/oauth/authorize', 'https://claude.ai.attacker.invalid/oauth/authorize',
+                       'https://user:secret@claude.ai/oauth/authorize', 'https://claude.ai/oauth/authorize#secret'):
+            self.assertEqual(self.status(provider='claude', login=True, stdout=unsafe),
+                             {'value': {'state': 'sign_in'}, 'stopCalls': 1})
+
+    def test_claude_private_callback_goes_only_to_native_stdin_once_with_no_echo(self):
+        self.assertEqual(self.status(provider='claude', login=True,
+            stdout='https://claude.ai/oauth/authorize?state=synthetic', authorize='SYNTHETIC_CODE#STATE'),
+            {'value': {'state': 'sign_in'}, 'stopCalls': 1, 'privateInputValid': True})
+        for code in ('', 'two codes', 'code\nINJECT', 'x'*2049):
+            self.assertEqual(self.status(provider='claude', login=True,
+                stdout='https://claude.ai/oauth/authorize?state=synthetic', authorize=code),
+                {'error': 'Account unavailable', 'stopCalls': 1})

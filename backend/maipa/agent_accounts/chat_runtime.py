@@ -22,7 +22,7 @@ from backend.maipa.windows_sandbox import WindowsSandbox, SandboxUnavailable
 from . import chat
 from .models import AgentAccount, Conversation, ProviderProfile, SessionReference, UiComposition
 from .profiles import lease_profile, provision_profile, ProfileUnavailable
-from .provider_runtime import ensure_codex
+from .provider_runtime import ensure_codex, ensure_claude
 from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
 
@@ -105,7 +105,7 @@ def refresh_actor(actor):
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
 
-def control(actor, account, action, session_key):
+def control(actor, account, action, session_key, *, authorization_code=None):
     with _lock:
         worker = _workers.get(actor.pk)
         if not worker or worker.account_id != account.pk or worker.session_key != session_key:
@@ -114,6 +114,15 @@ def control(actor, account, action, session_key):
         if action == 'login':
             if state.phase != 'sign_in': raise chat.ChatConflict('Conversation changed')
             worker.login.set()
+        elif action == 'authorize':
+            if (worker.provider != 'claude' or state.phase != 'sign_in' or not worker.consent
+                    or worker.consent.get('accepts_code') is not True or worker.authorization_code is not None):
+                raise chat.ChatConflict('Conversation changed')
+            if (type(authorization_code) is not str or not authorization_code or len(authorization_code) > 2048
+                    or any(ord(c) <= 32 or ord(c) == 127 for c in authorization_code)):
+                raise ValueError('Invalid account operation')
+            worker.authorization_code = authorization_code
+            worker.consent = None
         elif action == 'cancel':
             if state.phase != 'thinking': return
             worker.cancel_target = next((m['id'] for m in reversed(state.messages) if m['role'] == 'user'), None)
@@ -136,6 +145,7 @@ class _Worker:
         self.storage_id = str(row.storage_id)
         self.stopping, self.cancel, self.login, self.wake = (threading.Event() for _ in range(4))
         self.cancel_target = None
+        self.authorization_code = None
         self.authority_mutex = threading.RLock()
         self.consent, self.reference, self.ui_id = None, None, None
         self.stack, self.client, self.lease = ExitStack(), None, None
@@ -195,9 +205,10 @@ class _Worker:
         actor = self.check()
         # This is the currently integrated adapter's launch path. Registration
         # metadata alone must never route another provider through Codex.
-        if self.provider != 'codex':
+        installers = {'codex': ensure_codex, 'claude': ensure_claude}
+        if self.provider not in installers:
             raise chat.ChatUnavailable('Provider connection unavailable')
-        native = ensure_codex(cancelled=self.stopping.is_set)
+        native = installers[self.provider](cancelled=self.stopping.is_set)
         if self.stopping.is_set():
             raise InterruptedError('Agent preparation cancelled')
         profile = ProviderProfile.objects.filter(account_id=self.account_id).first()
@@ -205,7 +216,7 @@ class _Worker:
         self.lease = self.stack.enter_context(lease_profile(actor, str(self.account_id), profile_id))
         node = settings.ACP_NODE_EXECUTABLE or shutil.which('node')
         capsule = self.stack.enter_context(WorkerCapsule(self.lease.home.parent, settings.ACP_RUNTIME_ROOT,
-            node, self.lease.scope, 'codex', profile_lease=self.lease, ui_tools=True, provider_runtime=native))
+            node, self.lease.scope, self.provider, profile_lease=self.lease, ui_tools=True, provider_runtime=native))
         self.check()
         sandbox = self.stack.enter_context(WindowsSandbox(self.lease.scope, capsule.isolation_root,
             writable=(capsule.home, capsule.workspace), readonly=(capsule.code, capsule.supervisor),
@@ -337,6 +348,14 @@ class _Worker:
             if self.login.is_set():
                 self.login.clear()
                 await self.client.subscription_status(self.lease.scope, login=True)
+            with _lock:
+                code, self.authorization_code = self.authorization_code, None
+            if code is not None:
+                try:
+                    await db(self.check)
+                    await self.client.authorize_subscription(self.lease.scope, code)
+                finally:
+                    code = None
             await asyncio.sleep(.5)
             status = await self.client.subscription_status(self.lease.scope)
         self.consent = None
@@ -394,6 +413,7 @@ class _Worker:
         finally:
             self.stopping.set()
             self.consent = None
+            self.authorization_code = None
             try:
                 self.stack.close()
             except Exception:

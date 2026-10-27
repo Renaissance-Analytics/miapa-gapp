@@ -3499,6 +3499,199 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-CLAUDE-NATIVE",
+      "risk": "A selected Claude account must stage only its exact verified native code in its original owned lease, without a Codex fallback.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-NATIVE.exact",
+          "kind": "positive",
+          "given": "A verified synthetic Claude archive and an original Claude profile lease",
+          "when": "The isolated installer and actual capsule stage code",
+          "then": "The Claude cache is separate, unchanged bytes avoid a second download, staged entry is provider/claude.exe and the original durable home survives cleanup",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_claude_public_archive_is_isolated_and_cache_tampering_is_refused",
+            "tests.test_provider_profiles.ProviderProfileTests.test_claude_capsule_stages_verified_native_bytes_only_in_its_original_provider_lease"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-NATIVE.refused",
+          "kind": "negative",
+          "given": "An extra cached file or cancellation before network",
+          "when": "The Claude installer is used",
+          "then": "Unapproved cache bytes are refused and cancellation cannot download, publish code or invoke the Codex installer",
+          "tests": [
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_claude_public_archive_is_isolated_and_cache_tampering_is_refused",
+            "tests.test_provider_runtime.ProviderRuntimeTests.test_claude_cancellation_never_downloads_or_selects_codex"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CLAUDE-AUTH",
+      "risk": "Status, consent or private callback could adopt another profile or expose credentials to saved chat, commands, logs or another principal.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-AUTH.owned",
+          "kind": "positive",
+          "given": "Finite native Claude status/login processes with the assigned config directory and exact public commands",
+          "when": "The app checks status, presents consent and forwards a private callback",
+          "then": "Only confirmed claude.ai subscription readiness or confirmed signed-out state is returned; a bounded allowlisted OAuth link stays transient and the callback goes directly to stdin without echo",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_status_is_bound_to_its_subscription_and_assigned_configuration",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_login_exposes_only_a_validated_transient_provider_link",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_private_callback_goes_only_to_native_stdin_once_with_no_echo",
+            "tests.test_acp_client.AcpClientTests.test_claude_private_authorization_is_provider_scoped_and_never_a_prompt"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-AUTH.closed",
+          "kind": "negative",
+          "given": "Foreign config, API credentials, conflicting/private output, hostile login URLs or malformed/foreign-provider callback input",
+          "when": "The private account controller/client validates the request",
+          "then": "No foreign subscription readiness, arbitrary link, provider fallback or private output is accepted; invalid callbacks fail before native write",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_refuses_foreign_home_api_credentials_conflicts_and_private_output",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_login_exposes_only_a_validated_transient_provider_link",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_private_callback_goes_only_to_native_stdin_once_with_no_echo",
+            "tests.test_acp_client.AcpClientTests.test_claude_private_authorization_is_provider_scoped_and_never_a_prompt",
+            "tests.test_acp_client.AcpClientTests.test_codex_never_accepts_a_claude_private_authorization_code"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CLAUDE-START",
+      "risk": "Waiting for a pre-prompt native ID deadlocks Claude; treating model readiness as final permission after a refusal would grant stale authority.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-START.models",
+          "kind": "positive",
+          "given": "Actual published ClaudeDriver with a finite synthetic CLI advertising the measured version and models",
+          "when": "ACP allocates a session and the first prompt is sent before system/init",
+          "then": "The public modelState gate permits the first prompt before native ID announcement, completes the turn, refuses a second native session and verifies zero-survivor shutdown",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_claude_models_enable_first_prompt_before_native_session_announcement"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-START.refused",
+          "kind": "negative",
+          "given": "An unsupported initialize version, empty model list or later native Bash catalog",
+          "when": "The actual public driver validates startup or system/init",
+          "then": "Readiness is unavailable and a late native-tool refusal remains sticky after model readiness, with verified zero-survivor stop",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_claude_unsupported_version_or_empty_models_cannot_become_ready",
+            "tests.test_acp_host.AcpHostTests.test_claude_native_catalog_refusal_stays_unavailable_after_model_readiness"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CLAUDE-CHAT",
+      "risk": "Provider selection or private authorization could reroute accounts, leak codes into persistence or bypass a current challenge/selection/session.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-CHAT.shared",
+          "kind": "positive",
+          "given": "An owned selected Claude account and finite ACP peer under the actual HTTP/worker/UI consumer",
+          "when": "The user connects, completes private sign-in and sends a chat request",
+          "then": "The same Claude account drives its shared UI and saved transcript; private callback stays outside responses/messages and no Codex account is created",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_selected_claude_uses_its_own_chat_and_shared_ui_without_provider_fallback",
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_claude_private_sign_in_requires_current_challenge_and_never_enters_saved_chat"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-CHAT.challenge",
+          "kind": "negative",
+          "given": "No current challenge, a foreign session, malformed code or stale selection revision",
+          "when": "Private authorization is requested",
+          "then": "The operation is refused or transient consent is absent, while the owned connection can still complete and saved messages never contain the callback",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_claude_private_sign_in_requires_current_challenge_and_never_enters_saved_chat"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01-EFFECTIVE-TEMP",
+      "risk": "Redirecting host environment or omitting the effective AppContainer Temp directory can break native supervised startup.",
+      "scenarios": [
+        {
+          "id": "P01-EFFECTIVE-TEMP.writable",
+          "kind": "positive",
+          "given": "A new actual Windows AppContainer with the original assigned code/work grants",
+          "when": "A real isolated Node child writes via its effective temp environment",
+          "then": "TEMP/TMP agree with the provisioned own profile AC/Temp, the write succeeds and the process/job/profile cleanup is verified",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_effective_temp_exists_in_fresh_container_profile_and_is_writable"
+          ]
+        },
+        {
+          "id": "P01-EFFECTIVE-TEMP.owned",
+          "kind": "negative",
+          "given": "An assigned worker directory distinct from the new OS profile",
+          "when": "The host selects effective temporary storage",
+          "then": "It uses exactly the new container profile path and retains zero-descendant cleanup, without adopting an ambient provider home or broadening application directory grants",
+          "tests": [
+            "tests.test_worker_isolation.WorkerIsolationTests.test_effective_temp_exists_in_fresh_container_profile_and_is_writable"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CLAUDE-MCP-PROTOCOL",
+      "risk": "Native Claude requests MCP2025-11-25; rejecting it leaves supplied UI tools disconnected even after control model readiness.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-MCP-PROTOCOL.connected",
+          "kind": "positive",
+          "given": "The native-captured MCP2025-11-25 initialize request and real same-AppContainer relay/child",
+          "when": "The supported tools-only transport initializes, lists and calls supplied tools",
+          "then": "The exact protocol is echoed, the supplied tool list/call succeeds and every supervised descendant stops with the outer profile removed",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_measured_claude_mcp_protocol_lists_and_calls_only_the_scoped_supplied_tools"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-MCP-PROTOCOL.scoped",
+          "kind": "negative",
+          "given": "A different relay nonce after the legitimate MCP2025-11-25 connection",
+          "when": "The real child attempts tools/list over the same LOCAL transport",
+          "then": "The foreign capability is refused with the fixed error and no unscoped tool data or surviving process",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_measured_claude_mcp_protocol_lists_and_calls_only_the_scoped_supplied_tools"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-FIXTURE-REQUEST-CLEANUP",
+      "risk": "Daemon request threads can retain thread-local SQLite handles after Chrome exits, causing temporary-install cleanup failure.",
+      "scenarios": [
+        {
+          "id": "K06-FIXTURE-REQUEST-CLEANUP.closed",
+          "kind": "positive",
+          "given": "A real loopback WSGI request that opens a Django SQLite connection in its own thread",
+          "when": "The finite request is released and tracked request shutdown completes",
+          "then": "The request owner explicitly closes its database, the response remains exact, and both request/server threads finish before fixture removal",
+          "tests": [
+            "tests.test_browser_server.BrowserServerTests.test_inflight_request_is_bounded_and_closes_its_own_database_before_fixture_removal"
+          ]
+        },
+        {
+          "id": "K06-FIXTURE-REQUEST-CLEANUP.bounded",
+          "kind": "negative",
+          "given": "The real request remains in flight after the listening server shuts down",
+          "when": "The fixture waits with a short explicit deadline",
+          "then": "Incomplete request cleanup returns false within the bound and cannot claim success; after release the same owned request closes correctly",
+          "tests": [
+            "tests.test_browser_server.BrowserServerTests.test_inflight_request_is_bounded_and_closes_its_own_database_before_fixture_removal"
+          ]
+        }
+      ]
     }
   ]
 }

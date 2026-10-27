@@ -224,7 +224,7 @@ def connect(actor, revision, *, session_key, selection_revision=None):
     return snapshot(actor)
 
 
-def control(actor, action, *, session_key, selection_revision=None):
+def control(actor, action, *, session_key, selection_revision=None, authorization_code=None):
     choice = _selection(actor)
     if selection_revision is not None:
         _revision(selection_revision)
@@ -234,7 +234,7 @@ def control(actor, action, *, session_key, selection_revision=None):
     if not account:
         raise ChatUnavailable('Conversation unavailable')
     from .chat_runtime import control as worker_control
-    worker_control(actor, account, action, session_key)
+    worker_control(actor, account, action, session_key, **({'authorization_code': authorization_code} if action == 'authorize' else {}))
     return snapshot(actor)
 
 

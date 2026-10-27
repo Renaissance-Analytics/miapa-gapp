@@ -7,7 +7,7 @@ export interface Composition { account_id: string; id: string; revision: number;
 export interface ProviderChoice { id: string; label: string; available: boolean }
 export interface ChatConnection { revision: number; account_id: string | null; provider: string | null; label: string | null; available: boolean }
 export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null;
-  connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string }; }
+  connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string; accepts_code?: boolean }; }
 export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] });
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -87,13 +87,15 @@ export function parseChatState(v: unknown): ChatState {
   }
   let login: ChatState['login'];
   if (v.login !== undefined) {
-    if (!object(v.login) || !closed(v.login, ['url', 'code']) || typeof v.login.url !== 'string'
+    if (!object(v.login) || !closed(v.login, ['url', 'code', 'accepts_code']) || typeof v.login.url !== 'string'
+      || (v.login.accepts_code !== undefined && typeof v.login.accepts_code !== 'boolean')
       || v.login.url.length > 2048 || /[\u0000-\u0020\u007f]/.test(v.login.url)) return fail();
     const url = new URL(v.login.url);
     if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !connection.account_id
       || v.phase !== 'sign_in' || (v.login.code !== undefined && (typeof v.login.code !== 'string'
         || !v.login.code.trim() || v.login.code.length > 128 || /[\u0000-\u001f\u007f]/.test(v.login.code)))) return fail();
-    login = { url: v.login.url, ...(v.login.code !== undefined ? { code: v.login.code as string } : {}) };
+    login = { url: v.login.url, ...(v.login.code !== undefined ? { code: v.login.code as string } : {}),
+      ...(v.login.accepts_code !== undefined ? { accepts_code: v.login.accepts_code as boolean } : {}) };
   }
   return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
     connection, providers, ...(login ? { login } : {}) };

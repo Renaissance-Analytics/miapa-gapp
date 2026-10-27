@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, ResizablePanels, Select } from '@particle-academy/react-fancy';
+import { Button, Input, ResizablePanels, Select } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
@@ -14,6 +14,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   onResize: (value: number) => void; onResizeCommit: (value: number) => void }) {
   const [state, setState] = useState<ChatState>(emptyChat);
   const [draft, setDraft] = useState('');
+  const [authorizationCode, setAuthorizationCode] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -22,6 +23,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const [setup, setSetup] = useState(false);
   const end = useRef<HTMLDivElement>(null);
   const current = useRef(state); current.current = state;
+  useEffect(() => { setAuthorizationCode(''); }, [userId, state.connection.account_id, state.phase, state.login?.url]);
   const pendingRequest = useRef<{ text: string; id: string } | null>(null);
   const drafts = useRef(new Map<string, { text: string; pending: typeof pendingRequest.current }>());
   const draftAccount = useRef('unselected');
@@ -127,7 +129,19 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
           {state.phase === 'sign_in' && <div className="provider-signin" role="region" aria-label={`Connect ${providerLabel}`}>
             <h3>Connect {providerLabel}</h3><p>This login belongs to your Maipa account.</p>
             {state.login ? <><a href={state.login.url} target="_blank" rel="noreferrer">Continue with {providerLabel}</a>
-              {state.login.code && <p>Enter <strong className="device-code">{state.login.code}</strong> in the provider’s sign-in window.</p>}</>
+              {state.login.code && <p>Enter <strong className="device-code">{state.login.code}</strong> in the provider’s sign-in window.</p>}
+              {state.login.accepts_code && <form aria-label="Complete provider sign-in" onSubmit={event => {
+                event.preventDefault();
+                const code = authorizationCode.trim();
+                if (!code || busy) return;
+                setAuthorizationCode('');
+                void action({ action: 'authorize', code });
+              }}>
+                <Input id="maipa-provider-authorization" label="If the provider shows a login code, paste it here"
+                  type="password" autoComplete="off" maxLength={2048} value={authorizationCode}
+                  onValueChange={setAuthorizationCode} disabled={busy} />
+                <Button type="submit" size="sm" disabled={busy || !authorizationCode.trim()}>Complete sign-in</Button>
+              </form>}</>
               : <Button disabled={busy} onClick={() => void action({ action: 'login' })}>Sign in with {providerLabel}</Button>}
           </div>}
           <div ref={end} />

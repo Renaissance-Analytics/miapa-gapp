@@ -326,6 +326,14 @@ class WindowsSandbox:
                 self._sid_string = value.value
             finally:
                 self.api.kernel.LocalFree(c.cast(value, c.c_void_p))
+            operation = 'effective_temp'
+            # Windows redirects each container's host TEMP into its own fresh
+            # OS profile. Provision that exact profile, never a shared parent.
+            profile = Path(_windows_paths(self.api)['LOCALAPPDATA']) / 'Packages' / self.profile_name
+            physical_path(profile)
+            self.effective_temp = profile / 'AC' / 'Temp'
+            self.effective_temp.mkdir(parents=True, exist_ok=True)
+            physical_path(self.effective_temp)
             operation = "grant_acl"
             self._acl(self.root, "(X,RA)")
             for path in self.readonly:
@@ -419,7 +427,7 @@ class WindowsSandbox:
             operation = "environment"
             child_env = _windows_paths(self.api)
             child_env.update({key: value for key, value in env.items() if key.upper() in {"PATH", "SYSTEMROOT", "WINDIR", "MAIPA_ACP_PROFILE"}})
-            child_env.update(TEMP=str(cwd), TMP=str(cwd))
+            child_env.update(TEMP=str(self.effective_temp), TMP=str(self.effective_temp))
             block = c.create_unicode_buffer("\0".join(key + "=" + value for key, value in sorted(child_env.items(), key=lambda pair: pair[0].upper())) + "\0\0")
             operation = "create_process"
             _checked(k.CreateProcessW(command[0], c.create_unicode_buffer(subprocess.list2cmdline(command)), None, None, True,

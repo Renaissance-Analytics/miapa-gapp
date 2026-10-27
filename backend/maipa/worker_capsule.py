@@ -27,9 +27,9 @@ class WorkerCapsule:
         self.scope, self.provider, self.temporary = scope, provider, None
         self.profile_lease = profile_lease
         self.provider_runtime = provider_runtime
-        if provider_runtime is not None and (provider != 'codex' or profile_lease is None):
+        if provider_runtime is not None and (provider not in {'codex', 'claude'} or profile_lease is None):
             raise SandboxUnavailable('Provider runtime unavailable')
-        if type(ui_tools) is not bool or (ui_tools and provider != 'codex'):
+        if type(ui_tools) is not bool:
             raise SandboxUnavailable('Worker UI transport unavailable')
         self.ui_tools = ui_tools
         if not self.root.is_absolute() or provider not in {"codex", "claude"}:
@@ -107,9 +107,11 @@ class WorkerCapsule:
                     raise SandboxUnavailable("Worker runtime unavailable")
                 self.files_sha256[relative.as_posix()] = digest
             if self.provider_runtime is not None:
-                from .agent_accounts.provider_runtime import verify_codex, codex_lock
-                native = verify_codex(self.provider_runtime)
-                for name, expected in codex_lock()['files'].items():
+                from .agent_accounts.provider_runtime import verify_codex, codex_lock, verify_claude, claude_lock
+                verify, read_lock = (verify_codex, codex_lock) if self.provider == 'codex' else (verify_claude, claude_lock)
+                native = verify(self.provider_runtime)
+                native_lock = read_lock()
+                for name, expected in native_lock['files'].items():
                     source = physical_path(native / name, directory=False)
                     target = self.code / 'provider' / name
                     target.parent.mkdir(parents=True, exist_ok=True)
@@ -130,7 +132,7 @@ class WorkerCapsule:
             if self.ui_tools:
                 self.profile['ui_tools'] = True
             if self.provider_runtime is not None:
-                self.profile['provider_binary'] = str(self.code / 'provider' / codex_lock()['entry'])
+                self.profile['provider_binary'] = str(self.code / 'provider' / native_lock['entry'])
             # All capsule ancestors/files are already checked for reparse
             # points by the server. Avoid Node's extra realpath traversal into
             # inaccessible parent directories; do not broaden their ACLs.

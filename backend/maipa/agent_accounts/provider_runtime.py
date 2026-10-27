@@ -36,9 +36,25 @@ def codex_lock():
     return value
 
 
-def verify_codex(directory):
+def claude_lock():
+    value = json.loads((Path(settings.ACP_RUNTIME_ROOT) / 'claude-runtime.lock.json').read_text(encoding='utf-8'))
+    if (value['package'] != '@anthropic-ai/claude-code-win32-x64' or value['version'] != '2.1.311'
+            or value['entry'] != 'claude.exe' or len(value['files']) != 4 or value['total_bytes'] != 298871002
+            or value['tarball'] != 'https://registry.npmjs.org/@anthropic-ai/claude-code-win32-x64/-/claude-code-win32-x64-2.1.311.tgz'):
+        raise ValueError('Provider runtime unavailable')
+    if sum(item['size'] for item in value['files'].values()) != value['total_bytes']:
+        raise ValueError('Provider runtime budget')
+    for name, item in value['files'].items():
+        relative = PurePosixPath(name)
+        if (relative.is_absolute() or '..' in relative.parts or '\\' in name or ':' in name or
+                type(item['size']) is not int or not 0 <= item['size'] <= value['total_bytes'] or
+                not re.fullmatch('[a-f0-9]{64}', item['sha256'])):
+            raise ValueError('Provider runtime inventory unavailable')
+    return value
+
+
+def _verify(directory, lock):
     directory = physical_path(directory)
-    lock = codex_lock()
     actual = {p.relative_to(directory).as_posix() for p in directory.rglob('*') if not p.is_dir()}
     if actual != set(lock['files']):
         raise ValueError('Provider runtime unavailable')
@@ -52,12 +68,20 @@ def verify_codex(directory):
     return directory
 
 
-def ensure_codex(*, cancelled=None):
+def verify_codex(directory):
+    return _verify(directory, codex_lock())
+
+
+def verify_claude(directory):
+    return _verify(directory, claude_lock())
+
+
+def _ensure(cache, version, read_lock, verify, cancelled):
     if os.name != 'nt':
         raise OSError('Provider runtime unavailable')
     # Reproducible public code belongs beside installed dependencies, outside the
     # durable user-data backup boundary. npm ci may discard and rebuild this cache.
-    base = prepare_directory(Path(settings.ACP_RUNTIME_ROOT) / 'node_modules' / '.cache' / 'maipa-codex')
+    base = prepare_directory(Path(settings.ACP_RUNTIME_ROOT) / 'node_modules' / '.cache' / cache)
     started = time.monotonic()
     def check():
         if cancelled is not None and cancelled():
@@ -66,10 +90,10 @@ def ensure_codex(*, cancelled=None):
             raise TimeoutError('Provider preparation deadline')
     check()
     with install_lock(base):
-        target = base / '0.163.0-win32-x64'
+        target = base / version
         if target.exists():
-            return verify_codex(target)
-        lock = codex_lock()
+            return verify(target)
+        lock = read_lock()
         with tempfile.TemporaryDirectory(prefix='download-', dir=base) as temporary:
             temporary = physical_path(temporary)
             archive, digest, total = temporary / 'package.tgz', hashlib.sha512(), 0
@@ -109,7 +133,15 @@ def ensure_codex(*, cancelled=None):
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     with package.extractfile(member) as source, destination.open('xb') as output:
                         shutil.copyfileobj(source, output, length=1048576)
-            verify_codex(extracted)
+            verify(extracted)
             check()
             extracted.rename(target)
-        return verify_codex(target)
+        return verify(target)
+
+
+def ensure_codex(*, cancelled=None):
+    return _ensure('maipa-codex', '0.163.0-win32-x64', codex_lock, verify_codex, cancelled)
+
+
+def ensure_claude(*, cancelled=None):
+    return _ensure('maipa-claude', '2.1.311-win32-x64', claude_lock, verify_claude, cancelled)

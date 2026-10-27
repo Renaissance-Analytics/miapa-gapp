@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import traceback
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from wsgiref.simple_server import WSGIServer
@@ -174,6 +175,48 @@ def browser_process(data, node, environment):
 class ThreadedFixtureServer(ThreadingMixIn, WSGIServer):
     daemon_threads = True
 
+    def __init__(self, *args, **kwargs):
+        self._request_threads, self._request_lock = set(), threading.Lock()
+        self._request_cleanup_failed = False
+        super().__init__(*args, **kwargs)
+
+    def process_request(self, request, client_address):
+        # Register before start so shutdown cannot miss an allocated request.
+        worker = threading.Thread(target=self.process_request_thread, args=(request, client_address), daemon=True)
+        with self._request_lock:
+            self._request_threads.add(worker)
+        try:
+            worker.start()
+        except Exception:
+            with self._request_lock:
+                self._request_threads.discard(worker)
+            self.shutdown_request(request)
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            # Django connections are thread-local: the fixture main thread
+            # cannot close a streaming request's SQLite handle for it.
+            from django.db import connections
+            try:
+                connections.close_all()
+            except Exception:
+                with self._request_lock:
+                    self._request_cleanup_failed = True
+            finally:
+                with self._request_lock:
+                    self._request_threads.discard(threading.current_thread())
+
+    def wait_for_requests(self, *, deadline):
+        with self._request_lock:
+            workers = list(self._request_threads)
+        for worker in workers:
+            worker.join(timeout=max(0, deadline - time.monotonic()))
+        with self._request_lock:
+            return not self._request_threads and not self._request_cleanup_failed
+
 
 def main():
     save_progress('preparation')
@@ -197,6 +240,7 @@ def main():
                 or settings.ACP_CHECK_ROOT != data_root / 'workers'):
             raise ValueError('Synthetic installation storage binding')
         django.setup()
+        settings.ACP_PROVIDER_LABELS = {'independent-acp': 'Independent ACP'}
         # Only this dedicated synthetic fixture substitutes the provider process.
         # All HTTP, transcript, session authority and UI tool handling remain real.
         from types import SimpleNamespace
@@ -210,7 +254,8 @@ def main():
             scope = Scope(str(worker.owner), str(worker.account_id))
             worker.lease = SimpleNamespace(scope=scope, revalidate=lambda: None)
             capsule = SimpleNamespace(command=(sys.executable, str(ROOT / 'tests/fixtures/agent_chat_peer.py')),
-                workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id, 'workspace': str(workspace)})
+                workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id,
+                    'provider': worker.provider, 'workspace': str(workspace), 'synthetic_private_login': worker.provider == 'claude'})
             return capsule, None
         synthetic = patch.object(chat_runtime._Worker, 'prepare', synthetic_prepare)
         synthetic.start()
@@ -350,13 +395,17 @@ def main():
             synthetic.stop()
             server.shutdown()
             server.server_close()
-            thread.join(timeout=5)
+            deadline = time.monotonic() + 5
+            thread.join(timeout=max(0, deadline - time.monotonic()))
+            if not server.wait_for_requests(deadline=deadline):
+                raise ValueError('Fixture request cleanup failed')
             connections.close_all()
         if thread.is_alive():
             raise ValueError("Fixture cleanup failed")
-        save_result(evidence)
-        save_progress('complete')
-        print(json.dumps(evidence))
+    # Success includes deletion of the temporary install, not just Chrome exit.
+    save_result(evidence)
+    save_progress('complete')
+    print(json.dumps(evidence))
 
 
 if __name__ == "__main__":

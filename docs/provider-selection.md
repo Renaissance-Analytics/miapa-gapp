@@ -20,16 +20,18 @@ It cannot configure executable paths, commands, credentials, model capabilities
 or tool permissions. Native discovery and generic runtime integration await the
 published Prism client contract. A label does not establish runtime availability.
 
-Only the currently integrated Codex adapter can attempt a live connection in
-this build. Claude and additional registered providers preserve their selection
-and display unavailable support; they never fall back to Codex. The known Codex
-startup/profile issue and real-model acceptance are still open. This app-side
-selection change does not claim arbitrary ACP interoperability or complete A01.
+Codex and Claude have separate integrated native adapters in this build, with
+their own pinned executable, profile and authentication/startup contracts.
+Additional registrations preserve their selection and display unavailable
+support until an actual adapter is supplied; they never fall back to Codex.
+The historical original Codex status failure remains unconfirmed. Actual
+authenticated model/UI acceptance and generic ACP interoperability remain open.
 
 Provider-neutral chat/sign-in copy uses the selected label. Sign-in presentation
-accepts bounded HTTPS challenges and optional provider codes; the current Codex
-adapter still validates its own actual authentication protocol. No other provider
-authentication is enabled by broadening the UI's presentation contract.
+accepts bounded HTTPS challenges, optional outbound provider codes and an optional
+private callback control. Each adapter validates its own authentication protocol.
+Claude callback input is transient and sent only to the current owned native
+login process; it never becomes a saved message or ordinary chat draft.
 
 Changing provider or removing its registration does not reset existing account,
 profile, session, storage or transcript identities. A removed registration remains

@@ -152,12 +152,18 @@ async function fill(id, value) {
   await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), 'native input accepted');
 }
 async function select(id, value) {
-  const steps = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
-    if (!field || field.tagName!=='SELECT' || field.disabled) return -1;
+  const navigation = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
+    if (!field || field.tagName!=='SELECT' || field.disabled) return null;
     field.scrollIntoView({block:'center'}); field.focus();
-    return [...field.options].filter(o=>!o.disabled).findIndex(o=>o.value===${JSON.stringify(value)}); })()`);
-  assert.ok(steps >= 0, 'Selectable recorded option');
-  for (const [key, code] of [['Home', 36], ...Array.from({length:steps},()=>['ArrowDown',40])]) {
+    const options=[...field.options].filter(o=>!o.disabled), target=options.findIndex(o=>o.value===${JSON.stringify(value)});
+    return {target, last:options.length-1, current:options.findIndex(o=>o.value===field.value)}; })()`);
+  assert.ok(navigation && navigation.target >= 0, 'Selectable recorded option');
+  // Commit one native selection when choosing an endpoint or adjacent option.
+  // Intermediate account changes immediately lock this authority-bound control.
+  const {target, last, current} = navigation;
+  const keys = target===0 ? [['Home',36]] : target===last ? [['End',35]]
+    : Array.from({length:Math.abs(target-current)},()=>target>current?['ArrowDown',40]:['ArrowUp',38]);
+  for (const [key, code] of keys) {
     await command('Input.dispatchKeyEvent', { type: 'keyDown', key, windowsVirtualKeyCode: code });
     await command('Input.dispatchKeyEvent', { type: 'keyUp', key, windowsVirtualKeyCode: code });
   }
@@ -661,19 +667,33 @@ try {
   assert.equal(await evaluate("document.getElementById('maipa-agent-provider').disabled"), true);
   await click('Disconnect');
   await until(() => evaluate("!document.getElementById('maipa-agent-provider').disabled"), 'verified stopped connection allows a provider change');
-  await select('maipa-agent-provider', 'claude');
-  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='claude' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'unsupported provider remains explicit');
+  await select('maipa-agent-provider', 'independent-acp');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='independent-acp' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'unsupported provider remains explicit');
   assert.equal(await evaluate("document.querySelectorAll('.chat-message').length===0 && ![...document.querySelectorAll('.chat-status button')].some(b=>b.textContent.startsWith('Connect '))"), true);
-  await typeChat('Claude unsent draft');
+  await typeChat('Independent ACP unsent draft');
   const providerPreview = await command('Page.captureScreenshot', { format: 'png' });
   writeFileSync('artifacts/ci/agent-provider-preview.png', Buffer.from(providerPreview.data, 'base64'));
   await select('maipa-agent-provider', 'codex');
   await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Codex unsent draft'"), 'original provider draft restored');
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), beforeSwitch.messages);
-  await select('maipa-agent-provider', 'claude');
-  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='claude' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Claude unsent draft'"), 'other provider draft remains separate');
+  await select('maipa-agent-provider', 'independent-acp');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='independent-acp' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Independent ACP unsent draft'"), 'other provider draft remains separate');
   await command('Page.reload'); await preferencesReady();
-  await until(() => evaluate("document.getElementById('maipa-agent-provider')?.value==='claude' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'provider selection survives reload without fallback');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider')?.value==='independent-acp' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'provider selection survives reload without fallback');
+  await select('maipa-agent-provider', 'claude');
+  await until(() => evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='Connect Claude'&&!b.disabled)"), 'Claude adapter exposes its own connection');
+  await typeChat('Claude unsent draft');
+  await click('Connect Claude');
+  await until(() => evaluate("!!document.querySelector('.provider-signin')"), 'owned Claude sign-in');
+  await click('Sign in with Claude');
+  await until(() => evaluate("!!document.getElementById('maipa-provider-authorization')"), 'private provider callback control');
+  assert.equal(await evaluate("document.querySelector('.provider-signin a')?.href==='https://claude.ai/oauth/authorize?state=synthetic' && document.getElementById('maipa-provider-authorization').type==='password'"), true);
+  await fill('maipa-provider-authorization', 'SYNTHETIC_PRIVATE_CODE');
+  await click('Complete sign-in');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'private callback completes deterministic connection');
+  assert.equal(await evaluate("!document.querySelector('.provider-signin') && document.querySelectorAll('.chat-message').length===0 && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Claude unsent draft' && !document.body.textContent.includes('SYNTHETIC_PRIVATE_CODE')"), true);
+  await click('Disconnect');
+  await until(() => evaluate("!document.getElementById('maipa-agent-provider').disabled"), 'Claude worker stopped before switch');
   await select('maipa-agent-provider', 'codex');
   await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && !document.getElementById('maipa-agent-provider').disabled"), 'original provider selected again');
   await requestComponent('Present a note after provider change', 'Maipa.Note');

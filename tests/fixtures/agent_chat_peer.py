@@ -47,13 +47,25 @@ def callback(name, arguments):
 
 
 session = str(uuid.uuid4())
+signed_in = not profile.get('synthetic_private_login', False)
+challenge = False
 for line in sys.stdin:
     frame = json.loads(line)
     method = frame.get('method')
     if method == 'initialize':
         send({'id': frame['id'], 'result': {'protocolVersion': 1}})
     elif method == 'maipa/account/status':
-        send({'id': frame['id'], 'result': {'state': 'ready'}})
+        send({'id': frame['id'], 'result': {'state': 'ready'} if signed_in else {
+            'state': 'sign_in', **({'login': {'url': 'https://claude.ai/oauth/authorize?state=synthetic', 'accepts_code': True}} if challenge else {})}})
+    elif method == 'maipa/account/login':
+        challenge = True
+        send({'id': frame['id'], 'result': {'state': 'sign_in'}})
+    elif method == 'maipa/account/authorize':
+        if not challenge or frame['params'] != {'code': 'SYNTHETIC_PRIVATE_CODE'}:
+            raise RuntimeError('Unexpected private callback')
+        signed_in = True
+        challenge = False
+        send({'id': frame['id'], 'result': {'state': 'sign_in'}})
     elif method == 'maipa/native/status':
         send({'id': frame['id'], 'result': {'state': native_state}})
     elif method == 'session/new':

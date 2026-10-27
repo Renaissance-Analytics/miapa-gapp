@@ -58,6 +58,9 @@ test('selected-provider sign-in accepts bounded HTTPS challenges without a vendo
     { url: 'https://user:password@identity.example.test' }, { ...login, code: '\nsecret' },
     { ...login, code: 'x'.repeat(129) }]) assert.throws(() => parseChatState({ ...state, phase: 'sign_in', login: bad }));
   assert.throws(() => parseChatState({ ...state, phase: 'ready', login }));
+  const privateLogin = { url: login.url, accepts_code: true };
+  assert.deepEqual(parseChatState({ ...state, phase: 'sign_in', login: privateLogin }).login, privateLogin);
+  for (const accepts_code of ['true', null, 1]) assert.throws(() => parseChatState({ ...state, phase: 'sign_in', login: { ...privateLogin, accepts_code } }));
 });
 test('an unsupported selected provider is retained without silently starting a different provider', async () => {
   const original = globalThis.fetch; const calls = [];

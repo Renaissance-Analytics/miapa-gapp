@@ -7,7 +7,7 @@ import {
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.32.0") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.33.0") throw new Error("Unexpected ACP runtime");
 if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
     || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 
@@ -20,8 +20,9 @@ export function validateProfile(value) {
   if (value.ui_tools !== undefined && typeof value.ui_tools !== 'boolean') throw new Error('Invalid UI capability');
   result.ui_tools = value.ui_tools === true;
   if (value.provider_binary !== undefined) {
-    const expected = fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin/codex.exe', import.meta.url));
-    if (value.provider !== 'codex' || value.provider_binary !== expected || lstatSync(expected).isSymbolicLink() || !lstatSync(expected).isFile()) {
+    const entry = value.provider === 'codex' ? './provider/vendor/x86_64-pc-windows-msvc/bin/codex.exe' : './provider/claude.exe';
+    const expected = fileURLToPath(new URL(entry, import.meta.url));
+    if (value.provider_binary !== expected || lstatSync(expected).isSymbolicLink() || !lstatSync(expected).isFile()) {
       throw new Error('Invalid provider executable');
     }
     result.provider_binary = expected;
@@ -44,8 +45,8 @@ export function validateProfile(value) {
 export function serveProfile(value, { input, output, constructors = {}, uiMcp, account }) {
   const profile = validateProfile(value);
   // Only the trusted bootstrap supplies this application-owned stdio adapter.
-  // Published Claude LOCAL mode currently refuses generated MCP configuration.
-  if (profile.ui_tools !== Boolean(uiMcp) || (uiMcp && profile.provider !== 'codex')) throw new Error('UI transport unavailable');
+  // Exact published0.33.0 supplies restricted Claude MCP under LOCAL transport.
+  if (profile.ui_tools !== Boolean(uiMcp)) throw new Error('UI transport unavailable');
   const drivers = [];
   let closing = false, shutdownPromise;
   let nativeState = 'starting', observedReady = false;
@@ -54,7 +55,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
   Object.assign(parentEnv, { HOME: profile.home, USERPROFILE: profile.home,
     LOCALAPPDATA: profile.home, APPDATA: profile.home,
     [profile.provider === "codex" ? "CODEX_HOME" : "CLAUDE_CONFIG_DIR"]: profile.home });
-  if (profile.provider_binary) parentEnv.PATH = `${fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin', import.meta.url))};${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32`;
+  if (profile.provider_binary) parentEnv.PATH = `${profile.provider === 'codex' ? fileURLToPath(new URL('./provider/vendor/x86_64-pc-windows-msvc/bin', import.meta.url)) : fileURLToPath(new URL('./provider', import.meta.url))};${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32`;
   const served = serve({
     input, output,
     agentInfo: { name: "maipa-prism-acp", title: "Maipa ACP host", version: packageVersion },
@@ -64,12 +65,12 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
           || ((uiMcp || profile.provider_binary) && drivers.length > 0)) {
         throw new Error("Worker session refused");
       }
-      const configured = { ...options, cwd: profile.workspace, parentEnv,
+      const configured = { cwd: profile.workspace, parentEnv,
         ...(profile.provider_binary ? { binary: profile.provider_binary,
-          binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'],
+          ...(profile.provider === 'codex' ? { binaryArgs: ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'], model: 'gpt-5.3-codex' } : {}),
           // Only the exact published measured matrix can drive native sessions.
           // Neither browser/model input nor inherited CLI defaults select policy.
-          model: 'gpt-5.3-codex', nativeTools: 'none' } : {}),
+          nativeTools: 'none' } : {}),
         mcpServers: uiMcp ? [uiMcp] : [],
         processTree: { windowsStdio: 'local-pipes', startupTimeoutMs: 10000, ioTimeoutMs: 30000 },
         credentials: { mode: "subscription" } };
@@ -88,8 +89,8 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
             ...configured, approvalPolicy: "untrusted", sandbox: "read-only",
             mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, callbacks)
         : (constructors.claude ?? ((config, callbacks) => new ClaudeDriver(config, callbacks)))({
-            ...configured, permissionMode: "plan",
-            disallowedTools: ["Bash", "Write", "Edit", "MultiEdit", "NotebookEdit"] }, callbacks);
+            ...configured, permissionMode: "dontAsk",
+            allowedTools: uiMcp ? ['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`) : [] }, callbacks);
       drivers.push(driver);
       return driver;
     },
@@ -117,16 +118,20 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
       if (closing || drivers.length !== 1 || !params || typeof params !== 'object'
           || Array.isArray(params) || Object.keys(params).length) throw Error('Native session unavailable');
       // session/new allocates ACP state before asynchronous native startup. Read
-      // the published ready promise only after start(), and remember failures:
+      // the provider's public startup/model promise after start(), remembering failures:
       // the driver catches startup refusals, so settlement alone is insufficient.
       if (!observedReady) {
         observedReady = true;
-        const driver = drivers[0], ready = driver.ready;
+        const driver = drivers[0];
+        const ready = profile.provider === 'claude' ? driver.modelState() : driver.ready;
         if (!ready || typeof ready.then !== 'function') nativeState = 'unavailable';
-        else ready.then(() => {
+        else ready.then(models => {
           if (!closing && nativeState !== 'unavailable') {
-            nativeState = typeof driver.cliSessionId === 'string' && driver.cliSessionId.trim()
-              ? 'ready' : 'unavailable';
+            // Claude announces its native ID/catalog after the first prompt.
+            // Its public control-model promise validates pre-prompt startup.
+            nativeState = profile.provider === 'claude'
+              ? (Array.isArray(models?.availableModels) && models.availableModels.length > 0 ? 'ready' : 'unavailable')
+              : (typeof driver.cliSessionId === 'string' && driver.cliSessionId.trim() ? 'ready' : 'unavailable');
           }
         }, () => { nativeState = 'unavailable'; });
       }
@@ -144,6 +149,11 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
       if (closing || drivers.length || !params || Object.keys(params).length) throw Error('Account unavailable');
       return account.start();
     });
+    served.peer.handle('maipa/account/authorize', async params => {
+      if (closing || drivers.length || profile.provider !== 'claude' || !params || Array.isArray(params)
+          || Object.keys(params).length !== 1 || typeof params.code !== 'string') throw Error('Account unavailable');
+      return account.authorize(params.code);
+    });
   }
   return { ...served, shutdown };
 }
@@ -158,7 +168,6 @@ async function main() {
   let host, relay;
   try {
     if (profile.ui_tools) {
-      if (profile.provider !== 'codex') throw new Error('UI transport unavailable');
       const { createUiRelay } = await import('./ui-mcp.mjs');
       relay = await createUiRelay(request => host.peer.request('maipa/ui', request));
     }
@@ -167,7 +176,8 @@ async function main() {
       const { subscriptionAccount } = await import('./account.mjs');
       const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => ['SYSTEMROOT', 'WINDIR', 'TEMP', 'TMP'].includes(key.toUpperCase())));
       Object.assign(env, { HOME: profile.home, USERPROFILE: profile.home, LOCALAPPDATA: profile.home, APPDATA: profile.home,
-        CODEX_HOME: profile.home, PATH: `${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32` });
+        [profile.provider === 'codex' ? 'CODEX_HOME' : 'CLAUDE_CONFIG_DIR']: profile.home,
+        PATH: `${process.env.SYSTEMROOT ?? 'C:/Windows'}/System32` });
       account = subscriptionAccount(profile, env);
     }
     host = serveProfile(profile, { input: process.stdin, output: process.stdout, uiMcp: relay?.mcp, account });

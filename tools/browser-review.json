@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "e630b0d1f95698890e11ebb5765738750002e9c5e0f48b17bea8e195e641d474",
-    "tools/check_browser.py": "fb5a1a1446497b599e3ea322275f533967dd7d439c454a50278c379568a33abd",
+    "tools/browser.mjs": "1f0d582e5193fd7aac0a26d5cdf60784c9b2967f2a8da75cee994b7604a27edb",
+    "tools/check_browser.py": "1ad8a3cc39e267bfa191704a3bd6bfd423019f53d1162a9066f4463ec0961b48",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "9d4e8080b546d28d5f5d5f3f50a48175d8855ed49c3e39a286d070d61806aef0"
+    "tests/fixtures/agent_chat_peer.py": "176102b21869936f1d7683c42c2fe5846733f0705f752ae91c114d85937aaf30"
   },
   "cases": [
     {
@@ -132,7 +132,7 @@
     {
       "id": "agent-provider-choice-and-account-restore",
       "kind": "positive",
-      "expected": "Real native selection controls lock while a worker is live, become usable after disconnect, save Claude as explicitly unavailable without fallback, retain separate in-memory drafts across switches, restore original transcript, retain selection on reload, and reconnect the original deterministic ACP consumer. No real model or generic native-client claim."
+      "expected": "All prior native provider lock/disconnect, unsupported-runtime refusal, separate drafts, original transcript, reload and no-fallback checks remain, with the unavailable registration now Independent ACP because Claude has an adapter. Add native selection/Connect Claude, synthetic subscription consent, masked private callback input and submission; Ready must remove the auth form, preserve unsent chat draft and empty transcript, exclude the callback from DOM, and stop before returning to the original Codex consumer. Actual app HTTP/authority/UI are used; only the dedicated fixture supplies a finite ACP peer and third-provider label. No real model/authenticated native or generic-client claim. Original38 cases and operation budgets retained. Initial browser failure is preserved: sequential native Home/ArrowDown committed an intermediate provider and locked the control before the third option. Endpoint Home/End or one adjacent arrow now makes the intended single native selection, retaining actual input events, final value checks and original bound."
     },
     {
       "id": "preferences-save-conflict-recovery",
@@ -197,7 +197,7 @@
     {
       "id": "owned-browser-cleanup",
       "kind": "positive",
-      "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database."
+      "expected": "Only the launched browser tree exits, its loopback debugger is unreachable and fresh profile is removed; Python then stops the server and removes the synthetic database. Confirmed outer SQLite WinError32 after38 cases is separately corrected: fixture tracks allocated requests before start, closes each Django connection in its owning thread, and drains requests within the existing shared five-second server-join deadline. Cleanup failure remains failure; success is written only after temporary-install removal. No native browser action, assertion, case count or budget is relaxed."
     }
   ],
   "limits": "Thirty actual native-browser cases required. Comprehensive provider/profile/login/session and remaining P06/A01, financial execution, Fancy Flow and Q04-Q06 acceptance remain open.",

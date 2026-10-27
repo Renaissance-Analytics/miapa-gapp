@@ -19,9 +19,9 @@ def registrations():
         if (type(key) is not str or not re.fullmatch(PROVIDER_ID, key) or
                 type(label) is not str or not label.strip() or len(label) > 80 or not label.isprintable()):
             raise ValueError('Provider registry unavailable')
-    # Only the existing measured Codex UI runtime is currently integrated.
+    # These application adapters have separate pinned runtimes and policies.
     # No connection/model/auth capability is inferred from a label registration.
-    return [{'id': key, 'label': label, 'available': key == 'codex'} for key, label in labels.items()]
+    return [{'id': key, 'label': label, 'available': key in {'codex', 'claude'}} for key, label in labels.items()]
 
 
 def descriptor(provider):

@@ -14,11 +14,13 @@ PEER = ROOT / "tests/fixtures/acp_peer.py"
 
 
 class AcpClientTests(unittest.TestCase):
-    def run_case(self, body, *, mode="normal", timeout=2, budget=4096):
+    def run_case(self, body, *, mode="normal", timeout=2, budget=4096, provider=None):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 owner = Scope("user-1", "account-1")
-                client = AcpClient([sys.executable, str(PEER), mode], owner, Path(directory), timeout=timeout, budget=budget)
+                env = {'MAIPA_ACP_PROFILE': json.dumps({'user_id': owner.user_id, 'account_id': owner.account_id,
+                    'workspace': directory, 'provider': provider})} if provider else None
+                client = AcpClient([sys.executable, str(PEER), mode], owner, Path(directory), env=env, timeout=timeout, budget=budget)
                 await client.start()
                 try:
                     await body(client, owner)
@@ -77,6 +79,20 @@ class AcpClientTests(unittest.TestCase):
                     await client.native_status(owner, 'acp-local-1')
                 self.assertEqual(await client.native_status(owner, session), expected)
             with self.subTest(state=expected): self.run_case(case, mode='native-' + expected)
+
+    def test_claude_private_authorization_is_provider_scoped_and_never_a_prompt(self):
+        async def case(client, owner):
+            with self.assertRaises(PermissionError):
+                await client.authorize_subscription(Scope('foreign', owner.account_id), 'SYNTHETIC_CODE')
+            for value in ('', 'a\nsecret', 'a b', 'x'*2049, None):
+                with self.assertRaises(ValueError): await client.authorize_subscription(owner, value)
+            self.assertEqual(await client.authorize_subscription(owner, 'SYNTHETIC_CODE'), {'state': 'sign_in'})
+        self.run_case(case, provider='claude')
+
+    def test_codex_never_accepts_a_claude_private_authorization_code(self):
+        async def case(client, owner):
+            with self.assertRaises(AcpError): await client.authorize_subscription(owner, 'SYNTHETIC_CODE')
+        self.run_case(case, provider='codex')
 
     def test_native_status_rejects_unknown_or_private_payloads(self):
         async def case(client, owner):

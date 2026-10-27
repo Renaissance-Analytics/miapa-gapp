@@ -11,6 +11,7 @@ import math
 import os
 from pathlib import Path
 import uuid
+from urllib.parse import urlsplit
 
 
 class AcpError(Exception):
@@ -62,6 +63,7 @@ class AcpClient:
         self._ui_handler = ui_handler
         self._callbacks = {}
         self._scope = scope
+        self._provider = None
         self._launcher = launcher  # Trusted server capability, never HTTP configuration.
         self._command = tuple(command)
         self._env = {key: value for key, value in os.environ.items()
@@ -83,6 +85,7 @@ class AcpClient:
                             not Path(profile["workspace"]).is_absolute() or
                             Path(profile["workspace"]).resolve() != self.workspace):
                         raise ValueError("Profile owner")
+                    self._provider = profile.get('provider')
                 except (ValueError, OSError, RecursionError):
                     raise PermissionError("ACP worker profile unavailable") from None
             self._env.update(env)
@@ -320,10 +323,35 @@ class AcpClient:
         if 'login' in result:
             import re
             consent = result['login']
-            if (type(consent) is not dict or set(consent) != {'url', 'code'} or
+            if result['state'] != 'sign_in' or type(consent) is not dict:
+                raise AcpError('Account unavailable')
+            if self._provider == 'claude':
+                url = consent.get('url')
+                if (set(consent) != {'url', 'accepts_code'} or consent['accepts_code'] is not True
+                        or type(url) is not str or len(url) > 2048 or re.search(r'[\x00-\x20\x7f]', url)):
+                    raise AcpError('Account unavailable')
+                try:
+                    parsed = urlsplit(url)
+                    valid = (parsed.scheme == 'https' and parsed.netloc == 'claude.ai'
+                             and parsed.path == '/oauth/authorize' and not parsed.fragment)
+                except ValueError:
+                    valid = False
+                if not valid: raise AcpError('Account unavailable')
+            elif (self._provider not in (None, 'codex') or set(consent) != {'url', 'code'} or
                     consent['url'] != 'https://auth.openai.com/codex/device' or type(consent['code']) is not str or
                     not re.fullmatch(r'[A-Z0-9]{4,8}-[A-Z0-9]{4,8}', consent['code'])):
                 raise AcpError('Account unavailable')
+        return result
+
+    async def authorize_subscription(self, scope, code):
+        self._authorize(scope)
+        if self._provider != 'claude': raise AcpError('Account unavailable')
+        if (type(code) is not str or not code or len(code) > 2048
+                or any(ord(c) <= 32 or ord(c) == 127 for c in code)):
+            raise ValueError('Invalid account operation')
+        result = await self._request(scope, 'maipa/account/authorize', {'code': code})
+        if type(result) is not dict or result != {'state': 'sign_in'}:
+            raise AcpError('Account unavailable')
         return result
 
     async def native_status(self, scope, session):

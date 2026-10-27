@@ -23,6 +23,30 @@ def worker_command(code, *args):
 
 
 class WorkerIsolationTests(unittest.TestCase):
+    def test_effective_temp_exists_in_fresh_container_profile_and_is_writable(self):
+        from backend.maipa.windows_sandbox import WindowsSandbox
+        async def run():
+            with tempfile.TemporaryDirectory(prefix='maipa-native-temp-') as directory:
+                base = Path(directory).resolve()
+                code, work = base/'code', base/'work'
+                code.mkdir(); work.mkdir()
+                script = "const fs=require('node:fs');const os=require('node:os');const path=require('node:path');" \
+                    "fs.writeFileSync(path.join(os.tmpdir(),'synthetic-temp-probe'),'synthetic');" \
+                    "console.log(JSON.stringify({temp:os.tmpdir(),tmp:process.env.TMP}));"
+                command = worker_command(code, '-e', script)
+                owner = Scope('user-1', 'account-1')
+                with WindowsSandbox(owner, base, writable=(work,), readonly=(code,), installation_id='synthetic-install') as sandbox:
+                    self.assertTrue(sandbox.effective_temp.is_dir())
+                    self.assertEqual(sandbox.effective_temp.parts[-3:], (sandbox.profile_name, 'AC', 'Temp'))
+                    child = await sandbox.spawn(command, scope=owner, cwd=work, env={}, limit=4096)
+                    value = json.loads(await asyncio.wait_for(child.stdout.readline(), 10))
+                    self.assertEqual(Path(value['temp']), sandbox.effective_temp)
+                    self.assertEqual(value['temp'], value['tmp'])
+                    self.assertEqual(await child.wait(), 0)
+                    self.assertTrue(child.job_empty)
+                self.assertTrue(sandbox.profile_removed)
+        asyncio.run(run())
+
     def test_two_live_user_workers_cannot_read_each_others_assigned_files(self):
         from backend.maipa.windows_sandbox import WindowsSandbox, ProcessWitness
         async def run():

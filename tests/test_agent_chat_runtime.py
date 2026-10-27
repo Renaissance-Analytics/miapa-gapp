@@ -19,6 +19,20 @@ from backend.maipa.workspace.models import Installation, Membership
 
 
 class AgentChatRuntimeTests(TransactionTestCase):
+    def test_selected_claude_uses_its_own_chat_and_shared_ui_without_provider_fallback(self):
+        self.account.provider = 'claude'
+        self.account.save(update_fields=['provider'])
+        original = self.state()
+        self.assertEqual(original['connection']['provider'], 'claude')
+        self.assertTrue(original['connection']['available'])
+        result = self.send('Show the shared note')
+        self.assertEqual(result['connection']['provider'], 'claude')
+        self.assertEqual(result['connection']['account_id'], str(self.account.pk))
+        self.assertEqual(self.started_workers[-1].provider, 'claude')
+        self.assertIsNotNone(result['ui'])
+        self.assertEqual(result['messages'][0]['text'], 'Show the shared note')
+        self.assertEqual(AgentAccount.objects.filter(owner=self.owner).count(), 1)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='maipa-chat-runtime-')
         self.root = Path(self.temporary.name).resolve()
@@ -41,7 +55,8 @@ class AgentChatRuntimeTests(TransactionTestCase):
             scope = Scope(str(worker.owner), str(worker.account_id))
             worker.lease = SimpleNamespace(scope=scope, revalidate=lambda: None)
             return SimpleNamespace(command=(sys.executable, str(Path(__file__).parent/'fixtures/agent_chat_peer.py')),
-                workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id, 'workspace': str(workspace)}), None
+                workspace=workspace, profile={'user_id': scope.user_id, 'account_id': scope.account_id,
+                    'provider': worker.provider, 'workspace': str(workspace)}), None
         self.prepared = patch.object(chat_runtime._Worker, 'prepare', prepare)
         self.prepared.start()
 
@@ -62,6 +77,43 @@ class AgentChatRuntimeTests(TransactionTestCase):
         response = self.client.get('/api/agent/chat/', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(response.status_code, 200)
         return response.json()
+
+    def test_claude_private_sign_in_requires_current_challenge_and_never_enters_saved_chat(self):
+        self.account.provider = 'claude'
+        self.account.save(update_fields=['provider'])
+        original_prepare = chat_runtime._Worker.prepare
+        def prepare(worker):
+            capsule, sandbox = original_prepare(worker)
+            capsule.profile['synthetic_private_login'] = True
+            return capsule, sandbox
+        before = self.state()
+        headers = {'HTTP_X_MAIPA_AGENT_ACTOR': str(self.owner.pk)}
+        def post(action, **fields):
+            return self.client.post('/api/agent/chat/', {'action': action,
+                'selection_revision': before['connection']['revision'], **fields}, content_type='application/json', **headers)
+        with patch.object(chat_runtime._Worker, 'prepare', prepare):
+            self.assertEqual(post('connect', revision=before['revision']).status_code, 200)
+            self.until(lambda s: s['phase'] == 'sign_in')
+            self.assertEqual(post('authorize', code='SYNTHETIC_PRIVATE_CODE').status_code, 409)
+            self.assertEqual(post('login').status_code, 200)
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                if chat_runtime.transient(self.owner.pk, self.client.session.session_key): break
+                time.sleep(.03)
+            else: self.fail('Private provider challenge not offered')
+            self.assertEqual(chat_runtime.transient(self.owner.pk, 'foreign-session'), {})
+            self.assertNotIn('login', self.state())
+            self.assertEqual(post('authorize', code='code\nINJECT').status_code, 400)
+            self.assertEqual(post('authorize', code='SYNTHETIC_PRIVATE_CODE',
+                                  selection_revision=before['connection']['revision'] + 1).status_code, 409)
+            response = post('authorize', code='SYNTHETIC_PRIVATE_CODE')
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, 'SYNTHETIC_PRIVATE_CODE')
+            self.until(lambda s: s['phase'] == 'ready')
+            self.assertEqual(self.state()['messages'], [])
+            self.assertEqual(chat_runtime.transient(self.owner.pk, self.client.session.session_key), {})
+            result = self.send('Show my shared note')
+            self.assertNotIn('SYNTHETIC_PRIVATE_CODE', str(result))
 
     def until(self, condition):
         deadline = time.monotonic() + 10

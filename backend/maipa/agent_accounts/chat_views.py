@@ -54,6 +54,9 @@ def conversation(request):
         elif action in ('login', 'cancel', 'disconnect') and set(value) == {'action', 'selection_revision'}:
             state = chat.control(request.user, action, session_key=request.session.session_key,
                                  selection_revision=value['selection_revision'])
+        elif action == 'authorize' and set(value) == {'action', 'selection_revision', 'code'}:
+            state = chat.control(request.user, action, session_key=request.session.session_key,
+                                 selection_revision=value['selection_revision'], authorization_code=value['code'])
         else:
             raise ValueError('Invalid request')
         return JsonResponse(state)

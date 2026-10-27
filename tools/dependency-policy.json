@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "review": "Explicit Django exception and reviewed published Fancy/Prism closure. A01 adopts exact ACP0.32.0, gitHead10217c148e7d0e116ef95284e793d678a1653e53, verified npm SRI and all61 installed file digests; zero direct/peer/optional runtime dependencies, Node>=22, no lifecycle scripts executed. Published Codex G-140 policy applies plugin restrictions at launch and verifies both false before thread creation. Native Codex stays pinned0.163.0/gpt-5.3-codex/nativeTools:none/fresh-session/supplied UI MCP only. Fresh real native thread ACK, 35second idle/350 original profile checks, verified stop and privacy cleanup pass under original Windows AppContainer/4096-entry budget. Public supervisor preparation owns immutable hash-named generations; no consumer filename assumption or wider ACL needed. Claude approval/replay changes do not enable Claude UI or new native capabilities here. Generic client and actual authenticated model/UI acceptance remain pending. No SDK patch/fork/vendor edit, guessed flags, ambient auth adoption or new package added. Changes require renewed review.",
+  "review": "Explicit Django exception and reviewed published Fancy/Prism closure. Exact Prism ACP0.33.0 gitHead30555122a8cd093b767015eafd1f6ace8b928c2b, public SRI and all61 installed file digests verified; zero direct/peer/optional runtime closure, no lifecycle scripts. Native Claude exact2.1.311 official win32-x64 artifact is committed by SRI/four-file size/hash inventory, provisioned by the same bounded public-code installer outside private durable profiles. Restricted nativeTools:none/fresh sessions/supplied UI MCP only; EndConversation is a documented residual control helper. Codex0.163.0/gpt-5.3-codex restrictions retained. Private Claude subscription status/login/callback has its own original account home and never uses Codex auth. Effective own AppContainer Temp provisioning adds no capabilities/application ACL grants. Actual authenticated model/UI and generic client acceptance remain open. No package edits, alternate SDK, ambient auth adoption, guessed flags or new unrelated dependencies.",
   "inputs": {
     "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
     "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
     "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
-    "backend/agent/package.json": "179c6a77a258a5ca8d4cba4a06a499bed663a9b17923df5ec34bb82a22c354d4",
-    "backend/agent/package-lock.json": "172c2db35f0c75847e22e1f96561571fe10f38009fd1172703da2518fe9cf982"
+    "backend/agent/package.json": "e4223c626d533756ce42077868d3612757e8ff91d0f251ee8d16ac8045b2fb1a",
+    "backend/agent/package-lock.json": "47e81f78321ad4865d66ac5eab7d5ad69f9f64347278a5dde2b570c81098ce97"
   },
   "python": {
     "django": "5.2.18",

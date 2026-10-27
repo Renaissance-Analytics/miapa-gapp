@@ -13,6 +13,26 @@ from backend.maipa.agent_accounts import provider_runtime
 
 
 class ProviderRuntimeTests(unittest.TestCase):
+    def test_claude_public_archive_is_isolated_and_cache_tampering_is_refused(self):
+        with tempfile.TemporaryDirectory(prefix='maipa-public-claude-') as temporary, override_settings(ACP_RUNTIME_ROOT=Path(temporary).resolve()):
+            payload, lock, response = self.archive()
+            with patch.object(provider_runtime, 'claude_lock', return_value=lock, create=True), patch.object(provider_runtime.urllib.request, 'urlopen', return_value=response) as download:
+                target = provider_runtime.ensure_claude()
+                self.assertEqual((target/'vendor/codex.exe').read_bytes(), payload)
+                self.assertIn('maipa-claude', str(target))
+                self.assertEqual(target.name, '2.1.311-win32-x64')
+                self.assertEqual(provider_runtime.ensure_claude(), target)
+                self.assertEqual(download.call_count, 1)
+                (target/'unapproved-file').write_bytes(b'synthetic foreign bytes')
+                with self.assertRaises(ValueError): provider_runtime.verify_claude(target)
+
+    def test_claude_cancellation_never_downloads_or_selects_codex(self):
+        with tempfile.TemporaryDirectory(prefix='maipa-public-claude-') as temporary, override_settings(ACP_RUNTIME_ROOT=Path(temporary).resolve()):
+            with patch.object(provider_runtime.urllib.request, 'urlopen') as download, patch.object(provider_runtime, 'ensure_codex') as other:
+                with self.assertRaises(InterruptedError): provider_runtime.ensure_claude(cancelled=lambda: True)
+                download.assert_not_called(); other.assert_not_called()
+                self.assertFalse((Path(temporary)/'node_modules/.cache/maipa-claude/2.1.311-win32-x64').exists())
+
     def archive(self):
         payload = b'synthetic public code, never executable'
         buffer = io.BytesIO()

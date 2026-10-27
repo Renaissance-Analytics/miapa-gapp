@@ -14,6 +14,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UiMcpTests(unittest.TestCase):
+    def test_measured_claude_mcp_protocol_lists_and_calls_only_the_scoped_supplied_tools(self):
+        report = self.probe('claude')
+        self.assertEqual(report['results']['initialize']['protocolVersion'], '2025-11-25')
+        self.assertEqual(report['results']['list']['tools'][0]['name'], 'synthetic_ui')
+        self.assertEqual(report['results']['call']['structuredContent'], {'accepted': True, 'revision': 1})
+        self.assertEqual(report['calls'], [{'method': 'tools/list', 'params': {}},
+                                         {'method': 'tools/call', 'params': {'name': 'synthetic_ui', 'arguments': {'revision': 0}}}])
+        self.assertEqual(report['results']['foreign'], 'UI tool unavailable')
+        self.assert_stopped(report)
+
     def probe(self, mode):
         async def run():
             with tempfile.TemporaryDirectory(prefix='maipa-native-ui-mcp-') as directory:

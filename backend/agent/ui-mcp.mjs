@@ -144,15 +144,22 @@ async function main() {
   void relay.closed.then(closed);
   void mcp.closed.then(closed);
   mcp.peer.handle('initialize', params => {
-    if (!record(params) || !['2024-11-05', '2025-03-26', '2025-06-18'].includes(params.protocolVersion)) throw unavailable();
+    if (!record(params) || !['2024-11-05', '2025-03-26', '2025-06-18', '2025-11-25'].includes(params.protocolVersion)) throw unavailable();
     return { protocolVersion: params.protocolVersion, capabilities: { tools: {} },
       serverInfo: { name: 'maipa-ui', version: '0.1.0' } };
+  });
+  // Required MCP lifecycle notification. Keep unknown notifications closed;
+  // this acknowledgment carries no authority, capabilities or tool arguments.
+  mcp.peer.onNotify('notifications/initialized', params => {
+    if (params !== undefined && !exact(params, [])) throw unavailable();
   });
   mcp.peer.handle('ping', () => ({}));
   for (const method of ['tools/list', 'tools/call']) {
     mcp.peer.handle(method, async params => {
       if (pending >= 8) throw unavailable();
-      const request = checkedRequest({ method, params });
+      // MCP tools/list has optional params. Canonicalize only omission; null,
+      // arbitrary fields and tool-call arguments retain the closed validator.
+      const request = checkedRequest({ method, params: method === 'tools/list' && params === undefined ? {} : params });
       pending++;
       try {
         const result = await deadline(() => relay.peer.request('maipa/ui', { nonce, request }), closed);

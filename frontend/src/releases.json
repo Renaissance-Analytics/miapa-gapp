@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-26",
+    "label": "Development update 26",
+    "cards": [
+      {
+        "title": "Connect your Claude account",
+        "description": "Claude now has its own connection and private sign-in controls. Your selected provider, saved chat and unsent drafts stay separate from other accounts."
+      },
+      {
+        "title": "Shared agent tools",
+        "description": "Claude uses the same authorized contextual UI components in chat. Live model verification and additional ACP connections are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-25",
     "label": "Development update 25",
     "cards": [
@@ -234,16 +248,6 @@
       {
         "title": "Sign in to your workspace",
         "description": "Provisioned workspace members can now sign in and out. Access follows your server-assigned role, while private agent accounts and connection history stay with their owner. Live agent conversations and automated workflows are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-6",
-    "label": "Development update 6",
-    "cards": [
-      {
-        "title": "Browser checks before updates",
-        "description": "The development checks now exercise the built workspace in a separate browser, including appearance, mobile panels, release notes and private agent connection checks. Live provider setup, conversations and accounting workflows are still being built."
       }
     ]
   }

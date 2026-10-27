@@ -42,9 +42,10 @@ async function child(config, operation) {
 const results = {};
 try {
   await child(relay.mcp, async peer => {
-    results.initialize = await peer.request('initialize', { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'synthetic', version: '1' } });
-    if (mode === 'normal' || mode === 'large') {
-      results.list = await peer.request('tools/list', {});
+    results.initialize = await peer.request('initialize', { protocolVersion: mode === 'claude' ? '2025-11-25' : '2025-03-26', capabilities: {}, clientInfo: { name: 'synthetic', version: '1' } });
+    if (mode === 'claude') peer.notify('notifications/initialized');
+    if (mode === 'normal' || mode === 'large' || mode === 'claude') {
+      results.list = await peer.request('tools/list', mode === 'claude' ? undefined : {});
       results.call = await peer.request('tools/call', { name: 'synthetic_ui', arguments: { revision: 0 } });
     } else {
       try { await peer.request('tools/list', {}); } catch (error) { results.error = error.message; }

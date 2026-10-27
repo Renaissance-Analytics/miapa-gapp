@@ -18,7 +18,7 @@ membership, role, account ownership and storage binding. A changed role,
 password, expired session or logout ends its worker. An unrelated access epoch
 requires a newly authorized UI lease; the old lease remains invalid.
 
-The first native provider integration is Codex subscription login. Its exact
+The integrated native adapters are Codex and Claude subscription login. Each exact
 public native artifact is pinned by SRI and all file digests. First connection
 downloads it into a reproducible public-code cache beside installed dependencies,
 outside durable user-data backups; no global CLI home or
@@ -55,7 +55,7 @@ Current acceptance boundary: the deterministic ACP peer is registered only by
 the dedicated test fixture. It exercises the real consumer, authenticated HTTP,
 streaming and UI services. It is not a production fallback or evidence of a real
 model turn. Actual native device consent and clean stop are separately verified.
-The published Prism ACP0.32.0 policy fixes native sessions to Codex CLI0.163.0,
+The published Prism ACP0.33.0 policy fixes Codex native sessions to CLI0.163.0,
 gpt-5.3-codex and `nativeTools: 'none'`. Only fresh sessions and the supplied
 Maipa UI MCP server are admitted. The published driver refuses unsupported
 CLI/model/configuration, resume and announced unsupported reroutes. Its three
@@ -69,4 +69,39 @@ model change that Codex does not announce cannot be detected by the driver.
 An allowed UI call before a later reroute notice still requires current server
 authority and cannot be undone by subsequent provider shutdown.
 
-The supported0.32.0 startup policy applies plugin restrictions before native launch and verifies effective configuration before creating a thread. A fresh contained0.163.0 session passes native thread acknowledgment, 35-second idle/profile-budget validation, zero-survivor stop and profile-privacy cleanup. This verifies the startup correction without human credentials or a model turn; actual authenticated model/UI acceptance and generic-client integration remain separate. No other provider is silently routed to Codex.
+The supported Codex startup policy applies plugin restrictions before native launch and verifies effective configuration before creating a thread. A fresh contained0.163.0 session passes native thread acknowledgment, 35-second idle/profile-budget validation, zero-survivor stop and profile-privacy cleanup. This verifies the startup correction without human credentials or a model turn; actual authenticated model/UI acceptance and generic-client integration remain separate. No other provider is silently routed to Codex.
+
+Claude uses the official native win32-x64 CLI2.1.311 and its own original
+account home/configuration directory. Only exact JSON status confirming
+`claude.ai` subscription authentication in that directory can report signed in.
+Its native `auth login --claudeai` link remains transient. When the provider
+shows a callback code, a private masked control forwards it directly to native
+stdin; it never enters chat, saved drafts, process arguments or application logs.
+The code is cleared on submission, provider/phase changes and logout. There is
+no ambient CLI-home discovery or credential copying.
+
+Claude startup uses the public `modelState()` promise with a nonempty model list
+and sticky protocol/exit failure. Unlike Codex, its native ID and catalog are
+announced after the first user prompt. The public driver validates the exact CLI
+version before forwarding that prompt and refuses a later unsupported catalog.
+The app requests `nativeTools: 'none'`, fresh sessions, supplied UI MCP only,
+`dontAsk` and an exact allowlist of its four UI tools. Execution/filesystem/web
+tools and inherited settings/hooks/MCP are excluded by the published contract;
+`EndConversation` is its documented residual control helper. All UI calls still
+require current original account/user/session/role and composition revision.
+
+The sandbox host keeps its Windows OS environment and provisions the new
+AppContainer profile's effective `AC/Temp` directory. Only provider children
+receive the assigned provider-home variables. This adds no network capability
+or broader application-directory grant. Actual native startup/discovery and
+cleanup are distinct from authenticated model/tool acceptance, which remains
+open. Generic ACP adapters/discovery await their separate published contract.
+
+The supplied MCP server accepts the native-captured `2025-11-25` protocol for
+its existing tools-only capability. It retains the same bounded LOCAL transport,
+nonce, request schema and authority; no resources, sampling or tasks are added.
+It handles the required empty `notifications/initialized` acknowledgment and
+canonicalizes an omitted `tools/list` params object to `{}`. Unknown fields,
+null params and tool-call arguments retain their existing strict validation.
+See the public [MCP lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)
+and [tools contract](https://modelcontextprotocol.io/specification/2025-11-25/server/tools).
