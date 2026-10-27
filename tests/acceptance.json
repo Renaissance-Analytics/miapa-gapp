@@ -3692,6 +3692,34 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-CLAUDE-CURRENT-CONSENT",
+      "risk": "An obsolete application allowlist suppresses the real native subscription consent link; accepting arbitrary replacement origins would expose credentials.",
+      "scenarios": [
+        {
+          "id": "A01-CLAUDE-CURRENT-CONSENT.measured",
+          "kind": "positive",
+          "given": "Claude2.1.311 emits the independently measured https://claude.com/cai/oauth/authorize route under actual contained LOCAL pipes; the prior provider route is retained",
+          "when": "The native account output and scoped ACP response carry either exact consent URL",
+          "then": "Both consumer layers accept each exact host/path pair and retain its transient query without changing the selected provider or saved chat",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_login_exposes_only_a_validated_transient_provider_link",
+            "tests.test_acp_client.AcpClientTests.test_claude_consent_accepts_measured_current_and_legacy_authorization_routes"
+          ]
+        },
+        {
+          "id": "A01-CLAUDE-CURRENT-CONSENT.closed",
+          "kind": "negative",
+          "given": "Foreign or deceptive hosts, crossed host/path pairs, userinfo, ports, fragments, HTTP, or foreign actor scope",
+          "when": "A candidate consent link or scoped account-status request reaches the consumer",
+          "then": "Invalid routes are refused with no arbitrary consent link; foreign scope is rejected before the private transport is called",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_claude_login_exposes_only_a_validated_transient_provider_link",
+            "tests.test_acp_client.AcpClientTests.test_claude_consent_refuses_unmeasured_routes_and_foreign_authority"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -332,8 +332,9 @@ class AcpClient:
                     raise AcpError('Account unavailable')
                 try:
                     parsed = urlsplit(url)
-                    valid = (parsed.scheme == 'https' and parsed.netloc == 'claude.ai'
-                             and parsed.path == '/oauth/authorize' and not parsed.fragment)
+                    valid = (parsed.scheme == 'https' and (parsed.netloc, parsed.path) in (
+                        ('claude.com', '/cai/oauth/authorize'), ('claude.ai', '/oauth/authorize'))
+                        and not parsed.fragment)
                 except ValueError:
                     valid = False
                 if not valid: raise AcpError('Account unavailable')

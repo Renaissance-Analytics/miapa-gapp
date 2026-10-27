@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-27",
+    "label": "Development update 27",
+    "cards": [
+      {
+        "title": "Claude sign-in link restored",
+        "description": "Maipa now recognizes Claude’s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-26",
     "label": "Development update 26",
     "cards": [
@@ -238,16 +248,6 @@
       {
         "title": "Private connection workers",
         "description": "Connection checks now run in a separate Windows security boundary. Checks verify their worker has stopped, and private accounts and connection history continue to follow your workspace role and ownership. Live provider setup and conversations are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-7",
-    "label": "Development update 7",
-    "cards": [
-      {
-        "title": "Sign in to your workspace",
-        "description": "Provisioned workspace members can now sign in and out. Access follows your server-assigned role, while private agent accounts and connection history stay with their owner. Live agent conversations and automated workflows are still being built."
       }
     ]
   }

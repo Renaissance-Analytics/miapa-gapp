@@ -687,7 +687,7 @@ try {
   await until(() => evaluate("!!document.querySelector('.provider-signin')"), 'owned Claude sign-in');
   await click('Sign in with Claude');
   await until(() => evaluate("!!document.getElementById('maipa-provider-authorization')"), 'private provider callback control');
-  assert.equal(await evaluate("document.querySelector('.provider-signin a')?.href==='https://claude.ai/oauth/authorize?state=synthetic' && document.getElementById('maipa-provider-authorization').type==='password'"), true);
+  assert.equal(await evaluate("document.querySelector('.provider-signin a')?.href==='https://claude.com/cai/oauth/authorize?state=synthetic' && document.getElementById('maipa-provider-authorization').type==='password'"), true);
   await fill('maipa-provider-authorization', 'SYNTHETIC_PRIVATE_CODE');
   await click('Complete sign-in');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'private callback completes deterministic connection');

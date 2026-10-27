@@ -56,7 +56,7 @@ for line in sys.stdin:
         send({'id': frame['id'], 'result': {'protocolVersion': 1}})
     elif method == 'maipa/account/status':
         send({'id': frame['id'], 'result': {'state': 'ready'} if signed_in else {
-            'state': 'sign_in', **({'login': {'url': 'https://claude.ai/oauth/authorize?state=synthetic', 'accepts_code': True}} if challenge else {})}})
+            'state': 'sign_in', **({'login': {'url': 'https://claude.com/cai/oauth/authorize?state=synthetic', 'accepts_code': True}} if challenge else {})}})
     elif method == 'maipa/account/login':
         challenge = True
         send({'id': frame['id'], 'result': {'state': 'sign_in'}})

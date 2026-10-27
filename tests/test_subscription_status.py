@@ -57,12 +57,17 @@ class SubscriptionStatusTests(unittest.TestCase):
                              {'error': 'Account unavailable', 'stopCalls': 2})
 
     def test_claude_login_exposes_only_a_validated_transient_provider_link(self):
-        url = 'https://claude.ai/oauth/authorize?state=synthetic&code_challenge=synthetic'
-        result = self.status(provider='claude', login=True, stdout='Open this URL: '+url,
-                             expectedArgs=['auth', 'login', '--claudeai'])
-        self.assertEqual(result, {'value': {'state': 'sign_in', 'login': {'url': url, 'accepts_code': True}}, 'stopCalls': 1})
+        for endpoint in ('https://claude.com/cai/oauth/authorize', 'https://claude.ai/oauth/authorize'):
+            url = endpoint+'?state=synthetic&code_challenge=synthetic'
+            with self.subTest(endpoint=endpoint):
+                result = self.status(provider='claude', login=True, stdout='Open this URL: '+url,
+                                     expectedArgs=['auth', 'login', '--claudeai'])
+                self.assertEqual(result, {'value': {'state': 'sign_in', 'login': {'url': url, 'accepts_code': True}}, 'stopCalls': 1})
         for unsafe in ('https://attacker.invalid/oauth/authorize', 'https://claude.ai.attacker.invalid/oauth/authorize',
-                       'https://user:secret@claude.ai/oauth/authorize', 'https://claude.ai/oauth/authorize#secret'):
+                       'https://user:secret@claude.ai/oauth/authorize', 'https://claude.ai/oauth/authorize#secret',
+                       'https://claude.com.attacker.invalid/cai/oauth/authorize', 'https://claude.com/oauth/authorize',
+                       'https://claude.ai/cai/oauth/authorize', 'https://claude.com/cai/oauth/authorize#secret',
+                       'https://user:secret@claude.com/cai/oauth/authorize', 'https://claude.com:8443/cai/oauth/authorize'):
             self.assertEqual(self.status(provider='claude', login=True, stdout=unsafe),
                              {'value': {'state': 'sign_in'}, 'stopCalls': 1})
 

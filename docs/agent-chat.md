@@ -74,6 +74,11 @@ The supported Codex startup policy applies plugin restrictions before native lau
 Claude uses the official native win32-x64 CLI2.1.311 and its own original
 account home/configuration directory. Only exact JSON status confirming
 `claude.ai` subscription authentication in that directory can report signed in.
+The pinned native client emits `https://claude.com/cai/oauth/authorize` for
+subscription consent. The private account controller and ACP consumer validate
+that exact HTTPS host/path pair; the previous `claude.ai/oauth/authorize` pair
+remains supported. Crossed host/path pairs, foreign hosts, userinfo and fragments
+are refused. Consent query data stays transient and never enters saved chat.
 Its native `auth login --claudeai` link remains transient. When the provider
 shows a callback code, a private masked control forwards it directly to native
 stdin; it never enters chat, saved drafts, process arguments or application logs.

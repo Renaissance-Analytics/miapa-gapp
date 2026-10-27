@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from backend.maipa.acp import AcpClient, AcpError, Scope
 
@@ -87,6 +87,33 @@ class AcpClientTests(unittest.TestCase):
             for value in ('', 'a\nsecret', 'a b', 'x'*2049, None):
                 with self.assertRaises(ValueError): await client.authorize_subscription(owner, value)
             self.assertEqual(await client.authorize_subscription(owner, 'SYNTHETIC_CODE'), {'state': 'sign_in'})
+        self.run_case(case, provider='claude')
+
+    def test_claude_consent_accepts_measured_current_and_legacy_authorization_routes(self):
+        async def case(client, owner):
+            for endpoint in ('https://claude.com/cai/oauth/authorize', 'https://claude.ai/oauth/authorize'):
+                consent = {'state': 'sign_in', 'login': {'url': endpoint+'?state=synthetic', 'accepts_code': True}}
+                with patch.object(client, '_request', AsyncMock(return_value=consent)) as request:
+                    self.assertEqual(await client.subscription_status(owner), consent)
+                    request.assert_awaited_once_with(owner, 'maipa/account/status', {})
+        self.run_case(case, provider='claude')
+
+    def test_claude_consent_refuses_unmeasured_routes_and_foreign_authority(self):
+        async def case(client, owner):
+            for url in ('https://claude.com.attacker.invalid/cai/oauth/authorize',
+                        'https://claude.com/oauth/authorize', 'https://claude.ai/cai/oauth/authorize',
+                        'https://user:secret@claude.com/cai/oauth/authorize',
+                        'https://claude.com:443/cai/oauth/authorize',
+                        'https://claude.com/cai/oauth/authorize#secret',
+                        'http://claude.com/cai/oauth/authorize'):
+                consent = {'state': 'sign_in', 'login': {'url': url, 'accepts_code': True}}
+                with patch.object(client, '_request', AsyncMock(return_value=consent)):
+                    with self.assertRaisesRegex(AcpError, '^Account unavailable$'):
+                        await client.subscription_status(owner)
+            with patch.object(client, '_request', AsyncMock()) as request:
+                with self.assertRaises(PermissionError):
+                    await client.subscription_status(Scope('foreign', owner.account_id))
+                request.assert_not_awaited()
         self.run_case(case, provider='claude')
 
     def test_codex_never_accepts_a_claude_private_authorization_code(self):

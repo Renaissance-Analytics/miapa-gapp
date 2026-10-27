@@ -7,8 +7,9 @@ export function claudeLoginUrl(value) {
   try {
     if (typeof value !== 'string' || value.length > 2048 || /[\x00-\x20\x7f]/.test(value)) return false;
     const url = new URL(value);
-    return url.protocol === 'https:' && url.hostname === 'claude.ai' && !url.port && !url.username && !url.password
-      && !url.hash && url.pathname === '/oauth/authorize';
+    const route = (url.hostname === 'claude.com' && url.pathname === '/cai/oauth/authorize')
+      || (url.hostname === 'claude.ai' && url.pathname === '/oauth/authorize');
+    return url.protocol === 'https:' && route && !url.port && !url.username && !url.password && !url.hash;
   } catch { return false; }
 }
 export function subscriptionAccount(profile, env) {
