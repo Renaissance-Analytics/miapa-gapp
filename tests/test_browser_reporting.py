@@ -36,6 +36,18 @@ class BrowserReportingTests(unittest.TestCase):
             {'checks':0,'reason':'agent_shell','cleanup':True,
              'surface_ui':{'composer_nonempty':True,'composer_focused':False,'send_present':True,
                 'send_disabled':False,'ui_phase_ready':True}})
+        self.assertEqual(browser_failure_evidence({'reason':'intake_facts','cleanup':True,
+            'failure_kind':'timeout','surface_responses':{'intake':400,'private':200},
+            'surface_ui':{'intake_form':True,'intake_valid':False,'intake_reference':True,
+                'intake_locator':False,'intake_alert':False,'intake_save_disabled':False,
+                'intake_revision_one':False,'source':'synthetic-private-evidence'}}),
+            {'checks':0,'reason':'intake_facts','cleanup':True,'failure_kind':'timeout',
+             'surface_responses':{'intake':400},'surface_ui':{'intake_form':True,'intake_valid':False,
+                'intake_reference':True,'intake_locator':False,'intake_alert':False,
+                'intake_save_disabled':False,'intake_revision_one':False}})
+        self.assertEqual(browser_failure_evidence({'reason':'intake_facts','cleanup':True,
+            'surface_responses':{'intake':True},'surface_ui':{'intake_valid':'private','intake_reference':1}}),
+            {'checks':0,'reason':'intake_facts','cleanup':True})
 
     def test_known_setup_checkpoint_survives_without_browser_text_or_answer(self):
         self.assertEqual(browser_failure_evidence({'reason':'setup_chat','cleanup':True,

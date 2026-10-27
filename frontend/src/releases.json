@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-23",
+    "label": "Development update 23",
+    "cards": [
+      {
+        "title": "Agent startup correction installed",
+        "description": "The Codex connection now uses the supported startup correction. Fresh sessions stay within the existing private-profile limits."
+      },
+      {
+        "title": "Live agent verification continues",
+        "description": "Your provider choice and saved chats are retained. Actual model-driven UI verification and additional ACP connections are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-22",
     "label": "Development update 22",
     "cards": [
@@ -212,16 +226,6 @@
       {
         "title": "Private agent connection checks",
         "description": "Agent account metadata and connection-check history now follow the signed-in user. Connection checks verify the installed transport without claiming that a provider is logged in. Live account setup and conversations are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-4",
-    "label": "Development update 4",
-    "cards": [
-      {
-        "title": "Agent connection foundation",
-        "description": "The backend now connects Python to the published Prism ACP host, checks user and account ownership, and handles streamed replies and connection failures. Live conversations and provider account setup are still being built."
       }
     ]
   },

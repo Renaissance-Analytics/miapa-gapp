@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "review": "Explicit Django exception and reviewed published Fancy/Prism closure. A01 adopts exact ACP0.29.0 npm SRI/gitHead/all61installed file digests, unchanged zero runtime/peer dependencies, Node>=22 and no lifecycle scripts. Native Codex is pinned0.163.0; host fixes gpt-5.3-codex/nativeTools:none/fresh session and supplied UI MCP only. Published policy source reviewed: config/version/model/resume/inherited-MCP refusals and documented reroute limits. OS/profile authority remains Maipa-owned. No financial/native filesystem tools exposed. Changes require renewed review.",
+  "review": "Explicit Django exception and reviewed published Fancy/Prism closure. A01 adopts exact ACP0.32.0, gitHead10217c148e7d0e116ef95284e793d678a1653e53, verified npm SRI and all61 installed file digests; zero direct/peer/optional runtime dependencies, Node>=22, no lifecycle scripts executed. Published Codex G-140 policy applies plugin restrictions at launch and verifies both false before thread creation. Native Codex stays pinned0.163.0/gpt-5.3-codex/nativeTools:none/fresh-session/supplied UI MCP only. Fresh real native thread ACK, 35second idle/350 original profile checks, verified stop and privacy cleanup pass under original Windows AppContainer/4096-entry budget. Public supervisor preparation owns immutable hash-named generations; no consumer filename assumption or wider ACL needed. Claude approval/replay changes do not enable Claude UI or new native capabilities here. Generic client and actual authenticated model/UI acceptance remain pending. No SDK patch/fork/vendor edit, guessed flags, ambient auth adoption or new package added. Changes require renewed review.",
   "inputs": {
     "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
     "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
     "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
-    "backend/agent/package.json": "4368ea63a9182368fd8d222c3c6ff1e286cc67255443e1ef7e7bfb15ff126c5f",
-    "backend/agent/package-lock.json": "471fa85ef65f84200c4f481cc992fc129e6e93ea508a3b07387089af0e68ea46"
+    "backend/agent/package.json": "179c6a77a258a5ca8d4cba4a06a499bed663a9b17923df5ec34bb82a22c354d4",
+    "backend/agent/package-lock.json": "172c2db35f0c75847e22e1f96561571fe10f38009fd1172703da2518fe9cf982"
   },
   "python": {
     "django": "5.2.18",

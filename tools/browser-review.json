@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "c2132f19975d88e89f7a5398f0d59708bae5df65b9a683eda293a4e858562a82",
-    "tools/check_browser.py": "06e8201b00e8d36abe48db239a568685fdb23766ca72de508d8ee5fe1604626f",
+    "tools/browser.mjs": "acdb3bc613ca40512c3fc401339e945cd4469f327bd8928cdd4e20377fa7d6ea",
+    "tools/check_browser.py": "58b2c9c728475389ad95904d7334ab545760646ec333f9e431e5a5936027a5e2",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4",
     "tests/fixtures/agent_chat_peer.py": "652a522bee6bba9d10bf45439cba7b44690e778141efcf7ad1349c078797e6fd"
   },
@@ -147,7 +147,7 @@
     {
       "id": "intake-facts-and-evidence",
       "kind": "positive",
-      "expected": "Real native input/pointer/native-select keyboard actions create a synthetic engagement/entity and record evidenced known false plus LLC. UI shows No/LLC while tax classification and elections stay Unknown."
+      "expected": "Real native input/pointer/native-select keyboard actions create a synthetic engagement/entity and record evidenced known false plus LLC. UI shows No/LLC while tax classification and elections stay Unknown. Native input must reach its exact target field before proceeding; clicks require a hit on the enabled target. Failure metadata admits boolean form validity/presence and bounded save status only. Original saved-revision/false-value/evidence assertions and deadlines remain unchanged. The prior unknown timeout is preserved and not claimed repaired by these stronger preconditions."
     },
     {
       "id": "intake-history-and-conflicts",

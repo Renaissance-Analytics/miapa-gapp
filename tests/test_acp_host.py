@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AcpHostTests(unittest.TestCase):
-    def run_host(self, body, *, real_entry=False, native_policy=False):
+    def run_host(self, body, *, real_entry=False, native_policy=False, startup_features=None):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 base = Path(directory)
@@ -35,7 +35,13 @@ class AcpHostTests(unittest.TestCase):
                 node = shutil.which("node")
                 if node is None:
                     self.fail("Required Node runtime unavailable")
-                client = AcpClient([node, str(script)], owner, base / "workspace", env={"MAIPA_ACP_PROFILE": json.dumps(profile)}, timeout=15)
+                environment = {"MAIPA_ACP_PROFILE": json.dumps(profile)}
+                if startup_features is not None:
+                    # Only the copied synthetic CLI transport reads this fixture value.
+                    # The real host's validated profile discards it; keep the ACP env closed.
+                    profile['synthetic_startup_features'] = startup_features
+                    environment['MAIPA_ACP_PROFILE'] = json.dumps(profile)
+                client = AcpClient([node, str(script)], owner, base / "workspace", env=environment, timeout=15)
                 await client.start()
                 try:
                     await body(client, owner)
@@ -48,7 +54,7 @@ class AcpHostTests(unittest.TestCase):
         async def case(client, owner):
             result = await client.initialize(owner)
             self.assertEqual(result["protocolVersion"], 1)
-            self.assertEqual(result["agentInfo"]["version"], "0.29.0")
+            self.assertEqual(result["agentInfo"]["version"], "0.32.0")
             self.assertEqual(result["authMethods"], [])
             self.assertEqual(await client.shutdown(owner), {"verified": True, "survivors": 0, "sessions": 0})
         self.run_host(case, real_entry=True)
@@ -60,8 +66,26 @@ class AcpHostTests(unittest.TestCase):
             result = await client._request(owner, 'session/new', {'cwd': str(client.workspace), 'mcpServers': [],
                 'model': 'gpt-6.1', 'nativeTools': 'default'})
             self.assertTrue(result['sessionId'])
+            policy = await client._request(owner, 'fixture/policy-result', {})
+            self.assertEqual(policy['startupArgs'][-4:], ['-c', 'features.plugins=false', '-c', 'features.remote_plugin=false'])
+            self.assertTrue(policy['threadStarted'])
+            self.assertFalse(policy['refused'])
             self.assertEqual((await client.shutdown(owner))['sessions'], 1)
         self.run_host(case, native_policy=True)
+
+    def test_native_host_refuses_missing_or_enabled_startup_plugin_features(self):
+        async def case(client, owner):
+            await client.initialize(owner)
+            await client.new_session(owner)
+            policy = await client._request(owner, 'fixture/policy-result', {})
+            self.assertEqual(policy['startupArgs'][-4:], ['-c', 'features.plugins=false', '-c', 'features.remote_plugin=false'])
+            self.assertFalse(policy['threadStarted'])
+            self.assertTrue(policy['refused'])
+            self.assertEqual(await client.shutdown(owner), {'verified': True, 'survivors': 0, 'sessions': 1})
+        for features in ({}, {'plugins': False}, {'plugins': True, 'remote_plugin': False},
+                         {'plugins': False, 'remote_plugin': True}):
+            with self.subTest(features=features):
+                self.run_host(case, native_policy=True, startup_features=features)
 
     def test_python_host_published_codex_driver_session_and_stream_round_trip(self):
         async def case(client, owner):

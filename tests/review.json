@@ -635,170 +635,170 @@
       "scenario": "K05-ACP-HOST.positive",
       "test": "tests.test_acp_host.AcpHostTests.test_real_entry_initializes_published_host_and_reports_zero_provider_shutdown",
       "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
-      "source_sha256": "99b9499c9789213c92660deb453198bbcbd62fbd230a45a37605c604a1d739c1",
+      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-HOST.positive",
       "test": "tests.test_acp_host.AcpHostTests.test_python_host_published_codex_driver_session_and_stream_round_trip",
       "scenario_sha256": "f496d72776a73fa9da8a8c59382cddae8b0853e34e670fa604df1b13967b6ec7",
-      "source_sha256": "99b9499c9789213c92660deb453198bbcbd62fbd230a45a37605c604a1d739c1",
+      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-ACP-HOST.negative",
       "test": "tests.test_acp_host.AcpHostTests.test_host_refuses_foreign_workspace_or_mcp_before_constructing_a_driver",
       "scenario_sha256": "31f120918aec34c2e368ac0e9265cb7ca8bd5b851a88670e5aafcedd7b07471d",
-      "source_sha256": "99b9499c9789213c92660deb453198bbcbd62fbd230a45a37605c604a1d739c1",
+      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
       "expected_observation": "The locked runtime initializes and standard chunks complete an owned fixture turn; foreign configuration constructs no driver and shutdown verdicts remain distinct from process exit",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_list_uses_authenticated_owner_and_exposes_no_paths_or_login_claim",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_actual_authenticated_transport_check_records_no_provider_readiness",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_second_user_owns_a_real_transport_check_without_access_to_first_user_history",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_invalid_provider_ids",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Preserves duplicate-account database denial and now rejects malformed registration IDs; valid extensible IDs are metadata, with unregistered execution refusal independently covered by A01-PROVIDER-SELECTION. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_anonymous_and_inactive_users_cannot_read_accounts_or_check_history",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_foreign_disabled_and_missing_accounts_are_indistinguishable",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_missing_csrf_and_foreign_origin_never_create_a_check",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_client_cannot_supply_identity_profile_workspace_commands_or_mcp",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_malformed_or_overbudget_check_bodies_are_rejected",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_account_cooldown_refuses_overlap_without_starting_or_recording_work",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_broken_runtime_is_generic_and_history_stays_owned",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_accounts_are_read_only_and_check_history_rejects_delete",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_failure_is_recorded_without_reflecting_diagnostics_or_claiming_login",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_reassigned_account_does_not_disclose_the_previous_requesters_history",
       "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -925,20 +925,20 @@
       "scenario": "K06-BROWSER-REPORT.positive",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only",
       "scenario_sha256": "1907a9996ddf96d8f091fc959601b749785d4609e22999fc4244717686f2fa9c",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-REPORT.negative",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified",
       "scenario_sha256": "2e982f64e234ff77c55b4ddb529ddd75d95fec330ec399f164d7601c8fea3cc4",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -1155,20 +1155,20 @@
       "scenario": "P01-WORKER.host",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_actual_transport_has_verified_appcontainer_and_empty_job",
       "scenario_sha256": "219a9cb3413523f3170a437afe9bb0d6c3df1c6a966e0659c1924e5c803c3016",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Return real Windows AppContainer verification, empty native job and zero provider sessions, after published-host initialization/shutdown.",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P01-WORKER.revoked",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_stale_reassigned_or_revoked_account_cannot_launch_a_worker",
       "scenario_sha256": "953e459166b2ec29adcafec1249069bbfe751cb546d5126e785afafcc3e033f8",
-      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
+      "source_sha256": "43faa319569c35e4302469b0ccddb7396b1f1edbea2eb479d37f2e4c775fc175",
       "expected_observation": "Refuse revoked membership and stale original-owner authority before launching a worker.",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -1285,30 +1285,30 @@
       "scenario": "K06-BROWSER-START.paths",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials",
       "scenario_sha256": "d6af91671984e09eaa533f35162efca937ea0846109d7b17d9e2409331711efd",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
       "decision": "aligned",
-      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.code",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text",
       "scenario_sha256": "71f48ef6984f2108db4f27c8f1b178cfa42700725a8dec758563938e62f1e573",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
       "decision": "aligned",
-      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.reject",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded",
       "scenario_sha256": "397520df2333b2e6654b56d863d33b7f353a7758b6fcc1afd199406936cdc8a9",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
       "decision": "aligned",
-      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -2645,20 +2645,20 @@
       "scenario": "P05-BROWSER-DIAGNOSTICS.known",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_setup_checkpoint_survives_without_browser_text_or_answer",
       "scenario_sha256": "f3072da429010911f7bfb535d1cd1d838d2568e80c76d6ef2e6bb9cf174df5a9",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Keep only allowed setup checkpoint, phase and verified cleanup",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.hostile",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_misplaced_or_nonstring_checkpoints_are_discarded",
       "scenario_sha256": "bf47e02e4b7215fca49df04e53b5149a48a8f76188991a53257d22b43214a95a",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "expected_observation": "Discard checkpoint and private content rather than expanding public diagnostics",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
@@ -3442,16 +3442,6 @@
       "reason": "Reviewed persistent owner/account/storage binding, idempotent requests, closed HTTP fields and role denial against independent outcomes. The capacity case reproduces all16slots busy before worker ownership, asserts the saved message and recoverable phase, then explicitly reconnects using its current revision. Observed red: phase incorrectly stayed connecting. All16 targeted cases pass after fixing only unclaimed connecting rows. No production provider replacement or real model claim."
     },
     {
-      "scenario": "K05-ACP-HOST.native-policy",
-      "test": "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model",
-      "source_sha256": "99b9499c9789213c92660deb453198bbcbd62fbd230a45a37605c604a1d739c1",
-      "scenario_sha256": "8078893489438cda675d80874f4a2d8a09c1d9c9fc7bed7bcebd439c27c8ded1",
-      "expected_observation": "Only the host-fixed gpt-5.3-codex/nativeTools none reaches the driver and native thread request; native shell, agents and web stay disabled; supplied MCP stays exact and no resume is adopted",
-      "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
-    },
-    {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel",
       "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
@@ -3474,12 +3464,12 @@
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.shared-surface",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_shared_surface_diagnostics_keep_only_fixed_codes_statuses_and_booleans",
-      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
+      "source_sha256": "c6d80808da56718af497e6cfd8d13760887f5b967838d2b2e270ed746c67b777",
       "scenario_sha256": "7a1946923dce89f31e6e31e589fafbdeddfd31eac89d0a343e485dff6fc14811",
       "expected_observation": "Keep only fixed failure kinds, session/chat/admin integer HTTP statuses and whitelisted booleans; reject unknown keys, boolean statuses, nonboolean observations and misplaced diagnostic fields",
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
-      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained."
+      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained. Intake diagnostic amendment independently checks only bounded HTTP status and exact boolean fields are admitted, and evidence text/unknown fields/non-boolean values are discarded. Existing privacy cases remain."
     },
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
@@ -3599,6 +3589,26 @@
       "scenario_sha256": "57cca01f7e65616fc531e8a1bc340c1e93abf2b28cc30ea1d90a281cc2f299b0",
       "expected_observation": "The failed connection remains stopping while its worker closes, becomes unavailable only after release, retains the exact acknowledged user message, and permits a primary-authorized saved read after native contexts close. Send/connect during closing conflict without changing the exact transcript or conversation revision.",
       "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-RESTRICTED-STARTUP.launch",
+      "test": "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model",
+      "scenario_sha256": "4abe8c7a05916e6a5713332da3c4907b5dd4ff95f4455c8c95f9d4de5081fdd9",
+      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "expected_observation": "Host-fixed policy survives hints, plugin restrictions are present before initialization and a restricted native thread is acknowledged.",
+      "decision": "aligned",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-RESTRICTED-STARTUP.config",
+      "test": "tests.test_acp_host.AcpHostTests.test_native_host_refuses_missing_or_enabled_startup_plugin_features",
+      "scenario_sha256": "19c91a9b401dd6b653fbb02ff3ac907088f83e504e6141dfbf8b93d3fdcc2900",
+      "source_sha256": "1c779e28107fd2963f70627577c651c1713c8c7f6236087126836b66063e67e7",
+      "expected_observation": "Both launch restrictions are still supplied, no native thread is created, startup is refused and shutdown remains verified with zero survivors.",
+      "decision": "aligned",
+      "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     }
   ]

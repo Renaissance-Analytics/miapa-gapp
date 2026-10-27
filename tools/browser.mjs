@@ -75,7 +75,7 @@ async function click(label) {
   if (['Dark', 'Light', 'System', 'Sign out'].includes(label)
       && !await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
   if (label === 'Account setup' && await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Account setup')?.getAttribute('aria-expanded')==='true'")) return;
-  const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button, summary')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled || b.closest('[inert]')) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); return r.width && r.height ? {x:r.x+r.width/2,y:r.y+r.height/2} : null; })()`), `Visible enabled button ${label}`);
+  const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button, summary')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled || b.closest('[inert]')) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); const x=r.x+r.width/2,y=r.y+r.height/2; const hit=document.elementFromPoint(x,y); return r.width && r.height && hit && b.contains(hit) ? {x,y} : null; })()`), `Visible enabled button ${label}`);
   assert.ok(point, `Visible button ${label}`);
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
@@ -125,6 +125,7 @@ async function fill(id, value) {
   await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
   await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
   await command('Input.insertText', { text: value });
+  await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), 'native input accepted');
 }
 async function select(id, value) {
   const steps = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
@@ -170,6 +171,9 @@ try {
     }
     if (message.method === "Network.responseReceived" && message.params.response.url === `${fixture.origin}/api/intake/engagements/`)
       intakeListResponses.push(message.params.response.status);
+    if (message.method === 'Network.responseReceived' && phase === 'intake_facts'
+        && message.params.response.url.startsWith(fixture.origin + '/api/intake/entities/')
+        && message.params.response.url.endsWith('/facts/')) surfaceResponses.intake = message.params.response.status;
     if (message.method === 'Network.responseReceived' && ['login', 'logout_viewer'].includes(phase)) {
       for (const [path, key] of [['/api/session/', 'session'], ['/api/session/login/', 'login'],
         ['/api/session/logout/', 'logout'], ['/api/workspace/', 'workspace']]) {
@@ -853,7 +857,7 @@ try {
   evidence = { checks: passed.length, scenarios: passed, build_id: fixture.build_id, browser: version.Browser, cleanup: false };
 } catch (error) {
   failedPhase = phase;
-  if (['admin_users', 'work_views', 'agent_shell'].includes(phase)) {
+  if (['admin_users', 'work_views', 'agent_shell', 'intake_facts'].includes(phase)) {
     surfaceEvidence = { surface_responses: { ...surfaceResponses }, failure_kind:
       error?.code === 'ERR_ASSERTION' ? 'assertion' :
       error?.message?.startsWith('Timeout:') ? 'timeout' :
@@ -870,7 +874,16 @@ try {
         composer_focused: document.activeElement === document.querySelector('textarea[aria-label="Message Maipa"]'),
         send_present: [...document.querySelectorAll('.chat-composer button')].some(b=>b.textContent.trim()==='Send'),
         send_disabled: [...document.querySelectorAll('.chat-composer button')].find(b=>b.textContent.trim()==='Send')?.disabled === true,
-        ui_phase_ready: document.querySelector('.chat-status [role=status]')?.textContent === 'Ready'
+        ui_phase_ready: document.querySelector('.chat-status [role=status]')?.textContent === 'Ready',
+        intake_form: !!document.querySelector('form[aria-label="Record client fact"]'),
+        intake_valid: !!document.querySelector('form[aria-label="Record client fact"]')
+          && !document.querySelector('form[aria-label="Record client fact"] :invalid'),
+        intake_reference: !!document.getElementById('intake-evidence-reference')?.value.trim(),
+        intake_locator: !!document.getElementById('intake-evidence-locator')?.value.trim(),
+        intake_alert: !!document.querySelector('form[aria-label="Record client fact"] [role=alert]'),
+        intake_save_disabled: [...document.querySelectorAll('form[aria-label="Record client fact"] button')]
+          .find(b=>b.textContent.trim()==='Save fact revision')?.disabled === true,
+        intake_revision_one: document.querySelector('[data-entity-revision]')?.dataset.entityRevision === '1'
       }))()`);
       if (phase === 'agent_shell') {
         surfaceEvidence.agent_state = await evaluate(`(async()=>{

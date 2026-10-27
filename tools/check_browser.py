@@ -37,12 +37,12 @@ def browser_failure_evidence(value):
     valid = isinstance(value, dict) and isinstance(value.get("reason"), str) and value["reason"] in BROWSER_PHASES
     result = {"checks": 0, "reason": value["reason"] if valid else "browser_process",
               "cleanup": valid and value.get("cleanup") is True}
-    if valid and value['reason'] in ('admin_users', 'work_views', 'agent_shell'):
+    if valid and value['reason'] in ('admin_users', 'work_views', 'agent_shell', 'intake_facts'):
         if value.get('failure_kind') in ('timeout', 'assertion', 'evaluation', 'protocol', 'other'):
             result['failure_kind'] = value['failure_kind']
         responses = value.get('surface_responses')
         if isinstance(responses, dict):
-            responses = {key: responses[key] for key in ('session', 'chat', 'admin')
+            responses = {key: responses[key] for key in ('session', 'chat', 'admin', 'intake')
                          if type(responses.get(key)) is int and 100 <= responses[key] <= 599}
             if responses:
                 result['surface_responses'] = responses
@@ -50,7 +50,9 @@ def browser_failure_evidence(value):
         if isinstance(ui, dict):
             ui = {key: ui[key] for key in ('admin_panel', 'admin_ready', 'admin_fields',
                   'conversation', 'contextual_panel', 'chat_alert', 'composer_nonempty', 'composer_focused',
-                  'send_present', 'send_disabled', 'ui_phase_ready') if type(ui.get(key)) is bool}
+                  'send_present', 'send_disabled', 'ui_phase_ready', 'intake_form', 'intake_valid',
+                  'intake_reference', 'intake_locator', 'intake_alert', 'intake_save_disabled',
+                  'intake_revision_one') if type(ui.get(key)) is bool}
             if ui:
                 result['surface_ui'] = ui
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):

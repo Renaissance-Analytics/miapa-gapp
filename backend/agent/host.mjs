@@ -7,7 +7,7 @@ import {
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.29.0") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.32.0") throw new Error("Unexpected ACP runtime");
 if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
     || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 

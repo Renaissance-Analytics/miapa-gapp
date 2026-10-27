@@ -379,16 +379,6 @@
           "tests": [
             "tests.test_acp_host.AcpHostTests.test_host_refuses_foreign_workspace_or_mcp_before_constructing_a_driver"
           ]
-        },
-        {
-          "id": "K05-ACP-HOST.native-policy",
-          "kind": "negative",
-          "given": "The actual Maipa host factory with an original native profile and the published restricted Codex driver",
-          "when": "A session request includes a different model and nativeTools default, under a synthetic no-executable transport",
-          "then": "Only the host-fixed gpt-5.3-codex/nativeTools none reaches the driver and native thread request; native shell, agents and web stay disabled; supplied MCP stays exact and no resume is adopted",
-          "tests": [
-            "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model"
-          ]
         }
       ]
     },
@@ -3261,6 +3251,32 @@
           "then": "The exact original Codex account, profile UUID, session UUID, conversation UUID and messages remain selected and unchanged.",
           "tests": [
             "tests.test_provider_selection.ProviderSelectionTests.test_upgrade_retains_original_account_profile_session_and_transcript_ids"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-RESTRICTED-STARTUP",
+      "risk": "An ACP session identifier may precede native startup, concealing missing launch restrictions or a rejected native configuration.",
+      "scenarios": [
+        {
+          "id": "A01-RESTRICTED-STARTUP.launch",
+          "kind": "positive",
+          "given": "Actual Maipa factory and published driver with a finite synthetic CLI transport and hostile client model/tool hints.",
+          "when": "Create a session, then await the observed native startup outcome.",
+          "then": "Host-fixed policy survives hints, plugin restrictions are present before initialization and a restricted native thread is acknowledged.",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_native_host_enforces_published_mcp_only_policy_and_fixed_model"
+          ]
+        },
+        {
+          "id": "A01-RESTRICTED-STARTUP.config",
+          "kind": "negative",
+          "given": "The synthetic native CLI reports missing or enabled plugin/remote-plugin startup settings.",
+          "when": "The published driver completes its asynchronous startup validation.",
+          "then": "Both launch restrictions are still supplied, no native thread is created, startup is refused and shutdown remains verified with zero survivors.",
+          "tests": [
+            "tests.test_acp_host.AcpHostTests.test_native_host_refuses_missing_or_enabled_startup_plugin_features"
           ]
         }
       ]
