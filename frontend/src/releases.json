@@ -1,11 +1,25 @@
 [
   {
+    "id": "development-31",
+    "label": "Development update 31",
+    "cards": [
+      {
+        "title": "A complete Fancy chat composer",
+        "description": "Chat now uses Fancy PromptInput and its contextual request drawer. Drafts stay editable during sends and survive failed confirmations and provider changes."
+      },
+      {
+        "title": "Read conversations at your pace",
+        "description": "Fancy\u2019s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
+      }
+    ]
+  },
+  {
     "id": "development-30",
     "label": "Development update 30",
     "cards": [
       {
         "title": "Fancy content and composer controls",
-        "description": "Agent replies, setup guidance and shared notes use Fancy’s content renderer. The message input uses Fancy’s multiline component while keeping drafts and confirmed sends."
+        "description": "Agent replies, setup guidance and shared notes use Fancy\u2019s content renderer. The message input uses Fancy\u2019s multiline component while keeping drafts and confirmed sends."
       },
       {
         "title": "Consistent connection controls",
@@ -43,7 +57,7 @@
     "cards": [
       {
         "title": "Claude sign-in link restored",
-        "description": "Maipa now recognizes Claude’s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
+        "description": "Maipa now recognizes Claude\u2019s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
       }
     ]
   },
@@ -109,7 +123,7 @@
     "cards": [
       {
         "title": "Choose your agent provider",
-        "description": "The chat now saves your provider choice and keeps each account’s conversation separate. Unsent drafts return when switching between providers in the open app."
+        "description": "The chat now saves your provider choice and keeps each account\u2019s conversation separate. Unsent drafts return when switching between providers in the open app."
       },
       {
         "title": "Connection support stays explicit",
@@ -246,16 +260,6 @@
       {
         "title": "Review your client authority",
         "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-11",
-    "label": "Development update 11",
-    "cards": [
-      {
-        "title": "Set up your local Maipa",
-        "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step."
       }
     ]
   }

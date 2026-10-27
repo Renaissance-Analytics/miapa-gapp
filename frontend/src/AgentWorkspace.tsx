@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, ContentRenderer, Input, ResizablePanels, Select, Text, Textarea, renderMarkdown } from '@particle-academy/react-fancy';
+import { useEffect, useRef, useState } from 'react';
+import { Button, ChatDrawer, ContentRenderer, Field, Input, PromptInput, ResizablePanels, Select, Text, VirtualList, renderMarkdown,
+  type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
@@ -7,6 +8,7 @@ import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
 import { CHAT_PROSE } from './content-policy.js';
+import { ChatDrafts, emptyDraft, sendProblem } from './chat-drafts.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -14,7 +16,17 @@ const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Conne
 export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { userId: string; layout: LayoutState;
   onResize: (value: number) => void; onResizeCommit: (value: number) => void }) {
   const [state, setState] = useState<ChatState>(emptyChat);
-  const [draft, setDraft] = useState('');
+  const [, refreshDraft] = useState(0);
+  const drafts = useRef(new ChatDrafts());
+  const draftAccount = state.connection.account_id ?? 'unselected';
+  const draft = drafts.current.read(draftAccount);
+  function changeDraft(value: PromptDraft) { drafts.current.write(draftAccount, value); refreshDraft(value => value + 1); }
+  function setDraft(text: string) { changeDraft({ ...emptyDraft(), text }); }
+  const [sendError, setSendError] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState('requests');
+  const [follow, setFollow] = useState(true);
+  const [unseen, setUnseen] = useState(0);
   const [authorizationCode, setAuthorizationCode] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -22,21 +34,11 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const [focusPanel, setFocusPanel] = useState(false);
   const [narrow, setNarrow] = useState(false);
   const [setup, setSetup] = useState(false);
-  const end = useRef<HTMLDivElement>(null);
   const current = useRef(state); current.current = state;
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   useEffect(() => { setAuthorizationCode(''); }, [userId, state.connection.account_id, state.phase, state.login?.url]);
-  const pendingRequest = useRef<{ text: string; id: string } | null>(null);
-  const drafts = useRef(new Map<string, { text: string; pending: typeof pendingRequest.current }>());
-  const draftAccount = useRef('unselected');
-  const draftValue = useRef(draft); draftValue.current = draft;
-  useEffect(() => {
-    const next = state.connection.account_id ?? 'unselected';
-    if (next === draftAccount.current) return;
-    drafts.current.set(draftAccount.current, { text: draftValue.current, pending: pendingRequest.current });
-    const saved = drafts.current.get(next);
-    draftAccount.current = next; pendingRequest.current = saved?.pending ?? null;
-    setDraft(saved?.text ?? '');
-  }, [state.connection.account_id]);
+  useEffect(() => { setFollow(true); setUnseen(0); setSendError(''); }, [draftAccount]);
   const bridge = useRef<SharedUiBridge | null>(null);
   useEffect(() => {
     const host = new SharedUiBridge(userId, () => current.current.ui);
@@ -72,7 +74,6 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     void listen();
     return () => { active = false; abort.abort(); };
   }, [userId, attempt]);
-  useEffect(() => { end.current?.scrollIntoView({ block: 'nearest' }); }, [state.messages.at(-1)?.text]);
   const ui = state.ui?.composition ? state.ui : null;
   useEffect(() => { if (!ui) setFocusPanel(false); }, [!!ui]);
   async function action(payload: Record<string, unknown>) {
@@ -82,10 +83,6 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
       const next = await chatRequest(userId, { ...payload, selection_revision: current.current.connection.revision });
       // A newer stream checkpoint can arrive before the POST acknowledgement.
       setState(previous => newerChat(previous, next));
-      if (payload.action === 'send') {
-        setDraft(previous => previous === payload.text ? '' : previous);
-        if (pendingRequest.current?.id === payload.request_id) pendingRequest.current = null;
-      }
     } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
     finally { setBusy(false); }
   }
@@ -99,11 +96,26 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
     finally { setBusy(false); }
   }
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    if (!draft.trim()) return;
-    if (pendingRequest.current?.text !== draft) pendingRequest.current = { text: draft, id: crypto.randomUUID() };
-    void action({ action: 'send', revision: current.current.revision, request_id: pendingRequest.current.id, text: draft });
+  async function submit(text: string, attachments: PromptAttachment[]): Promise<SubmitResult> {
+    const problem = sendProblem(text, attachments);
+    if (problem) return { ok: false, error: problem };
+    const selected = current.current.connection;
+    if (busy || error || !selected.available || !selected.account_id || !['offline', 'unavailable', 'ready'].includes(current.current.phase))
+      return { ok: false, error: 'Connect Maipa and wait for the current reply before sending.' };
+    const account = selected.account_id;
+    const request_id = drafts.current.request(account, text);
+    setBusy(true); setSendError(''); setFollow(true);
+    try {
+      const next = await chatRequest(userId, { action: 'send', revision: current.current.revision,
+        selection_revision: selected.revision, request_id, text });
+      if (!alive.current || current.current.connection.account_id !== account || current.current.connection.revision !== selected.revision)
+        return { ok: false, error: 'The connection changed. Your draft has been kept.' };
+      setState(previous => newerChat(previous, next));
+      drafts.current.acknowledge(account, request_id);
+      // Fancy clears only its acknowledged matching draft; newer typing survives.
+    } catch {
+      return { ok: false, error: 'Maipa could not confirm the send. Your draft has been kept; try again.' };
+    } finally { if (alive.current) setBusy(false); }
   }
   const running = ['connecting', 'sign_in', 'thinking', 'stopping'].includes(state.phase);
   const canSwitch = !busy && !running && ['offline', 'unavailable'].includes(state.phase);
@@ -119,16 +131,18 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         <div className="conversation-body">
           {!state.messages.length && <div className="conversation-welcome"><span className="eyebrow">Your AI accountant</span>
             <h2>What would you like to work on?</h2><p>Ask Maipa. The tools and records you need will open alongside our conversation.</p></div>}
-          <div className="chat-transcript" role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text">
-            {state.messages.map(message => <article className={`chat-message ${message.role}`} key={message.id} data-message-id={message.id}>
+          {!!state.messages.length && <VirtualList className="chat-transcript" height="100%" items={state.messages}
+            followTail={follow} onFollowChange={setFollow} onUnseenChange={setUnseen} estimateRowHeight={100} overscan={8}
+            role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text"
+            renderRow={message => <article className={`chat-message ${message.role}`} data-message-id={message.id}>
               <span>{message.role === 'user' ? 'You' : 'Maipa'}</span>
               {message.role === 'user' ? <Text size="sm" className="chat-user-text">{message.text}</Text>
                 : <ContentRenderer value={renderMarkdown(message.text, CHAT_PROSE)} format="html" className="maipa-content" />}
               {message.state === 'interrupted' && <small>Interrupted · partial reply retained</small>}
-            </article>)}
-          </div>
-          {setup && <AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
-            onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} />}
+            </article>} />}
+          {!follow && <Button size="sm" variant="ghost" onClick={() => setFollow(true)}>Back to latest{unseen ? ` (${unseen} new)` : ''}</Button>}
+          {setup && <div className="chat-setup-panel"><AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
+            onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} /></div>}
           {state.phase === 'sign_in' && <div className="provider-signin" role="region" aria-label={`Connect ${providerLabel}`}>
             <h3>Connect {providerLabel}</h3><p>This login belongs to your Maipa account.</p>
             {state.login ? <><a href={state.login.url} target="_blank" rel="noreferrer">Continue with {providerLabel}</a>
@@ -147,7 +161,6 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
               </form>}</>
               : <Button disabled={busy} onClick={() => void action({ action: 'login' })}>Sign in with {providerLabel}</Button>}
           </div>}
-          <div ref={end} />
         </div>
         <div className="chat-controls">
           {error && <p role="alert" className="auth-message">{error} <Button size="sm" variant="ghost" disabled={busy} onClick={() => void reconnect()}>Reconnect</Button></p>}
@@ -168,15 +181,24 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
               onClick={() => void reconnect()}>Connect {providerLabel}</Button>}
             {state.phase === 'ready' && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void action({ action: 'disconnect' })}>Disconnect</Button>}
           </div>
-          <form className="chat-composer" onSubmit={submit} aria-label="Message Maipa">
-            <Textarea id="maipa-chat-message" aria-label="Message Maipa" placeholder="Ask Maipa…" value={draft} maxLength={8000} minRows={2}
-              onValueChange={setDraft} onKeyDown={event => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (state.connection.available && !running && !busy && !error) submit(event); }
-              }} />
-            {running ? <Button type="button" disabled={busy || state.phase === 'stopping'}
-              onClick={() => void action({ action: state.phase === 'thinking' ? 'cancel' : 'disconnect' })}>Stop</Button>
-              : <Button type="submit" disabled={busy || !!error || !state.connection.available || !draft.trim()}>Send</Button>}
-          </form>
+          {sendError && <Text size="sm" role="alert" className="auth-message">{sendError}</Text>}
+          <div className="chat-composer" aria-label="Message Maipa">
+            <Field label="Message Maipa" labelHidden htmlFor="maipa-chat-message">
+              <PromptInput inputId="maipa-chat-message" name="message" placeholder="Ask Maipa…" draft={draft} onDraftChange={changeDraft}
+                budgetTokens={0} meter="hidden" maxHeight={160} attachButton="icon" sendButton="icon"
+                sendDisabled={busy || !!error || !state.connection.available || running}
+                onSubmit={submit} onSubmitError={problem => setSendError(typeof problem === 'string' ? problem : 'The message was not sent. Your draft has been kept.')}
+                aboveInput={<ChatDrawer tabs={[{ id: 'requests', label: 'Requests', number: null }, { id: 'connection', label: 'Connection', number: null }]}
+                  className="maipa-chat-drawer" activeTabId={drawerTab} onTabChange={tab => { setDrawerTab(tab); setDrawerOpen(true); }} open={drawerOpen} onToggle={setDrawerOpen} minBodyHeight={52}>
+                  {drawerTab === 'requests' ? <div className="chat-quick-requests">
+                    <Button size="sm" variant="ghost" onClick={() => setDraft('Open my saved client facts')}>Review client facts</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setDraft('Present a note')}>Ask for a note</Button>
+                  </div> : <Text size="sm">{providerLabel} · {phaseLabels[state.phase]}{state.models?.currentModelId ? ` · ${state.models.availableModels.find(model => model.modelId === state.models!.currentModelId)?.name ?? state.models.currentModelId}` : ''}</Text>}
+                </ChatDrawer>} />
+            </Field>
+            {running && <Button type="button" disabled={busy || state.phase === 'stopping'}
+              onClick={() => void action({ action: state.phase === 'thinking' ? 'cancel' : 'disconnect' })}>Stop</Button>}
+          </div>
         </div>
       </section>
       <section className="contextual-panel" data-pane="work" aria-label="Contextual panel" hidden={!ui} inert={!ui || (narrow && !focusPanel)}>

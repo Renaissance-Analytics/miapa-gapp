@@ -838,6 +838,35 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-COMPLETE-DRAFTS",
+      "risk": "Composer swap may lose or cross-bind text, paste state, attachments or retry identities.",
+      "scenarios": [
+        {
+          "id": "A07-COMPLETE-DRAFTS.positive",
+          "kind": "positive",
+          "given": "Two accounts, a complete unsent draft, retries and late/stale acknowledgments",
+          "when": "Restore, edit, submit and acknowledge account-scoped state",
+          "then": "Full JSON drafts and retry IDs remain isolated by account; copies do not share mutation; matching acknowledgments retire only their own request and preserve newer typing; unsupported attachments and over-limit messages are refused without data loss.",
+          "tests": [
+            "chat-drafts.test.mjs#complete drafts and attachment references restore under only their original account",
+            "chat-drafts.test.mjs#draft snapshots do not share mutable arrays or data with callers",
+            "chat-drafts.test.mjs#retry identities remain account scoped and stable for the same failed payload",
+            "chat-drafts.test.mjs#acknowledgment retires only its matching request and never clears a newer draft"
+          ]
+        },
+        {
+          "id": "A07-COMPLETE-DRAFTS.negative",
+          "kind": "negative",
+          "given": "Two accounts, a complete unsent draft, retries and late/stale acknowledgments",
+          "when": "Restore, edit, submit and acknowledge account-scoped state",
+          "then": "Full JSON drafts and retry IDs remain isolated by account; copies do not share mutation; matching acknowledgments retire only their own request and preserve newer typing; unsupported attachments and over-limit messages are refused without data loss.",
+          "tests": [
+            "chat-drafts.test.mjs#unsupported attachments and over-limit messages are refused without rewriting drafts"
+          ]
+        }
+      ]
     }
   ]
 }

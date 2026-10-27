@@ -49,6 +49,8 @@ let sequence = 0;
 const exceptions = [];
 const intakeListResponses = [];
 const passed = [];
+let holdComposerSends = false;
+const pausedComposerSends = [];
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
 const progressPhases = new Set(['fixture_input', 'browser_binary', 'profile_parent', 'browser_launch',
   'debug_endpoint', 'service_storage', 'ui_composition', 'admin_users', 'client_catalog', 'agent_shell',
@@ -128,8 +130,8 @@ async function waitForAgent(type) {
 async function requestComponent(prompt, type) {
   await chooseAgent();
   if (await evaluate("matchMedia('(max-width:700px)').matches && document.querySelector('.has-composition') && document.querySelector('.focus-panel')")) await click('Conversation');
-  await until(() => evaluate("!!document.querySelector('textarea[aria-label=\"Message Maipa\"]')"), 'live chat composer');
-  await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').focus();true");
+  await until(() => evaluate("!!document.querySelector('#maipa-chat-message')"), 'live chat composer');
+  await evaluate("document.querySelector('#maipa-chat-message').focus();true");
   await command('Input.dispatchKeyEvent', {type:'keyDown',key:'a',windowsVirtualKeyCode:65,modifiers:2});
   await command('Input.dispatchKeyEvent', {type:'keyUp',key:'a',windowsVirtualKeyCode:65,modifiers:2});
   await command('Input.insertText', {text:prompt});
@@ -149,7 +151,7 @@ async function chooseAgent() {
 }
 
 async function typeChat(text) {
-  await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').focus();true");
+  await evaluate("document.querySelector('#maipa-chat-message').focus();true");
   await command('Input.dispatchKeyEvent', {type:'keyDown',key:'a',windowsVirtualKeyCode:65,modifiers:2});
   await command('Input.dispatchKeyEvent', {type:'keyUp',key:'a',windowsVirtualKeyCode:65,modifiers:2});
   await command('Input.insertText', {text});
@@ -207,6 +209,14 @@ try {
   await new Promise((resolve, reject) => { socket.addEventListener("open", resolve, { once: true }); socket.addEventListener("error", reject, { once: true }); });
   socket.addEventListener("message", event => {
     const message = JSON.parse(event.data);
+    if (message.method === 'Fetch.requestPaused') {
+      const paused = message.params;
+      let body;
+      try { body = JSON.parse(paused.request.postData ?? 'null'); } catch { /* Not a JSON send. */ }
+      if (holdComposerSends && paused.request.method === 'POST' && body?.action === 'send')
+        pausedComposerSends.push({ requestId: paused.requestId, body });
+      else void command('Fetch.continueRequest', { requestId: paused.requestId }).catch(() => exceptions.push(true));
+    }
     if (message.method === "Runtime.exceptionThrown") exceptions.push(true);
     if (message.method === 'Network.responseReceived' && ['admin_users', 'work_views', 'agent_shell'].includes(phase)) {
       for (const [path, key] of [['/api/session/', 'session'], ['/api/agent/chat/', 'chat'], ['/api/admin/users/', 'admin']]) {
@@ -642,44 +652,91 @@ try {
   assert.equal(await evaluate("document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
   record('persistent-chat-work-views');
   phase = 'agent_shell';
+  assert.equal(await evaluate("!!document.querySelector('[data-react-fancy-prompt-input]')"), true, 'main conversation uses the public whole PromptInput');
+  assert.equal(await evaluate("!!document.querySelector('.maipa-chat-drawer') && !!document.querySelector('[data-react-fancy-virtual-list]')"), true, 'kit drawer and measured transcript are mounted');
+  await click('Requests'); await click('Ask for a note');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'Present a note');
+  const drawerToggle = await evaluate("document.querySelector('.maipa-chat-drawer button[aria-label]')?.getAttribute('aria-label')");
+  if (drawerToggle) await click(drawerToggle);
+  await typeChat('Draft before composition');
+  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', windowsVirtualKeyCode: 229, modifiers: 2 });
+  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', windowsVirtualKeyCode: 229, modifiers: 2 });
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value === 'Draft before composition' && !document.querySelector('[data-submit-state=submitting]')"), true);
+  const syntheticAttachment = join(profile, 'synthetic-evidence.txt'); writeFileSync(syntheticAttachment, 'Synthetic unsent evidence');
+  const docRoot = await command('DOM.getDocument', { depth: 0 });
+  const attachmentInput = await command('DOM.querySelector', { nodeId: docRoot.root.nodeId, selector: '.chat-composer input[type=file]' });
+  await command('DOM.setFileInputFiles', { nodeId: attachmentInput.nodeId, files: [syntheticAttachment] });
+  await until(() => evaluate("!!document.querySelector('[data-react-fancy-prompt-input-attachment]')"), 'real selected attachment appears');
+  await click('Send');
+  await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('Remove them')"), 'unsupported delivery is explicitly refused');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value==='Draft before composition' && !!document.querySelector('[data-react-fancy-prompt-input-attachment]')"), true);
+  await click('Remove attachment');
+  await command('Fetch.enable', { patterns: [{ urlPattern: fixture.origin + '/api/agent/chat/', requestStage: 'Request' }] });
+  holdComposerSends = true;
+  await typeChat('Check acknowledged send');
+  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 });
+  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 });
+  await until(() => pausedComposerSends.length === 1, 'actual send request is held before acknowledgment');
+  assert.equal(await evaluate("!!document.querySelector('[data-submit-state=submitting]') && !document.getElementById('maipa-chat-message').disabled && document.getElementById('maipa-chat-message').value==='Check acknowledged send'"), true);
+  await typeChat('New typing while pending Ω');
+  await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 });
+  await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', windowsVirtualKeyCode: 13, modifiers: 2 });
+  await delay(100); assert.equal(pausedComposerSends.length, 1, 'no duplicate submission while pending');
+  await command('Fetch.failRequest', { requestId: pausedComposerSends[0].requestId, errorReason: 'Failed' });
+  await until(() => evaluate("!!document.querySelector('[data-submit-state=error]')"), 'actual failed request preserves draft');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'New typing while pending Ω');
+  await typeChat('Check acknowledged send'); await click('Send');
+  await until(() => pausedComposerSends.length === 2, 'same message retry reaches transport');
+  assert.equal(pausedComposerSends[1].body.request_id, pausedComposerSends[0].body.request_id, 'retry retains original idempotency identity');
+  await typeChat('New typing after retry Ω'); holdComposerSends = false;
+  await command('Fetch.continueRequest', { requestId: pausedComposerSends[1].requestId });
+  await command('Fetch.disable'); await waitForAgent('Maipa.Note');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'New typing after retry Ω');
   if (await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
   await typeChat('Present a note with a delayed update'); await click('Send');
   await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic shared note'"), 'agent first presentation');
-  await evaluate("window.maipaDraftNode=document.querySelector('textarea[aria-label=\"Message Maipa\"]');window.maipaConversationNode=document.querySelector('.conversation');true");
+  await evaluate("window.maipaDraftNode=document.querySelector('#maipa-chat-message');window.maipaConversationNode=document.querySelector('.conversation');true");
   await typeChat('Unsent follow-up Ω');
   await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic delayed update' && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'agent updates existing shared component');
-  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]')===window.maipaDraftNode && window.maipaDraftNode.value==='Unsent follow-up Ω' && document.querySelector('.conversation')===window.maipaConversationNode"), true);
+  assert.equal(await evaluate("document.querySelector('#maipa-chat-message')===window.maipaDraftNode && window.maipaDraftNode.value==='Unsent follow-up Ω' && document.querySelector('.conversation')===window.maipaConversationNode"), true);
   await until(() => evaluate("document.getElementById('maipa-agent-model')?.value==='synthetic-a' && !document.getElementById('maipa-agent-model').disabled"), 'provider-reported model choices');
   await evaluate("window.maipaModelPanelNode=document.querySelector('.contextual-panel');true");
   await select('maipa-agent-model', 'synthetic-b');
   await until(() => evaluate("document.getElementById('maipa-agent-model')?.value==='synthetic-b' && !document.getElementById('maipa-agent-model').disabled && document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'confirmed owned model choice');
-  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('textarea[aria-label=\"Message Maipa\"]') && window.maipaDraftNode.value==='Unsent follow-up Ω' && window.maipaModelPanelNode===document.querySelector('.contextual-panel')"), true);
+  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('#maipa-chat-message') && window.maipaDraftNode.value==='Unsent follow-up Ω' && window.maipaModelPanelNode===document.querySelector('.contextual-panel')"), true);
   await typeChat('Check kit formatting and literal <user-text> **raw**'); await click('Send');
-  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && document.querySelector('.chat-message.assistant:last-child')?.textContent.includes('Formatted reply')"), 'kit renderer reply completed');
-  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] strong')?.textContent"), 'Formatted reply');
-  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] h2')?.textContent"), 'Kit reply');
-  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child [data-react-fancy-content-renderer] li')?.textContent"), 'One item');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.textContent.includes('Formatted reply')"), 'kit renderer reply completed');
+  assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('[data-react-fancy-content-renderer] strong')?.textContent"), 'Formatted reply');
+  assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('[data-react-fancy-content-renderer] h2')?.textContent"), 'Kit reply');
+  assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('[data-react-fancy-content-renderer] li')?.textContent"), 'One item');
   assert.equal(await evaluate("document.querySelector('.agent-commentary [data-react-fancy-content-renderer] strong')?.textContent"), 'Kit note');
   assert.equal(await evaluate("document.querySelector('.chat-message.user:last-of-type')?.textContent.includes('literal <user-text> **raw**') || [...document.querySelectorAll('.chat-message.user')].at(-1)?.textContent.includes('literal <user-text> **raw**')"), true);
-  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').hasAttribute('data-react-fancy-textarea')"), true);
-  assert.equal(await evaluate("!!window.maipaUnsafeRender || !!document.querySelector('.chat-message.assistant:last-child img, .chat-message.assistant:last-child iframe, .chat-message.assistant:last-child script, .chat-message.assistant:last-child [onerror], .agent-commentary img, .agent-commentary script')"), false);
-  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child a')?.hasAttribute('href')"), false);
+  assert.equal(await evaluate("document.querySelector('#maipa-chat-message').hasAttribute('data-react-fancy-prompt-input-textarea')"), true);
+  assert.equal(await evaluate("!!window.maipaUnsafeRender || !!document.querySelector('.chat-message.assistant img, .chat-message.assistant iframe, .chat-message.assistant script, .chat-message.assistant [onerror], .agent-commentary img, .agent-commentary script')"), false);
+  assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('a')?.hasAttribute('href')"), false);
+  const scrollPoint = await evaluate("(()=>{const r=document.querySelector('[data-react-fancy-virtual-list]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
+  await command('Input.dispatchMouseEvent', { type: 'mouseWheel', ...scrollPoint, deltaX: 0, deltaY: -1200 });
+  await until(() => evaluate("document.querySelector('[data-react-fancy-virtual-list]').getAttribute('data-react-fancy-virtual-list-following')==='false'"), 'human scrolling pauses automatic following');
+  await delay(250);
+  assert.equal(await evaluate("document.querySelector('[data-react-fancy-virtual-list]').scrollTop < 5"), true);
+  await click('Back to latest');
+  await until(() => evaluate("document.querySelector('[data-react-fancy-virtual-list]').getAttribute('data-react-fancy-virtual-list-following')==='true'"), 'person resumes following explicitly');
   await typeChat('Unsent follow-up Ω');
   record('agent-chat-stream-and-ui-control');
   await click('Close contextual panel');
   await until(() => evaluate("!!document.querySelector('.chat-only')"), 'human dismissal reaches shared composition');
-  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('textarea[aria-label=\"Message Maipa\"]') && window.maipaDraftNode.value==='Unsent follow-up Ω'"), true);
+  assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('#maipa-chat-message') && window.maipaDraftNode.value==='Unsent follow-up Ω'"), true);
   assert.equal(await evaluate("document.querySelector('.conversation').getBoundingClientRect().width >= innerWidth-5 && getComputedStyle(document.querySelector('[role=separator]')).display==='none'"), true);
   record('chat-draft-and-space-recovery');
   await typeChat('Present a note and wait for cancellation'); await click('Send');
-  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Maipa is working…' && document.querySelector('.chat-message.assistant:last-child p')?.textContent==='Synthetic agent '"), 'streaming partial reply');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Maipa is working…' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('p')?.textContent==='Synthetic agent '"), 'streaming partial reply');
   await click('Stop');
-  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && document.querySelector('.chat-message.assistant:last-child small')?.textContent.includes('Interrupted')"), 'cancelled partial reply retained');
+  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('small')?.textContent.includes('Interrupted')"), 'cancelled partial reply retained');
   const savedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
   await command('Page.reload'); await preferencesReady();
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'live chat restored after reload');
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), savedChat);
-  assert.equal(await evaluate("document.querySelector('.chat-message.assistant:last-child small')?.textContent.includes('Interrupted')"), true);
+  assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('small')?.textContent.includes('Interrupted')"), true);
   record('agent-cancel-and-chat-restore');
   await typeChat('Simulate connection interruption'); await click('Send');
   await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('disconnected')"), 'deliberate owned transport interruption');
@@ -687,7 +744,7 @@ try {
   await typeChat('Unsent reconnect draft');
   await click('Reconnect');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'explicit reconnect restarts stopped worker');
-  assert.equal(await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').value"), 'Unsent reconnect draft');
+  assert.equal(await evaluate("document.querySelector('#maipa-chat-message').value"), 'Unsent reconnect draft');
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), interruptedChat);
   await requestComponent('Present a note after reconnect', 'Maipa.Note');
   assert.equal(await evaluate("!!document.querySelector('.chat-controls [role=alert]')"), false);
@@ -704,10 +761,10 @@ try {
   const providerPreview = await command('Page.captureScreenshot', { format: 'png' });
   writeFileSync('artifacts/ci/agent-provider-preview.png', Buffer.from(providerPreview.data, 'base64'));
   await select('maipa-agent-provider', 'codex');
-  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Codex unsent draft'"), 'original provider draft restored');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && document.querySelector('#maipa-chat-message').value==='Codex unsent draft'"), 'original provider draft restored');
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), beforeSwitch.messages);
   await select('maipa-agent-provider', 'independent-acp');
-  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='independent-acp' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Independent ACP unsent draft'"), 'other provider draft remains separate');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='independent-acp' && document.querySelector('#maipa-chat-message').value==='Independent ACP unsent draft'"), 'other provider draft remains separate');
   await command('Page.reload'); await preferencesReady();
   await until(() => evaluate("document.getElementById('maipa-agent-provider')?.value==='independent-acp' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'provider selection survives reload without fallback');
   await select('maipa-agent-provider', 'claude');
@@ -721,7 +778,7 @@ try {
   await fill('maipa-provider-authorization', 'SYNTHETIC_PRIVATE_CODE');
   await click('Complete sign-in');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'private callback completes deterministic connection');
-  assert.equal(await evaluate("!document.querySelector('.provider-signin') && document.querySelectorAll('.chat-message').length===0 && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Claude unsent draft' && !document.body.textContent.includes('SYNTHETIC_PRIVATE_CODE')"), true);
+  assert.equal(await evaluate("!document.querySelector('.provider-signin') && document.querySelectorAll('.chat-message').length===0 && document.querySelector('#maipa-chat-message').value==='Claude unsent draft' && !document.body.textContent.includes('SYNTHETIC_PRIVATE_CODE')"), true);
   await click('Disconnect');
   await until(() => evaluate("!document.getElementById('maipa-agent-provider').disabled"), 'Claude worker stopped before switch');
   await select('maipa-agent-provider', 'codex');
@@ -944,10 +1001,10 @@ try {
         conversation: !!document.querySelector('.conversation'),
         contextual_panel: !!document.querySelector('.has-composition'),
         chat_alert: !!document.querySelector('.chat-controls [role=alert]'),
-        composer_nonempty: !!document.querySelector('textarea[aria-label="Message Maipa"]')?.value.trim(),
-        composer_focused: document.activeElement === document.querySelector('textarea[aria-label="Message Maipa"]'),
-        send_present: [...document.querySelectorAll('.chat-composer button')].some(b=>b.textContent.trim()==='Send'),
-        send_disabled: [...document.querySelectorAll('.chat-composer button')].find(b=>b.textContent.trim()==='Send')?.disabled === true,
+        composer_nonempty: !!document.querySelector('#maipa-chat-message')?.value.trim(),
+        composer_focused: document.activeElement === document.querySelector('#maipa-chat-message'),
+        send_present: !!document.querySelector('[data-react-fancy-prompt-input-send]'),
+        send_disabled: document.querySelector('[data-react-fancy-prompt-input-send]')?.disabled === true,
         ui_phase_ready: document.querySelector('.chat-status [role=status]')?.textContent === 'Ready',
         intake_form: !!document.querySelector('form[aria-label="Record client fact"]'),
         intake_valid: !!document.querySelector('form[aria-label="Record client fact"]')
