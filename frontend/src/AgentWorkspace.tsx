@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Button, ResizablePanels } from '@particle-academy/react-fancy';
+import { Button, ResizablePanels, Select } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
-import { chatRequest, emptyChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
+import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
 
-const phaseLabels = { offline: 'Connect your subscription to begin', connecting: 'Connecting…', sign_in: 'Sign in to ChatGPT',
+const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
 
 export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { userId: string; layout: LayoutState;
@@ -23,6 +23,17 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const end = useRef<HTMLDivElement>(null);
   const current = useRef(state); current.current = state;
   const pendingRequest = useRef<{ text: string; id: string } | null>(null);
+  const drafts = useRef(new Map<string, { text: string; pending: typeof pendingRequest.current }>());
+  const draftAccount = useRef('unselected');
+  const draftValue = useRef(draft); draftValue.current = draft;
+  useEffect(() => {
+    const next = state.connection.account_id ?? 'unselected';
+    if (next === draftAccount.current) return;
+    drafts.current.set(draftAccount.current, { text: draftValue.current, pending: pendingRequest.current });
+    const saved = drafts.current.get(next);
+    draftAccount.current = next; pendingRequest.current = saved?.pending ?? null;
+    setDraft(saved?.text ?? '');
+  }, [state.connection.account_id]);
   const bridge = useRef<SharedUiBridge | null>(null);
   useEffect(() => {
     const host = new SharedUiBridge(userId, () => current.current.ui);
@@ -46,12 +57,12 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
       try {
         const initial = await chatRequest(userId, undefined, abort.signal);
         if (!active) return;
-        setState(initial); setError('');
+        setState(previous => newerChat(previous, initial)); setError('');
         while (active) {
           const response = await fetch('/api/agent/chat/stream/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
             headers: { 'X-Maipa-Agent-Actor': userId }, signal: abort.signal });
           if (response.status !== 200 || !response.body) throw Error('Conversation unavailable');
-          await readEventStream(response.body, next => { if (active) setState(next); });
+          await readEventStream(response.body, next => { if (active) setState(previous => newerChat(previous, next)); });
         }
       } catch { if (active) setError('The conversation disconnected. Reconnect to load its saved state.'); }
     }
@@ -65,9 +76,9 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     if (busy) return;
     setBusy(true); setError('');
     try {
-      const next = await chatRequest(userId, payload);
+      const next = await chatRequest(userId, { ...payload, selection_revision: current.current.connection.revision });
       // A newer stream checkpoint can arrive before the POST acknowledgement.
-      setState(previous => next.revision >= previous.revision ? next : previous);
+      setState(previous => newerChat(previous, next));
       if (payload.action === 'send') {
         setDraft(previous => previous === payload.text ? '' : previous);
         if (pendingRequest.current?.id === payload.request_id) pendingRequest.current = null;
@@ -80,7 +91,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     setBusy(true); setError('');
     try {
       const next = await reconnectChat(userId);
-      setState(previous => next.revision >= previous.revision ? next : previous);
+      setState(previous => newerChat(previous, next));
       setAttempt(value => value + 1);
     } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
     finally { setBusy(false); }
@@ -92,6 +103,8 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     void action({ action: 'send', revision: current.current.revision, request_id: pendingRequest.current.id, text: draft });
   }
   const running = ['connecting', 'sign_in', 'thinking', 'stopping'].includes(state.phase);
+  const canSwitch = !busy && !running && ['offline', 'unavailable'].includes(state.phase);
+  const providerLabel = state.connection.label ?? 'your provider';
   return <main className={`agent-workspace ${ui ? 'has-composition' : 'chat-only'} ${focusPanel ? 'focus-panel' : 'focus-chat'}`}>
     {ui && <div className="context-switch" role="group" aria-label="Visible panel">
       <Button size="sm" variant="ghost" aria-pressed={!focusPanel} onClick={() => setFocusPanel(false)}>Conversation</Button>
@@ -111,30 +124,37 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
           </div>
           {setup && <AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
             onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} />}
-          {state.phase === 'sign_in' && <div className="provider-signin" role="region" aria-label="Connect ChatGPT">
-            <h3>Connect your ChatGPT subscription</h3><p>This login belongs to your Maipa account.</p>
-            {state.login ? <><a href={state.login.url} target="_blank" rel="noreferrer">Continue with ChatGPT</a>
-              <p>Enter <strong className="device-code">{state.login.code}</strong> in the provider’s sign-in window.</p></>
-              : <Button disabled={busy} onClick={() => void action({ action: 'login' })}>Sign in with ChatGPT</Button>}
+          {state.phase === 'sign_in' && <div className="provider-signin" role="region" aria-label={`Connect ${providerLabel}`}>
+            <h3>Connect {providerLabel}</h3><p>This login belongs to your Maipa account.</p>
+            {state.login ? <><a href={state.login.url} target="_blank" rel="noreferrer">Continue with {providerLabel}</a>
+              {state.login.code && <p>Enter <strong className="device-code">{state.login.code}</strong> in the provider’s sign-in window.</p>}</>
+              : <Button disabled={busy} onClick={() => void action({ action: 'login' })}>Sign in with {providerLabel}</Button>}
           </div>}
           <div ref={end} />
         </div>
         <div className="chat-controls">
           {error && <p role="alert" className="auth-message">{error} <Button size="sm" variant="ghost" disabled={busy} onClick={() => void reconnect()}>Reconnect</Button></p>}
-          <div className="chat-status"><span role="status">{phaseLabels[state.phase]}</span>
+          <div className="chat-status"><span role="status">{!state.connection.provider ? 'Choose your agent provider' :
+            !state.connection.available ? `Connection support for ${providerLabel} is not available in this build.` : phaseLabels[state.phase]}</span>
+            <div className="chat-provider-choice"><Select id="maipa-agent-provider" size="sm" label="Agent provider" labelHidden value={state.connection.provider ?? ''}
+              placeholder="Choose provider" disabled={!canSwitch || !!error} list={[
+                ...state.providers.map(provider => ({ value: provider.id, label: provider.label })),
+                ...(state.connection.provider && !state.providers.some(p => p.id === state.connection.provider)
+                  ? [{ value: state.connection.provider, label: providerLabel }] : []),
+              ]} onValueChange={provider => void action({ action: 'select_provider', provider })} /></div>
             <Button size="sm" variant="ghost" aria-expanded={setup} onClick={() => setSetup(value => !value)}>Account setup</Button>
-            {['offline', 'unavailable'].includes(state.phase) && <Button size="sm" variant="ghost" disabled={busy}
-              onClick={() => void reconnect()}>Connect ChatGPT</Button>}
+            {state.connection.available && ['offline', 'unavailable'].includes(state.phase) && <Button size="sm" variant="ghost" disabled={busy}
+              onClick={() => void reconnect()}>Connect {providerLabel}</Button>}
             {state.phase === 'ready' && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void action({ action: 'disconnect' })}>Disconnect</Button>}
           </div>
           <form className="chat-composer" onSubmit={submit} aria-label="Message Maipa">
             <textarea aria-label="Message Maipa" placeholder="Ask Maipa…" value={draft} maxLength={8000} rows={2}
               onChange={event => setDraft(event.target.value)} onKeyDown={event => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!running && !busy && !error) submit(event); }
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (state.connection.available && !running && !busy && !error) submit(event); }
               }} />
             {running ? <Button type="button" disabled={busy || state.phase === 'stopping'}
               onClick={() => void action({ action: state.phase === 'thinking' ? 'cancel' : 'disconnect' })}>Stop</Button>
-              : <Button type="submit" disabled={busy || !!error || !draft.trim()}>Send</Button>}
+              : <Button type="submit" disabled={busy || !!error || !state.connection.available || !draft.trim()}>Send</Button>}
           </form>
         </div>
       </section>

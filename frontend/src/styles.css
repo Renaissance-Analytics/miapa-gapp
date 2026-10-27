@@ -181,6 +181,7 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .chat-controls { padding: 8px max(18px, calc((100% - 780px) / 2)) 16px; }
 .chat-status { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
 .chat-status > span { margin-right: auto; }
+.chat-provider-choice { flex: 0 1 180px; min-width: 130px; max-width: 100%; }
 .chat-status button { min-height: 28px; padding-block: 3px; }
 .chat-composer { display: flex; align-items: end; gap: 8px; border: 1px solid var(--control-border); border-radius: 13px; padding: 8px; background: var(--surface); }
 .chat-composer:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

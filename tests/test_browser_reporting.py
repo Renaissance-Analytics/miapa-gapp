@@ -22,6 +22,20 @@ class BrowserReportingTests(unittest.TestCase):
         self.assertEqual(browser_failure_evidence({'reason':'anonymous','cleanup':True,
             'failure_kind':'assertion','surface_responses':{'chat':503},'surface_ui':{'conversation':True}}),
             {'checks':0,'reason':'anonymous','cleanup':True})
+        self.assertEqual(browser_failure_evidence({'reason':'agent_shell','cleanup':True,
+            'agent_state':{'phase':'unavailable','interruption_received':True,'private':'synthetic-secret'}}),
+            {'checks':0,'reason':'agent_shell','cleanup':True,
+             'agent_state':{'phase':'unavailable','interruption_received':True}})
+        for reason in ('anonymous', 'agent_shell'):
+            self.assertEqual(browser_failure_evidence({'reason':reason,'cleanup':True,
+                'agent_state':{'phase':'synthetic-private','interruption_received':'secret','private':True}}),
+                {'checks':0,'reason':reason,'cleanup':True})
+        self.assertEqual(browser_failure_evidence({'reason':'agent_shell','cleanup':True,
+            'surface_ui':{'composer_nonempty':True,'composer_focused':False,'send_present':True,
+                'send_disabled':False,'ui_phase_ready':True,'draft':'synthetic-private'}}),
+            {'checks':0,'reason':'agent_shell','cleanup':True,
+             'surface_ui':{'composer_nonempty':True,'composer_focused':False,'send_present':True,
+                'send_disabled':False,'ui_phase_ready':True}})
 
     def test_known_setup_checkpoint_survives_without_browser_text_or_answer(self):
         self.assertEqual(browser_failure_evidence({'reason':'setup_chat','cleanup':True,

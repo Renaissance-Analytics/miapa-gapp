@@ -49,12 +49,22 @@ def browser_failure_evidence(value):
         ui = value.get('surface_ui')
         if isinstance(ui, dict):
             ui = {key: ui[key] for key in ('admin_panel', 'admin_ready', 'admin_fields',
-                  'conversation', 'contextual_panel', 'chat_alert') if type(ui.get(key)) is bool}
+                  'conversation', 'contextual_panel', 'chat_alert', 'composer_nonempty', 'composer_focused',
+                  'send_present', 'send_disabled', 'ui_phase_ready') if type(ui.get(key)) is bool}
             if ui:
                 result['surface_ui'] = ui
     if valid and value['reason'] == 'setup_chat' and isinstance(value.get('checkpoint'), str):
         if value['checkpoint'] in BROWSER_SETUP_CHECKPOINTS:
             result['checkpoint'] = value['checkpoint']
+    if valid and value['reason'] == 'agent_shell' and isinstance(value.get('agent_state'), dict):
+        state = value['agent_state']
+        safe = {}
+        if state.get('phase') in ('offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'):
+            safe['phase'] = state['phase']
+        if type(state.get('interruption_received')) is bool:
+            safe['interruption_received'] = state['interruption_received']
+        if safe:
+            result['agent_state'] = safe
     if valid and value['reason'] in ('login', 'logout_viewer'):
         checkpoint = value.get('checkpoint')
         checkpoints = BROWSER_LOGIN_CHECKPOINTS if value['reason'] == 'login' else BROWSER_AUTH_CHECKPOINTS
@@ -160,7 +170,6 @@ def main():
             raise ValueError('First-run fixture must not require a setup-code file')
         application = get_wsgi_application()
         failed_initial_intake = False
-        failed_chat_stream = False
         enable_intake_failure = False
         seeded_authority = False
 
@@ -193,12 +202,15 @@ def main():
             result = application(environ, start_response)
             if enable_intake_failure and environ.get('PATH_INFO') == '/api/agent/chat/stream/':
                 def interrupted_stream():
-                    nonlocal failed_chat_stream
                     from backend.maipa.agent_accounts.models import Conversation
                     try:
                         for chunk in result:
-                            if not failed_chat_stream and Conversation.objects.filter(account=owned, phase='unavailable').exists():
-                                failed_chat_stream = True
+                            failed = Conversation.objects.filter(account=owned, phase='unavailable', worker__isnull=True).first()
+                            last_user = next((m for m in reversed(failed.messages) if m['role'] == 'user'), None) if failed else None
+                            # Each subscriber to this failed synthetic request
+                            # must see the break. A stale stream from before a
+                            # reload cannot consume a single global injection.
+                            if last_user and last_user['text'] == 'Simulate connection interruption':
                                 yield b'event: revoked\ndata: {}\n\n'
                                 return
                             yield chunk

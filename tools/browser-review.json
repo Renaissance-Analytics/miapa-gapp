@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "412a6eeb87b393ca5a7bcdf27121ac9d772d6fcf28d47c2355ec2b835137699d",
-    "tools/check_browser.py": "58f92f443f530f33bcdc6f6eb3831ea52a13e7163d06e6e370c7143b196bc841",
+    "tools/browser.mjs": "c2132f19975d88e89f7a5398f0d59708bae5df65b9a683eda293a4e858562a82",
+    "tools/check_browser.py": "06e8201b00e8d36abe48db239a568685fdb23766ca72de508d8ee5fe1604626f",
     "tools/browser-profile.mjs": "cf9fa311124b58a00ce9ede917fc65a3c5e7ce4fb2b1a3c95547e8fa9f3490d4",
     "tests/fixtures/agent_chat_peer.py": "652a522bee6bba9d10bf45439cba7b44690e778141efcf7ad1349c078797e6fd"
   },
@@ -17,7 +17,7 @@
     {
       "id": "account-chat-resume-and-confirm",
       "kind": "positive",
-      "expected": "Native mobile onboarding replies survive reload, review with zero preconfirmation clients and save exact owned facts once. Stale confirmation409 remains. Open saved facts prepares the chat request; actual Send reaches the deterministic ACP peer, whose authorized UI call presents the real facts component. No real-model claim."
+      "expected": "Native mobile onboarding replies survive reload, review with zero preconfirmation clients and save exact owned facts once. Stale confirmation409 remains. Open saved facts prepares the chat request; actual Send reaches the deterministic ACP peer, whose authorized UI call presents the real facts component. No real-model claim. New users explicitly choose the registered provider through the native control before sending to the deterministic peer."
     },
     {
       "id": "client-catalog-create-rename-conflict",
@@ -112,7 +112,7 @@
     {
       "id": "agent-chat-stream-and-ui-control",
       "kind": "positive",
-      "expected": "Actual native chat Send reaches the deterministic ACP test peer. A real authorized present callback is followed by a delayed update of the same shared node while native input types a new Unicode draft. The actual rendered note updates, streamed turn completes, and composer/conversation DOM identity plus draft remain exact. Not real-model acceptance."
+      "expected": "Actual native chat Send reaches the deterministic ACP test peer. A real authorized present callback is followed by a delayed update of the same shared node while native input types a new Unicode draft. The actual rendered note updates, streamed turn completes, and composer/conversation DOM identity plus draft remain exact. Not real-model acceptance. Failure evidence additionally admits only boolean composer focus/nonempty/button/ready flags, never the draft. No original action, assertion or deadline changes; prior Send-readiness timeout is not claimed fixed by instrumentation."
     },
     {
       "id": "chat-draft-and-space-recovery",
@@ -127,7 +127,12 @@
     {
       "id": "agent-reconnect-after-transport-loss",
       "kind": "recovery",
-      "expected": "The test-only ACP peer deliberately exits during a turn; one owned fixture stream ends with a revoked frame. Actual Reconnect pointer input reads current authority/revision, starts a fresh unique acknowledged session and restores streaming. Exact saved messages and an unsent draft survive; another native Send presents a real controlled Note. No production fallback or real-model claim."
+      "expected": "The test-only ACP peer deliberately exits during a turn; one owned fixture stream ends with a revoked frame. Actual Reconnect pointer input reads current authority/revision, starts a fresh unique acknowledged session and restores streaming. Exact saved messages and an unsent draft survive; another native Send presents a real controlled Note. No production fallback or real-model claim. Agent-shell failure projection additionally reports only a known lifecycle phase and boolean interruption receipt; original actions/assertions/deadlines remain. The first browser timeout is not claimed fixed from diagnostics. Deliberate fault is bound to the owned synthetic interruption request and each subscribing stream, so old reloaded subscribers cannot steal a global once-only break. Browser actions/assertions/deadlines stay unchanged. Fault delivery waits for release of the failed worker, matching the app stopping-to-unavailable transition; the original reconnect assertions remain."
+    },
+    {
+      "id": "agent-provider-choice-and-account-restore",
+      "kind": "positive",
+      "expected": "Real native selection controls lock while a worker is live, become usable after disconnect, save Claude as explicitly unavailable without fallback, retain separate in-memory drafts across switches, restore original transcript, retain selection on reload, and reconnect the original deterministic ACP consumer. No real model or generic native-client claim."
     },
     {
       "id": "preferences-save-conflict-recovery",

@@ -9,7 +9,8 @@ from django.db.models import F
 from django.utils import timezone
 
 from backend.maipa.workspace.models import Membership
-from .models import AgentAccount, Conversation
+from .models import AgentAccount, ChatSelection, Conversation
+from .providers import descriptor, registrations
 from .ui import UiUnavailable, ui_snapshot
 from .references import _binding, ReferenceUnavailable
 
@@ -32,21 +33,62 @@ def authority(actor):
         raise ChatUnavailable('Conversation unavailable') from None
 
 
-def _account(actor, *, create=False):
+def _selection(actor):
     authority(actor)
+    # Existing single-account consumers retain their identity. New installs do
+    # not create/select a vendor account before the person makes a choice.
+    owned = list(AgentAccount.objects.filter(owner=actor, enabled=True).order_by('id')[:2])
+    choice, _ = ChatSelection.objects.get_or_create(user=actor,
+        defaults={'account': owned[0] if len(owned) == 1 else None})
+    if choice.account_id and not AgentAccount.objects.filter(pk=choice.account_id, owner=actor, enabled=True).exists():
+        raise ChatUnavailable('Conversation unavailable')
+    return choice
+
+
+def _lock_selection(actor, revision=None):
+    choice = _selection(actor)
+    if revision is not None:
+        _revision(revision)
+        if choice.revision != revision:
+            raise ChatConflict('Conversation changed')
+    # A write first serializes provider changes with send/connect on SQLite as
+    # well as databases with row locks. No provider/account is accepted from a
+    # browser in a turn request.
+    if ChatSelection.objects.filter(user=actor, revision=choice.revision, account_id=choice.account_id).update(
+            revision=F('revision')) != 1:
+        raise ChatConflict('Conversation changed')
+    return choice
+
+
+def _account(actor, *, create=False):
+    choice = _selection(actor)
+    account = _selected_account(actor, choice)
     if create:
-        account, _ = AgentAccount.objects.get_or_create(owner=actor, provider='codex',
-                                                       defaults={'label': 'ChatGPT subscription'})
-    else:
-        account = AgentAccount.objects.filter(owner=actor, provider='codex').first()
-    if account and not account.enabled:
+        item = descriptor(account.provider) if account else None
+        if not item or not item['available']:
+            raise ChatUnavailable('Provider connection unavailable')
+    return account
+
+
+def _selected_account(actor, choice):
+    account = AgentAccount.objects.filter(pk=choice.account_id, owner=actor, enabled=True).first() if choice.account_id else None
+    if choice.account_id and account is None:
         raise ChatUnavailable('Conversation unavailable')
     return account
 
 
 def _state(actor, row, *, refresh_stale_ui=False):
+    choice = _selection(actor)
+    account = _selected_account(actor, choice)
+    if row is not None and row.account_id != choice.account_id:
+        raise ChatConflict('Conversation changed')
+    item = descriptor(account.provider) if account else None
+    connection = {'revision': choice.revision, 'account_id': str(choice.account_id) if choice.account_id else None,
+        'provider': account.provider if account else None, 'label': item['label'] if item else account.provider if account else None,
+        'available': bool(item and item['available'])}
+    extra = {'connection': connection, 'providers': registrations()}
     if row is None:
-        return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'ui': None}
+        return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'ui': None, **extra}
     ui = None
     if row.ui_id:
         try:
@@ -55,15 +97,17 @@ def _state(actor, row, *, refresh_stale_ui=False):
             if refresh_stale_ui:
                 raise
             pass  # A revoked composition is removed; its contents never reach the browser.
-    return {'id': str(row.pk), 'revision': row.revision, 'phase': row.phase,
-            'messages': row.messages, 'ui': ui}
+    # A failed turn can be persisted before its native worker finishes closing.
+    # Expose a stopping state until final bookkeeping releases that worker;
+    # Connect must not invite a second consumer while cleanup is in progress.
+    phase = 'stopping' if row.worker and row.phase == 'unavailable' else row.phase
+    return {'id': str(row.pk), 'revision': row.revision, 'phase': phase,
+            'messages': row.messages, 'ui': ui, **extra}
 
 
 def _conversation(actor, account, *, create=False):
     try:
         user, account_id, installation, storage, provider = _binding(actor, str(account.pk))
-        if provider != 'codex':
-            raise ChatUnavailable('Conversation unavailable')
         if create:
             row, _ = Conversation.objects.get_or_create(account=account, defaults={
                 'user_id': user, 'installation_id': installation, 'storage_id': storage})
@@ -77,19 +121,42 @@ def _conversation(actor, account, *, create=False):
 
 
 def snapshot(actor):
-    account = _account(actor)
     from .chat_runtime import refresh_actor
     for attempt in range(2):
         refresh_actor(actor)
+        account = _account(actor)
         row = _conversation(actor, account) if account else None
         try:
             return _state(actor, row, refresh_stale_ui=attempt == 0)
-        except UiUnavailable:
+        except (UiUnavailable, ChatConflict):
             # A committed unrelated epoch can race the actor check above.
             # Reauthorize once from primary state before publishing absence;
             # otherwise a healthy shared form would briefly unmount and lose drafts.
             continue
     return _state(actor, row)
+
+
+def select_provider(actor, revision, provider):
+    _revision(revision)
+    with transaction.atomic():
+        choice = _lock_selection(actor, revision)
+        account = _account(actor)
+        previous = _conversation(actor, account) if account else None
+        if previous and (previous.worker or previous.phase in ('connecting', 'sign_in', 'thinking', 'stopping')):
+            raise ChatConflict('Disconnect before changing provider')
+        item = descriptor(provider) if type(provider) is str else None
+        if item is None:
+            raise ChatUnavailable('Provider connection unavailable')
+        selected, _ = AgentAccount.objects.get_or_create(owner=actor, provider=provider,
+            defaults={'label': item['label']})
+        if not selected.enabled:
+            raise ChatUnavailable('Provider connection unavailable')
+        if choice.account_id != selected.pk:
+            if choice.revision >= 1_999_999_999:
+                raise ChatUnavailable('Connection revision limit reached')
+            ChatSelection.objects.filter(user=actor, revision=choice.revision).update(
+                account=selected, revision=F('revision') + 1)
+        return _state(actor, _conversation(actor, selected))
 
 
 def start_worker(actor, row, session_key):
@@ -111,14 +178,15 @@ def _revision(value):
         raise ChatUnavailable('Conversation unavailable')
 
 
-def send(actor, revision, request_id, text, *, session_key=None):
+def send(actor, revision, request_id, text, *, session_key=None, selection_revision=None):
     _revision(revision)
     if (type(request_id) is not str or str(uuid.UUID(request_id)) != request_id or
             type(text) is not str or not text.strip() or len(text) > 8000 or
             any(ord(char) < 32 and char not in '\n\t' for char in text)):
         raise ValueError('Invalid message')
-    account = _account(actor, create=True)
     with transaction.atomic():
+        _lock_selection(actor, selection_revision)
+        account = _account(actor, create=True)
         row = _conversation(actor, account, create=True)
         Conversation.objects.filter(pk=row.pk).update(revision=F('revision'))
         row.refresh_from_db()
@@ -127,7 +195,7 @@ def send(actor, revision, request_id, text, *, session_key=None):
             if existing is None or existing['text'] != text:
                 raise ChatConflict('Conversation changed')
             return _state(actor, row)
-        if row.revision != revision or row.phase in ('connecting', 'sign_in', 'thinking', 'stopping'):
+        if row.revision != revision or row.phase in ('connecting', 'sign_in', 'thinking', 'stopping') or (row.worker and row.phase == 'unavailable'):
             raise ChatConflict('Conversation changed')
         if len(row.messages) >= 126 or len(json.dumps(row.messages).encode()) + len(text.encode()) > 196608:
             raise ChatUnavailable('Conversation storage limit reached')
@@ -140,14 +208,15 @@ def send(actor, revision, request_id, text, *, session_key=None):
     return snapshot(actor)
 
 
-def connect(actor, revision, *, session_key):
+def connect(actor, revision, *, session_key, selection_revision=None):
     _revision(revision)
-    account = _account(actor, create=True)
     with transaction.atomic():
+        _lock_selection(actor, selection_revision)
+        account = _account(actor, create=True)
         row = _conversation(actor, account, create=True)
         Conversation.objects.filter(pk=row.pk).update(revision=F('revision'))
         row.refresh_from_db()
-        if row.revision != revision or row.phase in ('connecting', 'sign_in', 'thinking', 'stopping'):
+        if row.revision != revision or row.phase in ('connecting', 'sign_in', 'thinking', 'stopping') or (row.worker and row.phase == 'unavailable'):
             raise ChatConflict('Conversation changed')
         row.phase, row.revision = 'connecting', row.revision + 1
         row.save(update_fields=['phase', 'revision'])
@@ -155,7 +224,12 @@ def connect(actor, revision, *, session_key):
     return snapshot(actor)
 
 
-def control(actor, action, *, session_key):
+def control(actor, action, *, session_key, selection_revision=None):
+    choice = _selection(actor)
+    if selection_revision is not None:
+        _revision(selection_revision)
+        if selection_revision != choice.revision:
+            raise ChatConflict('Conversation changed')
     account = _account(actor)
     if not account:
         raise ChatUnavailable('Conversation unavailable')

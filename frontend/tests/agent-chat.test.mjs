@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseChatState, readEventStream, reconnectChat } from '../.test-build/agent-chat.js';
+import { parseChatState, readEventStream, reconnectChat, newerChat } from '../.test-build/agent-chat.js';
 
-const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null };
+const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null,
+  connection: { revision: 0, account_id: 'owned', provider: 'independent-acp', label: 'Independent ACP', available: true },
+  providers: [{ id: 'independent-acp', label: 'Independent ACP', available: true }] };
 test('reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry', async () => {
   const saved = { ...state, id: 'owned-conversation', revision: 19, phase: 'unavailable', messages: [
     { id: 'queued', role: 'user', text: 'Keep my saved request', state: 'queued' },
@@ -18,7 +20,7 @@ test('reconnect reads current owned state starts only a stopped worker and prese
         assert.equal(options.headers['X-Maipa-Agent-Actor'], '7');
         assert.equal(options.credentials, 'same-origin');
         if (options.method === 'GET') return Response.json({ ...saved, phase });
-        assert.deepEqual(JSON.parse(options.body), { action: 'connect', revision: 19 });
+        assert.deepEqual(JSON.parse(options.body), { action: 'connect', revision: 19, selection_revision: 0 });
         assert.equal(options.headers['X-CSRFToken'], token);
         return Response.json({ ...saved, phase: 'connecting', revision: 20 });
       };
@@ -35,6 +37,35 @@ test('reconnect reads current owned state starts only a stopped worker and prese
     };
     await assert.rejects(() => reconnectChat('7'), /Conversation changed/);
     assert.equal(writes, 1);
+  } finally { globalThis.fetch = original; }
+});
+test('provider-neutral state orders switches before per-account chat revisions and rejects malformed choices', () => {
+  const old = { ...state, revision: 200 };
+  const next = { ...state, revision: 0, connection: { ...state.connection, revision: 1, account_id: 'next' } };
+  assert.equal(newerChat(old, next), next);
+  assert.equal(newerChat(next, old), next);
+  assert.equal(parseChatState(next).connection.provider, 'independent-acp');
+  for (const bad of [{ ...state, connection: { ...state.connection, revision: true } },
+    { ...state, connection: { ...state.connection, provider: '../command' } },
+    { ...state, providers: [...state.providers, ...state.providers] },
+    { ...state, connection: { ...state.connection, command: 'untrusted' } }]) assert.throws(() => parseChatState(bad));
+});
+test('selected-provider sign-in accepts bounded HTTPS challenges without a vendor-specific URL or code format', () => {
+  const login = { url: 'https://identity.example.test/authorize?session=synthetic', code: '123 456' };
+  assert.deepEqual(parseChatState({ ...state, phase: 'sign_in', login }).login, login);
+  assert.deepEqual(parseChatState({ ...state, phase: 'sign_in', login: { url: login.url } }).login, { url: login.url });
+  for (const bad of [{ url: 'javascript:alert(1)' }, { url: 'http://identity.example.test' },
+    { url: 'https://user:password@identity.example.test' }, { ...login, code: '\nsecret' },
+    { ...login, code: 'x'.repeat(129) }]) assert.throws(() => parseChatState({ ...state, phase: 'sign_in', login: bad }));
+  assert.throws(() => parseChatState({ ...state, phase: 'ready', login }));
+});
+test('an unsupported selected provider is retained without silently starting a different provider', async () => {
+  const original = globalThis.fetch; const calls = [];
+  const unavailable = { ...state, connection: { ...state.connection, available: false } };
+  try {
+    globalThis.fetch = async (path, options) => { calls.push(options.method); return Response.json(unavailable); };
+    assert.deepEqual(await reconnectChat('7'), unavailable);
+    assert.deepEqual(calls, ['GET']);
   } finally { globalThis.fetch = original; }
 });
 test('an empty conversation has no predefined panel and never claims a provider connection', () => {
@@ -60,9 +91,10 @@ test('stream parsing survives split UTF-8 and frames and stops after revocation'
   assert.equal(seen[0].messages[0].text, '€ Ω 🙂');
 });
 test('server composition preserves authored handles and rejects executable props', () => {
-  const ui = { account_id: 'a', id: 'u', revision: 1, composition: { title: 'Review',
+  const ui = { account_id: 'owned', id: 'u', revision: 1, composition: { title: 'Review',
     schema: { id: 'note', type: 'Maipa.Note', props: { text: 'Check evidence' } } } };
   assert.equal(parseChatState({ ...state, ui }).ui.composition.schema.id, 'note');
+  assert.throws(() => parseChatState({ ...state, ui: { ...ui, account_id: 'foreign' } }));
   assert.throws(() => parseChatState({ ...state, ui: { ...ui, composition: { ...ui.composition,
     schema: { id: 'x', type: 'iframe', props: { src: 'https://foreign.invalid' } } } } }));
 });

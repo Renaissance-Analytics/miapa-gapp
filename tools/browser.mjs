@@ -88,6 +88,7 @@ async function waitForAgent(type) {
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'stream acknowledged completed agent turn');
 }
 async function requestComponent(prompt, type) {
+  await chooseAgent();
   if (await evaluate("matchMedia('(max-width:700px)').matches && document.querySelector('.has-composition') && document.querySelector('.focus-panel')")) await click('Conversation');
   await until(() => evaluate("!!document.querySelector('textarea[aria-label=\"Message Maipa\"]')"), 'live chat composer');
   await evaluate("document.querySelector('textarea[aria-label=\"Message Maipa\"]').focus();true");
@@ -99,6 +100,14 @@ async function requestComponent(prompt, type) {
   if (await evaluate("matchMedia('(max-width:700px)').matches")) await click('Shared work');
   const screenshot = await command('Page.captureScreenshot', { format: 'png' });
   writeFileSync('artifacts/ci/agent-shell-preview.png', Buffer.from(screenshot.data, 'base64'));
+}
+
+async function chooseAgent() {
+  await until(() => evaluate("!!document.querySelector('#maipa-agent-provider option[value=codex]')"), 'registered agent choices');
+  if (!await evaluate("document.getElementById('maipa-agent-provider').value")) {
+    await select('maipa-agent-provider', 'codex');
+    await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && !document.getElementById('maipa-agent-provider').disabled"), 'explicit saved provider choice');
+  }
 }
 
 async function typeChat(text) {
@@ -217,6 +226,7 @@ try {
     assert.equal(await evaluate("!!document.querySelector('[name=\"password-confirmation\"]')"), false);
     record('local-first-run-admin');
     phase = 'setup_chat';
+    await chooseAgent();
     checkpoint = 'setup_mobile';
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     await click('Account setup');
@@ -618,6 +628,28 @@ try {
   await requestComponent('Present a note after reconnect', 'Maipa.Note');
   assert.equal(await evaluate("!!document.querySelector('.chat-controls [role=alert]')"), false);
   record('agent-reconnect-after-transport-loss');
+  await typeChat('Codex unsent draft');
+  const beforeSwitch = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()");
+  assert.equal(await evaluate("document.getElementById('maipa-agent-provider').disabled"), true);
+  await click('Disconnect');
+  await until(() => evaluate("!document.getElementById('maipa-agent-provider').disabled"), 'verified stopped connection allows a provider change');
+  await select('maipa-agent-provider', 'claude');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='claude' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'unsupported provider remains explicit');
+  assert.equal(await evaluate("document.querySelectorAll('.chat-message').length===0 && ![...document.querySelectorAll('.chat-status button')].some(b=>b.textContent.startsWith('Connect '))"), true);
+  await typeChat('Claude unsent draft');
+  const providerPreview = await command('Page.captureScreenshot', { format: 'png' });
+  writeFileSync('artifacts/ci/agent-provider-preview.png', Buffer.from(providerPreview.data, 'base64'));
+  await select('maipa-agent-provider', 'codex');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Codex unsent draft'"), 'original provider draft restored');
+  assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), beforeSwitch.messages);
+  await select('maipa-agent-provider', 'claude');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='claude' && document.querySelector('textarea[aria-label=\"Message Maipa\"]').value==='Claude unsent draft'"), 'other provider draft remains separate');
+  await command('Page.reload'); await preferencesReady();
+  await until(() => evaluate("document.getElementById('maipa-agent-provider')?.value==='claude' && document.querySelector('.chat-status [role=status]').textContent.includes('not available')"), 'provider selection survives reload without fallback');
+  await select('maipa-agent-provider', 'codex');
+  await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && !document.getElementById('maipa-agent-provider').disabled"), 'original provider selected again');
+  await requestComponent('Present a note after provider change', 'Maipa.Note');
+  record('agent-provider-choice-and-account-restore');
   phase = 'preferences';
   await preferencesReady();
   await click('Dark'); await preferencesReady();
@@ -833,8 +865,20 @@ try {
         admin_fields: !!document.querySelector('[data-member-id]'),
         conversation: !!document.querySelector('.conversation'),
         contextual_panel: !!document.querySelector('.has-composition'),
-        chat_alert: !!document.querySelector('.chat-controls [role=alert]')
+        chat_alert: !!document.querySelector('.chat-controls [role=alert]'),
+        composer_nonempty: !!document.querySelector('textarea[aria-label="Message Maipa"]')?.value.trim(),
+        composer_focused: document.activeElement === document.querySelector('textarea[aria-label="Message Maipa"]'),
+        send_present: [...document.querySelectorAll('.chat-composer button')].some(b=>b.textContent.trim()==='Send'),
+        send_disabled: [...document.querySelectorAll('.chat-composer button')].find(b=>b.textContent.trim()==='Send')?.disabled === true,
+        ui_phase_ready: document.querySelector('.chat-status [role=status]')?.textContent === 'Ready'
       }))()`);
+      if (phase === 'agent_shell') {
+        surfaceEvidence.agent_state = await evaluate(`(async()=>{
+          const s=await(await fetch('/api/session/',{cache:'no-store'})).json();
+          const c=await(await fetch('/api/agent/chat/',{cache:'no-store',headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();
+          return {phase:c.phase,interruption_received:Array.isArray(c.messages)&&c.messages.some(m=>m.role==='user'&&m.text==='Simulate connection interruption')};
+        })()`);
+      }
     } catch { /* Keep the original failure and verified cleanup if diagnostics fail. */ }
   }
   if (['login', 'logout_viewer'].includes(phase)) {

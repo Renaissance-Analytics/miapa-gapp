@@ -665,141 +665,141 @@
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_list_uses_authenticated_owner_and_exposes_no_paths_or_login_claim",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_actual_authenticated_transport_check_records_no_provider_readiness",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.positive",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_second_user_owns_a_real_transport_check_without_access_to_first_user_history",
       "scenario_sha256": "c0a42e53f9440539ae31a3f37a621edaf4a582e29db8b12cdd913d4f6a39076e",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
-      "test": "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_unknown_providers",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "test": "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_invalid_provider_ids",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Preserves duplicate-account database denial and now rejects malformed registration IDs; valid extensible IDs are metadata, with unregistered execution refusal independently covered by A01-PROVIDER-SELECTION. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_anonymous_and_inactive_users_cannot_read_accounts_or_check_history",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_foreign_disabled_and_missing_accounts_are_indistinguishable",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_missing_csrf_and_foreign_origin_never_create_a_check",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_client_cannot_supply_identity_profile_workspace_commands_or_mcp",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_malformed_or_overbudget_check_bodies_are_rejected",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_account_cooldown_refuses_overlap_without_starting_or_recording_work",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_broken_runtime_is_generic_and_history_stays_owned",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_accounts_are_read_only_and_check_history_rejects_delete",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_runtime_failure_is_recorded_without_reflecting_diagnostics_or_claiming_login",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K05-AUTHENTICATED-ACP.negative",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_reassigned_account_does_not_disclose_the_previous_requesters_history",
-      "scenario_sha256": "2b827d32b4a0a374f943d3d87e532fa743a09a690b7d8e899d8f7bd3c052e33a",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "scenario_sha256": "7f19b1f28b0d7c0936fe7c7dee91fc22088804519aa34081542346e1bd70ba14",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-PIPELINE.positive",
@@ -925,21 +925,21 @@
       "scenario": "K06-BROWSER-REPORT.positive",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_failure_preserves_stage_and_verified_cleanup_only",
       "scenario_sha256": "1907a9996ddf96d8f091fc959601b749785d4609e22999fc4244717686f2fa9c",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Only zero checks, an allowed stage code and exact boolean cleanup survive",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-REPORT.negative",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_messages_and_nonboolean_cleanup_are_not_reported_as_verified",
       "scenario_sha256": "2e982f64e234ff77c55b4ddb529ddd75d95fec330ec399f164d7601c8fea3cc4",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Arbitrary diagnostics and nonboolean or unknown cleanup claims never appear as verified evidence",
       "decision": "aligned",
-      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Literal output schema excludes injected private-looking stdout/path; missing, arbitrary and numeric-boolean input cannot claim cleanup. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P01-AUTH.csrf",
@@ -1155,21 +1155,21 @@
       "scenario": "P01-WORKER.host",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_actual_transport_has_verified_appcontainer_and_empty_job",
       "scenario_sha256": "219a9cb3413523f3170a437afe9bb0d6c3df1c6a966e0659c1924e5c803c3016",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Return real Windows AppContainer verification, empty native job and zero provider sessions, after published-host initialization/shutdown.",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P01-WORKER.revoked",
       "test": "tests.test_agent_accounts.AgentAccountTests.test_stale_reassigned_or_revoked_account_cannot_launch_a_worker",
       "scenario_sha256": "953e459166b2ec29adcafec1249069bbfe751cb546d5126e785afafcc3e033f8",
-      "source_sha256": "31b39d8cae7dc641cdc42f7512501c621eff68ccccdbb630eeaef2848860824f",
+      "source_sha256": "0af88340a2de4d9c8acc13a56af27d2010a2fec50879b86fb36ba2c7f883a8d8",
       "expected_observation": "Refuse revoked membership and stale original-owner authority before launching a worker.",
       "decision": "aligned",
-      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed original host/account acceptance after exact published0.29.0 pin. The new case copies public host/package bytes into a fresh synthetic directory, uses the actual factory and published driver with a finite synthetic transport, and asserts fixed policy despite client hints plus restricted native thread config. Synthetic codex.exe bytes are never executed and no authentication/network occurs. Existing zero-provider, foreign-MCP, roundtrip and authority cases remain. Actual native/model acceptance is separate. Constraint correction: negative database case now explicitly rejects empty, path-shaped, trailing-newline, uppercase, numeric-start and65character IDs; every other assertion is unchanged. Native SQL retains offline recovery checks.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P01-WORKER.write-deadline",
@@ -1285,31 +1285,31 @@
       "scenario": "K06-BROWSER-START.paths",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_browser_startup_paths_are_resolved_without_inheriting_credentials",
       "scenario_sha256": "d6af91671984e09eaa533f35162efca937ea0846109d7b17d9e2409331711efd",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Use authoritative Windows profile/system paths and ambient tool/temp paths; forward no credentials/injection fields and do not change the caller environment.",
       "decision": "aligned",
-      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+      "reason": "Exact resulting environment distinguishes required native startup metadata from credential/injection propagation, and proves no mutation of the parent. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.code",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_launch_evidence_keeps_fixed_state_and_numeric_exit_without_child_text",
       "scenario_sha256": "71f48ef6984f2108db4f27c8f1b178cfa42700725a8dec758563938e62f1e573",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Retain only bounded fixed startup state, numeric exit and known spawn code; discard every child text field.",
       "decision": "aligned",
-      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+      "reason": "Exact output binds useful process evidence while excluding the synthetic private stderr field. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "K06-BROWSER-START.reject",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_untrusted_launch_metadata_and_boolean_exit_are_discarded",
       "scenario_sha256": "397520df2333b2e6654b56d863d33b7f353a7758b6fcc1afd199406936cdc8a9",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Discard all untrusted optional fields while preserving fixed failure phase and verified cleanup.",
       "decision": "aligned",
-      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa semantic acceptance review; no external review claimed"
+      "reason": "Explicitly rejects arbitrary strings and bool-as-int with exact safe output, rather than reflecting a browser exception. Reviewed the three added Windows startup/privacy cases; original fixed-phase/privacy assertions are unchanged. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P02-INTAKE.capture",
@@ -2645,21 +2645,21 @@
       "scenario": "P05-BROWSER-DIAGNOSTICS.known",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_known_setup_checkpoint_survives_without_browser_text_or_answer",
       "scenario_sha256": "f3072da429010911f7bfb535d1cd1d838d2568e80c76d6ef2e6bb9cf174df5a9",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Keep only allowed setup checkpoint, phase and verified cleanup",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Keep only allowed setup checkpoint, phase and verified cleanup Also independently asserts the exact logout/viewer checkpoint, fixed failure kind, endpoint status numbers and UI booleans, excluding arbitrary text. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.hostile",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_unknown_misplaced_or_nonstring_checkpoints_are_discarded",
       "scenario_sha256": "bf47e02e4b7215fca49df04e53b5149a48a8f76188991a53257d22b43214a95a",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "expected_observation": "Discard checkpoint and private content rather than expanding public diagnostics",
       "decision": "aligned",
-      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain.",
-      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+      "reason": "Independent pre-implementation acceptance observes real saved rows/files and exact authority/integrity/failure outcomes. Discard checkpoint and private content rather than expanding public diagnostics Also rejects untrusted auth metadata, Boolean/nonstatus responses, nonboolean UI values, unknown fields and auth diagnostics outside the logout/viewer phase. Initial-login diagnostic review: retain only phase-specific fixed checkpoints, fixed failure kinds, bounded allowlisted HTTP status integers and existing boolean surface flags. Exact positive login403 metadata survives; hostile checkpoint/text/boolean-status/arbitrary-field inputs do not. Existing assertions remain. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "P06-ACCESS.read_exposes_only_bounded_membership_and_safe_audit_fields",
@@ -3334,52 +3334,52 @@
     {
       "scenario": "A01-CONVERSATION.csrf",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_browser_write_requires_csrf_before_starting_any_provider",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "a3acd790216ff676def365499a103ae1398c273245069e216780c51ffdb802d7",
       "expected_observation": "Reject403, leave the conversation offline and create no worker",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.loop",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_http_turn_streams_persists_and_model_tools_share_present_update_dismiss",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "c9093d2eb7c1967a5a901ed038650b50dd7b75d3d5da73fe28eaa6f743338277",
       "expected_observation": "Only static tool definitions precede ACK; real app UI callbacks advance the same controlled lease after a human revision, text checkpoints persist and dismissal retains all six messages; this is not real-model evidence",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.cancel",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "d978ffce2d30a4be06aa70cf40234b969e4bc0fe65fe9b2ad4b871755f1fa530",
       "expected_observation": "Preserve the interrupted text and continue the same acknowledged UI/session without cancelling the next turn",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.logout",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_logout_revokes_live_worker_and_private_ui_but_keeps_owned_transcript",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "e6b55c35e8bed3f5d445100d21ec91456f7383c8455576eefb79d28f91270708",
       "expected_observation": "Stop the process, revoke its private UI reference and deny anonymous reads while preserving the owned saved transcript after a new login",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-CONVERSATION.epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_reauthorizes_same_actor_but_role_change_stops_worker",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "1090bd16642754cb0330037a6b151222741ac6a378091f72c8c6fe58759036ed",
       "expected_observation": "Mint a freshly authorized lease for the same actor while refusing the old lease; an actual role change stops the worker and denies its old chat access",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-PROVIDER-CODE.publish",
@@ -3404,12 +3404,12 @@
     {
       "scenario": "A01-CONVERSATION.reader",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_brief_concurrent_reader_does_not_abort_startup_checkpoint",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "fac94bc7a0a86d3722d8df85269668790031ccdf817ad67ad0a7dd8e4e9ba897",
       "expected_observation": "The file-backed installed database semantics permit the acknowledged worker checkpoint and the real contextual note appears; shared-memory SQLite contention is not treated as a model/provider failure",
       "decision": "aligned",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance.",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "A01-PROVIDER-CODE.cancel",
@@ -3454,52 +3454,152 @@
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_access_epoch_between_actor_check_and_snapshot_does_not_remove_shared_panel",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance."
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
     },
     {
       "scenario": "A01-CONVERSATION.snapshot-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_between_actor_check_and_snapshot_does_not_return_private_ui",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "17e1de693ebbd343e1f213bb64232ff7fff879ab7eef1802aa2e01dff3f31c0e",
       "expected_observation": "Reauthorize once against primary state to preserve the same-role composition through a fresh lease, while a revoked role returns no private UI; never make the expired lease valid again",
       "decision": "aligned",
-      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
-      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance."
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Reviewed unchanged stream/session/CSRF/cancel/logout/original-authority cases plus controlled interleaving between actor refresh and UI snapshot. The injected primary epoch deterministically made the old implementation return ui:null; a fresh same-role lease must retain exact composition. The separate role revocation must raise ChatUnavailable and expose no private UI. Retry is bounded and every attempt rechecks primary original scope; no stale lease is revived. Deterministic ACP fixture is not real-model acceptance. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
     },
     {
       "scenario": "P05-BROWSER-DIAGNOSTICS.shared-surface",
       "test": "tests.test_browser_reporting.BrowserReportingTests.test_shared_surface_diagnostics_keep_only_fixed_codes_statuses_and_booleans",
-      "source_sha256": "a59215a43b8baa7ef6053eae3f6f2f76f814bb848fa42e600daf949541edfd7e",
+      "source_sha256": "bf7ed19f1716b700de45faf67106f389b977578f3c7dfbf9a177b955b43fcaa5",
       "scenario_sha256": "7a1946923dce89f31e6e31e589fafbdeddfd31eac89d0a343e485dff6fc14811",
       "expected_observation": "Keep only fixed failure kinds, session/chat/admin integer HTTP statuses and whitelisted booleans; reject unknown keys, boolean statuses, nonboolean observations and misplaced diagnostic fields",
       "decision": "aligned",
-      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
-      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior."
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Observed red failure dropped the allowed fixed surface codes; green test checks all three phases, valid fields, hostile values, discarded extra keys and phase placement. Diagnostics cannot establish an intermittent failure repair or actual model behavior. Diagnostic amendment: only fixed agent-shell phase and a boolean synthetic interruption receipt survive; unknown phases, private fields, strings in boolean slots and misplaced data are rejected. Existing projection assertions unchanged. Send-readiness diagnostic amendment accepts only boolean focus/nonempty/button/ready flags and excludes actual draft content; original projection/authority cases retained."
     },
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
-      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
-      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim."
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
     },
     {
       "scenario": "A01-CONVERSATION.lease-epoch",
       "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_while_minting_ui_is_not_reauthorized",
-      "source_sha256": "57ba890507947ed2d2e818bd6891233f99efd4f4c05aceb0c0df7274a30cd603",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
       "scenario_sha256": "8f3611d5bb11711e007bb39234c26311e6141143d1fe34d92b3cb8402ec8906d",
       "expected_observation": "Adopt binding/id/handler only after validation and persistence; reauthorize once for a concurrent epoch without restarting the worker, preserving exact composition; a role revocation returns no private UI",
       "decision": "aligned",
-      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
-      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim."
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Owned worker trace identified UiUnavailable while binding a replacement after concurrent access commits. Controlled primary epoch mutation at that exact boundary reproduces the failure; the positive requires same live worker and exact composition, and the negative revokes role at the same boundary. No quota/OS/profile relaxations or actual-model claim. Selection amendment: requests include the current owned selection epoch; original lifecycle/UI/revocation assertions and deadlines remain unchanged."
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.first_connection_requires_a_choice_and_never_creates_a_codex_account",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_first_connection_requires_a_choice_and_never_creates_a_codex_account",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "f1e6852511ab4c7ebe69c1e5548a54d98452673c6975acbec5804ef58df36890",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "No account or worker is created and connection is refused.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.third_registered_provider_is_owned_and_truthfully_refuses_missing_runtime",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_third_registered_provider_is_owned_and_truthfully_refuses_missing_runtime",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "963f6373af40d0bd28a175ba4c6a0ee62029449456d57fc2cc40df45535a8d99",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The owned selection is saved with its real label and unavailable status; no conversation, provider profile or worker is created.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.switch_back_preserves_transcript_and_rejects_a_stale_selection_even_at_same_chat_revision",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_switch_back_preserves_transcript_and_rejects_a_stale_selection_even_at_same_chat_revision",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "89d4a44c0d01b24a997dc7539b9fad3f4f7f67ebf8056f8da36c6842dcb0547f",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The exact original transcript and identity return; the stale selection epoch is refused without a worker or new message.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.live_worker_and_unfinished_connection_prevent_provider_switch",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_live_worker_and_unfinished_connection_prevent_provider_switch",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "25dbaf0ab1bb377f363a4b4d2c002b39d43df2d7d3d238dc22527debb1b82df6",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "Both changes conflict before any additional account is created.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.unknown_provider_and_browser_command_are_rejected_without_creating_accounts",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_unknown_provider_and_browser_command_are_rejected_without_creating_accounts",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "56bf8461ae8195e93dca02fd59584c7162c1963fa52f5db200dab626018def39",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The service refuses the unknown provider and HTTP rejects the extra command; original account count stays unchanged.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.selection_persists_and_foreign_or_disabled_account_is_never_adopted",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_selection_persists_and_foreign_or_disabled_account_is_never_adopted",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "938212fc8af8a8180e2b1c30dfef4ed5942bd8703ee19fc71b1e022b28073bcc",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The original selection persists, the other user sees none, and foreign or disabled accounts are refused.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.http_mutation_requires_current_selection_and_does_not_route_old_payloads",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_http_mutation_requires_current_selection_and_does_not_route_old_payloads",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "905f81f76469ce7d4948fd24f111aa0e6fa45062309b5f5dfea303db02637f31",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "Missing selection revision yields400, stale selection yields409 and neither starts a worker.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.removed_registration_keeps_original_metadata_and_refuses_connection",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_removed_registration_keeps_original_metadata_and_refuses_connection",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "1bda9594b1c5dd34a74d7524e211d00494db7ba8677ffc0de8827b566a88c7aa",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The original account UUID is retained with unavailable status, and connecting is refused.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-PROVIDER-SELECTION.upgrade_retains_original_account_profile_session_and_transcript_ids",
+      "test": "tests.test_provider_selection.ProviderSelectionTests.test_upgrade_retains_original_account_profile_session_and_transcript_ids",
+      "reason": "Independently asserts the named ownership, lifecycle, exact identity/state or refusal outcome using synthetic original accounts; patched startup is asserted absent where runtime is unavailable. No generic-native-provider or real-model claim.",
+      "scenario_sha256": "aebf80ecf14337151bdea8162617f34e183ba692baba175ea97b5021e978c7cf",
+      "source_sha256": "10e788d416f171cdaa28214e59b2c3bdb0227e8929eb6b11b878ced7e675d7d2",
+      "expected_observation": "The exact original Codex account, profile UUID, session UUID, conversation UUID and messages remain selected and unchanged.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-CONVERSATION.unexpected_peer_exit",
+      "test": "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_unexpected_peer_exit_is_unavailable_and_keeps_the_acknowledged_turn",
+      "reason": "A real isolated peer exits. Controlled close hook reads after original native contexts close and before bookkeeping release, expecting stopping; final HTTP polling expects unavailable and exact acknowledged user text/state. Captured red closing phase and earlier503. Existing actual role/logout/original-account denial suite retained; no alternate principal or native permission is granted. The controlled post-close/pre-release hook attempts both valid-epoch connect and send, requires409 conflicts and exact unchanged revision/messages. Captured red demonstrates the prior late-refusal state mutation; server guards now reject before mutation.",
+      "source_sha256": "56e06516e21781d42796c03dceae891e1b7aa1bc485b2f7394e3b2407231215e",
+      "scenario_sha256": "57cca01f7e65616fc531e8a1bc340c1e93abf2b28cc30ea1d90a281cc2f299b0",
+      "expected_observation": "The failed connection remains stopping while its worker closes, becomes unavailable only after release, retains the exact acknowledged user message, and permits a primary-authorized saved read after native contexts close. Send/connect during closing conflict without changing the exact transcript or conversation revision.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     }
   ]
 }

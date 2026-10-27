@@ -1,18 +1,44 @@
 [
   {
+    "id": "development-22",
+    "label": "Development update 22",
+    "cards": [
+      {
+        "title": "Choose your agent provider",
+        "description": "The chat now saves your provider choice and keeps each account’s conversation separate. Unsent drafts return when switching between providers in the open app."
+      },
+      {
+        "title": "Connection support stays explicit",
+        "description": "Providers without a supported connection remain unavailable instead of falling back to Codex. Additional ACP connections and the Codex startup correction are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-21",
     "label": "Development update 21",
     "cards": [
-      { "title": "Reconnect a stopped conversation", "description": "Reconnect now checks your saved conversation and restarts a stopped connection, keeping the transcript and your unsent draft." },
-      { "title": "Provider startup correction in progress", "description": "The connection can still stop shortly after subscription sign-in. The provider startup correction and real agent verification are still in progress." }
+      {
+        "title": "Reconnect a stopped conversation",
+        "description": "Reconnect now checks your saved conversation and restarts a stopped connection, keeping the transcript and your unsent draft."
+      },
+      {
+        "title": "Provider startup correction in progress",
+        "description": "The connection can still stop shortly after subscription sign-in. The provider startup correction and real agent verification are still in progress."
+      }
     ]
   },
   {
     "id": "development-20",
     "label": "Development update 20",
     "cards": [
-      { "title": "A conversation, with room to work", "description": "The new shell gives chat the workspace and supports contextual components alongside it. Closing a panel returns that space to chat. The live agent integration is still being verified." },
-      { "title": "Connect your ChatGPT subscription", "description": "Start sign-in from the conversation using your own ChatGPT subscription. The connection and saved chat belong to your Maipa account. The live agent workflow is awaiting its final sign-in and model verification." }
+      {
+        "title": "A conversation, with room to work",
+        "description": "The new shell gives chat the workspace and supports contextual components alongside it. Closing a panel returns that space to chat. The live agent integration is still being verified."
+      },
+      {
+        "title": "Connect your ChatGPT subscription",
+        "description": "Start sign-in from the conversation using your own ChatGPT subscription. The connection and saved chat belong to your Maipa account. The live agent workflow is awaiting its final sign-in and model verification."
+      }
     ]
   },
   {
@@ -29,126 +55,188 @@
     "id": "development-18",
     "label": "Development update 18",
     "cards": [
-      { "title": "Manage your clients and entities", "description": "Administrators and preparers can create their own client records, add entities and change display names in Client setup beside the conversation. Changes keep a history, and conflicting edits require a reload before another save." },
-      { "title": "Agent connection is still being built", "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress." }
+      {
+        "title": "Manage your clients and entities",
+        "description": "Administrators and preparers can create their own client records, add entities and change display names in Client setup beside the conversation. Changes keep a history, and conflicting edits require a reload before another save."
+      },
+      {
+        "title": "Agent connection is still being built",
+        "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress."
+      }
     ]
   },
   {
     "id": "development-17",
     "label": "Development update 17",
     "cards": [
-      { "title": "Manage local users and roles", "description": "Administrators can add local users and update workspace roles and access in Users and access beside the conversation. Changes keep a revision history, conflicting edits require a reload, and the last active administrator stays protected." },
-      { "title": "Agent setup is still in progress", "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built." }
+      {
+        "title": "Manage local users and roles",
+        "description": "Administrators can add local users and update workspace roles and access in Users and access beside the conversation. Changes keep a revision history, conflicting edits require a reload, and the last active administrator stays protected."
+      },
+      {
+        "title": "Agent setup is still in progress",
+        "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built."
+      }
     ]
   },
   {
     "id": "development-16",
     "label": "Development update 16",
     "cards": [
-      { "title": "Private storage for future agent work", "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built." }
+      {
+        "title": "Private storage for future agent work",
+        "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built."
+      }
     ]
   },
   {
     "id": "development-15",
     "label": "Development update 15",
     "cards": [
-      { "title": "Your appearance and work view follow your account", "description": "Choose System, Light or Dark and switch between Client facts and Workspace guide. Your choices now restore after sign-in and in another browser." },
-      { "title": "Reload a changed preference", "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change." }
+      {
+        "title": "Your appearance and work view follow your account",
+        "description": "Choose System, Light or Dark and switch between Client facts and Workspace guide. Your choices now restore after sign-in and in another browser."
+      },
+      {
+        "title": "Reload a changed preference",
+        "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change."
+      }
     ]
   },
   {
     "id": "development-14",
     "label": "Development update 14",
     "cards": [
-      { "title": "Start in your browser", "description": "Create your local administrator with a username and password, then continue with the saved account-setup conversation. There is no setup code or file to find." },
-      { "title": "Keep your workspace through app updates", "description": "Local installation storage now stays separate from application code. Administrator maintenance tools can back up and restore saved accounts, setup conversations and pane widths. Existing installations have an explicit migration path that preserves their sign-in state." },
-      { "title": "More setup is still ahead", "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work." }
+      {
+        "title": "Start in your browser",
+        "description": "Create your local administrator with a username and password, then continue with the saved account-setup conversation. There is no setup code or file to find."
+      },
+      {
+        "title": "Keep your workspace through app updates",
+        "description": "Local installation storage now stays separate from application code. Administrator maintenance tools can back up and restore saved accounts, setup conversations and pane widths. Existing installations have an explicit migration path that preserves their sign-in state."
+      },
+      {
+        "title": "More setup is still ahead",
+        "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work."
+      }
     ]
   },
   {
     "id": "development-13",
     "label": "Development update 13",
     "cards": [
-      { "title": "Your pane width follows your account", "description": "Drag the divider or use its keyboard controls to save your pane width. It restores after sign-in and in another browser. Conflicting or unconfirmed saves offer an explicit reload." },
-      { "title": "Change work views alongside your conversation", "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built." }
+      {
+        "title": "Your pane width follows your account",
+        "description": "Drag the divider or use its keyboard controls to save your pane width. It restores after sign-in and in another browser. Conflicting or unconfirmed saves offer an explicit reload."
+      },
+      {
+        "title": "Change work views alongside your conversation",
+        "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built."
+      }
     ]
   },
   {
     "id": "development-12",
     "label": "Development update 12",
     "cards": [
-      { "title": "Review your client authority", "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built." }
+      {
+        "title": "Review your client authority",
+        "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built."
+      }
     ]
   },
   {
     "id": "development-11",
     "label": "Development update 11",
     "cards": [
-      { "title": "Set up your local Maipa", "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step." }
+      {
+        "title": "Set up your local Maipa",
+        "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step."
+      }
     ]
   },
   {
     "id": "development-10",
     "label": "Development update 10",
     "cards": [
-      { "title": "Reload your client facts", "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity." }
+      {
+        "title": "Reload your client facts",
+        "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity."
+      }
     ]
   },
   {
     "id": "development-9",
     "label": "Development update 9",
     "cards": [
-      { "title": "Client facts with a history", "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save." }
+      {
+        "title": "Client facts with a history",
+        "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save."
+      }
     ]
   },
   {
     "id": "development-8",
     "label": "Development update 8",
     "cards": [
-      { "title": "Private connection workers", "description": "Connection checks now run in a separate Windows security boundary. Checks verify their worker has stopped, and private accounts and connection history continue to follow your workspace role and ownership. Live provider setup and conversations are still being built." }
+      {
+        "title": "Private connection workers",
+        "description": "Connection checks now run in a separate Windows security boundary. Checks verify their worker has stopped, and private accounts and connection history continue to follow your workspace role and ownership. Live provider setup and conversations are still being built."
+      }
     ]
   },
   {
     "id": "development-7",
     "label": "Development update 7",
     "cards": [
-      { "title": "Sign in to your workspace", "description": "Provisioned workspace members can now sign in and out. Access follows your server-assigned role, while private agent accounts and connection history stay with their owner. Live agent conversations and automated workflows are still being built." }
+      {
+        "title": "Sign in to your workspace",
+        "description": "Provisioned workspace members can now sign in and out. Access follows your server-assigned role, while private agent accounts and connection history stay with their owner. Live agent conversations and automated workflows are still being built."
+      }
     ]
   },
   {
     "id": "development-6",
     "label": "Development update 6",
     "cards": [
-      { "title": "Browser checks before updates", "description": "The development checks now exercise the built workspace in a separate browser, including appearance, mobile panels, release notes and private agent connection checks. Live provider setup, conversations and accounting workflows are still being built." }
+      {
+        "title": "Browser checks before updates",
+        "description": "The development checks now exercise the built workspace in a separate browser, including appearance, mobile panels, release notes and private agent connection checks. Live provider setup, conversations and accounting workflows are still being built."
+      }
     ]
   },
   {
     "id": "development-5",
     "label": "Development update 5",
     "cards": [
-      { "title": "Private agent connection checks", "description": "Agent account metadata and connection-check history now follow the signed-in user. Connection checks verify the installed transport without claiming that a provider is logged in. Live account setup and conversations are still being built." }
+      {
+        "title": "Private agent connection checks",
+        "description": "Agent account metadata and connection-check history now follow the signed-in user. Connection checks verify the installed transport without claiming that a provider is logged in. Live account setup and conversations are still being built."
+      }
     ]
   },
   {
     "id": "development-4",
     "label": "Development update 4",
     "cards": [
-      { "title": "Agent connection foundation", "description": "The backend now connects Python to the published Prism ACP host, checks user and account ownership, and handles streamed replies and connection failures. Live conversations and provider account setup are still being built." }
-    ]
-  },
-  {
-    "id": "development-3",
-    "label": "Development update 3",
-    "cards": [
-      { "title": "Builds with a name", "description": "The footer now pairs the release name with its build number, so you can see exactly which update you are viewing. Maipa checks for newer builds every 30 seconds and when you return to the tab." }
+      {
+        "title": "Agent connection foundation",
+        "description": "The backend now connects Python to the published Prism ACP host, checks user and account ownership, and handles streamed replies and connection failures. Live conversations and provider account setup are still being built."
+      }
     ]
   },
   {
     "id": "development-2",
     "label": "Development update 2",
     "cards": [
-      { "title": "Track app updates", "description": "Maipa now checks for a newer build and offers a refresh when one is available. You choose when to refresh." },
-      { "title": "What's new, whenever you need it", "description": "Use What's new beside the build number to reopen the latest changes. After refreshing, new release notes appear once in this browser for each signed-in account." }
+      {
+        "title": "Track app updates",
+        "description": "Maipa now checks for a newer build and offers a refresh when one is available. You choose when to refresh."
+      },
+      {
+        "title": "What's new, whenever you need it",
+        "description": "Use What's new beside the build number to reopen the latest changes. After refreshing, new release notes appear once in this browser for each signed-in account."
+      }
     ]
   }
 ]

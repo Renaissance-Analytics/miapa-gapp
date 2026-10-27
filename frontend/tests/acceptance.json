@@ -750,6 +750,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-PROVIDER-CHOICE-UI",
+      "risk": "UI assumptions may reroute stale state, accept unsafe login links or connect an unsupported provider.",
+      "scenarios": [
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.1",
+          "kind": "positive",
+          "given": "A new account selection has a lower local chat revision than the previous account.",
+          "when": "State is ordered and malformed epochs/IDs/duplicate choices/commands are parsed.",
+          "then": "The new selection wins, old-selection state cannot replace it, the third-provider identity survives, and malformed state is rejected.",
+          "tests": [
+            "agent-chat.test.mjs#provider-neutral state orders switches before per-account chat revisions and rejects malformed choices"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.2",
+          "kind": "positive",
+          "given": "A selected independent provider is in sign-in phase.",
+          "when": "HTTPS challenges with optional provider codes and hostile URL/code variants arrive.",
+          "then": "Provider-neutral HTTPS challenges survive; unsafe schemes, URL credentials, control/overbudget codes and out-of-phase login are rejected.",
+          "tests": [
+            "agent-chat.test.mjs#selected-provider sign-in accepts bounded HTTPS challenges without a vendor-specific URL or code format"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.3",
+          "kind": "negative",
+          "given": "An owned selected provider reports unavailable support.",
+          "when": "Reconnect reads current state.",
+          "then": "Only one GET occurs; the selected provider is retained and no connect POST or fallback occurs.",
+          "tests": [
+            "agent-chat.test.mjs#an unsupported selected provider is retained without silently starting a different provider"
+          ]
+        }
+      ]
     }
   ]
 }

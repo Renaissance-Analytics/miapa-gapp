@@ -4,13 +4,24 @@ import { csrfToken } from './api.js';
 export type ChatPhase = 'offline' | 'connecting' | 'sign_in' | 'ready' | 'thinking' | 'stopping' | 'unavailable';
 export interface ChatMessage { id: string; role: 'user' | 'assistant'; text: string; state: 'queued' | 'streaming' | 'complete' | 'interrupted' }
 export interface Composition { account_id: string; id: string; revision: number; composition: { title: string; schema: ScreenSchema } | null }
+export interface ProviderChoice { id: string; label: string; available: boolean }
+export interface ChatConnection { revision: number; account_id: string | null; provider: string | null; label: string | null; available: boolean }
 export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null;
-  login?: { url: string; code: string }; }
-export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null });
+  connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string }; }
+export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null,
+  connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] });
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const fail = (): never => { throw Error('Conversation unavailable'); };
 const closed = (v: Record<string, unknown>, fields: string[]) => Object.keys(v).every(k => fields.includes(k));
 const identifier = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 200;
+const providerId = (v: unknown): v is string => typeof v === 'string' && v === v.trim() && /^[a-z][a-z0-9-]{0,63}$/.test(v);
+const label = (v: unknown): v is string => typeof v === 'string' && !!v.trim() && v.length <= 80 && !/[\u0000-\u001f\u007f]/.test(v);
+
+/** Conversation revisions are local to an account; selection epochs order switches. */
+export function newerChat(previous: ChatState, next: ChatState): ChatState {
+  return next.connection.revision > previous.connection.revision ||
+    (next.connection.revision === previous.connection.revision && next.revision >= previous.revision) ? next : previous;
+}
 
 export function compositionSchema(input: unknown): ScreenSchema {
   const ids = new Set<string>(), controls = new Set<string>();
@@ -38,10 +49,23 @@ export function compositionSchema(input: unknown): ScreenSchema {
 }
 
 export function parseChatState(v: unknown): ChatState {
-  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login'])
+  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers'])
     || (v.id !== null && !identifier(v.id)) || !Number.isSafeInteger(v.revision) || Number(v.revision) < 0
     || !['offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'].includes(String(v.phase))
     || !Array.isArray(v.messages) || v.messages.length > 128) return fail();
+  const c = v.connection;
+  if (!object(c) || !closed(c, ['revision', 'account_id', 'provider', 'label', 'available'])
+    || !Number.isSafeInteger(c.revision) || Number(c.revision) < 0 || typeof c.available !== 'boolean'
+    || (c.account_id === null ? c.provider !== null || c.label !== null || c.available
+      : !identifier(c.account_id) || !providerId(c.provider) || !label(c.label))
+    || !Array.isArray(v.providers) || v.providers.length > 32) return fail();
+  const connection = c as unknown as ChatConnection;
+  const keys = new Set<string>();
+  const providers = v.providers.map((p: unknown): ProviderChoice => {
+    if (!object(p) || !closed(p, ['id', 'label', 'available']) || !providerId(p.id) || !label(p.label)
+      || typeof p.available !== 'boolean' || keys.has(p.id)) return fail();
+    keys.add(p.id); return { id: p.id, label: p.label, available: p.available };
+  });
   const messages = v.messages.map((m: unknown): ChatMessage => {
     if (!object(m) || !closed(m, ['id', 'role', 'text', 'state']) || !identifier(m.id)
       || !['user', 'assistant'].includes(String(m.role)) || typeof m.text !== 'string' || m.text.length > 65536
@@ -52,7 +76,7 @@ export function parseChatState(v: unknown): ChatState {
   if (v.ui !== null) {
     const u = v.ui;
     if (!object(u) || !closed(u, ['account_id', 'id', 'revision', 'composition']) || !identifier(u.id)
-      || !identifier(u.account_id) || !Number.isSafeInteger(u.revision) || Number(u.revision) < 0) return fail();
+      || !identifier(u.account_id) || u.account_id !== connection.account_id || !Number.isSafeInteger(u.revision) || Number(u.revision) < 0) return fail();
     let composition: Composition['composition'] = null;
     if (u.composition !== null) {
       if (!object(u.composition) || !closed(u.composition, ['title', 'schema']) || typeof u.composition.title !== 'string'
@@ -63,12 +87,16 @@ export function parseChatState(v: unknown): ChatState {
   }
   let login: ChatState['login'];
   if (v.login !== undefined) {
-    if (!object(v.login) || !closed(v.login, ['url', 'code']) || v.login.url !== 'https://auth.openai.com/codex/device'
-      || typeof v.login.code !== 'string' || !/^[A-Z0-9]{4,8}-[A-Z0-9]{4,8}$/.test(v.login.code)) return fail();
-    login = { url: v.login.url, code: v.login.code };
+    if (!object(v.login) || !closed(v.login, ['url', 'code']) || typeof v.login.url !== 'string'
+      || v.login.url.length > 2048 || /[\u0000-\u0020\u007f]/.test(v.login.url)) return fail();
+    const url = new URL(v.login.url);
+    if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !connection.account_id
+      || v.phase !== 'sign_in' || (v.login.code !== undefined && (typeof v.login.code !== 'string'
+        || !v.login.code.trim() || v.login.code.length > 128 || /[\u0000-\u001f\u007f]/.test(v.login.code)))) return fail();
+    login = { url: v.login.url, ...(v.login.code !== undefined ? { code: v.login.code as string } : {}) };
   }
   return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
-    ...(login ? { login } : {}) };
+    connection, providers, ...(login ? { login } : {}) };
 }
 
 export async function readEventStream(body: ReadableStream<Uint8Array>, receive: (state: ChatState) => void) {
@@ -108,8 +136,8 @@ export async function chatRequest(userId: string, payload?: Record<string, unkno
 /** Reload current authority/revision before restarting only a stopped consumer. */
 export async function reconnectChat(userId: string): Promise<ChatState> {
   const saved = await chatRequest(userId);
-  return ['offline', 'unavailable'].includes(saved.phase)
-    ? chatRequest(userId, { action: 'connect', revision: saved.revision }) : saved;
+  return saved.connection.available && ['offline', 'unavailable'].includes(saved.phase)
+    ? chatRequest(userId, { action: 'connect', revision: saved.revision, selection_revision: saved.connection.revision }) : saved;
 }
 
 export async function dismissComposition(userId: string, ui: Composition): Promise<void> {

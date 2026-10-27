@@ -61,7 +61,7 @@ def start(actor, row, session_key):
     with _lock:
         existing = _workers.get(actor.pk)
         if existing:
-            if existing.session_key != session_key or existing.stopping.is_set():
+            if existing.account_id != row.account_id or existing.identity != row.pk or existing.session_key != session_key or existing.stopping.is_set():
                 raise chat.ChatConflict('Conversation already connected')
             existing.wake.set()
             return
@@ -88,7 +88,10 @@ def transient(owner, session_key):
 def refresh_actor(actor):
     with _lock:
         worker = _workers.get(actor.pk)
-    if worker:
+    # Once closing begins, the native lease is deliberately being dismantled.
+    # Snapshot's primary membership/account/original-binding checks still run;
+    # revalidating the closing lease would turn an ordinary saved read into503.
+    if worker and not worker.stopping.is_set():
         try:
             worker.check()
         except Exception:
@@ -121,6 +124,7 @@ class _Worker:
     def __init__(self, actor, row, token, session_key):
         member = chat.authority(actor)
         self.owner, self.account_id, self.identity, self.token = actor.pk, row.account_id, row.pk, token
+        self.provider = row.account.provider
         self.session_key, self.auth_hash = session_key, actor.get_session_auth_hash()
         self.binding = (member.installation_id, member.role, member.installation.access_revision)
         self.storage_id = str(row.storage_id)
@@ -155,7 +159,9 @@ class _Worker:
         session = SessionStore(session_key=self.session_key).load()
         if session.get('_auth_user_id') != str(self.owner) or session.get('_auth_user_hash') != self.auth_hash:
             raise chat.ChatUnavailable('Agent authority changed')
-        if not AgentAccount.objects.filter(pk=self.account_id, owner_id=self.owner, provider='codex', enabled=True).exists():
+        if not AgentAccount.objects.filter(pk=self.account_id, owner_id=self.owner, provider=self.provider, enabled=True).exists():
+            raise chat.ChatUnavailable('Agent authority changed')
+        if chat._selection(actor).account_id != self.account_id:
             raise chat.ChatUnavailable('Agent authority changed')
         original = _binding(actor, str(self.account_id))
         if str(original[3]) != self.storage_id or not Conversation.objects.filter(pk=self.identity, worker=self.token,
@@ -181,6 +187,10 @@ class _Worker:
 
     def prepare(self):
         actor = self.check()
+        # This is the currently integrated adapter's launch path. Registration
+        # metadata alone must never route another provider through Codex.
+        if self.provider != 'codex':
+            raise chat.ChatUnavailable('Provider connection unavailable')
         native = ensure_codex(cancelled=self.stopping.is_set)
         if self.stopping.is_set():
             raise InterruptedError('Agent preparation cancelled')
@@ -351,6 +361,7 @@ class _Worker:
             from backend.maipa.acp import AcpError
             self.failure_kind = 'database' if isinstance(error, DatabaseError) else 'protocol' if isinstance(error, AcpError) else 'authority' if isinstance(error, chat.ChatUnavailable) else 'other'
         finally:
+            self.stopping.set()
             self.consent = None
             try:
                 self.stack.close()

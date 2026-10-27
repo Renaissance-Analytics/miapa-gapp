@@ -45,13 +45,14 @@ class AgentAccountTests(TestCase):
         return self.client.post(self.checks_url(account), data=payload, content_type="application/json", secure=True,
             HTTP_X_CSRFTOKEN=token or self.sign_in(), HTTP_ORIGIN=origin)
 
-    def test_database_refuses_duplicate_provider_accounts_and_unknown_providers(self):
+    def test_database_refuses_duplicate_provider_accounts_and_invalid_provider_ids(self):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 AgentAccount.objects.create(owner=self.user, provider="codex", label="Duplicate")
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                AgentAccount.objects.create(owner=self.user, provider="untrusted", label="Unknown")
+        for provider in ('../untrusted', '', 'codex\n', 'UPPER', '8starts-with-digit', 'x' * 65):
+            with self.assertRaises(IntegrityError):
+                with transaction.atomic():
+                    AgentAccount.objects.create(owner=self.user, provider=provider, label="Invalid")
 
     def test_actual_transport_has_verified_appcontainer_and_empty_job(self):
         from backend.maipa.agent_accounts.runtime import probe_transport

@@ -40,6 +40,7 @@ BROWSER_CASES = (
     'chat-draft-and-space-recovery',
     'agent-cancel-and-chat-restore',
     'agent-reconnect-after-transport-loss',
+    'agent-provider-choice-and-account-restore',
     'preferences-save-conflict-recovery',
     'layout-gestures-conflict-recovery',
     'intake-facts-and-evidence',

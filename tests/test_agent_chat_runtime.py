@@ -75,7 +75,7 @@ class AgentChatRuntimeTests(TransactionTestCase):
     def send(self, text):
         state = self.state()
         response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': state['revision'],
-            'request_id': str(uuid.uuid4()), 'text': text}, content_type='application/json',
+            'request_id': str(uuid.uuid4()), 'text': text, 'selection_revision': state['connection']['revision']}, content_type='application/json',
             HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(response.status_code, 200)
         return self.until(lambda s: s['phase'] == 'ready' and s['messages'][-1]['role'] == 'assistant'
@@ -209,19 +209,19 @@ class AgentChatRuntimeTests(TransactionTestCase):
                 chat.snapshot(self.owner)
 
     def test_cancel_preserves_partial_reply_and_acknowledged_session_can_continue(self):
-        response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0,
+        response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0, 'selection_revision': 0,
             'request_id': str(uuid.uuid4()), 'text': 'Present a note and wait for cancellation'},
             content_type='application/json', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(response.status_code, 200)
         partial = self.until(lambda s: s['phase'] == 'thinking' and s['messages'][-1]['role'] == 'assistant'
                              and bool(s['messages'][-1]['text']))
         identity = partial['ui']['id']
-        response = self.client.post('/api/agent/chat/', {'action': 'cancel'}, content_type='application/json',
+        response = self.client.post('/api/agent/chat/', {'action': 'cancel', 'selection_revision': 0}, content_type='application/json',
                                     HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(response.status_code, 200)
         stopped = self.until(lambda s: s['phase'] == 'ready' and s['messages'][-1]['state'] == 'interrupted')
         self.assertEqual(stopped['messages'][-1]['text'], partial['messages'][-1]['text'])
-        late = self.client.post('/api/agent/chat/', {'action': 'cancel'}, content_type='application/json',
+        late = self.client.post('/api/agent/chat/', {'action': 'cancel', 'selection_revision': 0}, content_type='application/json',
                                HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(late.status_code, 200)
         continued = self.send('Update the note')
@@ -233,7 +233,7 @@ class AgentChatRuntimeTests(TransactionTestCase):
         from backend.maipa.agent_accounts.models import Conversation
         # A normal concurrent request may hold a short read transaction while a
         # new worker publishes its acknowledged session. Use the actual DB lock.
-        response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0,
+        response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0, 'selection_revision': 0,
             'request_id': str(uuid.uuid4()), 'text': 'Present a note'}, content_type='application/json',
             HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
         self.assertEqual(response.status_code, 200)
@@ -243,3 +243,49 @@ class AgentChatRuntimeTests(TransactionTestCase):
         complete = self.until(lambda s: s['phase'] == 'ready' and s['messages'][-1]['role'] == 'assistant'
                               and s['messages'][-1]['state'] == 'complete')
         self.assertEqual(complete['ui']['composition']['schema']['type'], 'Maipa.Note')
+
+    def test_unexpected_peer_exit_is_unavailable_and_keeps_the_acknowledged_turn(self):
+        close_reads = []
+        closing_writes = []
+        original_prepare = chat_runtime._Worker.prepare
+        def inspect_closing(worker):
+            prepared = original_prepare(worker)
+            original_close = worker.stack.close
+            def close_and_read():
+                original_close()
+                try:
+                    fresh_actor = get_user_model().objects.get(pk=self.owner.pk)
+                    closing = chat.snapshot(fresh_actor)
+                except chat.ChatUnavailable:
+                    close_reads.append(False)
+                else:
+                    close_reads.append(closing['phase'])
+                    denied = []
+                    for operation in (
+                        lambda: chat.send(fresh_actor, closing['revision'], str(uuid.uuid4()), 'Do not queue while closing',
+                            session_key=worker.session_key, selection_revision=closing['connection']['revision']),
+                        lambda: chat.connect(fresh_actor, closing['revision'], session_key=worker.session_key,
+                            selection_revision=closing['connection']['revision']),
+                    ):
+                        try:
+                            operation()
+                        except chat.ChatConflict:
+                            denied.append(True)
+                        else:
+                            denied.append(False)
+                    from backend.maipa.agent_accounts.models import Conversation
+                    after = Conversation.objects.get(pk=worker.identity)
+                    closing_writes.append(denied == [True, True] and after.revision == closing['revision'] and after.messages == closing['messages'])
+            worker.stack.close = close_and_read
+            return prepared
+        with patch.object(chat_runtime._Worker, 'prepare', inspect_closing):
+            response = self.client.post('/api/agent/chat/', {'action': 'send', 'revision': 0, 'selection_revision': 0,
+                'request_id': str(uuid.uuid4()), 'text': 'Simulate connection interruption'},
+                content_type='application/json', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+            self.assertEqual(response.status_code, 200)
+            stopped = self.until(lambda state: state['phase'] in ('offline', 'unavailable'))
+        self.assertEqual(close_reads, ['stopping'])
+        self.assertEqual(closing_writes, [True])
+        self.assertEqual(stopped['phase'], 'unavailable')
+        self.assertEqual(stopped['messages'][0]['text'], 'Simulate connection interruption')
+        self.assertEqual(stopped['messages'][0]['state'], 'complete')

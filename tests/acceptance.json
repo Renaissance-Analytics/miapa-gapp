@@ -415,7 +415,7 @@
           "when": "List owned accounts, request or read a transport check, forge identity/configuration, or encounter failures",
           "then": "Only the active server-session owner can inspect/check their metadata; the real published host initializes with zero providers, records the exact transport outcome and never claims login/provider readiness; all authority, CSRF, input, rate and diagnostic failures fail closed",
           "tests": [
-            "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_unknown_providers",
+            "tests.test_agent_accounts.AgentAccountTests.test_database_refuses_duplicate_provider_accounts_and_invalid_provider_ids",
             "tests.test_agent_accounts.AgentAccountTests.test_anonymous_and_inactive_users_cannot_read_accounts_or_check_history",
             "tests.test_agent_accounts.AgentAccountTests.test_foreign_disabled_and_missing_accounts_are_indistinguishable",
             "tests.test_agent_accounts.AgentAccountTests.test_missing_csrf_and_foreign_origin_never_create_a_check",
@@ -3110,6 +3110,16 @@
             "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_epoch_rotating_while_minting_ui_reauthorizes_without_restarting_worker",
             "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_role_revoked_while_minting_ui_is_not_reauthorized"
           ]
+        },
+        {
+          "id": "A01-CONVERSATION.unexpected_peer_exit",
+          "kind": "negative",
+          "given": "An owned authenticated conversation consumer receives an acknowledged synthetic turn.",
+          "when": "The scoped deterministic peer exits unexpectedly during that turn.",
+          "then": "The failed connection remains stopping while its worker closes, becomes unavailable only after release, retains the exact acknowledged user message, and permits a primary-authorized saved read after native contexts close. Send/connect during closing conflict without changing the exact transcript or conversation revision.",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_unexpected_peer_exit_is_unavailable_and_keeps_the_acknowledged_turn"
+          ]
         }
       ]
     },
@@ -3155,6 +3165,102 @@
           "then": "Refuse the archive before any escaped file write and leave no executable cache or temporary archive",
           "tests": [
             "tests.test_provider_runtime.ProviderRuntimeTests.test_windows_archive_traversal_is_refused_before_any_escaped_write"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-PROVIDER-SELECTION",
+      "risk": "Hardcoded providers or stale tab requests could start the wrong account, erase private state or imply unsupported connectivity.",
+      "scenarios": [
+        {
+          "id": "A01-PROVIDER-SELECTION.first_connection_requires_a_choice_and_never_creates_a_codex_account",
+          "kind": "negative",
+          "given": "A new user has no selected account.",
+          "when": "Connect is requested without choosing a provider.",
+          "then": "No account or worker is created and connection is refused.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_first_connection_requires_a_choice_and_never_creates_a_codex_account"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.third_registered_provider_is_owned_and_truthfully_refuses_missing_runtime",
+          "kind": "positive",
+          "given": "A third server registration unrelated to Codex/Claude has no integrated runtime.",
+          "when": "The owner selects it and attempts connect/send.",
+          "then": "The owned selection is saved with its real label and unavailable status; no conversation, provider profile or worker is created.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_third_registered_provider_is_owned_and_truthfully_refuses_missing_runtime"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.switch_back_preserves_transcript_and_rejects_a_stale_selection_even_at_same_chat_revision",
+          "kind": "positive",
+          "given": "An owned conversation has acknowledged text and a stopped worker.",
+          "when": "The user switches to another registration and back, then an old tab submits.",
+          "then": "The exact original transcript and identity return; the stale selection epoch is refused without a worker or new message.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_switch_back_preserves_transcript_and_rejects_a_stale_selection_even_at_same_chat_revision"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.live_worker_and_unfinished_connection_prevent_provider_switch",
+          "kind": "negative",
+          "given": "A connection is starting or has an existing worker token.",
+          "when": "The user requests a different provider.",
+          "then": "Both changes conflict before any additional account is created.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_live_worker_and_unfinished_connection_prevent_provider_switch"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.unknown_provider_and_browser_command_are_rejected_without_creating_accounts",
+          "kind": "negative",
+          "given": "The current actor has a valid selection revision.",
+          "when": "An unregistered provider or browser-supplied command is submitted.",
+          "then": "The service refuses the unknown provider and HTTP rejects the extra command; original account count stays unchanged.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_unknown_provider_and_browser_command_are_rejected_without_creating_accounts"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.selection_persists_and_foreign_or_disabled_account_is_never_adopted",
+          "kind": "positive",
+          "given": "Two users have separate owned selections.",
+          "when": "Selection is reread with a fresh actor, then foreign/disabled bindings are introduced.",
+          "then": "The original selection persists, the other user sees none, and foreign or disabled accounts are refused.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_selection_persists_and_foreign_or_disabled_account_is_never_adopted"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.http_mutation_requires_current_selection_and_does_not_route_old_payloads",
+          "kind": "negative",
+          "given": "An actor changes the selected account while another tab retains the old epoch.",
+          "when": "Legacy and stale connect bodies are submitted.",
+          "then": "Missing selection revision yields400, stale selection yields409 and neither starts a worker.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_http_mutation_requires_current_selection_and_does_not_route_old_payloads"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.removed_registration_keeps_original_metadata_and_refuses_connection",
+          "kind": "negative",
+          "given": "An owned third provider is selected.",
+          "when": "Its server registration is removed.",
+          "then": "The original account UUID is retained with unavailable status, and connecting is refused.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_removed_registration_keeps_original_metadata_and_refuses_connection"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-SELECTION.upgrade_retains_original_account_profile_session_and_transcript_ids",
+          "kind": "positive",
+          "given": "A pre-selection install has original Codex profile/session/transcript and another provider account.",
+          "when": "The upgrade selection migration runs.",
+          "then": "The exact original Codex account, profile UUID, session UUID, conversation UUID and messages remain selected and unchanged.",
+          "tests": [
+            "tests.test_provider_selection.ProviderSelectionTests.test_upgrade_retains_original_account_profile_session_and_transcript_ids"
           ]
         }
       ]

@@ -40,12 +40,20 @@ def conversation(request):
         if type(value) is not dict:
             raise ValueError('Invalid request')
         action = value.get('action')
-        if action == 'send' and set(value) == {'action', 'revision', 'request_id', 'text'}:
-            state = chat.send(request.user, value['revision'], value['request_id'], value['text'], session_key=request.session.session_key)
-        elif action == 'connect' and set(value) == {'action', 'revision'}:
-            state = chat.connect(request.user, value['revision'], session_key=request.session.session_key)
-        elif action in ('login', 'cancel', 'disconnect') and set(value) == {'action'}:
-            state = chat.control(request.user, action, session_key=request.session.session_key)
+        if 'selection_revision' not in value:
+            raise ValueError('Invalid request')
+        chat._revision(value['selection_revision'])
+        if action == 'select_provider' and set(value) == {'action', 'selection_revision', 'provider'}:
+            state = chat.select_provider(request.user, value['selection_revision'], value['provider'])
+        elif action == 'send' and set(value) == {'action', 'revision', 'request_id', 'text', 'selection_revision'}:
+            state = chat.send(request.user, value['revision'], value['request_id'], value['text'], session_key=request.session.session_key,
+                              selection_revision=value['selection_revision'])
+        elif action == 'connect' and set(value) == {'action', 'revision', 'selection_revision'}:
+            state = chat.connect(request.user, value['revision'], session_key=request.session.session_key,
+                                 selection_revision=value['selection_revision'])
+        elif action in ('login', 'cancel', 'disconnect') and set(value) == {'action', 'selection_revision'}:
+            state = chat.control(request.user, action, session_key=request.session.session_key,
+                                 selection_revision=value['selection_revision'])
         else:
             raise ValueError('Invalid request')
         return JsonResponse(state)
