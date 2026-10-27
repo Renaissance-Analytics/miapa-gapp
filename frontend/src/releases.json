@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-32",
+    "label": "Development update 32",
+    "cards": [
+      {
+        "title": "Keep drafts edited during a send",
+        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancy\u2019s published draft-revision fix."
+      }
+    ]
+  },
+  {
     "id": "development-31",
     "label": "Development update 31",
     "cards": [
@@ -250,16 +260,6 @@
       {
         "title": "Change work views alongside your conversation",
         "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-12",
-    "label": "Development update 12",
-    "cards": [
-      {
-        "title": "Review your client authority",
-        "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built."
       }
     ]
   }

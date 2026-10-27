@@ -692,6 +692,16 @@ try {
   await command('Fetch.continueRequest', { requestId: pausedComposerSends[1].requestId });
   await command('Fetch.disable'); await waitForAgent('Maipa.Note');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'New typing after retry Ω');
+  await command('Fetch.enable', { patterns: [{ urlPattern: fixture.origin + '/api/agent/chat/', requestStage: 'Request' }] });
+  holdComposerSends = true;
+  await typeChat('Keep my edited and restored draft'); await click('Send');
+  await until(() => pausedComposerSends.length === 3, 'revision-check send is held before acknowledgment');
+  await typeChat('Keep my edited and restored draft with a newer edit');
+  await typeChat('Keep my edited and restored draft');
+  holdComposerSends = false;
+  await command('Fetch.continueRequest', { requestId: pausedComposerSends[2].requestId });
+  await command('Fetch.disable'); await waitForAgent('Maipa.Note');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'Keep my edited and restored draft', 'a newer edit restored to identical text survives acknowledgment');
   if (await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
   await typeChat('Present a note with a delayed update'); await click('Send');
   await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic shared note'"), 'agent first presentation');
