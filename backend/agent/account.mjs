@@ -25,8 +25,11 @@ export function subscriptionAccount(profile, env) {
       await process.closed;
       const stop = await process.stop({ graceMs: 0 });
       if (!stop.verified || !stop.empty || stop.survivors !== 0 || bytes > 16384) throw Error('Account unavailable');
-      // A successful key-based login is not a subscription connection.
-      return { state: code === 0 && /logged in using chatgpt/i.test(text) ? 'ready' : 'sign_in' };
+      // Only the pinned adapter's confirmed signed-out result requests consent.
+      // Configuration/process errors and key-based logins are not subscription readiness.
+      if (code === 0 && text.trim() === 'Logged in using ChatGPT') return { state: 'ready' };
+      if (code === 1 && text.trim() === 'Not logged in') return { state: 'sign_in' };
+      throw Error('Account unavailable');
     } finally { clearTimeout(timeout); await process.stop({ graceMs: 0 }); }
   }
   async function start() {

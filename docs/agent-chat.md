@@ -28,6 +28,12 @@ network or loopback exemptions. Device consent stays transient in that login
 session, outside saved messages, model prompts and logs. Provider credentials
 remain in the scoped provider home.
 
+The Codex adapter requests sign-in only after the pinned CLI explicitly confirms
+that it is signed out. Configuration failures, unexpected status output, key-based
+credentials and unverified process cleanup produce a closed connection error;
+they never claim subscription readiness or ask the user to repeat consent. Raw
+provider status output is not sent to the browser or retained in logs.
+
 Messages and accepted text deltas are durable. Stop preserves an interrupted
 reply; disconnect ends the supervised process tree. Reload can reconnect to a
 live worker. A new worker explicitly reconstructs the owned saved transcript;

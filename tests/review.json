@@ -3610,6 +3610,36 @@
       "decision": "aligned",
       "reason": "Reviewed complete host/account cases against0.32.0. The G-140 case observes actual published-driver startup after ACP creation and verifies prelaunch restrictions; four malformed native configs must prevent thread creation and still stop safely. Initial fixture env mistake was corrected without changing the production allowlist. The prior ACP-ID-only positive case did not prove native startup; the strengthened case observed a real red missing-flags failure on0.29.0 and now passes0.32.0. Other existing assertions, deadlines, authority and zero-provider checks remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SUBSCRIPTION-STATUS.confirmed",
+      "test": "tests.test_subscription_status.SubscriptionStatusTests.test_confirmed_subscription_is_ready_and_confirmed_signed_out_can_sign_in",
+      "scenario_sha256": "80e9dfcdd72ffaa79b8e2da323bca9316cdff23185001566171f245c858761da",
+      "source_sha256": "05c781646707c39e7f98e6cb98fd135bffd0d99f1af209eceecf124c57ebdeb3",
+      "expected_observation": "Only confirmed subscription is ready; only confirmed signed-out status requests sign-in",
+      "decision": "aligned",
+      "reason": "Exact app module linked to a finite synthetic process: compare closed status/error and both cleanup calls. Six adversarial outputs reproduced false readiness/sign-in before the fix. Known native signed-out output is independently measured in a fresh synthetic home. No real auth or model claim.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SUBSCRIPTION-STATUS.unknown",
+      "test": "tests.test_subscription_status.SubscriptionStatusTests.test_runtime_errors_and_conflicting_output_do_not_request_repeat_login",
+      "scenario_sha256": "8dea187f312bc87cd4f0e0aa1456fbb1d92a75a200a7bbb34e70ef556877c83e",
+      "source_sha256": "05c781646707c39e7f98e6cb98fd135bffd0d99f1af209eceecf124c57ebdeb3",
+      "expected_observation": "Refuse readiness and repeat-login instructions with a closed Account unavailable error and verified cleanup",
+      "decision": "aligned",
+      "reason": "Exact app module linked to a finite synthetic process: compare closed status/error and both cleanup calls. Six adversarial outputs reproduced false readiness/sign-in before the fix. Known native signed-out output is independently measured in a fresh synthetic home. No real auth or model claim.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A01-SUBSCRIPTION-STATUS.unknown",
+      "test": "tests.test_subscription_status.SubscriptionStatusTests.test_failed_process_cleanup_refuses_even_a_confirmed_subscription",
+      "scenario_sha256": "8dea187f312bc87cd4f0e0aa1456fbb1d92a75a200a7bbb34e70ef556877c83e",
+      "source_sha256": "05c781646707c39e7f98e6cb98fd135bffd0d99f1af209eceecf124c57ebdeb3",
+      "expected_observation": "Refuse readiness and repeat-login instructions with a closed Account unavailable error and verified cleanup",
+      "decision": "aligned",
+      "reason": "Exact app module linked to a finite synthetic process: compare closed status/error and both cleanup calls. Six adversarial outputs reproduced false readiness/sign-in before the fix. Known native signed-out output is independently measured in a fresh synthetic home. No real auth or model claim.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

@@ -3280,6 +3280,33 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A01-SUBSCRIPTION-STATUS",
+      "risk": "A failed provider command can falsely request repeat consent, or mixed output can falsely claim subscription readiness.",
+      "scenarios": [
+        {
+          "id": "A01-SUBSCRIPTION-STATUS.confirmed",
+          "kind": "positive",
+          "given": "The pinned native adapter confirms a subscription or an explicitly signed-out account",
+          "when": "The app checks provider status and verifies process cleanup",
+          "then": "Only confirmed subscription is ready; only confirmed signed-out status requests sign-in",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_confirmed_subscription_is_ready_and_confirmed_signed_out_can_sign_in"
+          ]
+        },
+        {
+          "id": "A01-SUBSCRIPTION-STATUS.unknown",
+          "kind": "negative",
+          "given": "The status command fails, returns conflicting or unknown output, or confirms a different credential kind",
+          "when": "The app evaluates provider readiness",
+          "then": "Refuse readiness and repeat-login instructions with a closed Account unavailable error and verified cleanup",
+          "tests": [
+            "tests.test_subscription_status.SubscriptionStatusTests.test_runtime_errors_and_conflicting_output_do_not_request_repeat_login",
+            "tests.test_subscription_status.SubscriptionStatusTests.test_failed_process_cleanup_refuses_even_a_confirmed_subscription"
+          ]
+        }
+      ]
     }
   ]
 }
