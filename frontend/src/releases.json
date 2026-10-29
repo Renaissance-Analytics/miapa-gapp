@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-33",
+    "label": "Development update 33",
+    "cards": [
+      {
+        "title": "Keep chat controls in view",
+        "description": "The message composer stays in view as the window gets shorter. Conversation history scrolls in the space above it, and long drafts use a smaller editor in short windows."
+      }
+    ]
+  },
+  {
     "id": "development-32",
     "label": "Development update 32",
     "cards": [
@@ -246,20 +256,6 @@
       {
         "title": "More setup is still ahead",
         "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work."
-      }
-    ]
-  },
-  {
-    "id": "development-13",
-    "label": "Development update 13",
-    "cards": [
-      {
-        "title": "Your pane width follows your account",
-        "description": "Drag the divider or use its keyboard controls to save your pane width. It restores after sign-in and in another browser. Conflicting or unconfirmed saves offer an explicit reload."
-      },
-      {
-        "title": "Change work views alongside your conversation",
-        "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built."
       }
     ]
   }

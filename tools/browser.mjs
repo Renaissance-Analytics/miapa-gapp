@@ -89,6 +89,33 @@ async function evaluate(expression) {
   assert.ok(!response.exceptionDetails, "Browser evaluation failure");
   return response.result.value;
 }
+async function checkChatViewport(width, height) {
+  await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width <= 700 });
+  if (await evaluate("document.querySelector('.conversation')?.inert")) await click('Conversation');
+  await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+  const geometry = await evaluate(`(() => {
+    const rect = selector => { const r=document.querySelector(selector).getBoundingClientRect();
+      return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height}; };
+    const input=rect('#maipa-chat-message');
+    const send=rect('.chat-composer button[aria-label="Send"]');
+    const controls=rect('.chat-controls');
+    const conversation=rect('.conversation');
+    const pane=document.querySelector('.conversation').parentElement;
+    return {input,send,controls,conversation,paneHeight:pane.clientHeight,paneScrollHeight:pane.scrollHeight,
+      width:innerWidth,height:innerHeight,documentHeight:document.documentElement.scrollHeight};
+  })()`);
+  const screenshot = await command('Page.captureScreenshot', { format: 'png' });
+  writeFileSync('artifacts/ci/chat-viewport.png', Buffer.from(screenshot.data, 'base64'));
+  writeFileSync('artifacts/ci/chat-viewport.json', JSON.stringify(geometry));
+  assert.ok(geometry.input.top >= 0 && geometry.input.bottom <= height && geometry.input.right <= width,
+    `Chat input must fit ${width}x${height}: ${JSON.stringify(geometry)}`);
+  assert.ok(geometry.send.top >= 0 && geometry.send.bottom <= height && geometry.send.right <= width,
+    'Send must remain fully visible without scrolling the conversation pane');
+  assert.ok(geometry.controls.bottom <= geometry.conversation.bottom + 1,
+    'Chat controls must stay inside the conversation');
+  assert.ok(geometry.paneScrollHeight <= geometry.paneHeight + 1,
+    'Only transcript/setup content scrolls, never the whole conversation pane');
+}
 function command(method, params = {}) {
   const id = ++sequence;
   return new Promise((resolve, reject) => {
@@ -520,6 +547,9 @@ try {
   assert.equal(workspace.status, 200); assert.equal(workspace.body.role, "preparer");
   assert.ok(workspace.body.permissions.includes("agent.transport.check"));
   record("real-login-and-server-role");
+  await checkChatViewport(897, 264);
+  await checkChatViewport(390, 480);
+  await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   phase = 'setup_isolation';
   const privateSetup = await evaluate("(async()=> (await fetch('/api/onboarding/')).json())()");
   assert.equal(privateSetup.step, 'display_name');
@@ -655,6 +685,12 @@ try {
   assert.equal(await evaluate("!!document.querySelector('[data-react-fancy-prompt-input]')"), true, 'main conversation uses the public whole PromptInput');
   assert.equal(await evaluate("!!document.querySelector('.maipa-chat-drawer') && !!document.querySelector('[data-react-fancy-virtual-list]')"), true, 'kit drawer and measured transcript are mounted');
   await click('Requests'); await click('Ask for a note');
+  await typeChat(Array(12).fill('Synthetic multiline draft').join('\n'));
+  await checkChatViewport(897, 480);
+  await checkChatViewport(600, 480);
+  await checkChatViewport(390, 600);
+  await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await click('Ask for a note');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'Present a note');
   const drawerToggle = await evaluate("document.querySelector('.maipa-chat-drawer button[aria-label]')?.getAttribute('aria-label')");
   if (drawerToggle) await click(drawerToggle);
