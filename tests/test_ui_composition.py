@@ -133,7 +133,8 @@ class UiCompositionTests(TestCase):
         lease = self.lease()
         listed = self.api().dispatch_ui(self.owner, str(self.account.pk), lease, {'method': 'tools/list', 'params': {}})
         self.assertEqual([item['name'] for item in listed['tools']],
-                         ['maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss'])
+                         ['maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
+                          'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open'])
         for value in (
             {'method': 'terminal/create', 'params': {}},
             {'method': 'tools/list', 'params': {'actor': str(self.other.pk)}},

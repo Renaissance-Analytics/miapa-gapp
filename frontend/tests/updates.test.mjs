@@ -38,8 +38,8 @@ test("release notes describe the installed build and Fancy selects only unseen r
   assert.equal(groups.length >= 2, true);
   assert.equal(new Set(groups.map(group => group.id)).size, groups.length);
   assert.equal(groups.length, 20);
-  assert.equal(groups[0].id, "development-33");
-  assert.equal(groups[0].cards.some(card => card.title === "Keep chat controls in view"), true);
+  assert.equal(groups[0].id, "development-34");
+  assert.equal(groups[0].cards.some(card => card.title === "Keep useful views close"), true);
   assert.deepEqual(selectNew(groups, String(groups[1].id), { missed: "all", firstVisit: "latest" }).show.map(group => group.id), [groups[0].id]);
   assert.deepEqual(selectNew(groups, String(groups[0].id), { missed: "all", firstVisit: "latest" }).show, []);
   assert.notEqual(updatesStorageKey({ state: "authenticated", userId: "1" }), updatesStorageKey({ state: "authenticated", userId: "2" }));

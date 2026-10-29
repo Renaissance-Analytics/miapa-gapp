@@ -3884,6 +3884,185 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-PERSONAL-VIEWS",
+      "risk": "A saved component tree may copy data/authority, cross users or overwrite a current edit under stale credentials/revisions.",
+      "scenarios": [
+        {
+          "id": "A07-PERSONAL-VIEWS.restore",
+          "kind": "positive",
+          "given": "An authorized user saves a safe registered component definition",
+          "when": "The user logs out and signs in through another browser session",
+          "then": "The same owned view identity/title/schema/revision and collection persist; original chat selection and state are unchanged",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_definition_and_identity_survive_a_new_login_without_changing_chat_selection"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.conflicts",
+          "kind": "negative",
+          "given": "A stale saved revision, another user or client-supplied authority",
+          "when": "Create or rename is attempted",
+          "then": "Stale/foreign identity conflicts, foreign object is unavailable, extra authority is invalid and the original owner/winning definition remain unchanged",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_stale_save_or_rename_never_overwrites_the_current_definition",
+            "tests.test_personal_views.PersonalViewsTests.test_foreign_login_and_authority_fields_cannot_adopt_or_replace_definitions",
+            "tests.test_personal_views.PersonalViewsTests.test_identity_guard_and_misbound_storage_never_reinitialize_an_existing_collection",
+            "tests.test_personal_views.ConcurrentPersonalViewsTests.test_concurrent_real_connections_cannot_both_save_the_same_collection_revision"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.schema",
+          "kind": "negative",
+          "given": "Unknown components, unsafe props, duplicate handles, arbitrary data selectors or an administrator component for a preparer",
+          "when": "A personal definition is submitted",
+          "then": "Every invalid schema is refused before storage and the collection remains unchanged",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_invalid_components_unsafe_props_and_duplicate_handles_are_rejected_before_storage"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.authority",
+          "kind": "negative",
+          "given": "Anonymous/disabled/viewer membership, absent CSRF, foreign Origin or unsupported HTTP method",
+          "when": "Private view persistence is accessed",
+          "then": "Current authentication/role/CSRF/origin/method guards deny the operation without mutation or deletion of prior owned definitions",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_live_role_revocation_cannot_reuse_personal_view_authority",
+            "tests.test_personal_views.PersonalViewsTests.test_authentication_csrf_origin_and_methods_are_enforced_before_mutation",
+            "tests.test_personal_views.PersonalViewsTests.test_demotion_redacts_restricted_components_and_cannot_restore_prior_admin_authority"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.edit",
+          "kind": "positive",
+          "given": "Saved component definitions with stable handles and current owned revisions",
+          "when": "Definitions are updated, reordered, unpinned and repinned",
+          "then": "Definition identity/handles persist, the latest four prior revisions remain accurate and unpinning retains the saved definition",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_definition_updates_preserve_stable_handles_and_only_bounded_prior_revisions",
+            "tests.test_personal_views.PersonalViewsTests.test_pin_order_and_unpin_preserve_the_saved_definition_and_reject_partial_reorders"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.limits",
+          "kind": "negative",
+          "given": "Malformed/duplicate/nonfinite JSON, invalid revision, excessive body, eight existing definitions or a storage failure after reserving revision",
+          "when": "Another save is attempted",
+          "then": "Invalid, over-budget and failed storage requests cannot partially save or advance the reserved collection revision; private diagnostics stay hidden",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_strict_json_revision_and_collection_limits_never_partially_save",
+            "tests.test_personal_views.PersonalViewsTests.test_storage_failure_rolls_back_the_reserved_revision_without_claiming_a_saved_view"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07-NATIVE-VIEWS",
+      "risk": "Native saved-view calls could bypass human role/revision/storage rules or revive expired UI authority.",
+      "scenarios": [
+        {
+          "id": "A07-NATIVE-VIEWS.shared",
+          "kind": "positive",
+          "given": "An authorized agent and browser share one collection",
+          "when": "Native save, human rename and native update alternate",
+          "then": "The same owned identity/stable schema handle has exact three revisions and both prior titles; no native private reference leaks",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_native_save_human_rename_and_native_update_share_one_owned_history"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.stale",
+          "kind": "negative",
+          "given": "A human has unpinned after the agent read its revision",
+          "when": "The agent saves against its older collection",
+          "then": "Conflict is explicit and the winning human definition remains byte-for-byte unchanged",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_stale_native_write_after_human_edit_has_no_partial_commit"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.open",
+          "kind": "positive",
+          "given": "A saved view and current UI lease have independent revisions",
+          "when": "An agent opens, retries and then opens after another rename",
+          "then": "Both stale UI and stale definition revisions conflict without overwriting the visible panel; fresh revisions open the current definition",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_open_requires_both_current_definition_and_ui_revisions"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.expired",
+          "kind": "negative",
+          "given": "A saved definition outlives a native session",
+          "when": "A foreign actor or revoked session reads/opens it, then an owned fresh lease reopens it",
+          "then": "Foreign/expired authority is denied; the same saved definition survives and opens only under the new lease",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_old_or_foreign_native_authority_cannot_reopen_or_save_owned_pins"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.role",
+          "kind": "negative",
+          "given": "An administrator has saved a restricted component and is demoted",
+          "when": "A fresh preparer lease lists and tries to open the restricted definition",
+          "then": "Schema/history are masked by current role and opening is refused without changing the empty UI",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_demotion_never_restores_saved_admin_components_through_a_fresh_lease"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.failure",
+          "kind": "negative",
+          "given": "The persistence write fails after revision reservation",
+          "when": "Native save is attempted",
+          "then": "No success is returned, no private diagnostic leaks and collection revision/data remain unchanged",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_native_failure_rolls_back_revision_and_cannot_claim_success"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.closed",
+          "kind": "negative",
+          "given": "Model arguments include another principal or historical authority",
+          "when": "Saved-view tools are called",
+          "then": "Closed validation refuses injected actor/history fields and leaves definitions unchanged",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_closed_native_arguments_cannot_choose_other_authority_or_open_history"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.identity",
+          "kind": "positive",
+          "given": "A Fancy bridge supplies a canonical stable view ID",
+          "when": "The ID is created, repeated and replaced by an invalid identifier",
+          "then": "First acknowledged ID is preserved; duplicate conflicts and malformed identity is refused without replacement",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_explicit_bridge_identity_is_bounded_and_duplicate_create_cannot_replace"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.atomic",
+          "kind": "negative",
+          "given": "Current owned definitions and an independently versioned UI lease",
+          "when": "Visible updates or growing saved history are committed",
+          "then": "A stale UI revision rolls back the reserved definition edit; current definition and UI revisions commit together with the exact same accepted title",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_visible_definition_update_and_ui_revision_commit_or_roll_back_together"
+          ]
+        },
+        {
+          "id": "A07-NATIVE-VIEWS.budget",
+          "kind": "negative",
+          "given": "Current owned definitions and an independently versioned UI lease",
+          "when": "Visible updates or growing saved history are committed",
+          "then": "The complete bounded definition/history collection stays below the native callback budget; an over-budget edit conflicts without losing prior history or advancing revision",
+          "tests": [
+            "tests.test_personal_view_tools.PersonalViewToolsTests.test_aggregate_definitions_are_bounded_before_the_native_reply_budget"
+          ]
+        }
+      ]
     }
   ]
 }

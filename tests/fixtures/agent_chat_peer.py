@@ -74,7 +74,8 @@ for line in sys.stdin:
         startup = json.loads(sys.stdin.readline())
         if startup.get('id') != 'startup-catalog' or set(startup.get('result', {})) != {'tools'}:
             raise RuntimeError('Pre-session tool discovery unavailable')
-        if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss'}:
+        if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
+                'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})
@@ -100,7 +101,18 @@ for line in sys.stdin:
         try:
             catalog = callback('maipa_ui_catalog', {})
             revision = catalog['revision']
-            if 'dismiss' in text:
+            if 'save a personal view' in text:
+                views = callback('maipa_views_list', {})
+                saved = callback('maipa_views_save', {'views_id':views['views_id'],'expected_revision':views['revision'],
+                    'title':'Agent saved review','schema':{'id':'agent-saved-note','type':'Maipa.Note','props':{'text':'Synthetic agent saved definition'}}})
+                callback('maipa_views_open', {'views_id':saved['views_id'],'expected_revision':saved['revision'],
+                    'id':saved['views'][-1]['id'],'revision':revision})
+            elif 'update my first saved view' in text:
+                views = callback('maipa_views_list', {})
+                callback('maipa_views_change', {'views_id':views['views_id'],'expected_revision':views['revision'],
+                    'id':views['views'][0]['id'],'action':'update','title':'Pinned review updated','revision':revision,
+                    'schema':{'id':'shared-root','type':'Maipa.Note','props':{'text':'Synthetic agent pin update'}}})
+            elif 'dismiss' in text:
                 callback('maipa_ui_dismiss', {'revision': revision})
             else:
                 component = ('Maipa.ClientFacts' if 'fact' in text else 'Maipa.ClientCatalog' if 'client setup' in text

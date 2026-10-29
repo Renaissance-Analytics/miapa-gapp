@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, ChatDrawer, ContentRenderer, Field, Input, PromptInput, ResizablePanels, Select, Text, VirtualList, renderMarkdown,
+import { Button, ChatDrawer, ContentRenderer, Field, Icon, Input, PromptInput, ResizablePanels, Select, Text, VirtualList, renderMarkdown,
   type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { AgentSurface } from './AgentSurface.js';
@@ -9,6 +9,8 @@ import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
 import { CHAT_PROSE } from './content-policy.js';
 import { ChatDrafts, emptyDraft, sendProblem } from './chat-drafts.js';
+import { PersonalViewsController, type ViewsState } from './personal-views.js';
+import { SavedViews } from './SavedViews.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -34,8 +36,28 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const [focusPanel, setFocusPanel] = useState(false);
   const [narrow, setNarrow] = useState(false);
   const [setup, setSetup] = useState(false);
+  const [views,setViews]=useState<ViewsState>({phase:'loading',value:null,activeId:null});
+  const [viewError,setViewError]=useState('');
+  const personalViews=useRef<PersonalViewsController|null>(null);
   const current = useRef(state); current.current = state;
   const alive = useRef(true);
+  useEffect(()=>{
+    const controller=new PersonalViewsController(userId,setViews,()=>current.current.ui,
+      ()=>setFocusPanel(true),accepted=>setState(previous=>previous.ui?.id===accepted.id && previous.ui.account_id===accepted.account_id
+        && previous.ui.revision<accepted.revision ? {...previous,ui:accepted}:previous));
+    personalViews.current=controller;void controller.load();
+    const focused=()=>{void controller.load();};window.addEventListener('focus',focused);
+    return()=>{controller.dispose();personalViews.current=null;window.removeEventListener('focus',focused);};
+  },[userId]);
+  useEffect(()=>{if(state.phase==='ready'||state.phase==='offline')void personalViews.current?.load();},[state.phase]);
+  useEffect(()=>{
+    const controller=personalViews.current,active=controller?.state.value?.views.find(v=>v.id===controller.state.activeId);
+    const composition=state.ui?.composition;
+    if(active&&composition&&(composition.title!==active.title||JSON.stringify(composition.schema)!==JSON.stringify(active.schema)))controller?.clearActive();
+  },[state.ui?.id,state.ui?.revision]);
+  async function viewAction(operation:()=>Promise<void>){
+    setViewError('');try{await operation();}catch(problem){if(alive.current)setViewError(problem instanceof Error?problem.message:'Saved views could not be confirmed.');}
+  }
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   useEffect(() => { setAuthorizationCode(''); }, [userId, state.connection.account_id, state.phase, state.login?.url]);
   useEffect(() => { setFollow(true); setUnseen(0); setSendError(''); }, [draftAccount]);
@@ -74,7 +96,9 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     void listen();
     return () => { active = false; abort.abort(); };
   }, [userId, attempt]);
-  const ui = state.ui?.composition ? state.ui : null;
+  const liveUi = state.ui?.composition ? state.ui : null;
+  const activeView=views.value?.views.find(v=>v.id===views.activeId&&v.available&&v.schema);
+  const ui=activeView?{composition:{title:activeView.title,schema:activeView.schema!}}:liveUi;
   useEffect(() => { if (!ui) setFocusPanel(false); }, [!!ui]);
   async function action(payload: Record<string, unknown>) {
     if (busy) return;
@@ -121,6 +145,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const canSwitch = !busy && !running && ['offline', 'unavailable'].includes(state.phase);
   const providerLabel = state.connection.label ?? 'your provider';
   return <main className={`agent-workspace ${ui ? 'has-composition' : 'chat-only'} ${focusPanel ? 'focus-panel' : 'focus-chat'}`}>
+    {!ui&&<SavedViews state={views} controller={personalViews.current} error={viewError} run={operation=>{void viewAction(operation);}} />}
     {ui && <div className="context-switch" role="group" aria-label="Visible panel">
       <Button size="sm" variant="ghost" aria-pressed={!focusPanel} onClick={() => setFocusPanel(false)}>Conversation</Button>
       <Button size="sm" variant="ghost" aria-pressed={focusPanel} onClick={() => setFocusPanel(true)}>{ui.composition!.title}</Button>
@@ -202,8 +227,16 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         </div>
       </section>
       <section className="contextual-panel" data-pane="work" aria-label="Contextual panel" hidden={!ui} inert={!ui || (narrow && !focusPanel)}>
-        {ui && <><header><h2>{ui.composition!.title}</h2><Button size="sm" variant="ghost" aria-label="Close contextual panel" disabled={busy}
-          onClick={() => { if (!bridge.current) return; setBusy(true); void bridge.current.dismiss(ui).catch(() => setError('The shared panel changed. Reconnect before closing it.')).finally(() => setBusy(false)); }}>Close</Button></header>
+        {ui && <><header><h2>{ui.composition!.title}</h2><div className="view-actions">
+          <SavedViews state={views} controller={personalViews.current} error={viewError} run={operation=>{void viewAction(operation);}} />
+          {!activeView&&<Button size="sm" variant="ghost" aria-label="Save view" title="Save view" disabled={views.phase!=='ready'}
+            onClick={()=>{void viewAction(()=>personalViews.current!.save(ui.composition!));}}><Icon name="pin" size="sm" /></Button>}
+          <Button size="sm" variant="ghost" aria-label="Close contextual panel" disabled={busy}
+          onClick={() => {
+            if(!liveUi){personalViews.current?.clearActive();return;}
+            if (!bridge.current) return; setBusy(true); void bridge.current.dismiss(liveUi).then(()=>personalViews.current?.clearActive())
+              .catch(() => setError('The shared panel changed. Reconnect before closing it.')).finally(() => setBusy(false));
+          }}>Close</Button></div></header>
           <div className="composition-body"><AgentSurface userId={userId} ui={ui} /></div></>}
       </section>
     </ResizablePanels>

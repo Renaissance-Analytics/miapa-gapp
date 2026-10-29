@@ -113,3 +113,15 @@ class WorkspacePreferences(models.Model):
             models.CheckConstraint(condition=models.Q(theme__in=('system', 'light', 'dark')), name='workspace_preferences_theme'),
             models.CheckConstraint(condition=models.Q(active_view__in=('client-facts', 'workspace-guide')), name='workspace_preferences_view'),
         ]
+
+
+class PersonalViews(models.Model):
+    """Owned component definitions only; never saved native/UI-session authority."""
+    identity = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    installation = models.ForeignKey(Installation, on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    definitions = models.JSONField(default=list)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='workspace_personal_views_revision')]

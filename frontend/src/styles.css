@@ -229,3 +229,18 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
   .conversation-body { padding-block: 6px; }
   .chat-composer textarea { max-height: max(40px, 20dvh); }
 }
+.saved-view-bar { display: flex; align-items: center; flex-wrap: wrap; flex-shrink: 0; gap: 3px; padding: 2px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 11px; }
+.saved-view-bar button[aria-pressed="true"] { color: var(--accent); background: var(--canvas); }
+.contextual-panel .saved-view-bar { padding: 0; border: 0; background: transparent; flex-wrap: nowrap; max-width: 132px; overflow-x: auto; }
+.view-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.contextual-panel > header h2 { min-width: 0; overflow-wrap: anywhere; }
+.contextual-panel > header > .view-actions { flex-shrink: 0; }
+.maipa-views-popover { display: grid; gap: 12px; width: min(340px, calc(100vw - 24px)); max-height: min(520px, calc(100dvh - 80px)); overflow: auto; background: var(--surface); color: var(--ink); padding: 14px; }
+.maipa-views-popover ol { max-height: 120px; overflow: auto; padding-left: 18px; font-size: 12px; }
+@media (max-height: 360px) {
+  .conversation-body { padding-block: 0; }
+  .chat-composer textarea { max-height: 32px; padding-block: 4px; }
+  .chat-status { gap: 2px; margin-bottom: 2px; }
+  .chat-controls { padding-block: 2px; }
+  .saved-view-bar { padding-block: 0; }
+}

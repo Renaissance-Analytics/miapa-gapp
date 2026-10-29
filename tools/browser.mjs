@@ -187,6 +187,11 @@ async function typeChat(text) {
 async function preferencesReady() {
   await until(() => evaluate("!!document.querySelector('.agent-workspace') && document.querySelector('[data-preferences-state]')?.dataset.preferencesState === 'ready'"), 'saved preferences ready');
 }
+async function manageSavedViews() {
+  await click('Manage saved views');
+  // Fancy positions a newly mounted portal before removing its invisible state.
+  await until(()=>evaluate("(() => {const field=document.getElementById('maipa-view-title');if(!field||field.disabled||getComputedStyle(field).visibility!=='visible')return false;const r=field.getBoundingClientRect();return r.width>0&&r.height>0&&document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===field;})()"),'saved-view controls positioned and ready');
+}
 async function fill(id, value) {
   assert.equal(await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)}); if(!field || field.tagName!=='INPUT')return false; field.focus(); return document.activeElement===field; })()`), true);
   await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
@@ -282,6 +287,8 @@ try {
     assert.equal(restored.layout.user_id, fixture.user_id);
     assert.equal(restored.layout.split_basis_points, fixture.expected_points);
     assert.equal(Number(restored.value), fixture.expected_points / 100);
+    const restoredViews=await evaluate("(async()=>await(await fetch('/api/workspace/views/')).json())()");
+    assert.deepEqual(restoredViews,fixture.expected_views);
     record('layout-fresh-browser-restore');
     await preferencesReady();
     const preferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
@@ -291,6 +298,10 @@ try {
     await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'fresh-profile appearance and conversation restored');
     assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), '#111714');
     record('preferences-fresh-browser-restore');
+    await until(()=>evaluate("!!document.querySelector('button[aria-label=\"Open saved view Agent saved review\"]')"),'fresh-login personal pin');
+    await click('Open saved view Agent saved review');
+    await until(()=>evaluate("document.querySelector('.agent-commentary')?.textContent.includes('Synthetic agent saved definition')"),'fresh-login pin opens under current session');
+    await click('Close contextual panel');
   } else if (fixture.first_run) {
     phase = 'first_run';
     await until(() => evaluate("!!document.getElementById('maipa-admin-username')"), 'first-run administrator form');
@@ -670,6 +681,35 @@ try {
   await evaluate("window.maipaFixtureChat = document.querySelector('[aria-label=\"Account onboarding\"]'); window.maipaFixtureComposer = document.getElementById('maipa-setup-answer'); true");
   await requestComponent('Present a note', 'Maipa.Note');
   await until(() => evaluate("!!document.querySelector('.agent-commentary')"), 'published guide view');
+  await click('Save view');
+  await until(()=>evaluate("document.querySelector('button[aria-label=\"Open saved view Shared work\"]')?.getAttribute('aria-pressed')==='true'"),'acknowledged personal pin');
+  const firstPin=await evaluate("(async()=>{const s=await(await fetch('/api/workspace/views/')).json();return s.views[0].id;})()");
+  await typeChat('Unsent while closing and reopening Ω');
+  await evaluate("window.maipaPinDraft=document.querySelector('#maipa-chat-message');true");
+  await click('Close contextual panel');
+  await until(()=>evaluate("!document.querySelector('.has-composition')"),'closed work returns space to chat');
+  await click('Open saved view Shared work');
+  await until(()=>evaluate("document.querySelector('button[aria-label=\"Open saved view Shared work\"]')?.getAttribute('aria-pressed')==='true'&&document.querySelector('.saved-view-bar')?.dataset.viewsState==='ready'"),'personal view reopened and acknowledged');
+  assert.equal(await evaluate("window.maipaPinDraft===document.querySelector('#maipa-chat-message')&&window.maipaPinDraft.value==='Unsent while closing and reopening Ω'"),true);
+  await manageSavedViews();await fill('maipa-view-title','Pinned review');await click('Save name');
+  await until(()=>evaluate("document.querySelector('.contextual-panel h2')?.textContent==='Pinned review'"),'atomic human rename shared with native UI');
+  await click('Close saved views');
+  await requestComponent('Save a personal view', 'Maipa.Note');
+  await until(()=>evaluate("!!document.querySelector('button[aria-label=\"Open saved view Agent saved review\"]')"),'native agent saved second pin');
+  await requestComponent('Update my first saved view', 'Maipa.Note');
+  await until(()=>evaluate("document.querySelector('.agent-commentary')?.textContent.includes('Synthetic agent pin update')"),'native agent updates saved human definition');
+  let pinState=await evaluate("(async()=>await(await fetch('/api/workspace/views/')).json())()");
+  assert.equal(pinState.views[0].id,firstPin);assert.equal(pinState.views[0].schema.id,'shared-root');
+  assert.equal(pinState.views[0].revision,3);assert.deepEqual(pinState.views[0].history.map(v=>v.title),['Shared work','Pinned review']);
+  await manageSavedViews();await select('maipa-saved-view',firstPin);await click('Move saved view later');
+  await until(()=>evaluate(`(async()=>{const s=await(await fetch('/api/workspace/views/')).json();return s.views[1].id===${JSON.stringify(firstPin)};})()`),'saved pin order acknowledged');
+  await click('Unpin');
+  await until(()=>evaluate("!document.querySelector('button[aria-label=\"Open saved view Pinned review updated\"]')"),'unpin removes shortcut without deleting definition');
+  await click('Close saved views');
+  pinState=await evaluate("(async()=>await(await fetch('/api/workspace/views/')).json())()");
+  assert.equal(pinState.views.length,2);assert.equal(pinState.views[1].id,firstPin);assert.equal(pinState.views[1].pinned,false);
+  await checkChatViewport(897,264);
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   assert.equal(await evaluate("document.querySelector('[aria-label=\"Account onboarding\"]') === window.maipaFixtureChat && document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);
   await requestComponent('Open client facts', 'Maipa.ClientFacts');
   await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(clientEntityId)}`), 'facts remain reachable as a view');

@@ -18,7 +18,7 @@ registerSchemaComponents({
 });
 
 /** The exact server-controlled schema is shared by human controls and agent tools. */
-export function AgentSurface({ userId, ui }: { userId: string; ui: Composition }) {
+export function AgentSurface({ userId, ui }: { userId: string; ui: Pick<Composition,'composition'> }) {
   if (!ui.composition) return null;
   return <Principal.Provider value={userId}><ScreenSystem>
     <Screen id={`composition-user-${userId}`} title={ui.composition.title} schema={ui.composition.schema} />

@@ -88,7 +88,8 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
             mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, callbacks)
         : (constructors.claude ?? ((config, callbacks) => new ClaudeDriver(config, callbacks)))({
             ...configured, permissionMode: "dontAsk",
-            allowedTools: uiMcp ? ['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`) : [] }, callbacks);
+            allowedTools: uiMcp ? [...['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`),
+              ...['list', 'save', 'change', 'open'].map(operation => `mcp__maipa_ui__maipa_views_${operation}`)] : [] }, callbacks);
       drivers.push(driver);
       return driver;
     },

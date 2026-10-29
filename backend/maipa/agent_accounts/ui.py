@@ -160,7 +160,71 @@ def _tools():
     ):
         definitions.append({'name': name, 'description': description, 'inputSchema': {
             'type': 'object', 'properties': properties, 'required': list(properties), 'additionalProperties': False}})
+    view_identity = {'type': 'string', 'format': 'uuid'}
+    for name, description, properties, required in (
+        ('maipa_views_list', 'Read only your saved component definitions and their current collection revision; no old session authority.', {}, []),
+        ('maipa_views_save', 'Save and pin a safe personal component definition. Wait for acknowledged persistence. Reusing a stale revision cannot create a duplicate.',
+         {'views_id': view_identity, 'expected_revision': revision, 'title': {'type':'string','minLength':1,'maxLength':80},
+          'schema': {'type':'object'}, 'id': view_identity}, ['views_id','expected_revision','title','schema']),
+        ('maipa_views_change', 'Update, rename, reorder, pin or unpin your saved definitions at the current collection revision. Read current state first; unpin retains history.',
+         {'views_id': view_identity, 'expected_revision': revision, 'action': {'type':'string','enum':['rename','update','pin','unpin','reorder']},
+          'id': view_identity, 'title': {'type':'string','minLength':1,'maxLength':80}, 'schema': {'type':'object'},
+          'ids': {'type':'array','items':view_identity,'maxItems':8}, 'revision': revision}, ['views_id','expected_revision','action']),
+        ('maipa_views_open', 'Open a saved definition using current role and fresh UI authority. Supply both current collection and UI revisions; never opens historical authority.',
+         {'views_id':view_identity,'expected_revision':revision,'id':view_identity,'revision':revision},
+         ['views_id','expected_revision','id','revision']),
+    ):
+        definitions.append({'name': name, 'description': description, 'inputSchema': {
+            'type':'object','properties':properties,'required':required,'additionalProperties':False}})
     return definitions
+
+
+def _dispatch_views(actor, account_id, identity, name, arguments):
+    # Import lazily: the definition service reuses this module's closed schema validator.
+    from backend.maipa.workspace import personal_views as views
+    try:
+        with transaction.atomic():
+            UiComposition.objects.filter(pk=_uuid(identity), session__user_id=actor.pk,
+                session__account_id=_uuid(account_id)).update(revision=F('revision'))
+            _lookup(actor, account_id, identity)
+            if name == 'maipa_views_list':
+                _object(arguments, ())
+                return views.read_personal_views(actor)
+            if name == 'maipa_views_open':
+                _object(arguments, ('views_id','expected_revision','id','revision'))
+                definition = views.owned_definition(actor, arguments['views_id'], arguments['expected_revision'], arguments['id'])
+                saved = _lookup(actor, account_id, identity)
+                operation = 'maipa_ui_update' if saved.composition else 'maipa_ui_present'
+                return dispatch_ui(actor, account_id, identity, {'method':'tools/call','params':{
+                    'name':operation,'arguments':{'revision':arguments['revision'], **definition}}})
+            if name == 'maipa_views_save':
+                _object(arguments, ('views_id','expected_revision','title','schema') + (('id',) if 'id' in arguments else ()))
+                value = {'action':'create', **{key:value for key,value in arguments.items() if key != 'views_id'}}
+            elif name == 'maipa_views_change':
+                if type(arguments) is not dict or arguments.get('action') not in ('rename','update','pin','unpin','reorder'):
+                    raise ValueError('Invalid view operation')
+                value = {key:value for key,value in arguments.items() if key not in ('views_id','revision')}
+            else:
+                raise ValueError('Unsupported saved-view tool')
+            result = views.mutate_personal_views(actor, arguments.get('views_id'), value)
+            if 'revision' in arguments:
+                if name != 'maipa_views_change' or arguments['action'] not in ('rename','update'):
+                    raise ValueError('Invalid visible update')
+                definition = views.owned_definition(actor, result['views_id'], result['revision'], arguments['id'])
+                saved = _lookup(actor, account_id, identity)
+                if saved.composition is None:
+                    raise ValueError('No visible composition')
+                accepted = dispatch_ui(actor, account_id, identity, {'method':'tools/call','params':{
+                    'name':'maipa_ui_update','arguments':{'revision':arguments['revision'],**definition}}})
+                return {'views':result,'ui':accepted}
+            _lookup(actor, account_id, identity)
+            return result
+    except views.ViewsFailure as failure:
+        if failure.status == 409:
+            raise UiConflict(MESSAGE) from None
+        raise UiUnavailable(MESSAGE) from None
+    except views.StoredViewsUnavailable:
+        raise UiUnavailable(MESSAGE) from None
 
 
 @_safe
@@ -176,6 +240,8 @@ def dispatch_ui(actor, account_id, identity, request):
         raise ValueError('Unsupported UI method')
     _object(params, ('name', 'arguments'))
     name, arguments = params['name'], params['arguments']
+    if name in ('maipa_views_list','maipa_views_save','maipa_views_change','maipa_views_open'):
+        return _dispatch_views(actor, account_id, identity, name, arguments)
     if name == 'maipa_ui_catalog':
         _object(arguments, ())
         saved = _lookup(actor, account_id, identity)

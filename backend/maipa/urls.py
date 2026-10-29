@@ -8,6 +8,7 @@ from .workspace import views as workspace
 from .workspace import setup_views
 from .workspace.layout import personal_layout
 from .workspace.preferences import personal_preferences
+from .workspace.personal_views import personal_views
 from .workspace.access import users as admin_users
 from .intake import views as intake
 from .intake.catalog_views import clients as client_catalog
@@ -27,6 +28,7 @@ urlpatterns = [
     path('api/intake/catalog/', client_catalog, name='client-catalog'),
     path('api/workspace/layout/', personal_layout, name='workspace-layout'),
     path('api/workspace/preferences/', personal_preferences, name='workspace-preferences'),
+    path('api/workspace/views/', personal_views, name='workspace-personal-views'),
     path('api/setup/', setup_views.first_run, name='first-run'),
     path('api/onboarding/', setup_views.account_setup, name='account-onboarding'),
     path('api/policies/entities/<uuid:entity_id>/', policies.entity_authority, name='entity-authority'),

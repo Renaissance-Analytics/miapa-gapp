@@ -20,8 +20,13 @@ const label = (v: unknown): v is string => typeof v === 'string' && !!v.trim() &
 
 /** Conversation revisions are local to an account; selection epochs order switches. */
 export function newerChat(previous: ChatState, next: ChatState): ChatState {
-  return next.connection.revision > previous.connection.revision ||
-    (next.connection.revision === previous.connection.revision && next.revision >= previous.revision) ? next : previous;
+  if (next.connection.revision > previous.connection.revision) return next;
+  if (next.connection.revision !== previous.connection.revision || next.revision < previous.revision) return previous;
+  // A UI POST can acknowledge ahead of an already in-flight SSE snapshot.
+  // Only the same live lease is monotonic; null/replacement authority still wins.
+  if (next.ui && previous.ui && next.ui.id === previous.ui.id && next.ui.account_id === previous.ui.account_id
+    && next.ui.revision < previous.ui.revision) return { ...next, ui: previous.ui };
+  return next;
 }
 
 export function compositionSchema(input: unknown): ScreenSchema {

@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-34",
+    "label": "Development update 34",
+    "cards": [
+      {
+        "title": "Keep useful views close",
+        "description": "Save a composed panel as your personal pin. Reopen it without losing your conversation or draft, rename or reorder it, and unpin it while keeping its definition history."
+      },
+      {
+        "title": "Shared, confirmed view changes",
+        "description": "Saved-view changes use current ownership, role and revision checks. Maipa waits for confirmed saves, and conflicts offer a reload instead of overwriting another edit."
+      }
+    ]
+  },
+  {
     "id": "development-33",
     "label": "Development update 33",
     "cards": [
@@ -238,24 +252,6 @@
       {
         "title": "Reload a changed preference",
         "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change."
-      }
-    ]
-  },
-  {
-    "id": "development-14",
-    "label": "Development update 14",
-    "cards": [
-      {
-        "title": "Start in your browser",
-        "description": "Create your local administrator with a username and password, then continue with the saved account-setup conversation. There is no setup code or file to find."
-      },
-      {
-        "title": "Keep your workspace through app updates",
-        "description": "Local installation storage now stays separate from application code. Administrator maintenance tools can back up and restore saved accounts, setup conversations and pane widths. Existing installations have an explicit migration path that preserves their sign-in state."
-      },
-      {
-        "title": "More setup is still ahead",
-        "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work."
       }
     ]
   }

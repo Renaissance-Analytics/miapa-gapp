@@ -369,8 +369,11 @@ def main():
             if evidence.get('cleanup') is not True or evidence.get('scenarios', [])[-2:] != ['no-uncaught-exceptions', 'owned-browser-cleanup']:
                 raise ValueError('Ordinary browser exceptions and cleanup required')
             save_progress('resume')
+            from backend.maipa.workspace.personal_views import read_personal_views
+            expected_views = read_personal_views(owner)
+            assert len(expected_views['views']) == 2
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,
-                'password': password, 'user_id': str(owner.pk), 'expected_points': 3500})
+                'password': password, 'user_id': str(owner.pk), 'expected_points': 3500, 'expected_views': expected_views})
             if (resumed.get('cleanup') is not True or resumed.get('checks') != 4
                     or resumed.get('scenarios') != ['layout-fresh-browser-restore', 'preferences-fresh-browser-restore', 'no-uncaught-exceptions', 'owned-browser-cleanup']
                     or resumed.get('build_id') != evidence.get('build_id') or resumed.get('browser') != evidence.get('browser')):

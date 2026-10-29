@@ -6,6 +6,16 @@ const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: 'owned', provider: 'independent-acp', label: 'Independent ACP', available: true },
   providers: [{ id: 'independent-acp', label: 'Independent ACP', available: true }] };
 
+test('UI acknowledgments stay monotonic within the same lease while revocation and replacement still win',()=>{
+  const ui={account_id:'owned',id:'lease',revision:9,composition:{title:'New',schema:{id:'note',type:'Maipa.Note',props:{text:'Confirmed'}}}};
+  const previous={...state,revision:10,ui};
+  assert.equal(newerChat(previous,{...previous,revision:11,ui:{...ui,revision:8}}).ui.revision,9);
+  assert.equal(newerChat(previous,{...previous,ui:null}).ui,null);
+  assert.equal(newerChat(previous,{...previous,ui:{...ui,id:'fresh',revision:0}}).ui.id,'fresh');
+  const switched={...state,connection:{...state.connection,revision:1,account_id:'next'}};
+  assert.equal(newerChat(previous,switched),switched);
+});
+
 test('model choices come from a closed provider catalog and require a known current model', () => {
   const models = { currentModelId: 'provider-a', availableModels: [
     { modelId: 'provider-a', name: 'Provider model A' }, { modelId: 'provider-b', name: 'Provider model B' },

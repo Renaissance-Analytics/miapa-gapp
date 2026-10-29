@@ -867,6 +867,92 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-SAVED-VIEW-CLIENT",
+      "risk": "Optimistic saved-view success, stale UI overwrite, unscoped persistence or late principal callbacks can mislead the human and agent.",
+      "scenarios": [
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.schema",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A saved snapshot is owned and closed; foreign owners, unsafe components and corrupt history are refused while restricted definitions remain masked",
+          "tests": [
+            "personal-views.test.mjs#saved definitions reject foreign principals unsafe schemas corrupt history and extra authority"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.ack",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "The public tool stays pending with zero activity before authoritative commit; a refusal emits no success activity",
+          "tests": [
+            "personal-views.test.mjs#public Screens bridge waits for acknowledged mutation and emits no false refusal activity"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.failure",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A held or failed POST leaves prior acknowledged data intact with no opening or activity",
+          "tests": [
+            "personal-views.test.mjs#pending and failed saved-view writes keep acknowledged data without reporting success"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.save",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "Same-origin no-store CSRF and exact views identity/revision protect saves; only confirmed owned data opens",
+          "tests": [
+            "personal-views.test.mjs#acknowledged save opens only its confirmed owned definition and scopes its request"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.conflict",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "409 preserves the winning snapshot and blocks further edits until explicit reload",
+          "tests": [
+            "personal-views.test.mjs#a stale saved-view edit becomes a conflict and cannot overwrite the visible snapshot"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.lifetime",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A disposed principal cannot receive or activate a late acknowledgment",
+          "tests": [
+            "personal-views.test.mjs#disposing a principal during a pending save cannot publish or activate a late acknowledgment"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.read",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "Read generations refuse older snapshots and clear saved-view authority on a foreign owner response",
+          "tests": [
+            "personal-views.test.mjs#late reads cannot replace a newer collection and malformed owner responses clear authority"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.ui-order",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A confirmed newer UI revision survives an older stream snapshot of the same lease; null or replacement authority and new account selection still win",
+          "tests": [
+            "agent-chat.test.mjs#UI acknowledgments stay monotonic within the same lease while revocation and replacement still win"
+          ]
+        }
+      ]
     }
   ]
 }
