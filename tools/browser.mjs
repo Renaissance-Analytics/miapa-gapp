@@ -50,6 +50,7 @@ const exceptions = [];
 const intakeListResponses = [];
 const passed = [];
 let holdComposerSends = false;
+let failClientTableRead = false;
 const pausedComposerSends = [];
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
 const progressPhases = new Set(['fixture_input', 'browser_binary', 'profile_parent', 'browser_launch',
@@ -245,7 +246,10 @@ try {
       const paused = message.params;
       let body;
       try { body = JSON.parse(paused.request.postData ?? 'null'); } catch { /* Not a JSON send. */ }
-      if (holdComposerSends && paused.request.method === 'POST' && body?.action === 'send')
+      if (failClientTableRead && paused.request.url === fixture.origin + '/api/intake/catalog/') {
+        failClientTableRead = false;
+        void command('Fetch.failRequest', { requestId: paused.requestId, errorReason: 'Failed' }).catch(() => exceptions.push(true));
+      } else if (holdComposerSends && paused.request.method === 'POST' && body?.action === 'send')
         pausedComposerSends.push({ requestId: paused.requestId, body });
       else void command('Fetch.continueRequest', { requestId: paused.requestId }).catch(() => exceptions.push(true));
     }
@@ -301,6 +305,11 @@ try {
     await until(()=>evaluate("!!document.querySelector('button[aria-label=\"Open saved view Agent saved review\"]')"),'fresh-login personal pin');
     await click('Open saved view Agent saved review');
     await until(()=>evaluate("document.querySelector('.agent-commentary')?.textContent.includes('Synthetic agent saved definition')"),'fresh-login pin opens under current session');
+    await click('Close contextual panel');
+    await click('Open saved view Current client overview');
+    await until(()=>evaluate("!!document.querySelector('.client-table [data-react-fancy-table]')"),'fresh-login column definition loads current authorized clients');
+    assert.deepEqual(await evaluate("[...document.querySelectorAll('.client-table th')].map(n=>n.textContent)"), ['Entities','Client']);
+    assert.equal(await evaluate("(async()=>{const current=await(await fetch('/api/intake/catalog/')).json();return JSON.stringify([...document.querySelectorAll('.client-table [data-client-id]')].map(n=>n.dataset.clientId))===JSON.stringify(current.engagements.map(row=>row.id));})()"),true);
     await click('Close contextual panel');
   } else if (fixture.first_run) {
     phase = 'first_run';
@@ -708,6 +717,23 @@ try {
   await click('Close saved views');
   pinState=await evaluate("(async()=>await(await fetch('/api/workspace/views/')).json())()");
   assert.equal(pinState.views.length,2);assert.equal(pinState.views[1].id,firstPin);assert.equal(pinState.views[1].pinned,false);
+  await checkChatViewport(897,264);
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await requestComponent('Compose client overview', 'Maipa.Stack');
+  await until(()=>evaluate("!!document.querySelector('.client-table [data-react-fancy-table]') && !!document.querySelector('button[aria-label=\"Open saved view Current client overview\"]')"),'finite native peer composes and pins current client table');
+  assert.equal(await evaluate("!!document.querySelector('[data-react-fancy-heading]') && !!document.querySelector('[data-react-fancy-callout]')"),true);
+  assert.equal(await evaluate("document.querySelector('.composition-callout strong')?.textContent"),'current');
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.client-table th')].map(n=>n.textContent)"),['Entities','Client']);
+  assert.equal(await evaluate("(async()=>{const current=await(await fetch('/api/intake/catalog/')).json();return current.engagements.every(row=>document.querySelector('[data-client-id=\"'+row.id+'\"] [data-client-column=name]')?.textContent===row.name&&document.querySelector('[data-client-id=\"'+row.id+'\"] [data-client-column=entity_count]')?.textContent===String(row.entity_count));})()"),true);
+  await command('Fetch.enable',{patterns:[{urlPattern:fixture.origin+'/api/intake/catalog/',requestStage:'Request'}]});
+  failClientTableRead=true;
+  await click('Reload client table');
+  await until(()=>evaluate("document.querySelector('.client-table [role=alert]')?.textContent.includes('could not confirm') && !document.querySelector('.client-table [data-client-id]')"),'failed refresh clears old client rows without breaking chat');
+  await command('Fetch.disable');
+  await click('Reload client table');
+  await until(()=>evaluate("!!document.querySelector('.client-table [data-client-id]') && !document.querySelector('.client-table [role=alert]')"),'actual current client service retry');
+  const paletteScreenshot=await command('Page.captureScreenshot',{format:'png'});
+  writeFileSync('artifacts/ci/component-palette.png',Buffer.from(paletteScreenshot.data,'base64'));
   await checkChatViewport(897,264);
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   assert.equal(await evaluate("document.querySelector('[aria-label=\"Account onboarding\"]') === window.maipaFixtureChat && document.getElementById('maipa-setup-answer') === window.maipaFixtureComposer && window.maipaFixtureComposer.value === 'Synthetic unsent setup draft'"), true);

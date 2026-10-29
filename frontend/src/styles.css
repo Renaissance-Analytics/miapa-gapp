@@ -203,6 +203,13 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .contextual-panel > header h2 { font-size: 14px; margin: 0; }
 .composition-body { flex: 1; min-height: 0; overflow: auto; padding: 16px; }
 .composition-stack { display: grid; gap: 14px; }
+.composition-stack [data-react-fancy-heading] { margin: 0; overflow-wrap: anywhere; }
+.composition-callout { padding: 10px 12px; }
+.composition-callout small, .client-table-tools small { color: var(--muted); }
+.client-table { min-width: 0; }
+.client-table-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.client-table [data-react-fancy-table] { overflow-x: auto; color: var(--ink); background: var(--surface); }
+.client-table [data-react-fancy-table-cell] { padding: 7px 10px; overflow-wrap: anywhere; }
 .agent-commentary { padding: 12px 14px; border-left: 2px solid var(--accent); background: var(--surface); }
 .agent-commentary small { color: var(--muted); }
 .provider-signin { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; }

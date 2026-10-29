@@ -953,6 +953,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-PALETTE",
+      "risk": "Unvalidated display schemas can embed executable props or stale private record snapshots in personal views.",
+      "scenarios": [
+        {
+          "id": "A07-PALETTE.render",
+          "kind": "positive",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "The public Fancy heading/callout preserve escaped text and inert server-rendered commentary; actual browser formatting is checked separately.",
+          "tests": [
+            "component-palette.test.mjs#fine-grained Fancy heading and callout render inert commentary with stable handles"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.closed",
+          "kind": "negative",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "The browser parser detaches approved ordered columns and rejects embedded records, foreign bindings and executable or malformed props.",
+          "tests": [
+            "component-palette.test.mjs#client-table definitions contain only approved ordered columns and no record or executable bindings"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -4063,6 +4063,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-PALETTE",
+      "risk": "Unvalidated display schemas can embed executable props or stale private record snapshots in personal views.",
+      "scenarios": [
+        {
+          "id": "A07-PALETTE.accepted",
+          "kind": "positive",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "Both current authorized roles accept detached stable component definitions, preserving caller-owned column order.",
+          "tests": [
+            "tests.test_component_palette.ComponentPaletteTests.test_registered_palette_accepts_detached_stable_definitions_for_both_authorized_roles"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.closed",
+          "kind": "negative",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "Unsafe bindings, embedded rows, duplicate or unknown columns, executable props and malformed commentary are rejected.",
+          "tests": [
+            "tests.test_component_palette.ComponentPaletteTests.test_palette_rejects_record_snapshots_selectors_actions_and_invalid_content"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.pin",
+          "kind": "positive",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "The owned definition survives a new login exactly; role revocation refuses read and no row snapshots are persisted.",
+          "tests": [
+            "tests.test_component_palette.ComponentPaletteTests.test_personal_pin_persists_only_the_column_definition_and_revalidates_reopen"
+          ]
+        }
+      ]
     }
   ]
 }

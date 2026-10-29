@@ -112,6 +112,19 @@ for line in sys.stdin:
                 callback('maipa_views_change', {'views_id':views['views_id'],'expected_revision':views['revision'],
                     'id':views['views'][0]['id'],'action':'update','title':'Pinned review updated','revision':revision,
                     'schema':{'id':'shared-root','type':'Maipa.Note','props':{'text':'Synthetic agent pin update'}}})
+            elif 'compose client overview' in text:
+                schema = {'id': 'client-overview', 'type': 'Maipa.Stack', 'children': [
+                    {'id': 'overview-heading', 'type': 'Maipa.Heading', 'props': {'text': 'Current client overview'}},
+                    {'id': 'overview-guidance', 'type': 'Maipa.Callout', 'props': {'text': 'Review **current** client setup.', 'tone': 'attention'}},
+                    {'id': 'overview-table', 'type': 'Maipa.ClientTable', 'props': {'columns': ['entity_count', 'name']}},
+                ]}
+                views = callback('maipa_views_list', {})
+                callback('maipa_views_change', {'views_id': views['views_id'], 'expected_revision': views['revision'],
+                    'id': views['views'][-1]['id'], 'action': 'update', 'title': 'Current client overview',
+                    'revision': revision, 'schema': schema})
+                views = callback('maipa_views_list', {})
+                callback('maipa_views_change', {'views_id': views['views_id'], 'expected_revision': views['revision'],
+                    'id': views['views'][-1]['id'], 'action': 'pin'})
             elif 'dismiss' in text:
                 callback('maipa_ui_dismiss', {'revision': revision})
             else:

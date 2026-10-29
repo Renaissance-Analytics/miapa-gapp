@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-35",
+    "label": "Development update 35",
+    "cards": [
+      {
+        "title": "Compose smaller, useful pieces",
+        "description": "Maipa can compose compact headings, commentary callouts and a read-only client table in the shared panel using Fancy components."
+      },
+      {
+        "title": "Reopen current client records",
+        "description": "A saved client table keeps your column choice and loads current authorized records when reopened. Failed reloads clear old rows and offer a retry."
+      }
+    ]
+  },
+  {
     "id": "development-34",
     "label": "Development update 34",
     "cards": [
@@ -238,20 +252,6 @@
       {
         "title": "Private storage for future agent work",
         "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-15",
-    "label": "Development update 15",
-    "cards": [
-      {
-        "title": "Your appearance and work view follow your account",
-        "description": "Choose System, Light or Dark and switch between Client facts and Workspace guide. Your choices now restore after sign-in and in another browser."
-      },
-      {
-        "title": "Reload a changed preference",
-        "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change."
       }
     ]
   }

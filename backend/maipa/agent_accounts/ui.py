@@ -63,6 +63,9 @@ def _components(role):
     items = [
         ('Maipa.Stack', 'A vertical group of one to sixteen registered components.'),
         ('Maipa.Note', 'Unverified agent commentary; props contains only text, up to 2000 characters.'),
+        ('Maipa.Heading', 'Compact section heading; props contains only text, up to 120 characters.'),
+        ('Maipa.Callout', 'Unverified commentary in a Fancy callout; props: text up to 2000 characters, tone info/attention/neutral.'),
+        ('Maipa.ClientTable', 'Read-only current owned clients from the scoped service, not supplied rows. Props: columns, an ordered unique subset of name/entity_count. No identifiers, bindings or data snapshots.'),
         ('Maipa.ClientFacts', 'Owned client facts and evidence; no props. Server-scoped services load the data.'),
         ('Maipa.ClientCatalog', 'Owned client/entity metadata controls; no props. Writes require current service authority.'),
     ]
@@ -97,12 +100,24 @@ def validate_schema(value, role):
                 raise ValueError('Invalid group')
             for child in item['children']:
                 node(child, depth + 1)
-        elif item['type'] == 'Maipa.Note':
+        elif item['type'] in ('Maipa.Note', 'Maipa.Heading', 'Maipa.Callout'):
             _object(item, ('id', 'type', 'props'))
-            _object(item['props'], ('text',))
+            _object(item['props'], ('text', 'tone') if item['type'] == 'Maipa.Callout' else ('text',))
             text = item['props']['text']
-            if type(text) is not str or not text.strip() or len(text) > 2000 or CONTROL.search(text):
+            limit = 120 if item['type'] == 'Maipa.Heading' else 2000
+            if type(text) is not str or not text.strip() or len(text) > limit or CONTROL.search(text):
                 raise ValueError('Invalid note')
+            if item['type'] == 'Maipa.Callout' and item['props']['tone'] not in ('info', 'attention', 'neutral'):
+                raise ValueError('Invalid commentary tone')
+        elif item['type'] == 'Maipa.ClientTable':
+            _object(item, ('id', 'type', 'props'))
+            _object(item['props'], ('columns',))
+            columns = item['props']['columns']
+            if (type(columns) is not list or not 1 <= len(columns) <= 2 or
+                    any(type(column) is not str or column not in ('name', 'entity_count') for column in columns) or
+                    len(set(columns)) != len(columns) or item['type'] in controls):
+                raise ValueError('Invalid table definition')
+            controls.add(item['type'])
         else:
             _object(item, ('id', 'type'))
             if item['type'] in controls:
@@ -250,7 +265,9 @@ def dispatch_ui(actor, account_id, identity, request):
                 'schema_contract': {
                     'node_fields': ['id', 'type'], 'id_pattern': HANDLE.pattern,
                     'stack': 'Maipa.Stack requires children; no props. Other types cannot have children.',
-                    'note': 'Maipa.Note requires props containing only text. All other leaf components have no props.',
+                    'commentary': 'Maipa.Note and Maipa.Heading require props containing only text. Maipa.Callout requires text and tone (info/attention/neutral). Text is commentary, never verified records.',
+                    'client_table': 'Maipa.ClientTable requires props containing only columns: one or both of name/entity_count, unique and ordered. Current owned data loads from the service; never supply rows, user/entity IDs, URLs or selectors. At most one table per composition.',
+                    'services': 'Maipa.ClientFacts/ClientCatalog/AdminUsers have no props; their services enforce current authority.',
                     'example': {'id': 'review-note', 'type': 'Maipa.Note', 'props': {'text': 'Commentary to verify against evidence.'}},
                 },
                 'limits': {'nodes': 16, 'depth': 4, 'schema_bytes': 32_768}}

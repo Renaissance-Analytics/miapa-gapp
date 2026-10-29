@@ -41,10 +41,20 @@ export function compositionSchema(input: unknown): ScreenSchema {
       return { id: v.id, type: v.type, children: v.children.map(child => node(child, depth + 1)) };
     }
     if (v.children !== undefined) return fail();
-    if (v.type === 'Maipa.Note') {
-      if (!object(v.props) || !closed(v.props, ['text']) || typeof v.props.text !== 'string' || !v.props.text.trim()
-        || v.props.text.length > 2000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v.props.text)) return fail();
-      return { id: v.id, type: v.type, props: { text: v.props.text } };
+    if (['Maipa.Note', 'Maipa.Heading', 'Maipa.Callout'].includes(String(v.type))) {
+      const callout = v.type === 'Maipa.Callout';
+      if (!object(v.props) || !closed(v.props, callout ? ['text', 'tone'] : ['text']) || typeof v.props.text !== 'string' || !v.props.text.trim()
+        || v.props.text.length > (v.type === 'Maipa.Heading' ? 120 : 2000) || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(v.props.text)
+        || (callout && !['info', 'attention', 'neutral'].includes(String(v.props.tone)))) return fail();
+      return { id: v.id, type: String(v.type), props: { text: v.props.text, ...(callout ? { tone: v.props.tone } : {}) } };
+    }
+    if (v.type === 'Maipa.ClientTable') {
+      if (!object(v.props) || !closed(v.props, ['columns']) || !Array.isArray(v.props.columns)
+        || !v.props.columns.length || v.props.columns.length > 2 || controls.has(v.type)
+        || v.props.columns.some(column => typeof column !== 'string' || !['name', 'entity_count'].includes(column))
+        || new Set(v.props.columns).size !== v.props.columns.length) return fail();
+      controls.add(v.type);
+      return { id: v.id, type: v.type, props: { columns: [...v.props.columns] } };
     }
     if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers'].includes(v.type)
       || v.props !== undefined || controls.has(v.type)) return fail();

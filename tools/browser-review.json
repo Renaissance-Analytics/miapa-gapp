@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "5c4fd6388dab186a7900740a1336776bfe63fb391948198383dc2fd357306607",
+    "tools/browser.mjs": "00f1b48aef9b45c5388554fe7d9804fe9eea14c66a7346ba23d82a28f4897d58",
     "tools/check_browser.py": "ed71db8cc33e0451cc8c26440075b2c9281f46b4f9ca8fb337026171a80b032a",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "346a7c8d9eede29ffd34fa18284ca8458e0da3bf9fb73e76abf6a4ff8d05fdb6"
+    "tests/fixtures/agent_chat_peer.py": "c7cd15c7748a6de8ded6b5e0d2eed66f2c3880ed6ce35b179174fb61d20296ab"
   },
   "cases": [
     {
@@ -107,7 +107,7 @@
     {
       "id": "persistent-chat-work-views",
       "kind": "positive",
-      "expected": "Native chat requests present registered notes and facts through the actual deterministic test ACP consumer. Stable conversation/onboarding/composer nodes and an unsent setup draft survive contextual changes and native mobile switching. No predefined page identity or real-model behavior is claimed. Native human Save view, close/open with identical composer/draft, atomic rename, native agent save/open/update through the real scoped broker, stable definition/node IDs/history, reorder and unpin are verified. Saved pins retain compact897x264 composer containment. All original setup draft/DOM assertions stay."
+      "expected": "Native chat requests present registered notes and facts through the actual deterministic test ACP consumer. Stable conversation/onboarding/composer nodes and an unsent setup draft survive contextual changes and native mobile switching. No predefined page identity or real-model behavior is claimed. Native human Save view, close/open with identical composer/draft, atomic rename, native agent save/open/update through the real scoped broker, stable definition/node IDs/history, reorder and unpin are verified. Saved pins retain compact897x264 composer containment. All original setup draft/DOM assertions stay. Fine-grained Fancy heading/callout/current-client table and ordered columns share the scoped composition/pin tools. Current owned rows load anew, a failed refresh clears old records and retry recovers, and a fresh-login pin loads current records without historical native authority. This is finite-peer acceptance, not actual-model proof."
     },
     {
       "id": "agent-chat-stream-and-ui-control",
@@ -182,7 +182,7 @@
     {
       "id": "layout-fresh-browser-restore",
       "kind": "positive",
-      "expected": "A genuinely new native browser profile signs in and restores the owner private layout ID and35percent preference. The separator stays hidden until contextual UI exists. Exact saved definitions/order/history are compared after a real new browser login. A pin reopens under current HTTP authority without restoring any expired native/UI lease."
+      "expected": "A genuinely new native browser profile signs in and restores the owner private layout ID and35percent preference. The separator stays hidden until contextual UI exists. Exact saved definitions/order/history are compared after a real new browser login. A pin reopens under current HTTP authority without restoring any expired native/UI lease. Fine-grained Fancy heading/callout/current-client table and ordered columns share the scoped composition/pin tools. Current owned rows load anew, a failed refresh clears old records and retry recovers, and a fresh-login pin loads current records without historical native authority. This is finite-peer acceptance, not actual-model proof."
     },
     {
       "id": "preferences-fresh-browser-restore",
