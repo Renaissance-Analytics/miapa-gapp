@@ -979,6 +979,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-FAILURE-STATUS",
+      "risk": "Raw provider errors can leak content, mislabel failure causes or trigger repeated turns during a known account cooldown.",
+      "scenarios": [
+        {
+          "id": "A07-FAILURE-STATUS.client",
+          "kind": "positive",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Account-bound structured failures parse exactly, while legacy absence remains compatible and private/unknown/invalid metadata is rejected.",
+          "tests": [
+            "turn-failure.test.mjs#chat preserves only acknowledged account-bound failure enums and valid reset times"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.client-invalid",
+          "kind": "negative",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Unknown categories, private reasons, invalid timestamps and unbound failures are refused before rendering.",
+          "tests": [
+            "turn-failure.test.mjs#chat preserves only acknowledged account-bound failure enums and valid reset times"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.notice",
+          "kind": "positive",
+          "given": "A current owned conversation and the structured provider turn-failure contract",
+          "when": "A finite native turn fails and the account or UI changes",
+          "then": "Public Fancy Callout renders the supplied reset, known cooldown ends exactly at that time, unknown causes stay unconfirmed and absent reset is described honestly.",
+          "tests": [
+            "turn-failure.test.mjs#public Fancy failure notice distinguishes known cooldown boundaries from unconfirmed causes"
+          ]
+        }
+      ]
     }
   ]
 }

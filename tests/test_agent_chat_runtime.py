@@ -1,6 +1,7 @@
 """Real app consumer with a finite deterministic ACP peer; no real-model claim."""
 from pathlib import Path
 import sys
+import json
 import tempfile
 import time
 from types import SimpleNamespace
@@ -72,6 +73,23 @@ class AgentChatRuntimeTests(TransactionTestCase):
         self.configured.disable()
         self.temporary.cleanup()
         super().tearDown()
+
+    def test_failed_native_turn_persists_only_closed_status_and_verifies_worker_shutdown(self):
+        state=self.state()
+        with self.assertLogs(chat_runtime.__name__,level='ERROR') as logs:
+            result=self.client.post('/api/agent/chat/',{'action':'send','revision':state['revision'],
+                'selection_revision':state['connection']['revision'],'request_id':str(uuid.uuid4()),
+                'text':'Synthetic provider rate limit test'},content_type='application/json',
+                HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))
+            self.assertEqual(result.status_code,200)
+            failed=self.until(lambda s:s['phase']=='unavailable')
+        safe=self.client.get('/api/agent/chat/',HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk),HTTP_X_MAIPA_AGENT_FAILURES='1').json()
+        self.assertEqual(safe['failure']['kind'],'rate_limit');self.assertIsInstance(safe['failure']['resets_at_ms'],int)
+        self.assertNotIn('PRIVATE',json.dumps(safe));self.assertNotIn('PRIVATE',''.join(logs.output))
+        self.assertEqual(failed['messages'][-1]['state'],'interrupted');self.assertIsNone(failed['ui'])
+        worker=self.started_workers[-1];worker.thread.join(timeout=10)
+        self.assertFalse(worker.thread.is_alive());self.assertIsNotNone(worker.client.returncode)
+        self.assertTrue(worker.client.shutdown_report['verified']);self.assertEqual(worker.client.shutdown_report['survivors'],0)
 
     def state(self):
         response = self.client.get('/api/agent/chat/', HTTP_X_MAIPA_AGENT_ACTOR=str(self.owner.pk))

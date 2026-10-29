@@ -17,7 +17,7 @@ from django.db import close_old_connections, connections, DatabaseError, transac
 from django.db.models import F
 from django.utils import timezone
 
-from backend.maipa.acp import AcpClient, AcpError
+from backend.maipa.acp import AcpClient, AcpError, AcpTurnError
 from backend.maipa.worker_capsule import WorkerCapsule
 from backend.maipa.windows_sandbox import WindowsHostWorker, SandboxUnavailable
 from . import chat
@@ -348,7 +348,7 @@ class _Worker:
         pending['state'] = 'complete'
         response = {'id': str(uuid.uuid4()), 'role': 'assistant', 'text': '', 'state': 'streaming'}
         messages.append(response)
-        await db(self.publish, messages=messages, phase='thinking')
+        await db(self.publish, messages=messages, phase='thinking', failure=None)
         # On a new native session, explicitly reconstruct only this user's saved transcript.
         # No unacknowledged resume claim; no login material is ever part of this transcript.
         text = pending['text']
@@ -375,9 +375,11 @@ class _Worker:
             self.chunks(session, response)
             response['state'] = 'interrupted' if cancelled or result.get('stopReason') == 'cancelled' else 'complete'
             await db(self.publish, messages=messages, phase='ready')
-        except BaseException:
+        except BaseException as error:
             response['state'] = 'interrupted'
-            try: await db(self.publish, messages=messages, phase='unavailable')
+            failure = None if cancelled or self.stopping.is_set() else (
+                error.failure if isinstance(error, AcpTurnError) else {'kind': 'unclassified'})
+            try: await db(self.publish, messages=messages, phase='unavailable', failure=failure)
             except Exception: pass
             if not task.done():
                 task.cancel()

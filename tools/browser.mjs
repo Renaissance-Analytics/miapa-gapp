@@ -1031,6 +1031,24 @@ try {
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();
   const ownerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
+  phase='agent_shell';
+  await typeChat('Synthetic provider rate limit test');await click('Send');
+  await until(()=>evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Provider usage limit reached' && !document.getElementById('maipa-agent-provider').disabled"),'closed reported cooldown after verified worker release');
+  await typeChat('Draft kept during provider cooldown Ω');
+  assert.equal(await evaluate("document.querySelector('.chat-composer button[aria-label=Send]').disabled"),true);
+  await click('Connection');
+  await until(()=>evaluate("document.querySelector('[data-turn-failure=rate_limit] time')?.getAttribute('datetime')"),'public Fancy connection notice exposes only reported reset');
+  const failedTurn=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id,'X-Maipa-Agent-Failures':'1'}})).json();})()");
+  assert.equal(failedTurn.failure.kind,'rate_limit');assert.equal(typeof failedTurn.failure.resets_at_ms,'number');
+  assert.equal(await evaluate("document.body.textContent.includes('PRIVATE_RPC_MESSAGE')||document.body.textContent.includes('PRIVATE_PROVIDER_REASON')||document.body.textContent.includes('PRIVATE_RAW')"),false);
+  const blockedSend=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return(await fetch('/api/agent/chat/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Agent-Actor':s.user.id,'X-Maipa-Agent-Failures':'1'},body:JSON.stringify({action:'send',revision:${failedTurn.revision},selection_revision:${failedTurn.connection.revision},request_id:crypto.randomUUID(),text:'Synthetic forbidden cooldown retry'})})).status;})()`);
+  assert.equal(blockedSend,429);
+  assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"),failedTurn.messages);
+  await checkChatViewport(897,264);await checkChatViewport(390,480);
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  assert.equal(await evaluate("document.querySelector('#maipa-chat-message').value"),'Draft kept during provider cooldown Ω');
+  const failureScreenshot=await command('Page.captureScreenshot',{format:'png'});
+  writeFileSync('artifacts/ci/turn-failure.png',Buffer.from(failureScreenshot.data,'base64'));
   phase = "logout_viewer";
   checkpoint = 'logout_click';
   await click("Sign out");
@@ -1092,6 +1110,7 @@ try {
   await preferencesReady();
   assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), ownerPreferences);
   await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'owner preferences restored after other account');
+  assert.equal(await evaluate("document.querySelector('.chat-status [role=status]')?.textContent"),'Provider usage limit reached');
   record('preferences-user-isolation');
   }
   phase = "browser_exceptions";

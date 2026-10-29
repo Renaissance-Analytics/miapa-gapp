@@ -96,6 +96,11 @@ for line in sys.stdin:
         if marker in text:
             text = json.loads(text.split(marker, 1)[1])[-1]['text']
         text = text.lower()
+        if text == 'synthetic provider rate limit test':
+            send({'id':frame['id'],'error':{'code':-32603,'message':'PRIVATE_RPC_MESSAGE',
+                'data':{'particle.academy/turn_failure':{'kind':'rate_limit','resetsAtMs':int((time.time()+3600)*1000),
+                    'reason':'PRIVATE_PROVIDER_REASON','raw':{'private':'PRIVATE_RAW'}}}}})
+            continue
         if 'simulate connection interruption' in text:
             raise SystemExit(0)  # Deliberate test-only transport loss; never production wiring.
         try:

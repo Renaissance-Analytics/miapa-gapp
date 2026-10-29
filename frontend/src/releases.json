@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-36",
+    "label": "Development update 36",
+    "cards": [
+      {
+        "title": "Understand a failed reply",
+        "description": "Chat can show the provider-reported failure category and reset time in Connection details. Unconfirmed causes stay unconfirmed, and raw provider error text stays private."
+      },
+      {
+        "title": "Keep your draft during a usage limit",
+        "description": "A reported future reset pauses new sends for that account. Your draft remains editable, status survives login, and no reply is retried automatically."
+      }
+    ]
+  },
+  {
     "id": "development-35",
     "label": "Development update 35",
     "cards": [
@@ -242,16 +256,6 @@
       {
         "title": "Agent setup is still in progress",
         "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built."
-      }
-    ]
-  },
-  {
-    "id": "development-16",
-    "label": "Development update 16",
-    "cards": [
-      {
-        "title": "Private storage for future agent work",
-        "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built."
       }
     ]
   }

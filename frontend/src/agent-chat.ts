@@ -1,4 +1,5 @@
 import type { ScreenSchema } from '@particle-academy/fancy-screens';
+import { COOLDOWN_MESSAGE, parseTurnFailure, type TurnFailure } from './turn-failure.js';
 import { csrfToken } from './api.js';
 
 export type ChatPhase = 'offline' | 'connecting' | 'sign_in' | 'ready' | 'thinking' | 'stopping' | 'unavailable';
@@ -7,7 +8,7 @@ export interface Composition { account_id: string; id: string; revision: number;
 export interface ProviderChoice { id: string; label: string; available: boolean }
 export interface ChatConnection { revision: number; account_id: string | null; provider: string | null; label: string | null; available: boolean }
 export interface ModelState { currentModelId: string | null; availableModels: { modelId: string; name: string }[] }
-export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null;
+export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null; failure?: TurnFailure | null;
   connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string; accepts_code?: boolean }; models?: ModelState; }
 export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] });
@@ -65,7 +66,7 @@ export function compositionSchema(input: unknown): ScreenSchema {
 }
 
 export function parseChatState(v: unknown): ChatState {
-  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers', 'models'])
+  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers', 'models', 'failure'])
     || (v.id !== null && !identifier(v.id)) || !Number.isSafeInteger(v.revision) || Number(v.revision) < 0
     || !['offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'].includes(String(v.phase))
     || !Array.isArray(v.messages) || v.messages.length > 128) return fail();
@@ -130,8 +131,13 @@ export function parseChatState(v: unknown): ChatState {
     login = { url: v.login.url, ...(v.login.code !== undefined ? { code: v.login.code as string } : {}),
       ...(v.login.accepts_code !== undefined ? { accepts_code: v.login.accepts_code as boolean } : {}) };
   }
+  let failure: TurnFailure | null | undefined;
+  if ('failure' in v) {
+    failure = parseTurnFailure(v.failure);
+    if (failure && (!connection.account_id || v.id === null)) return fail();
+  }
   return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
-    connection, providers, ...(login ? { login } : {}), ...(models ? { models } : {}) };
+    connection, providers, ...(login ? { login } : {}), ...(models ? { models } : {}), ...('failure' in v ? {failure} : {}) };
 }
 
 export async function readEventStream(body: ReadableStream<Uint8Array>, receive: (state: ChatState) => void) {
@@ -158,12 +164,13 @@ export async function readEventStream(body: ReadableStream<Uint8Array>, receive:
 }
 
 export async function chatRequest(userId: string, payload?: Record<string, unknown>, signal?: AbortSignal): Promise<ChatState> {
-  const headers: Record<string, string> = { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1' };
+  const headers: Record<string, string> = { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1', 'X-Maipa-Agent-Failures': '1' };
   if (payload) { headers['Content-Type'] = 'application/json'; headers['X-CSRFToken'] = await csrfToken(fetch); }
   const response = await fetch('/api/agent/chat/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
     method: payload ? 'POST' : 'GET', headers, ...(payload ? { body: JSON.stringify(payload) } : {}),
     signal: signal ?? AbortSignal.timeout(15000) });
   if (response.status === 409) throw Error('Conversation changed. Reconnect to load the latest conversation.');
+  if (response.status === 429) throw Error(COOLDOWN_MESSAGE);
   if (response.status !== 200) fail();
   return parseChatState(await response.json());
 }

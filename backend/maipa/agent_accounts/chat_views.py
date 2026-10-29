@@ -22,6 +22,12 @@ def _guard(request):
         return error('invalid_request', 400)
 
 
+def _visible_state(request, state):
+    if request.headers.get('X-Maipa-Agent-Failures') == '1':
+        return state
+    return {key: value for key, value in state.items() if key != 'failure'}
+
+
 def conversation(request):
     denied = _guard(request)
     if denied is not None:
@@ -34,7 +40,7 @@ def conversation(request):
             state = chat.snapshot(request.user)
             state.update(transient(request.user.pk, request.session.session_key, snapshot=state,
                 include_login=False, include_models=request.headers.get('X-Maipa-Agent-Models') == '1'))
-            return JsonResponse(state)
+            return JsonResponse(_visible_state(request, state))
         if request.content_type != 'application/json':
             raise ValueError('Invalid request')
         raw = request.read(32769)
@@ -68,7 +74,9 @@ def conversation(request):
                                  selection_revision=value['selection_revision'], authorization_code=value['code'])
         else:
             raise ValueError('Invalid request')
-        return JsonResponse(state)
+        return JsonResponse(_visible_state(request, state))
+    except chat.ChatCooldown:
+        return error('provider_rate_limited', 429)
     except chat.ChatConflict:
         return error('conversation_changed', 409)
     except chat.ChatUnavailable:
@@ -101,6 +109,7 @@ def stream(request):
                 state = chat.snapshot(actor)
                 from .chat_runtime import transient
                 state.update(transient(owner, key, snapshot=state, include_models=request.headers.get('X-Maipa-Agent-Models') == '1'))
+                state = _visible_state(request, state)
             except (chat.ChatUnavailable, get_user_model().DoesNotExist):
                 yield b'event: revoked\ndata: {}\n\n'
                 return

@@ -138,6 +138,7 @@ class Conversation(models.Model):
     storage_id = models.UUIDField(editable=False)
     revision = models.PositiveIntegerField(default=0)
     messages = models.JSONField(default=list)
+    failure = models.JSONField(null=True, default=None, editable=False)
     requests = models.JSONField(default=list)
     phase = models.CharField(max_length=16, default='offline')
     worker = models.UUIDField(null=True, default=None, editable=False)

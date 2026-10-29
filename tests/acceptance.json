@@ -4099,6 +4099,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A07-FAILURE-STATUS",
+      "risk": "Raw provider errors can leak content, mislabel failure causes or trigger repeated turns during a known account cooldown.",
+      "scenarios": [
+        {
+          "id": "A07-FAILURE-STATUS.rpc",
+          "kind": "positive",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "A real bounded stdio prompt error preserves only the public failure category and valid reset, with no raw reason, RPC message or provider content retained.",
+          "tests": [
+            "tests.test_turn_failure.RpcTurnFailureTests.test_prompt_preserves_only_public_closed_kind_and_finite_reset_without_raw_content"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.rpc-invalid",
+          "kind": "negative",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Nonprompt errors, wrong metadata nesting and unknown categories remain unclassified; malformed reset cannot become a cooldown.",
+          "tests": [
+            "tests.test_turn_failure.RpcTurnFailureTests.test_nonprompt_nested_unknown_or_malformed_metadata_never_invents_a_provider_cause"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.scope",
+          "kind": "positive",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Only the current owned opt-in chat sees the acknowledged failure across login; legacy response shape and foreign-owner refusal remain.",
+          "tests": [
+            "tests.test_turn_failure.StoredTurnFailureTests.test_acknowledged_failure_survives_login_is_scoped_and_opt_in_without_provider_content"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.cooldown",
+          "kind": "negative",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "A future reported cooldown refuses a new send without adding requests or starting a worker; expiry permits one accepted send and clears the old failure.",
+          "tests": [
+            "tests.test_turn_failure.StoredTurnFailureTests.test_cooldown_rejects_new_sends_without_queueing_and_expiry_allows_one_accepted_send"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.storage",
+          "kind": "negative",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Arbitrary reasons, unknown categories, invalid reset values and foreign principals cannot write persisted failure state.",
+          "tests": [
+            "tests.test_turn_failure.StoredTurnFailureTests.test_worker_cannot_persist_arbitrary_reason_unknown_kinds_or_foreign_failure"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.runtime",
+          "kind": "positive",
+          "given": "A current owned conversation and the structured provider turn-failure contract",
+          "when": "A finite native turn fails and the account or UI changes",
+          "then": "The production worker relays only closed failure metadata from a real finite stdio peer, interrupts the reply, revokes UI authority, emits no raw content and verifies shutdown with zero survivors.",
+          "tests": [
+            "tests.test_agent_chat_runtime.AgentChatRuntimeTests.test_failed_native_turn_persists_only_closed_status_and_verifies_worker_shutdown"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.selection",
+          "kind": "negative",
+          "given": "A current owned conversation and the structured provider turn-failure contract",
+          "when": "A finite native turn fails and the account or UI changes",
+          "then": "A failure remains on its original selected account through provider changes; legacy SSE omits it and explicit opt-in receives only current owned status.",
+          "tests": [
+            "tests.test_turn_failure.StoredTurnFailureTests.test_failure_remains_with_selected_account_and_legacy_sse_excludes_optional_status"
+          ]
+        }
+      ]
     }
   ]
 }

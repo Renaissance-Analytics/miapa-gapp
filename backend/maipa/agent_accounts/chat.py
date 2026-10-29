@@ -13,6 +13,7 @@ from .models import AgentAccount, ChatSelection, Conversation
 from .providers import descriptor, registrations
 from .ui import UiUnavailable, ui_snapshot
 from .references import _binding, ReferenceUnavailable
+from backend.maipa.turn_failure import read_failure, validate_failure
 
 
 class ChatUnavailable(Exception):
@@ -20,6 +21,10 @@ class ChatUnavailable(Exception):
 
 
 class ChatConflict(ChatUnavailable):
+    pass
+
+
+class ChatCooldown(ChatUnavailable):
     pass
 
 
@@ -86,7 +91,7 @@ def _state(actor, row, *, refresh_stale_ui=False):
     connection = {'revision': choice.revision, 'account_id': str(choice.account_id) if choice.account_id else None,
         'provider': account.provider if account else None, 'label': item['label'] if item else account.provider if account else None,
         'available': bool(item and item['available'])}
-    extra = {'connection': connection, 'providers': registrations()}
+    extra = {'connection': connection, 'providers': registrations(), 'failure': read_failure(row.failure) if row else None}
     if row is None:
         return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'ui': None, **extra}
     ui = None
@@ -197,13 +202,18 @@ def send(actor, revision, request_id, text, *, session_key=None, selection_revis
             return _state(actor, row)
         if row.revision != revision or row.phase in ('connecting', 'sign_in', 'thinking', 'stopping') or (row.worker and row.phase == 'unavailable'):
             raise ChatConflict('Conversation changed')
+        failure = read_failure(row.failure)
+        if (failure and failure['kind'] == 'rate_limit'
+                and failure.get('resets_at_ms', 0) > int(timezone.now().timestamp() * 1000)):
+            raise ChatCooldown('Provider usage limit active')
         if len(row.messages) >= 126 or len(json.dumps(row.messages).encode()) + len(text.encode()) > 196608:
             raise ChatUnavailable('Conversation storage limit reached')
         row.messages.append({'id': request_id, 'role': 'user', 'text': text, 'state': 'queued'})
         row.requests.append(request_id)
         row.revision += 1
         row.phase = 'thinking' if row.worker else 'connecting'
-        row.save(update_fields=['messages', 'requests', 'revision', 'phase'])
+        row.failure = None
+        row.save(update_fields=['messages', 'requests', 'revision', 'phase', 'failure'])
     start_worker(actor, row, session_key)
     return snapshot(actor)
 
@@ -252,8 +262,10 @@ def worker_update(actor, identity, token, **changes):
     authority(actor)
     row = Conversation.objects.select_related('account').get(pk=identity, user_id=actor.pk, account__owner_id=actor.pk, worker=token)
     _conversation(actor, row.account)
-    if set(changes) - {'messages', 'phase', 'ui_id'}:
+    if set(changes) - {'messages', 'phase', 'ui_id', 'failure'}:
         raise ValueError('Invalid checkpoint')
+    if 'failure' in changes:
+        changes['failure'] = validate_failure(changes['failure'])
     changes.update(revision=F('revision') + 1, heartbeat=timezone.now())
     if Conversation.objects.filter(pk=row.pk, worker=token).update(**changes) != 1:
         raise ChatUnavailable('Conversation unavailable')

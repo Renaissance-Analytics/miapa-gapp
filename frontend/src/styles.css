@@ -195,6 +195,9 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
   --fancy-border: var(--control-border); --fancy-border-dark: var(--control-border); --fancy-text: var(--ink); --fancy-text-dark: var(--ink); }
 .chat-composer textarea { color: var(--ink); font: inherit; line-height: 1.5; }
 .chat-quick-requests { display: flex; flex-wrap: wrap; gap: 6px; }
+.turn-failure-notice { padding: 8px 10px; margin-top: 6px; font-size: 12px; }
+.turn-failure-notice p { margin: 4px 0 0; }
+.chat-connection-details { max-height: min(200px, 22dvh); overflow: auto; }
 .chat-composer [data-react-fancy-prompt-input-send], .maipa-chat-drawer [aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
 .chat-composer > button { background: var(--accent); color: var(--on-accent); border-radius: 8px; }
 .contextual-panel { height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--canvas); }
@@ -245,6 +248,7 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .maipa-views-popover { display: grid; gap: 12px; width: min(340px, calc(100vw - 24px)); max-height: min(520px, calc(100dvh - 80px)); overflow: auto; background: var(--surface); color: var(--ink); padding: 14px; }
 .maipa-views-popover ol { max-height: 120px; overflow: auto; padding-left: 18px; font-size: 12px; }
 @media (max-height: 360px) {
+  .chat-connection-details { max-height: 20px; }
   .conversation-body { padding-block: 0; }
   .chat-composer textarea { max-height: 32px; padding-block: 4px; }
   .chat-status { gap: 2px; margin-bottom: 2px; }

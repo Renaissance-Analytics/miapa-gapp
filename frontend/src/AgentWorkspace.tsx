@@ -11,6 +11,8 @@ import { CHAT_PROSE } from './content-policy.js';
 import { ChatDrafts, emptyDraft, sendProblem } from './chat-drafts.js';
 import { PersonalViewsController, type ViewsState } from './personal-views.js';
 import { SavedViews } from './SavedViews.js';
+import { COOLDOWN_MESSAGE, failureCooldown, failureStatus } from './turn-failure.js';
+import { TurnFailureNotice } from './TurnFailureNotice.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -18,6 +20,15 @@ const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Conne
 export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { userId: string; layout: LayoutState;
   onResize: (value: number) => void; onResizeCommit: (value: number) => void }) {
   const [state, setState] = useState<ChatState>(emptyChat);
+  const [now,setNow]=useState(Date.now);
+  const cooldown=failureCooldown(state.failure,now);
+  useEffect(()=>{
+    setNow(Date.now());
+    const reset=state.failure?.kind==='rate_limit'?state.failure.resets_at_ms:undefined;
+    if(!reset||reset<=Date.now())return;
+    const timer=setInterval(()=>{const current=Date.now();setNow(current);if(current>=reset)clearInterval(timer);},1000);
+    return()=>clearInterval(timer);
+  },[state.failure?.kind,state.failure?.resets_at_ms]);
   const [, refreshDraft] = useState(0);
   const drafts = useRef(new ChatDrafts());
   const draftAccount = state.connection.account_id ?? 'unselected';
@@ -87,7 +98,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         setState(previous => newerChat(previous, initial)); setError('');
         while (active) {
           const response = await fetch('/api/agent/chat/stream/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
-            headers: { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1' }, signal: abort.signal });
+            headers: { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1', 'X-Maipa-Agent-Failures': '1' }, signal: abort.signal });
           if (response.status !== 200 || !response.body) throw Error('Conversation unavailable');
           await readEventStream(response.body, next => { if (active) setState(previous => newerChat(previous, next)); });
         }
@@ -124,6 +135,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
     const problem = sendProblem(text, attachments);
     if (problem) return { ok: false, error: problem };
     const selected = current.current.connection;
+    if(failureCooldown(current.current.failure,Date.now()))return{ok:false,error:COOLDOWN_MESSAGE};
     if (busy || error || !selected.available || !selected.account_id || !['offline', 'unavailable', 'ready'].includes(current.current.phase))
       return { ok: false, error: 'Connect Maipa and wait for the current reply before sending.' };
     const account = selected.account_id;
@@ -137,8 +149,9 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
       setState(previous => newerChat(previous, next));
       drafts.current.acknowledge(account, request_id);
       // Fancy clears only its acknowledged matching draft; newer typing survives.
-    } catch {
-      return { ok: false, error: 'Maipa could not confirm the send. Your draft has been kept; try again.' };
+    } catch (problem) {
+      return { ok: false, error: problem instanceof Error && problem.message === COOLDOWN_MESSAGE
+        ? COOLDOWN_MESSAGE : 'Maipa could not confirm the send. Your draft has been kept; try again.' };
     } finally { if (alive.current) setBusy(false); }
   }
   const running = ['connecting', 'sign_in', 'thinking', 'stopping'].includes(state.phase);
@@ -190,7 +203,8 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         <div className="chat-controls">
           {error && <p role="alert" className="auth-message">{error} <Button size="sm" variant="ghost" disabled={busy} onClick={() => void reconnect()}>Reconnect</Button></p>}
           <div className="chat-status"><span role="status">{!state.connection.provider ? 'Choose your agent provider' :
-            !state.connection.available ? `Connection support for ${providerLabel} is not available in this build.` : phaseLabels[state.phase]}</span>
+            !state.connection.available ? `Connection support for ${providerLabel} is not available in this build.` :
+              state.failure&&(cooldown||['offline','unavailable'].includes(state.phase))?failureStatus(state.failure):phaseLabels[state.phase]}</span>
             <div className="chat-provider-choice"><Select id="maipa-agent-provider" size="sm" label="Agent provider" labelHidden value={state.connection.provider ?? ''}
               placeholder="Choose provider" disabled={!canSwitch || !!error} list={[
                 ...state.providers.map(provider => ({ value: provider.id, label: provider.label })),
@@ -211,14 +225,15 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
             <Field label="Message Maipa" labelHidden htmlFor="maipa-chat-message">
               <PromptInput inputId="maipa-chat-message" name="message" placeholder="Ask Maipa…" draft={draft} onDraftChange={changeDraft}
                 budgetTokens={0} meter="hidden" maxHeight={160} attachButton="icon" sendButton="icon"
-                sendDisabled={busy || !!error || !state.connection.available || running}
+                sendDisabled={busy || !!error || !state.connection.available || running || cooldown}
                 onSubmit={submit} onSubmitError={problem => setSendError(typeof problem === 'string' ? problem : 'The message was not sent. Your draft has been kept.')}
                 aboveInput={<ChatDrawer tabs={[{ id: 'requests', label: 'Requests', number: null }, { id: 'connection', label: 'Connection', number: null }]}
-                  className="maipa-chat-drawer" activeTabId={drawerTab} onTabChange={tab => { setDrawerTab(tab); setDrawerOpen(true); }} open={drawerOpen} onToggle={setDrawerOpen} minBodyHeight={52}>
+                  className="maipa-chat-drawer" activeTabId={drawerTab} onTabChange={tab => { setDrawerTab(tab); setDrawerOpen(true); }} open={drawerOpen} onToggle={setDrawerOpen} minBodyHeight={drawerTab==='connection'?0:52}>
                   {drawerTab === 'requests' ? <div className="chat-quick-requests">
                     <Button size="sm" variant="ghost" onClick={() => setDraft('Open my saved client facts')}>Review client facts</Button>
                     <Button size="sm" variant="ghost" onClick={() => setDraft('Present a note')}>Ask for a note</Button>
-                  </div> : <Text size="sm">{providerLabel} · {phaseLabels[state.phase]}{state.models?.currentModelId ? ` · ${state.models.availableModels.find(model => model.modelId === state.models!.currentModelId)?.name ?? state.models.currentModelId}` : ''}</Text>}
+                  </div> : <div className="chat-connection-details"><Text size="sm">{providerLabel} · {phaseLabels[state.phase]}{state.models?.currentModelId ? ` · ${state.models.availableModels.find(model => model.modelId === state.models!.currentModelId)?.name ?? state.models.currentModelId}` : ''}</Text>
+                    {state.failure&&<TurnFailureNotice failure={state.failure}/>}</div>}
                 </ChatDrawer>} />
             </Field>
             {running && <Button type="button" disabled={busy || state.phase === 'stopping'}

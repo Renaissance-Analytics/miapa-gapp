@@ -12,10 +12,17 @@ import os
 from pathlib import Path
 import uuid
 from urllib.parse import urlsplit
+from backend.maipa.turn_failure import reported_failure, validate_failure
 
 
 class AcpError(Exception):
     """Safe error; raw provider messages are never reflected."""
+
+
+class AcpTurnError(AcpError):
+    def __init__(self, failure):
+        super().__init__('Agent turn failed')
+        self.failure = validate_failure(failure)
 
 
 @dataclass(frozen=True)
@@ -118,6 +125,7 @@ class AcpClient:
         self._reader = self._stderr = None
         self._failed = False
         self._pending = {}
+        self._pending_methods = {}
         self._next_id = 0
         self._sessions = {}
         self._turns = set()
@@ -244,7 +252,8 @@ class AcpClient:
         if future.done():
             raise ValueError("Duplicate response")
         if "error" in message:
-            future.set_exception(AcpError("ACP request refused"))
+            failure = reported_failure(message['error']) if self._pending_methods.get(number) == 'session/prompt' else None
+            future.set_exception(AcpTurnError(failure) if failure else AcpError("ACP request refused"))
         else:
             future.set_result(message["result"])
 
@@ -284,6 +293,7 @@ class AcpClient:
         number = self._next_id
         future = asyncio.get_running_loop().create_future()
         self._pending[number] = future
+        self._pending_methods[number] = method
         try:
             # A worker that never reads can fill its input pipe. The deadline
             # covers writing as well as waiting for the correlated response.
@@ -300,6 +310,7 @@ class AcpClient:
             raise
         finally:
             self._pending.pop(number, None)
+            self._pending_methods.pop(number, None)
             if not future.done():
                 future.cancel()
             elif not future.cancelled():
