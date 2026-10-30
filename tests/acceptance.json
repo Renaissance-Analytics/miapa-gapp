@@ -4175,6 +4175,142 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-FORM-DRAFT",
+      "risk": "Pending form input can leak across principals/closed surfaces or stale edits can overwrite human values and masquerade as completed business writes.",
+      "scenarios": [
+        {
+          "id": "A05-FORM-DRAFT.initialize",
+          "kind": "positive",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Only the visible owned form gets one stable detached draft; pending values create no business rows and do not change structural UI revision.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_visible_form_gets_one_detached_identity_without_creating_business_records"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.shared",
+          "kind": "positive",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Sequential consumers observe one exact pending state and increasing revision without business writes.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_sequential_human_and_agent_edits_share_exact_pending_values_and_revision"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.noop",
+          "kind": "positive",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "A duplicate value or empty patch retains the exact acknowledged state/revision.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_duplicate_value_and_empty_patch_do_not_invent_new_revisions"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.conflict",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Stale edits and wrong draft identities refuse while retaining the newer pending values.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_stale_editor_and_wrong_form_identity_cannot_overwrite_newer_draft"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.closed",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Unknown/private/executable inputs, malformed types/control characters/oversized values and attempted submission refuse without mutation.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_unknown_private_executable_and_invalid_fields_preserve_every_pending_value"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.scope",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Foreign principal/account/UI references or a changed original session storage binding cannot read or mint pending state in the single installation.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_other_actor_account_and_installation_cannot_read_or_mint_draft"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.revoked",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Original session revocation refuses reads and late edits without changing saved pending input.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_revoked_session_refuses_both_read_and_write_without_mutating_draft"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.role",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Changed role, disabled membership or install access revision invalidates original form authority.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_current_role_access_revision_and_enabled_status_are_rechecked"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.user",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Primary user deactivation defeats a stale authenticated Python actor object.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_stale_actor_object_does_not_survive_primary_user_deactivation"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.visible",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Missing or wrong-kind component has no new-client form, even with a reused node handle.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_only_a_current_client_catalog_node_has_this_business_form"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.lifecycle",
+          "kind": "positive",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Surviving stable form keeps values across unrelated UI edits; close/re-add creates a new identity and refuses the former reference.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_unrelated_composition_edit_keeps_draft_but_removed_and_readded_node_gets_new_identity"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.leases",
+          "kind": "positive",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Independent original UI leases receive separate opaque draft identities and pending inputs.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_separate_native_ui_leases_cannot_share_pending_values_or_ids"
+          ]
+        },
+        {
+          "id": "A05-FORM-DRAFT.corrupt",
+          "kind": "negative",
+          "given": "An original session-bound UI and a visible registered client-setup component",
+          "when": "A human or agent consumer reads or edits pending input under current authority",
+          "then": "Corrupt records and exhausted/boolean revision counters refuse without repair or replacement.",
+          "tests": [
+            "tests.test_form_drafts.FormDraftTests.test_corrupt_stored_draft_and_exhausted_revision_refuse_without_replacement"
+          ]
+        }
+      ]
     }
   ]
 }

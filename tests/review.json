@@ -4820,6 +4820,136 @@
       "reviewer": "Maipa independent consumer acceptance review; no external reviewer claimed",
       "reason": "Real finite stdio/worker or scoped persistence behavior verifies the boundary. These additional runtime/selection/notice cases are not claimed as separately observed old-code reds; original assertions remain.",
       "source_sha256": "3c4da6d65ed6b1a65836be75a3906fda805e6fac05c78bf84fa0a15358a58c81"
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.initialize",
+      "test": "tests.test_form_drafts.FormDraftTests.test_visible_form_gets_one_detached_identity_without_creating_business_records",
+      "scenario_sha256": "6e6302939955ea340f32c572b9fa1e2c9dad1272d3c44968503b36db2f153022",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Only the visible owned form gets one stable detached draft; pending values create no business rows and do not change structural UI revision.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.shared",
+      "test": "tests.test_form_drafts.FormDraftTests.test_sequential_human_and_agent_edits_share_exact_pending_values_and_revision",
+      "scenario_sha256": "40f4518ecd547f47179c76c46513945f7250b6c3105772cc6559e96397c6c2b0",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Sequential consumers observe one exact pending state and increasing revision without business writes.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.noop",
+      "test": "tests.test_form_drafts.FormDraftTests.test_duplicate_value_and_empty_patch_do_not_invent_new_revisions",
+      "scenario_sha256": "1644d6ab7724bb876a917711183193e4cf46a525eadb76d9fe738c73408c14e2",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "A duplicate value or empty patch retains the exact acknowledged state/revision.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.conflict",
+      "test": "tests.test_form_drafts.FormDraftTests.test_stale_editor_and_wrong_form_identity_cannot_overwrite_newer_draft",
+      "scenario_sha256": "3d0444f6c637b51891fa8ba57ac439d4e63cdebcf3892f8cb59cca1c94021a32",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Stale edits and wrong draft identities refuse while retaining the newer pending values.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.closed",
+      "test": "tests.test_form_drafts.FormDraftTests.test_unknown_private_executable_and_invalid_fields_preserve_every_pending_value",
+      "scenario_sha256": "29b4b6a6a02a48069dee3d3bf8f7dff2a18f347960614cd5d9339a370dbe905a",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Unknown/private/executable inputs, malformed types/control characters/oversized values and attempted submission refuse without mutation.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.scope",
+      "test": "tests.test_form_drafts.FormDraftTests.test_other_actor_account_and_installation_cannot_read_or_mint_draft",
+      "scenario_sha256": "ce3cd8afa4e56c065203dacbb67a67ed4c63640adabf7fe8d65a38009253db3e",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Foreign principal/account/UI references or a changed original session storage binding cannot read or mint pending state in the single installation.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.revoked",
+      "test": "tests.test_form_drafts.FormDraftTests.test_revoked_session_refuses_both_read_and_write_without_mutating_draft",
+      "scenario_sha256": "bb8cc7b42d6f072d5968b84785772b36178f87bf9a10f9318e59eeef6e98caa1",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Original session revocation refuses reads and late edits without changing saved pending input.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.role",
+      "test": "tests.test_form_drafts.FormDraftTests.test_current_role_access_revision_and_enabled_status_are_rechecked",
+      "scenario_sha256": "a3230811e696d1de4c3f45969ee8f97a954c87d3007e3c204a56935941a6809a",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Changed role, disabled membership or install access revision invalidates original form authority.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.user",
+      "test": "tests.test_form_drafts.FormDraftTests.test_stale_actor_object_does_not_survive_primary_user_deactivation",
+      "scenario_sha256": "7f5f7daf64bc84cf6139863ce47e25962590b416b1701f57e15f944a5c4ba01e",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Primary user deactivation defeats a stale authenticated Python actor object.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.visible",
+      "test": "tests.test_form_drafts.FormDraftTests.test_only_a_current_client_catalog_node_has_this_business_form",
+      "scenario_sha256": "9dacb1b0da0acecf384e07cea933378263d47f47763ea52c5ffe7a3763ff8762",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Missing or wrong-kind component has no new-client form, even with a reused node handle.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.lifecycle",
+      "test": "tests.test_form_drafts.FormDraftTests.test_unrelated_composition_edit_keeps_draft_but_removed_and_readded_node_gets_new_identity",
+      "scenario_sha256": "05a5b9f5628739dd08d2fc08b87a2aa48e6149ea4239e3ddccb50b5e89cb921c",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Surviving stable form keeps values across unrelated UI edits; close/re-add creates a new identity and refuses the former reference.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.leases",
+      "test": "tests.test_form_drafts.FormDraftTests.test_separate_native_ui_leases_cannot_share_pending_values_or_ids",
+      "scenario_sha256": "8815f7839a50032ddb96d00393573761c9582c920d71f93ba56f623d992cff12",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Independent original UI leases receive separate opaque draft identities and pending inputs.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-FORM-DRAFT.corrupt",
+      "test": "tests.test_form_drafts.FormDraftTests.test_corrupt_stored_draft_and_exhausted_revision_refuse_without_replacement",
+      "scenario_sha256": "3fb78709651fc209772f0996b9f4e9a2d52a84ef93435b97f68215fe66196be0",
+      "source_sha256": "2e492d5501401ddfb5be24635ed65031daca729504804339f6a2ae2cafd13db0",
+      "expected_observation": "Corrupt records and exhausted/boolean revision counters refuse without repair or replacement.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
     }
   ]
 }

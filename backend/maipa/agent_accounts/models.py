@@ -110,6 +110,7 @@ class UiComposition(models.Model):
     access_revision = models.PositiveIntegerField(editable=False)
     revision = models.PositiveIntegerField(default=0)
     composition = models.JSONField(null=True, default=None)
+    form_drafts = models.JSONField(default=dict, editable=False)
 
     class Meta:
         constraints = [

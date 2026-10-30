@@ -290,8 +290,10 @@ def dispatch_ui(actor, account_id, identity, request):
             raise ValueError('Invalid presentation lifecycle')
         composition = None if name == 'maipa_ui_dismiss' else _composition(
             {'title': arguments['title'], 'schema': arguments['schema']}, saved.role)
+        from .form_drafts import retain_visible_drafts
         if UiComposition.objects.filter(pk=saved.pk, revision=revision).update(
-                revision=revision + 1, composition=composition) != 1:
+                revision=revision + 1, composition=composition,
+                form_drafts=retain_visible_drafts(saved.form_drafts, composition)) != 1:
             raise UiConflict(MESSAGE)
         # Check the original authority again before returning accepted content.
         return _snapshot(_lookup(actor, account_id, identity))
