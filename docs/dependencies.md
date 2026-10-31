@@ -9,6 +9,7 @@ package policy. The initial backend uses no other independent product packages.
 | asgiref | 3.13.0 | Required Django dependency |
 | sqlparse | 0.6.0 | Required Django dependency |
 | tzdata | 2026.5 | Django dependency on Windows only |
+| fancy-flow | 0.29.0 | Published deterministic workflow runtime; no runtime dependencies |
 
 `requirements.txt` contains exact wheel hashes independently checked against
 primary PyPI artifacts in the envelope's package verification. A Windows isolated
@@ -28,6 +29,17 @@ install scripts. No browser/test framework was added; tests use Node built-ins
 and the already-declared TypeScript AST parser. Linux/native platform execution
 remains unverified. These are facts about the scoped build, not full security
 or release acceptance.
+
+The workflow candidate adds exact published Python `fancy-flow`0.29.0 and
+TypeScript `@particle-academy/fancy-flow`0.81.0. Both Python wheel and sdist
+SHA256 values were checked against PyPI; the wheel declares no runtime
+dependencies. Its runtime files match the installed wheel bytes. The npm
+tarball SHA512, gitHead and all138installed files were checked. Its required
+Fancy auto-common0.2.0 and React19 peers already exist; optional CMS/AI peers
+remain absent and unused. Every previous lock entry is identical, and no
+lifecycle script or source build ran. This adds no queue, independent provider
+SDK or patched package. See [workflow foundation](workflows.md) for the narrow
+adopted execution contract and remaining integration work.
 
 Browser update tracking adds exact published `fancy-app-update`0.7.0 and
 `fancy-whats-new`0.1.0. Registry discovery, npm tarball SHA512 and public exports

@@ -5030,6 +5030,216 @@
       "decision": "aligned",
       "reviewer": "Maipa independent native permission acceptance review; no external reviewer claimed",
       "reason": "Actual provider exposed an application allowlist omission masked by the direct deterministic peer. Assert the exact scoped capabilities actually passed by the driver, preserve UI-disabled denial and exclude native/wildcard/foreign permissions. NativeTools none and dontAsk remain independently covered by existing driver tests."
+    },
+    {
+      "scenario": "A04-DURABLE.versions",
+      "test": "tests.test_workflows.WorkflowTests.test_versioned_save_rejects_stale_edit_and_retains_original_schema",
+      "scenario_sha256": "2c29fb042275b3a39cd5841bfe743315d27a85c64e35ad3730fdf97295509ffd",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Saving a new revision retains the exact earlier graph and rejects a stale edit without creating a third version.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.refused",
+      "test": "tests.test_workflows.WorkflowTests.test_refused_empty_unknown_and_effectful_graphs_never_persist",
+      "scenario_sha256": "ab8834179cbdb270bb3d028583771deecd2e1c3b80af825d01929bce59513c8c",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Refused versions, empty graphs, unknown nodes, network, provider, terminal, human and side-effect kinds create no definition/version.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.validation",
+      "test": "tests.test_workflows.WorkflowTests.test_invalid_ports_config_cycles_and_duplicate_handles_are_rejected",
+      "scenario_sha256": "2b216d1c2763ea267dfb71e13901920b64077b0e59a9909335db961af005162b",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Invalid wiring, ports, required config, hidden executable fields, cycles and duplicate identities are refused before persistence.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.engine",
+      "test": "tests.test_workflows.WorkflowTests.test_real_engine_persists_independently_expected_outputs_and_ports",
+      "scenario_sha256": "05d7be82f3db65b0411c77c4b9c66a1b5d5161cd3a07d1469f332a9698bd7116",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "The real published engine checkpoints three nodes once each and returns Ready Ada with actual out/out/empty engine ports and no business mutations.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.interop",
+      "test": "tests.test_workflows.WorkflowTests.test_actual_typescript_export_runs_in_python_without_dropping_canvas_or_ports",
+      "scenario_sha256": "a67173f17f37595040cc9b161bb0606cd3007b4369d66084513fb23b3eb31c38",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "An actual public TypeScript0.81.0 exporter fixture persists unchanged and runs through Python0.29.0, producing Hello Ada while retaining its viewport and terminal empty ports.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.presentation",
+      "test": "tests.test_workflows.WorkflowTests.test_export_presentation_cannot_override_owner_ports_or_runtime",
+      "scenario_sha256": "b25ba690fff659c8072b4c7f7209c35d4c598905177157b146f221f1023ce03e",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "An exported graph cannot use descriptive metadata to set an owner, add terminal ports, insert a view URL or carry executable announcement objects.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.restart",
+      "test": "tests.test_workflows.WorkflowTests.test_fresh_coordinator_uses_checkpoint_without_reexecuting_completed_nodes",
+      "scenario_sha256": "5e1281b6c903ca823efc7f8e3dee5079722e19c334c592aa615c61ab1fd437bc",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "A newly constructed coordinator continues from stored outputs with the original first-attempt time and no second attempt for completed nodes.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.dedup",
+      "test": "tests.test_workflows.WorkflowTests.test_duplicate_delivery_reuses_exact_run_but_conflicting_payload_refuses",
+      "scenario_sha256": "69e608b8582c5cbe83967a3dc16c9378e92cbfcfb186112726ec03729a12cb82",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "An identical dispatch returns one stable run, while a changed seed or graph revision with the same key refuses.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.snapshot",
+      "test": "tests.test_workflows.WorkflowTests.test_graph_edit_cannot_change_running_snapshot_or_seed",
+      "scenario_sha256": "772ebcc0c0e6eae87ca18dfd9f1aaa7a8032ada940b1522494e9b6b7670db4d0",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Editing the saved definition leaves the in-flight revision and seed unchanged; the earlier run still produces Ready Ada.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.cancel",
+      "test": "tests.test_workflows.WorkflowTests.test_cancel_is_revision_checked_terminal_and_preserves_accepted_checkpoint",
+      "scenario_sha256": "180b5150072f7e00c9ef46f76e00c287b84151a419eccc73a16694b3bf9d1ee3",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "A stale cancellation refuses; accepted cancellation is terminal/idempotent and retains only the already completed trigger checkpoint.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.privacy",
+      "test": "tests.test_workflows.WorkflowTests.test_another_actor_cannot_inspect_or_mutate_definition_run_or_checkpoint",
+      "scenario_sha256": "460007becc4167180b2f288b7e6f5fb5df6a5861d5bfffe7662b1597ef43cf2b",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Another administrator cannot read or change private definitions/runs or dispatch, cancel or advance them, and no rows change.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.authority",
+      "test": "tests.test_workflows.WorkflowTests.test_stale_user_object_cannot_bypass_current_enabled_role_or_active_authority",
+      "scenario_sha256": "007c64a631c505052281ca4d4a8e12966b44d044cf8622d77f2f00cc5508ab54",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Disabled membership, viewer role and database-inactive user refuse the next node even with a previously loaded active User object.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.entity",
+      "test": "tests.test_workflows.WorkflowTests.test_changed_entity_ownership_stops_next_node_and_cross_scope_save",
+      "scenario_sha256": "5654bbaca505d8f59ef4c4d390cebb71f2b2785c049c3b1481a9182d6b45774f",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Loss of current entity ownership prevents the next checkpoint and prevents a new definition bound to that entity.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.bounds",
+      "test": "tests.test_workflows.WorkflowTests.test_unbounded_nonjson_private_scope_overrides_and_invalid_dispatch_refuse",
+      "scenario_sha256": "62f2d595f1ca8edd095e750f2a0ba905a9c4e05284d5050ae0f6036328e342a0",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Malformed, nonfinite, excessive and control-byte seeds, invalid keys, boolean revisions and private scope overrides create no run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.rollback",
+      "test": "tests.test_workflows.WorkflowTests.test_transaction_crash_rolls_back_claim_and_output_before_safe_retry",
+      "scenario_sha256": "60c5594bcbcbf04133b3f715c557352b047d50073b9a132f1c254e51547b6162",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "An interrupted transaction after the real node completion leaves no claim/output or step increment; the exact retry completes normally.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.diagnostic",
+      "test": "tests.test_workflows.WorkflowTests.test_oversized_expansion_fails_with_redacted_diagnostic_and_no_partial_node",
+      "scenario_sha256": "53ce321421c4fa734c8c4ac4ffe01412fb62e4caa388ddc9994a2774ab84481a",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "An actual large transform expansion records the failed node with output_limit while keeping the accepted trigger and publishing no partial transform output or raw diagnostic.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.claim",
+      "test": "tests.test_workflows.WorkflowTests.test_store_claim_reentry_is_owner_fenced_and_first_attempt_clock_stays_fixed",
+      "scenario_sha256": "0ca1e07d242deb3d33f64d93bc98476c6bcc25c33206ee37573c4780c37183f3",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Only the same claim owner may reenter; the first clock stays fixed, settled output cannot be erased and foreign run, unknown node and unclaimed completion refuse.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.race-delivery",
+      "test": "tests.test_workflows.WorkflowConcurrencyTests.test_concurrent_duplicate_delivery_creates_one_persistent_run",
+      "scenario_sha256": "7530c96fce5616935d68cc337b5e899914804ceba82a25a41a0f117f3fda56ce",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Two real file-backed database connections racing one dispatch key return the same single persisted run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.race-step",
+      "test": "tests.test_workflows.WorkflowConcurrencyTests.test_two_workers_with_same_dispatch_step_execute_only_one_node",
+      "scenario_sha256": "9fb1dd6e7c4a9a882f2cf6d63edb329336f4b7c25a479a9410ea8d31b59e33e7",
+      "source_sha256": "1e406e56e60761effe429e4d01a6aa33412312909b6c0e40c54eb20d978153f6",
+      "expected_observation": "Two real workers dispatching step zero produce one trigger checkpoint/attempt and one explicit conflict.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.process-restart",
+      "test": "tests.test_workflow_process.WorkflowProcessTests.test_separate_workers_resume_committed_checkpoint_without_repeating_it",
+      "scenario_sha256": "caa03d306de7e6ea5c6fc88c03e4163bda8e5a18282ba10685e67bfba2d27088",
+      "source_sha256": "fe38edb8accfbdbf2fc3ef5bce2ba01ce6316c307b35dfa3d9d27d0ded98a2be",
+      "expected_observation": "Separate Python workers retain the same persisted run and first checkpoint clock, finish with independently expected outputs and never repeat the committed entry node.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
+    },
+    {
+      "scenario": "A04-DURABLE.process-kill",
+      "test": "tests.test_workflow_process.WorkflowProcessTests.test_killed_worker_rolls_back_uncommitted_real_output_and_resumes_safely",
+      "scenario_sha256": "e886b5e702f16ac1b1678aca6a0528206a81d82e986eee33705b2c1b5c2a5a46",
+      "source_sha256": "fe38edb8accfbdbf2fc3ef5bce2ba01ce6316c307b35dfa3d9d27d0ded98a2be",
+      "expected_observation": "Terminating an actual worker after its real uncommitted node output leaves no claim/output/step; fresh processes safely finish the same run with one persisted entry attempt.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Expected outputs, row counts, error identities, unchanged versions/seeds and real database races are asserted independently. Real package execution is required; only the interrupted-completion failure is injected after the actual store write. No provider, financial effect, UI or human-gate acceptance is claimed."
     }
   ]
 }

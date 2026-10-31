@@ -4397,6 +4397,222 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A04-DURABLE",
+      "risk": "Unscoped, mutable or duplicate workflow execution can misreport outputs, retain revoked authority, lose checkpoints or replay a business effect.",
+      "scenarios": [
+        {
+          "id": "A04-DURABLE.versions",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Saving a new revision retains the exact earlier graph and rejects a stale edit without creating a third version.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_versioned_save_rejects_stale_edit_and_retains_original_schema"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.refused",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Refused versions, empty graphs, unknown nodes, network, provider, terminal, human and side-effect kinds create no definition/version.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_refused_empty_unknown_and_effectful_graphs_never_persist"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.validation",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Invalid wiring, ports, required config, hidden executable fields, cycles and duplicate identities are refused before persistence.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_invalid_ports_config_cycles_and_duplicate_handles_are_rejected"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.engine",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "The real published engine checkpoints three nodes once each and returns Ready Ada with actual out/out/empty engine ports and no business mutations.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_real_engine_persists_independently_expected_outputs_and_ports"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.interop",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "An actual public TypeScript0.81.0 exporter fixture persists unchanged and runs through Python0.29.0, producing Hello Ada while retaining its viewport and terminal empty ports.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_actual_typescript_export_runs_in_python_without_dropping_canvas_or_ports"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.presentation",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "An exported graph cannot use descriptive metadata to set an owner, add terminal ports, insert a view URL or carry executable announcement objects.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_export_presentation_cannot_override_owner_ports_or_runtime"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.restart",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "A newly constructed coordinator continues from stored outputs with the original first-attempt time and no second attempt for completed nodes.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_fresh_coordinator_uses_checkpoint_without_reexecuting_completed_nodes"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.dedup",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "An identical dispatch returns one stable run, while a changed seed or graph revision with the same key refuses.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_duplicate_delivery_reuses_exact_run_but_conflicting_payload_refuses"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.snapshot",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Editing the saved definition leaves the in-flight revision and seed unchanged; the earlier run still produces Ready Ada.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_graph_edit_cannot_change_running_snapshot_or_seed"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.cancel",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "A stale cancellation refuses; accepted cancellation is terminal/idempotent and retains only the already completed trigger checkpoint.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_cancel_is_revision_checked_terminal_and_preserves_accepted_checkpoint"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.privacy",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Another administrator cannot read or change private definitions/runs or dispatch, cancel or advance them, and no rows change.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_another_actor_cannot_inspect_or_mutate_definition_run_or_checkpoint"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.authority",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Disabled membership, viewer role and database-inactive user refuse the next node even with a previously loaded active User object.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_stale_user_object_cannot_bypass_current_enabled_role_or_active_authority"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.entity",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Loss of current entity ownership prevents the next checkpoint and prevents a new definition bound to that entity.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_changed_entity_ownership_stops_next_node_and_cross_scope_save"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.bounds",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Malformed, nonfinite, excessive and control-byte seeds, invalid keys, boolean revisions and private scope overrides create no run.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_unbounded_nonjson_private_scope_overrides_and_invalid_dispatch_refuse"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.rollback",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "An interrupted transaction after the real node completion leaves no claim/output or step increment; the exact retry completes normally.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_transaction_crash_rolls_back_claim_and_output_before_safe_retry"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.diagnostic",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "An actual large transform expansion records the failed node with output_limit while keeping the accepted trigger and publishing no partial transform output or raw diagnostic.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_oversized_expansion_fails_with_redacted_diagnostic_and_no_partial_node"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.claim",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Only the same claim owner may reenter; the first clock stays fixed, settled output cannot be erased and foreign run, unknown node and unclaimed completion refuse.",
+          "tests": [
+            "tests.test_workflows.WorkflowTests.test_store_claim_reentry_is_owner_fenced_and_first_attempt_clock_stays_fixed"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.race-delivery",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Two real file-backed database connections racing one dispatch key return the same single persisted run.",
+          "tests": [
+            "tests.test_workflows.WorkflowConcurrencyTests.test_concurrent_duplicate_delivery_creates_one_persistent_run"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.race-step",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Two real workers dispatching step zero produce one trigger checkpoint/attempt and one explicit conflict.",
+          "tests": [
+            "tests.test_workflows.WorkflowConcurrencyTests.test_two_workers_with_same_dispatch_step_execute_only_one_node"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.process-restart",
+          "kind": "positive",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Separate Python workers retain the same persisted run and first checkpoint clock, finish with independently expected outputs and never repeat the committed entry node.",
+          "tests": [
+            "tests.test_workflow_process.WorkflowProcessTests.test_separate_workers_resume_committed_checkpoint_without_repeating_it"
+          ]
+        },
+        {
+          "id": "A04-DURABLE.process-kill",
+          "kind": "negative",
+          "given": "An authorized local principal and bounded nonfinancial graph using exact public Fancy Flow0.29.0",
+          "when": "The same host persistence services save, dispatch, checkpoint, recover or cancel a workflow",
+          "then": "Terminating an actual worker after its real uncommitted node output leaves no claim/output/step; fresh processes safely finish the same run with one persisted entry attempt.",
+          "tests": [
+            "tests.test_workflow_process.WorkflowProcessTests.test_killed_worker_rolls_back_uncommitted_real_output_and_resumes_safely"
+          ]
+        }
+      ]
     }
   ]
 }

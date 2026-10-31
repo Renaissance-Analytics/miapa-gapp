@@ -15,8 +15,10 @@ not a usable accounting product or a release candidate.
 
 ## Check the backend
 
-Use Python 3.13 in an isolated environment. The only runtime distributions are
-the expressly allowed Django and its required dependencies, pinned by wheel hash.
+Use Python 3.13 in an isolated environment. Runtime distributions are the
+expressly allowed Django closure and published Fancy Flow, pinned by wheel hash.
+The [workflow foundation](docs/workflows.md) describes its current internal scope
+and remaining editor/agent/worker integration.
 
 ```powershell
 python -m venv .venv
