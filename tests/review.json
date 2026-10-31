@@ -4950,6 +4950,86 @@
       "decision": "aligned",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
       "reason": "Independent pending-value/current-authority/lifecycle outcomes retained. The scope fixture uses a changed original storage binding because a second local Installation violates the actual singleton constraint. Explicit fake-actor and orphan-form corruption regressions have observed meaningful failing assertions before fixes. Exact state preservation and refusal assertions remain; no old scenario review changed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.human",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_human_endpoint_reads_and_commits_the_same_private_pending_values",
+      "scenario_sha256": "d54b452022a6f3b9741c968ce34cdfab1ca942d394d9d2b079195b9fc8eb1d80",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "Authorized browser reads and writes preserve exact shared pending values without business records.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.native",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_real_public_bridge_reads_and_awaits_a_shared_atomic_commit",
+      "scenario_sha256": "b3bc0dc9f78fe3684f7e8a429cced3d33aa3226b1e8d46356944955f80494618",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "The real public Fancy Form bridge discovers and reads the owned form, then acknowledges the same atomic persisted draft visible to the browser.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.stale",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_human_edit_after_native_read_refuses_stale_native_write_until_explicit_reread",
+      "scenario_sha256": "98b0738dd7736a9dd1ba7fdd70825828fc884797f10fe74c84f7bee8a041cc55",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "A newer human edit defeats the native adapter previous read version; only an explicit fresh read enables the next edit without losing the human value.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.submit",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_native_cannot_write_without_read_or_submit_business_records",
+      "scenario_sha256": "0bd3d1e3bf09a5a6a7d43f05be7bcfad2920cd608e8cb056abe664af1acc01cf",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "Unobserved native writes and unsupported submit/focus refuse; no client/entity records are created.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.scope",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_foreign_actor_revocation_and_removed_component_refuse_without_disclosure",
+      "scenario_sha256": "d354dd3b5026736f6af035f05995e416c0bd12471a1dd19332e0c69101c4ccac",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "Another actor, revoked original session or removed component cannot read/write pending state or see private handles.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.http",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_http_requires_actor_csrf_current_role_and_closed_bounded_input",
+      "scenario_sha256": "32bb4cdc7a26274095649eb30e1e883fbbc481a9b485489adb061af4adf5988f",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "Browser actor/CSRF/current-role and closed bounded JSON checks refuse malformed or unauthorized requests.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.closed",
+      "test": "tests.test_shared_form_tools.SharedFormPathTests.test_http_stale_and_native_unknown_or_private_inputs_preserve_pending_values",
+      "scenario_sha256": "8724caaa86d4b5e88fe2ed257ef0f6e2cdcd41bfb43f18d890116caa9b285c97",
+      "source_sha256": "18e1cd6632cecac657a2dffc2d368720ee0b1ba87ba154f00d110c13830b4101",
+      "expected_observation": "Stale human writes and unknown/private/foreign native inputs cannot overwrite current pending values.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent shared-form acceptance review; no external reviewer claimed",
+      "reason": "Independent persistence/authority/stale-human outcomes retained. Public get-values returns the exact values map. Accepted native mutation must also issue a value-free receipt; stale refusal must not issue activity. First DTO harness failure and meaningful missing-activity red retained; no old assertion removed."
+    },
+    {
+      "scenario": "A05-SHARED-FORM.native-policy",
+      "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities",
+      "scenario_sha256": "e2a43d0f8e193971cc43f2066bcc7b195171f4aee5d9dfcc0abb4cb8748edfdd",
+      "source_sha256": "87cceceff2caa08792f721abe4904cfc417c323dc2fbe1c337f1f66b7609c63c",
+      "expected_observation": "Exactly the sixteen registered UI/view/Form tools are allowed for the supplied server; no native, wildcard, foreign or caller-mutated capability is added, and disabling UI grants none.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent native permission acceptance review; no external reviewer claimed",
+      "reason": "Actual provider exposed an application allowlist omission masked by the direct deterministic peer. Assert the exact scoped capabilities actually passed by the driver, preserve UI-disabled denial and exclude native/wildcard/foreign permissions. NativeTools none and dontAsk remain independently covered by existing driver tests."
     }
   ]
 }

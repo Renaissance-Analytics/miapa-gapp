@@ -16,7 +16,7 @@
     "test": "tsc -p tsconfig.test.json && node --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@particle-academy/agent-integrations": "0.50.0",
+    "@particle-academy/agent-integrations": "0.53.0",
     "@particle-academy/fancy-app-update": "0.7.0",
     "@particle-academy/fancy-auto-common": "0.2.0",
     "@particle-academy/fancy-doc-commons": "0.4.0",

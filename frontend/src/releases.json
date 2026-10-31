@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-37",
+    "label": "Development update 37",
+    "cards": [
+      {
+        "title": "Fill a client form together",
+        "description": "Ask Maipa to open Client setup and fill its pending names. You can edit the same saved input. Creating a client still requires your Create client action."
+      },
+      {
+        "title": "Keep control of shared edits",
+        "description": "Conflicting edits keep your unsent input for review. A brief notice marks confirmed Maipa edits, and reloading restores saved input without replaying that notice."
+      }
+    ]
+  },
+  {
     "id": "development-36",
     "label": "Development update 36",
     "cards": [
@@ -242,20 +256,6 @@
       {
         "title": "Agent connection is still being built",
         "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-17",
-    "label": "Development update 17",
-    "cards": [
-      {
-        "title": "Manage local users and roles",
-        "description": "Administrators can add local users and update workspace roles and access in Users and access beside the conversation. Changes keep a revision history, conflicting edits require a reload, and the last active administrator stays protected."
-      },
-      {
-        "title": "Agent setup is still in progress",
-        "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built."
       }
     ]
   }

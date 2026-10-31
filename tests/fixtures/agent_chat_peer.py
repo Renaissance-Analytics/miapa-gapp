@@ -75,7 +75,8 @@ for line in sys.stdin:
         if startup.get('id') != 'startup-catalog' or set(startup.get('result', {})) != {'tools'}:
             raise RuntimeError('Pre-session tool discovery unavailable')
         if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
-                'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open'}:
+                'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
+                'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})
@@ -106,7 +107,15 @@ for line in sys.stdin:
         try:
             catalog = callback('maipa_ui_catalog', {})
             revision = catalog['revision']
-            if 'save a personal view' in text:
+            if 'fill shared client draft' in text:
+                if not catalog['composition'] or catalog['composition']['schema']['type']!='Maipa.ClientCatalog':
+                    callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present',{'revision':revision,'title':'Shared work',
+                        'schema':{'id':'shared-root','type':'Maipa.ClientCatalog'}})
+                forms=callback('form_list',{})['structuredContent']['forms'];key=forms[0]['id']
+                callback('form_get_values',{'form':key})
+                accepted=callback('form_set_values',{'form':key,'values':{'name':'Synthetic agent pending client','entity_name':'Synthetic agent pending entity'}})
+                if accepted.get('isError'):raise RuntimeError('Synthetic shared draft refused')
+            elif 'save a personal view' in text:
                 views = callback('maipa_views_list', {})
                 saved = callback('maipa_views_save', {'views_id':views['views_id'],'expected_revision':views['revision'],
                     'title':'Agent saved review','schema':{'id':'agent-saved-note','type':'Maipa.Note','props':{'text':'Synthetic agent saved definition'}}})

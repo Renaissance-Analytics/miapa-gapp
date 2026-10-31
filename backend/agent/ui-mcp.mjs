@@ -179,6 +179,15 @@ async function main() {
       pending++;
       try {
         const result = await deadline(() => relay.peer.request('maipa/ui', { nonce, request }), closed);
+        if (method === 'tools/call' && ['form_list','form_describe','form_get_value','form_get_values',
+          'form_set_value','form_set_values','form_focus','form_submit'].includes(request.params.name)) {
+          // Public Fancy tools already return MCP results. Preserve refusals;
+          // wrapping an error DTO in isError:false would invent success.
+          if (!record(result) || Object.keys(result).some(key=>!['content','structuredContent','isError'].includes(key))
+            || !Array.isArray(result.content) || (result.isError !== undefined && typeof result.isError !== 'boolean')
+            || result.content.some(item=>!exact(item,['type','text']) || item.type!=='text' || typeof item.text!=='string')) throw unavailable();
+          return result;
+        }
         return method === 'tools/list' ? result : {
           content: [{ type: 'text', text: JSON.stringify(result) }], structuredContent: result, isError: false,
         };

@@ -4311,6 +4311,92 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-SHARED-FORM",
+      "risk": "A bridge can acknowledge an uncommitted or stale edit, expose another principal pending input, or confuse filling with business submission.",
+      "scenarios": [
+        {
+          "id": "A05-SHARED-FORM.human",
+          "kind": "positive",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "Authorized browser reads and writes preserve exact shared pending values without business records.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_human_endpoint_reads_and_commits_the_same_private_pending_values"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.native",
+          "kind": "positive",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "The real public Fancy Form bridge discovers and reads the owned form, then acknowledges the same atomic persisted draft visible to the browser.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_real_public_bridge_reads_and_awaits_a_shared_atomic_commit"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.stale",
+          "kind": "negative",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "A newer human edit defeats the native adapter previous read version; only an explicit fresh read enables the next edit without losing the human value.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_human_edit_after_native_read_refuses_stale_native_write_until_explicit_reread"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.submit",
+          "kind": "negative",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "Unobserved native writes and unsupported submit/focus refuse; no client/entity records are created.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_native_cannot_write_without_read_or_submit_business_records"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.scope",
+          "kind": "negative",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "Another actor, revoked original session or removed component cannot read/write pending state or see private handles.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_foreign_actor_revocation_and_removed_component_refuse_without_disclosure"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.http",
+          "kind": "negative",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "Browser actor/CSRF/current-role and closed bounded JSON checks refuse malformed or unauthorized requests.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_http_requires_actor_csrf_current_role_and_closed_bounded_input"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.closed",
+          "kind": "negative",
+          "given": "The same original actor/account/UI lease and current visible client form",
+          "when": "An authenticated browser or actual public Fancy bridge reads or changes pending input",
+          "then": "Stale human writes and unknown/private/foreign native inputs cannot overwrite current pending values.",
+          "tests": [
+            "tests.test_shared_form_tools.SharedFormPathTests.test_http_stale_and_native_unknown_or_private_inputs_preserve_pending_values"
+          ]
+        },
+        {
+          "id": "A05-SHARED-FORM.native-policy",
+          "kind": "positive",
+          "given": "The real application Claude driver is restricted to the supplied Maipa MCP server",
+          "when": "The driver receives its tool permission list with or without UI support",
+          "then": "Exactly the sixteen registered UI/view/Form tools are allowed for the supplied server; no native, wildcard, foreign or caller-mutated capability is added, and disabling UI grants none.",
+          "tests": [
+            "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities"
+          ]
+        }
+      ]
     }
   ]
 }

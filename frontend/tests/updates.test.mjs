@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from 'node:fs';
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { selectNew } from "@particle-academy/fancy-whats-new";
@@ -38,8 +39,13 @@ test("release notes describe the installed build and Fancy selects only unseen r
   assert.equal(groups.length >= 2, true);
   assert.equal(new Set(groups.map(group => group.id)).size, groups.length);
   assert.equal(groups.length, 20);
-  assert.equal(groups[0].id, "development-36");
-  assert.equal(groups[0].cards.some(card => card.title === "Understand a failed reply"), true);
+  assert.equal(groups[0].id, "development-37");
+  assert.equal(groups[0].cards.some(card => card.title === "Fill a client form together"), true);
+  assert.equal(groups[1].id, "development-36");
+  assert.equal(groups[1].cards.some(card => card.title === "Understand a failed reply"), true);
+  const archived = JSON.parse(readFileSync(new URL('../../docs/release-history.json', import.meta.url), 'utf8'));
+  assert.deepEqual(archived.map(group => group.id), ['development-17']);
+  assert.equal(new Set([...groups, ...archived].map(group => group.id)).size, 21);
   assert.deepEqual(selectNew(groups, String(groups[1].id), { missed: "all", firstVisit: "latest" }).show.map(group => group.id), [groups[0].id]);
   assert.deepEqual(selectNew(groups, String(groups[0].id), { missed: "all", firstVisit: "latest" }).show, []);
   assert.notEqual(updatesStorageKey({ state: "authenticated", userId: "1" }), updatesStorageKey({ state: "authenticated", userId: "2" }));

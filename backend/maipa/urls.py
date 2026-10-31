@@ -4,6 +4,7 @@ from . import api, builds, development
 from .agent_accounts import views as agent_accounts
 from .agent_accounts.ui_views import composition as agent_ui
 from .agent_accounts import chat_views
+from .agent_accounts.form_views import form as agent_form
 from .workspace import views as workspace
 from .workspace import setup_views
 from .workspace.layout import personal_layout
@@ -44,6 +45,7 @@ urlpatterns = [
     path('api/agent/chat/', chat_views.conversation, name='agent-chat'),
     path('api/agent/chat/stream/', chat_views.stream, name='agent-chat-stream'),
     path('api/agent/accounts/<uuid:account_id>/ui/<uuid:identity>/', agent_ui, name='agent-ui-composition'),
+    path('api/agent/accounts/<uuid:account_id>/ui/<uuid:identity>/forms/<slug:component_id>/',agent_form,name='agent-shared-form'),
     path("api/agent/accounts/<uuid:account_id>/transport-checks/", agent_accounts.transport_checks, name="agent-transport-checks"),
 ]
 

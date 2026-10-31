@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "dd58631bdfa9d3ad279bc93843a7d97cfbb8cdafcf11802956b941c38ecac4e2",
+    "tools/browser.mjs": "29b5858151cb08df556a120e80263e7a5a794a51c191c9045f310f846f47fd1c",
     "tools/check_browser.py": "ed71db8cc33e0451cc8c26440075b2c9281f46b4f9ca8fb337026171a80b032a",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "8824edbd181c6931ee2262db05b9baf79ad531bf6fc7b5add7f19218b1ff9439"
+    "tests/fixtures/agent_chat_peer.py": "b2855111e5ffcd0c235811272fc139b876b311ce4465e650af474507c1680b9f"
   },
   "cases": [
     {
@@ -22,7 +22,7 @@
     {
       "id": "client-catalog-create-rename-conflict",
       "kind": "positive",
-      "expected": "A native chat request reaches the test ACP peer and actual authorized UI broker to present ClientCatalog. Existing native create/rename/entity actions, exact audited revisions, stale409 and explicit reload preserve original finance data, preferences/layout/onboarding and conversation DOM identity. There is no fixed navigation page."
+      "expected": "A native chat request reaches the deterministic ACP peer and production worker/public Fancy Form bridge to present ClientCatalog and atomically fill exact pending values. The real browser displays both values, original catalog remains identical, opted-in activity is closed/value-free and absent from legacy DTOs. Native human typing is acknowledged into the same draft and does not invent a new agent receipt. Explicit human Create still performs the existing business submission. All prior native create/rename/entity actions, exact audited revisions, stale409/reload, original finance data, preferences/layout/onboarding and conversation identity assertions remain. No fixed page or real-model acceptance claimed."
     },
     {
       "id": "admin-users-create-update-conflict",

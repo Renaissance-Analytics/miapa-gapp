@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2532cc9e0944d64f8ad35aeeebec8d6944a8c6c905c3953815a16863e63f120b",
+      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed. Claude callback delta reviewed: generic HTTPS/provider neutrality, all prior failure cases and release/seen-cursor/privacy checks remain; accepts_code must be boolean and the latest installed group is26 within the same20-group bound. Update27 adds one truthful consent-route card within the existing20-group build bound; only oldest update7 rolls out, leaving19 prior groups unchanged. Exact count20/latest title expectation retained/advanced respectively. The initial21-group build refusal is preserved; the build validator is unchanged. Seen-cursor/isolation/build/privacy assertions unchanged. Update28 has truthful recovery and in-progress existing-account integration cards, retaining the20-group build bound and19 unchanged prior groups after oldest update8 rolls out. Only latest ID/title expectations advance; all other build/seen-cursor/account/privacy assertions remain. Update29 reviewed: latest ID/title expectation advances to the truthful model-choice release; same20-group bound and all existing privacy/cursor/transport assertions remain. Kit-only update30: reviewed only latest immutable release ID/title expectation changes; all prior account/transport/privacy assertions and the20group bound remain.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2532cc9e0944d64f8ad35aeeebec8d6944a8c6c905c3953815a16863e63f120b",
+      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed. Claude callback delta reviewed: generic HTTPS/provider neutrality, all prior failure cases and release/seen-cursor/privacy checks remain; accepts_code must be boolean and the latest installed group is26 within the same20-group bound. Update27 adds one truthful consent-route card within the existing20-group build bound; only oldest update7 rolls out, leaving19 prior groups unchanged. Exact count20/latest title expectation retained/advanced respectively. The initial21-group build refusal is preserved; the build validator is unchanged. Seen-cursor/isolation/build/privacy assertions unchanged. Update28 has truthful recovery and in-progress existing-account integration cards, retaining the20-group build bound and19 unchanged prior groups after oldest update8 rolls out. Only latest ID/title expectations advance; all other build/seen-cursor/account/privacy assertions remain. Update29 reviewed: latest ID/title expectation advances to the truthful model-choice release; same20-group bound and all existing privacy/cursor/transport assertions remain. Kit-only update30: reviewed only latest immutable release ID/title expectation changes; all prior account/transport/privacy assertions and the20group bound remain.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2532cc9e0944d64f8ad35aeeebec8d6944a8c6c905c3953815a16863e63f120b",
+      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Exact fetch options/hash, retained immutable update-history card, unique cursors and Fancy's first-unseen/none-unseen outcomes are asserted without hardcoding the current release number. Render receives an independent Fixture release label and64hex build; both must be visible beside the named control, with no false notice. Cosmetic keys differ across users and signed-out state. SSR is not browser input verification. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed. Claude callback delta reviewed: generic HTTPS/provider neutrality, all prior failure cases and release/seen-cursor/privacy checks remain; accepts_code must be boolean and the latest installed group is26 within the same20-group bound. Update27 adds one truthful consent-route card within the existing20-group build bound; only oldest update7 rolls out, leaving19 prior groups unchanged. Exact count20/latest title expectation retained/advanced respectively. The initial21-group build refusal is preserved; the build validator is unchanged. Seen-cursor/isolation/build/privacy assertions unchanged. Update28 has truthful recovery and in-progress existing-account integration cards, retaining the20-group build bound and19 unchanged prior groups after oldest update8 rolls out. Only latest ID/title expectations advance; all other build/seen-cursor/account/privacy assertions remain. Update29 reviewed: latest ID/title expectation advances to the truthful model-choice release; same20-group bound and all existing privacy/cursor/transport assertions remain. Kit-only update30: reviewed only latest immutable release ID/title expectation changes; all prior account/transport/privacy assertions and the20group bound remain.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "2532cc9e0944d64f8ad35aeeebec8d6944a8c6c905c3953815a16863e63f120b",
+      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Every failure must reject with the exact generic error; success or reflecting private response/error text would fail. Update25 catalog review: retire the obsolete required presence of historical update2 after the20-release limit is reached. Its replacement asserts exactly20 groups, installed latest development25 and its actual startup card. Unique IDs, Fancy unseen-group selection, same-account seen suppression, per-user/signed-out storage separation, version bounds/error redaction and build surface checks are retained verbatim. No production limit relaxed. Claude callback delta reviewed: generic HTTPS/provider neutrality, all prior failure cases and release/seen-cursor/privacy checks remain; accepts_code must be boolean and the latest installed group is26 within the same20-group bound. Update27 adds one truthful consent-route card within the existing20-group build bound; only oldest update7 rolls out, leaving19 prior groups unchanged. Exact count20/latest title expectation retained/advanced respectively. The initial21-group build refusal is preserved; the build validator is unchanged. Seen-cursor/isolation/build/privacy assertions unchanged. Update28 has truthful recovery and in-progress existing-account integration cards, retaining the20-group build bound and19 unchanged prior groups after oldest update8 rolls out. Only latest ID/title expectations advance; all other build/seen-cursor/account/privacy assertions remain. Update29 reviewed: latest ID/title expectation advances to the truthful model-choice release; same20-group bound and all existing privacy/cursor/transport assertions remain. Kit-only update30: reviewed only latest immutable release ID/title expectation changes; all prior account/transport/privacy assertions and the20group bound remain.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -970,6 +970,76 @@
       "reviewer": "Maipa independent consumer acceptance review; no external reviewer claimed",
       "reason": "Real finite stdio/worker or scoped persistence behavior verifies the boundary. These additional runtime/selection/notice cases are not claimed as separately observed old-code reds; original assertions remain.",
       "source_sha256": "6fb918e81e8b2f909eebc5060f103ca3d77e6304587d66106f44f6f7ab932d71"
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.queued",
+      "test": "shared-form.test.mjs#held write acknowledgment retains newer typing and serializes the next exact revision",
+      "scenario_sha256": "8c95dcbcbf5bf7162a3d34ebfb1167af96db63de27ba36da60721776a4ca41b2",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "Typing during a held acknowledgment remains visible and the next write uses the accepted revision.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.conflict",
+      "test": "shared-form.test.mjs#conflict retains local pending values and makes no automatic overwrite or retry",
+      "scenario_sha256": "8607dee8e67704e670a762f648450b00f12ae06e67d6635c48449fca5c659fb8",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "A conflict retains unsent input without retry or automatic replacement; explicit reload obtains current shared values.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.close",
+      "test": "shared-form.test.mjs#dispose fences a late response and clears the previous private form scope",
+      "scenario_sha256": "e2a3b53f1d1f75b47fc833c525361676b8ae082d89729b9dcfdb0495168823b3",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "Closing clears private values and prevents a late response from restoring them.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.dto",
+      "test": "shared-form.test.mjs#draft parser detaches exact values and refuses unknown fields wrong handles and invalid counters",
+      "scenario_sha256": "cd1b7f659d048fe74d071e980be40cdebd24700f8bbbf8a311d37af75860ee6f",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "Exact values are detached and malformed, oversized or foreign form data is refused.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.activity",
+      "test": "shared-form.test.mjs#only closed current-lease native receipts can become new activity and initial replay is ignored",
+      "scenario_sha256": "2efe3b5a3ef600af68e9fbb2b13d8de1a40db1bba163fe68f454b59957b14528",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "Only a new current-lease native receipt is accepted once; private metadata, human origin and initial replay are refused.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.clear",
+      "test": "shared-form.test.mjs#clearing a submitted form cannot erase newer shared pending values",
+      "scenario_sha256": "3feea6c7e25dba33e6d632c4c3116f2841f73b12a5dd04dbcd35a503a2419e43",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "A submitted version cannot clear a newer shared draft.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Original six assertions retained exactly. Added a default real HTTP adapter regression for a changed authenticated principal; this is independently different from a genuine draft revision conflict."
+    },
+    {
+      "scenario": "A05-FORM-CONTROLLER.actor",
+      "test": "shared-form.test.mjs#a changed authenticated actor clears private values instead of becoming a draft conflict",
+      "scenario_sha256": "1d813b7fc79fd17a0ed306da33f7755306c5c242b45a96ba78d7bfa0756d0866",
+      "source_sha256": "7ce67fc97bf571d1f678d517c52776cf4a3206cf612f835c47d294ce4cfd7918",
+      "expected_observation": "The controller clears its private form scope and fences further writes, rather than retaining input as a draft conflict.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent security acceptance review; no external reviewer claimed",
+      "reason": "A changed principal is an authority boundary, not recoverable pending-input contention. Test requires old values be removed before any retry."
     }
   ]
 }

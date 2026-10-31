@@ -1015,6 +1015,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-FORM-CONTROLLER",
+      "risk": "Late acknowledgments, conflicts or replayed activity can lose pending input or misrepresent agent work.",
+      "scenarios": [
+        {
+          "id": "A05-FORM-CONTROLLER.queued",
+          "kind": "positive",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Typing during a held acknowledgment remains visible and the next write uses the accepted revision.",
+          "tests": [
+            "shared-form.test.mjs#held write acknowledgment retains newer typing and serializes the next exact revision"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.conflict",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "A conflict retains unsent input without retry or automatic replacement; explicit reload obtains current shared values.",
+          "tests": [
+            "shared-form.test.mjs#conflict retains local pending values and makes no automatic overwrite or retry"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.close",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Closing clears private values and prevents a late response from restoring them.",
+          "tests": [
+            "shared-form.test.mjs#dispose fences a late response and clears the previous private form scope"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.dto",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Exact values are detached and malformed, oversized or foreign form data is refused.",
+          "tests": [
+            "shared-form.test.mjs#draft parser detaches exact values and refuses unknown fields wrong handles and invalid counters"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.activity",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Only a new current-lease native receipt is accepted once; private metadata, human origin and initial replay are refused.",
+          "tests": [
+            "shared-form.test.mjs#only closed current-lease native receipts can become new activity and initial replay is ignored"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.clear",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "A submitted version cannot clear a newer shared draft.",
+          "tests": [
+            "shared-form.test.mjs#clearing a submitted form cannot erase newer shared pending values"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.actor",
+          "kind": "negative",
+          "given": "The browser retains private pending input for the previous authenticated principal",
+          "when": "The server refuses a subsequent write with actor_changed409",
+          "then": "The controller clears its private form scope and fences further writes, rather than retaining input as a draft conflict.",
+          "tests": [
+            "shared-form.test.mjs#a changed authenticated actor clears private values instead of becoming a draft conflict"
+          ]
+        }
+      ]
     }
   ]
 }

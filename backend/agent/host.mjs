@@ -11,6 +11,12 @@ if (packageVersion !== "0.33.1") throw new Error("Unexpected ACP runtime");
 if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
     || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 
+export function claudeUiTools(enabled) {
+  return enabled ? [...['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`),
+    ...['list', 'save', 'change', 'open'].map(operation => `mcp__maipa_ui__maipa_views_${operation}`),
+    ...['list', 'describe', 'get_value', 'get_values', 'set_value', 'set_values', 'focus', 'submit'].map(operation => `mcp__maipa_ui__form_${operation}`)] : [];
+}
+
 export function validateProfile(value) {
   if (!value || !["claude", "codex"].includes(value.provider) ||
       ["user_id", "account_id"].some(key => typeof value[key] !== "string" || !value[key].trim() || value[key].length > 200)) {
@@ -88,8 +94,7 @@ export function serveProfile(value, { input, output, constructors = {}, uiMcp, a
             mcpToolApproval: uiMcp ? { maipa_ui: 'approve' } : {} }, callbacks)
         : (constructors.claude ?? ((config, callbacks) => new ClaudeDriver(config, callbacks)))({
             ...configured, permissionMode: "dontAsk",
-            allowedTools: uiMcp ? [...['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`),
-              ...['list', 'save', 'change', 'open'].map(operation => `mcp__maipa_ui__maipa_views_${operation}`)] : [] }, callbacks);
+            allowedTools: claudeUiTools(Boolean(uiMcp)) }, callbacks);
       drivers.push(driver);
       return driver;
     },

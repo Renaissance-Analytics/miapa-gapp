@@ -26,6 +26,7 @@ from .profiles import lease_profile, provision_profile, ProfileUnavailable
 from .provider_runtime import ensure_codex, ensure_claude
 from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
+from .form_tools import FormBroker,public_form_tools,TOOLS as FORM_TOOLS
 
 _workers, _lock = {}, threading.RLock()
 NATIVE_START_TIMEOUT = 30
@@ -54,6 +55,9 @@ Do not invent navigation pages, financial records, connections, verified facts o
 Notes are your commentary, not verified evidence. Existing forms enforce authority and approvals.
 Never request credentials in chat. Do not use filesystem, command, network-fetch or other native tools.
 Only the application's UI tools are authorized here. Explain when a requested capability is unavailable.
+When Client setup is visible, form_list/form_get_values expose its shared pending input.
+Read the form before filling it with form_set_value/form_set_values. A stale write means re-read and review current values.
+Filling is pending input only: client creation and unsupported form submission still require the human's existing controls.
 '''
 
 
@@ -81,7 +85,7 @@ def start(actor, row, session_key):
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
 
-def transient(owner, session_key, *, include_login=True, include_models=True, snapshot=None):
+def transient(owner, session_key, *, include_login=True, include_models=True, include_activity=False, snapshot=None):
     with _lock:
         worker = _workers.get(owner)
         if not worker or worker.session_key != session_key or worker.stopping.is_set():
@@ -95,8 +99,12 @@ def transient(owner, session_key, *, include_login=True, include_models=True, sn
                 return {}
             include_login = include_login and snapshot['phase'] == 'sign_in'
             include_models = include_models and snapshot['phase'] in ('connecting', 'ready', 'thinking')
+        activity=getattr(worker,'ui_activity',None)
+        current_ui=snapshot.get('ui') if snapshot else None
+        include_activity=include_activity and current_ui and activity and current_ui['id']==activity['ui_id'] and snapshot['phase'] in ('ready','thinking')
         return {**({'login': dict(worker.consent)} if include_login and worker.consent else {}),
-                **({'models': json.loads(json.dumps(worker.models))} if include_models and worker.models else {})}
+                **({'models': json.loads(json.dumps(worker.models))} if include_models and worker.models else {}),
+                **({'activity':dict(activity)} if include_activity else {})}
 
 
 def change_model(actor, account, model_id, revision, selection_revision, session_key):
@@ -186,6 +194,8 @@ class _Worker:
         self.failure_kind = None
         self.last_active = time.monotonic()
         self.models, self.loop = None, None
+        self.form_tools, self.form_broker = [], None
+        self.ui_activity=None
 
     def check(self):
         with self.authority_mutex:
@@ -230,6 +240,8 @@ class _Worker:
                 handler = bind_ui_handler(actor, str(self.account_id), fresh)
                 Conversation.objects.filter(pk=self.identity, worker=self.token).update(ui_id=fresh, revision=F('revision') + 1)
                 self.ui_id, self.handler = fresh, handler
+                self.form_broker=FormBroker(actor,str(self.account_id),fresh)
+                self.ui_activity=None
             self.binding = (member.installation_id, member.role, member.installation.access_revision)
         if self.lease:
             self.lease.revalidate()
@@ -307,6 +319,8 @@ class _Worker:
         self.reference = record_session(actor, str(self.account_id), private_handle)
         self.ui_id = open_ui_lease(actor, str(self.account_id), self.reference)
         self.handler = bind_ui_handler(actor, str(self.account_id), self.ui_id)
+        self.form_broker=FormBroker(actor,str(self.account_id),self.ui_id)
+        self.ui_activity=None
         self.publish(ui_id=self.ui_id, phase='ready')
 
     async def native_ready(self, session):
@@ -327,13 +341,25 @@ class _Worker:
 
     async def handle_ui(self, request):
         await db(self.check)
+        if request == {'method':'tools/list','params':{}}:
+            return {'tools':_tools()+self.form_tools}
         if not self.ui_id:
             # Native MCP discovery precedes verified native startup. Only
             # static definitions are available here: no catalog data or UI calls.
             if request == {'method': 'tools/list', 'params': {}}:
                 return {'tools': _tools()}
             raise chat.ChatUnavailable('UI unavailable')
-        result = await self.handler(request)
+        if (request.get('method')=='tools/call' and request.get('params',{}).get('name') in FORM_TOOLS):
+            result=await self.form_broker.call(request['params']['name'],request['params']['arguments'])
+            def publish_activity():
+                with _lock:
+                    self.publish()
+                    activity=self.form_broker.last_activity
+                    if activity and activity['ui_id']==self.ui_id:self.ui_activity=dict(activity)
+            await db(publish_activity)
+            return result
+        else:
+            result = await self.handler(request)
         # Human reads and agent writes share this same revision, including stream updates.
         await db(self.publish)
         return result
@@ -399,6 +425,7 @@ class _Worker:
         return changed
 
     async def conversation(self):
+        self.form_tools=await public_form_tools()
         preparation = asyncio.create_task(asyncio.to_thread(_database(self.prepare)))
         try:
             capsule, sandbox = await asyncio.shield(preparation)
