@@ -9,6 +9,7 @@ import sys
 from unittest.mock import patch
 
 from backend import devserver
+from contextlib import contextmanager
 
 
 def descriptor(path):
@@ -49,7 +50,7 @@ class InstallLauncherTests(unittest.TestCase):
         (root / 'frontend/dist').mkdir(parents=True)
         (root / 'frontend/dist/index.html').write_text('Synthetic build', encoding='utf-8')
 
-    def launch(self, *, data=None, code=None, generate=None, command_hook=None, supplied_key=None, recovery_hook=None):
+    def launch(self, *, data=None, code=None, generate=None, command_hook=None, supplied_key=None, recovery_hook=None, worker_hook=None):
         environment = {key: value for key, value in os.environ.items()
             if not key.startswith('MAIPA_') and key != 'DJANGO_SETTINGS_MODULE'}
         environment['MAIPA_DATA_DIR'] = str(self.data if data is None else data)
@@ -61,13 +62,36 @@ class InstallLauncherTests(unittest.TestCase):
                 patch.object(sys, 'path', list(sys.path)), \
                 patch('django.core.management.execute_from_command_line') as commands, \
                 patch('backend.maipa.agent_accounts.recovery.recover_connections') as recovery, \
+                patch('backend.maipa.workflows.worker.serving') as worker, \
                 patch('backend.devserver.secrets.token_urlsafe', side_effect=generate or (lambda _: 'synthetic-key-' * 6)):
             commands.side_effect = command_hook
             # This launcher unit seam replaces migration/HTTP and recovery's ORM
             # together. Actual DB/native crash recovery is tested independently.
             recovery.side_effect = recovery_hook or (lambda guard: guard.revalidate(Path(environment['MAIPA_DATA_DIR'])))
+            @contextmanager
+            def verified(guard, root):
+                guard.revalidate(root)
+                yield
+            worker.side_effect = worker_hook or verified
             devserver.main()
             return commands.call_args_list, os.environ['MAIPA_SECRET_KEY']
+
+    def test_flow_worker_starts_after_recovery_and_stops_before_installation_unlock(self):
+        events=[]
+        from backend.maipa.storage import install_lock, StorageUnavailable
+        @contextmanager
+        def worker(guard, root):
+            guard.revalidate(root);events.append('worker-start')
+            try: yield
+            finally:
+                guard.revalidate(root)
+                with self.assertRaises(StorageUnavailable):
+                    with install_lock(root): pass
+                events.append('worker-stop')
+        self.launch(command_hook=lambda argv:events.append(argv[1]),
+            recovery_hook=lambda guard:events.append('recover'),worker_hook=worker)
+        self.assertEqual(events,['migrate','recover','worker-start','runserver','worker-stop'])
+        with install_lock(self.data): pass
 
     def test_restart_recovery_runs_between_migration_and_http_under_live_installation_lock(self):
         from backend.maipa.storage import install_lock, StorageUnavailable

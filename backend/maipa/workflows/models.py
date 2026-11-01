@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-RUN_STATUSES = ('queued', 'running', 'completed', 'failed', 'cancelled')
+RUN_STATUSES = ('queued', 'running', 'blocked', 'completed', 'failed', 'cancelled')
 NODE_STATUSES = ('claimed', 'completed', 'skipped', 'failed', 'paused')
 
 
@@ -51,19 +51,26 @@ class WorkflowRun(models.Model):
     seed = models.JSONField(editable=False)
     seed_sha256 = models.CharField(max_length=64, editable=False)
     access_revision = models.PositiveIntegerField(editable=False)
+    # Null only for records predating verified origin capture. Never infer an
+    # old run's actor from a possibly transferred definition during migration.
+    origin_owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT, editable=False)
+    origin_installation = models.ForeignKey('workspace.Installation', null=True, on_delete=models.PROTECT, editable=False)
+    origin_entity = models.ForeignKey('intake.Entity', null=True, on_delete=models.PROTECT, editable=False)
     status = models.CharField(max_length=12, default='queued')
     step = models.PositiveIntegerField(default=0)
     error = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
+        indexes = [models.Index(fields=('status','created_at','id'), name='flow_dispatch_queue')]
         constraints = [models.UniqueConstraint(fields=('definition','dispatch_key'), name='flow_dispatch_identity'),
                        models.CheckConstraint(condition=models.Q(status__in=RUN_STATUSES), name='flow_run_status'),
                        models.CheckConstraint(condition=models.Q(step__lt=2_000_000_000), name='flow_run_step')]
 
     def save(self, *args, **kwargs):
         if not self._state.adding:
-            fields = ('definition_id','version_id','dispatch_key','seed','seed_sha256','access_revision','created_at')
+            fields = ('definition_id','version_id','dispatch_key','seed','seed_sha256','access_revision','created_at',
+                      'origin_owner_id','origin_installation_id','origin_entity_id')
             original = type(self).objects.filter(pk=self.pk).values(*fields).first()
             if original is None or any(original[field] != getattr(self,field) for field in fields):
                 raise ValueError('Workflow run inputs are immutable')

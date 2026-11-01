@@ -1,7 +1,7 @@
 """Same authorized persistence boundary for future human and native Flow tools.
 
 This foundation deliberately exposes no HTTP/MCP execution surface yet. Only
-three deterministic published executors are bound. Queue transport, editor and
+three deterministic published executors are bound. The site owns dispatch; editor and
 human gates are separate integration work, and no protected effect is enabled.
 """
 import uuid
@@ -58,11 +58,17 @@ def _definition(member, definition_id):
 
 def _run(member, run_id):
     run = WorkflowRun.objects.select_related('definition','version').filter(pk=identity(run_id),
-        definition__owner_id=member.user_id,definition__installation_id=member.installation_id).first()
+        origin_owner_id=member.user_id,origin_installation_id=member.installation_id).first()
     if run is None or run.version.definition_id != run.definition_id:
         raise Unavailable()
-    _entity(member,run.definition.entity_id)
+    _entity(member,run.origin_entity_id)
     return run
+
+
+def _origin_matches(run):
+    return (run.origin_owner_id is not None and run.origin_installation_id is not None
+        and (run.origin_owner_id,run.origin_installation_id,run.origin_entity_id)
+        == (run.definition.owner_id,run.definition.installation_id,run.definition.entity_id))
 
 
 def _revision(value):
@@ -125,13 +131,16 @@ def dispatch(user,definition_id,revision,seed,dispatch_key):
     if version is None: raise Conflict()
     old = WorkflowRun.objects.select_related('version').filter(definition=definition,dispatch_key=dispatch_key).first()
     if old is not None:
+        if (old.origin_owner_id,old.origin_installation_id,old.origin_entity_id) != (member.user_id,member.installation_id,definition.entity_id):
+            raise Conflict()
         if old.version_id!=version.pk or old.seed_sha256!=digest or old.seed!=seed: raise Conflict()
         return _run_value(old)
     require(WorkflowRun.objects.filter(definition=definition).count()<1000)
     _,graph_digest,_=validate(version.schema)
     if version.runtime != RUNTIME or version.schema_sha256!=graph_digest: raise Unavailable()
     run = WorkflowRun.objects.create(definition=definition,version=version,dispatch_key=dispatch_key,seed=seed,
-        seed_sha256=digest,access_revision=member.installation.access_revision)
+        seed_sha256=digest,access_revision=member.installation.access_revision,origin_owner_id=member.user_id,
+        origin_installation_id=member.installation_id,origin_entity_id=definition.entity_id)
     return _run_value(run)
 
 
@@ -158,7 +167,8 @@ def _coordinator(run):
 def advance(user,run_id,expected_step):
     run = _run(_principal(user),run_id)
     if run.step!=_revision(expected_step): raise Conflict()
-    if run.status in ('completed','failed','cancelled'): return _run_value(run)
+    if run.status in ('blocked','completed','failed','cancelled'): return _run_value(run)
+    if not _origin_matches(run): raise Unavailable()
     coordinator = _coordinator(run)
     run.status = 'running'
     try:
@@ -195,4 +205,16 @@ def cancel(user,run_id,expected_step):
     if run.status not in ('completed','failed','cancelled'):
         run.status='cancelled'; run.step+=1
         run.save(update_fields=('status','step'))
+    return _run_value(run)
+
+
+@transaction.atomic
+def resume(user,run_id,expected_step):
+    run = _run(_principal(user),run_id)
+    if run.step!=_revision(expected_step) or run.status!='blocked': raise Conflict()
+    if not _origin_matches(run): raise Unavailable()
+    _coordinator(run) # Recheck the immutable schema/seed before requeueing.
+    run.status,run.error='queued',None
+    run.step+=1
+    run.save(update_fields=('status','error','step'))
     return _run_value(run)

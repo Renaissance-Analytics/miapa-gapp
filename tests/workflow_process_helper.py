@@ -24,7 +24,33 @@ from backend.maipa.workflows import services as flows
 from backend.maipa.workflows.models import WorkflowRun
 from backend.maipa.workflows.store import DjangoClaimStore
 
-if action=='prepare':
+if action=='legacy':
+    from django.db import connection
+    from django.db.migrations.executor import MigrationExecutor
+    target=[('workflows','0001_initial')]
+    executor=MigrationExecutor(connection);executor.migrate(target)
+    apps=executor.loader.project_state(target).apps
+    install=apps.get_model('workspace','Installation').objects.create()
+    owner=apps.get_model('auth','User').objects.create(username='synthetic-legacy-owner')
+    definition=apps.get_model('workflows','Definition').objects.create(owner_id=owner.pk,installation_id=install.pk,name='Private legacy')
+    version=apps.get_model('workflows','DefinitionVersion').objects.create(definition=definition,revision=1,
+        schema={'legacy':'private graph'},schema_sha256='a'*64,runtime='fancy-flow/0.29.0')
+    runs=apps.get_model('workflows','WorkflowRun')
+    ids=[]
+    for status in ('queued','running','completed'):
+        item=runs.objects.create(definition=definition,version=version,dispatch_key=status,seed={'private':'legacy seed'},
+            seed_sha256='b'*64,access_revision=1,status=status)
+        ids.append(str(item.pk))
+        apps.get_model('workflows','NodeCheckpoint').objects.create(run=item,node_id='legacy',status='completed',
+            output={'private':'legacy output'},attempts=1)
+    call_command('migrate',interactive=False,verbosity=0)
+    rows=WorkflowRun.objects.order_by('dispatch_key')
+    result={'ids':sorted(str(row.pk) for row in rows), 'expected_ids':sorted(ids),
+        'states':{row.dispatch_key:[row.status,row.error,row.origin_owner_id,row.origin_installation_id,row.origin_entity_id] for row in rows},
+        'seeds':[row.seed for row in rows],'outputs':[row.checkpoints.get().output for row in rows]}
+    from backend.maipa.workflows.worker import work_once
+    result['queue']=work_once(limit=10)
+elif action=='prepare':
     call_command('migrate',interactive=False,verbosity=0)
     installation=Installation.objects.create();user=get_user_model().objects.create_user(username='synthetic-process-owner')
     Membership.objects.create(user=user,installation=installation,role='preparer')
@@ -39,7 +65,18 @@ else:
         result['first_clocks']={row.node_id:row.first_attempt_at.isoformat() for row in run.checkpoints.all()}
     elif action=='advance':
         result=flows.advance(user,str(run.pk),int(arguments[0]))
-    elif action=='crash':
+    elif action=='worker':
+        from backend.maipa.workflows.worker import process_job
+        if len(arguments)>1:
+            marker,gate=map(lambda value:Path(value).resolve(),arguments[1:])
+            if marker.parent!=database.parent or gate.parent!=database.parent: raise ValueError('Synthetic marker required')
+            marker.write_text('ready',encoding='utf-8')
+            import time
+            deadline=time.monotonic()+15
+            while not gate.exists() and time.monotonic()<deadline: time.sleep(0.02)
+            if not gate.exists(): raise ValueError('Synthetic race gate expired')
+        result={'outcome':process_job(str(run.pk),int(arguments[0]))}
+    elif action in ('crash','crash-worker'):
         marker=Path(arguments[0]).resolve()
         if marker.parent!=database.parent: raise ValueError('Synthetic marker required')
         original=DjangoClaimStore.complete
@@ -49,7 +86,10 @@ else:
             sys.stdin.read(1) # The test kills this finite owned process here.
             raise RuntimeError('Crash test must terminate the worker')
         DjangoClaimStore.complete=interrupted
-        flows.advance(user,str(run.pk),0)
+        if action=='crash': flows.advance(user,str(run.pk),0)
+        else:
+            from backend.maipa.workflows.worker import process_job
+            process_job(str(run.pk),0)
         raise AssertionError('Interrupted transaction unexpectedly returned')
     else:
         raise ValueError('Unknown fixture action')

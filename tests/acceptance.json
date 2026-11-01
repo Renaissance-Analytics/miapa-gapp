@@ -4613,6 +4613,132 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A04-WORKER",
+      "risk": "A background worker can retain revoked authority, transfer private run data, replay checkpoints or violate offline maintenance ownership.",
+      "scenarios": [
+        {
+          "id": "A04-WORKER.launcher",
+          "kind": "positive",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "The launcher starts dispatch after migration and connection recovery, serves HTTP inside its worker context, and stops dispatch before releasing the exclusive installation lock.",
+          "tests": [
+            "tests.test_install_storage.InstallLauncherTests.test_flow_worker_starts_after_recovery_and_stops_before_installation_unlock"
+          ]
+        },
+        {
+          "id": "A04-WORKER.origin",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "Definition transfer cannot transfer the immutable original run owner/entity, expose its output through reads or duplicate dispatch, or execute its next node.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_run_origin_is_immutable_and_definition_transfer_cannot_expose_or_execute_it"
+          ]
+        },
+        {
+          "id": "A04-WORKER.revocation",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "Revocation records authority_revoked and removes the run from the queue; restoration alone does not resume. Explicit current-authority/CAS resume continues without repeating accepted checkpoints.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_revocation_blocks_without_busy_loop_and_restoration_requires_explicit_resume"
+          ]
+        },
+        {
+          "id": "A04-WORKER.current",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "A changed current role, inactive user or reassigned entity blocks before any checkpoint with only the relevant closed diagnostic.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_current_active_role_and_entity_are_checked_before_every_worker_step"
+          ]
+        },
+        {
+          "id": "A04-WORKER.cancel",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "A repeated observation and cancellation cannot execute another node or be resumed, while the accepted trigger remains.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_cancelled_and_stale_deliveries_never_execute_another_node"
+          ]
+        },
+        {
+          "id": "A04-WORKER.bounds",
+          "kind": "positive",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "The queue uses one limited indexed query, calls only two observed jobs, rejects invalid limits and returns only closed counts.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_queue_pass_is_bounded_and_returns_only_closed_counts"
+          ]
+        },
+        {
+          "id": "A04-WORKER.snapshot",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "A corrupted immutable snapshot records snapshot_unavailable without creating a checkpoint or busy-looping.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowWorkerTests.test_invalid_snapshot_becomes_safe_blocked_diagnostic_without_raw_error"
+          ]
+        },
+        {
+          "id": "A04-WORKER.lifecycle",
+          "kind": "positive",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "The site-owned non-daemon worker holds the maintenance boundary through shutdown, joins its in-flight pass and refuses an expired lease.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowServingTests.test_serving_rechecks_live_lease_and_joins_worker_before_maintenance_unlock"
+          ]
+        },
+        {
+          "id": "A04-WORKER.failure",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "An unexpected worker failure stops the thread, writes one fixed diagnostic without the private exception and surfaces failure at owned shutdown.",
+          "tests": [
+            "tests.test_workflow_worker.WorkflowServingTests.test_worker_failure_is_redacted_stops_and_surfaces_at_owned_shutdown"
+          ]
+        },
+        {
+          "id": "A04-WORKER.process-race",
+          "kind": "positive",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "Two actual processes observing step zero yield one advanced and one stale; a restarted process finishes from the one committed checkpoint without changing its first clock.",
+          "tests": [
+            "tests.test_workflow_worker_process.WorkflowWorkerProcessTests.test_racing_processes_execute_one_observed_step_and_restart_keeps_checkpoint"
+          ]
+        },
+        {
+          "id": "A04-WORKER.process-kill",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "Killing the actual scoped worker after a real store output rolls back its claim/output/step and allows a fresh process to finish once.",
+          "tests": [
+            "tests.test_workflow_worker_process.WorkflowWorkerProcessTests.test_killed_scoped_worker_leaves_no_uncommitted_claim_or_output"
+          ]
+        },
+        {
+          "id": "A04-WORKER.legacy",
+          "kind": "negative",
+          "given": "Persisted bounded nonfinancial Flow runs with server-owned identities and actual published executors",
+          "when": "A finite worker or Genie-site-owned worker dispatches, restarts, migrates or stops",
+          "then": "Historical migration retains all IDs, seeds and outputs; unverifiable origins stay null and active legacy runs are blocked, never automatically adopted.",
+          "tests": [
+            "tests.test_workflow_worker_process.WorkflowWorkerProcessTests.test_legacy_migration_preserves_private_records_without_inventing_origin"
+          ]
+        }
+      ]
     }
   ]
 }

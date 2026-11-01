@@ -44,7 +44,9 @@ def main():
             execute_from_command_line(["manage.py", "migrate", "--noinput"])
             from backend.maipa.agent_accounts.recovery import recover_connections
             recover_connections(installation_guard)
-            execute_from_command_line(["manage.py", "runserver", f"127.0.0.1:{args.port}", "--noreload"])
+            from backend.maipa.workflows.worker import serving
+            with serving(installation_guard,data):
+                execute_from_command_line(["manage.py", "runserver", f"127.0.0.1:{args.port}", "--noreload"])
     except (OSError, ValueError, UnicodeError, RecursionError):
         parser.error("Private installation unavailable or already active")
 
