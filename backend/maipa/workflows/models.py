@@ -43,6 +43,36 @@ class DefinitionVersion(models.Model):
         raise ValueError('Workflow versions are append-only')
 
 
+class WorkflowDraft(models.Model):
+    """Mutable authoring, never a dispatchable version or authority grant."""
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,editable=False)
+    installation = models.ForeignKey('workspace.Installation',on_delete=models.PROTECT,editable=False)
+    entity = models.ForeignKey('intake.Entity',null=True,on_delete=models.PROTECT,editable=False)
+    name = models.CharField(max_length=128)
+    create_key = models.UUIDField(editable=False)
+    create_sha256 = models.CharField(max_length=64,editable=False)
+    revision = models.PositiveIntegerField(default=0)
+    graph = models.JSONField()
+    graph_sha256 = models.CharField(max_length=64)
+    definition = models.OneToOneField(Definition,null=True,on_delete=models.PROTECT,editable=False)
+    published_draft_revision = models.PositiveIntegerField(null=True,editable=False)
+    published_definition_revision = models.PositiveIntegerField(null=True,editable=False)
+    created_at = models.DateTimeField(default=timezone.now,editable=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('owner','installation','create_key'),name='flow_draft_create_identity'),
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000),name='flow_draft_revision')]
+
+    def save(self,*args,**kwargs):
+        if not self._state.adding:
+            fields=('owner_id','installation_id','entity_id','name','create_key','create_sha256','created_at')
+            original=type(self).objects.filter(pk=self.pk).values(*fields).first()
+            if original is None or any(original[key]!=getattr(self,key) for key in fields):
+                raise ValueError('Original workflow draft scope is immutable')
+        return super().save(*args,**kwargs)
+
+
 class WorkflowRun(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     definition = models.ForeignKey(Definition, on_delete=models.PROTECT, editable=False)

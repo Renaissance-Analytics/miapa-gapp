@@ -30,7 +30,7 @@ def _verify(gate,run):
     if run.version.runtime!=RUNTIME or digest!=run.version.schema_sha256 or seed_hash!=run.seed_sha256:raise Unavailable()
     node=_node(run,gate.node_id);kind=node['kind'].rsplit('/',1)[-1]
     _,input_hash=bounded_json(gate.observed_input)
-    if (gate.run_id!=run.pk or gate.kind!=kind or gate.request!=gate_config(kind,node['config'])
+    if (gate.run_id!=run.pk or gate.kind!=kind or gate.request!=gate_config(kind,node.get('config',{}))
             or gate.input_sha256!=input_hash or gate.request_sha256!=_request_hash(run,gate.node_id,kind,gate.request,input_hash,gate.parked_step)):
         raise Unavailable()
 
@@ -52,7 +52,7 @@ def _answer(gate,value):
 def park(run,node_id,reason,observed):
     signal=Pause.decode(reason)
     node=_node(run,node_id);kind=node['kind'].rsplit('/',1)[-1]
-    request=gate_config(kind,node['config']);expected='approval' if kind=='human_approval' else 'input'
+    request=gate_config(kind,node.get('config',{}));expected='approval' if kind=='human_approval' else 'input'
     if signal is None or signal.node_id!=node_id or signal.awaiting!=expected or signal.detail!=request or type(observed) is not dict:
         raise Unavailable()
     observed,input_hash=bounded_json(observed)

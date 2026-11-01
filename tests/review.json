@@ -5760,6 +5760,156 @@
       "decision": "aligned",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
       "reason": "Only the stop-signal interleaving is held. Real startup, peer shutdown, durable token cleanup and original identity/zero-survivor outcomes execute. This does not establish the cause of the earlier isolated diagnostic503."
+    },
+    {
+      "scenario": "A05-DRAFTS.empty_detached_draft_is_idempotent_and_cannot_be_dispatched",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_empty_detached_draft_is_idempotent_and_cannot_be_dispatched",
+      "scenario_sha256": "5564a66f2520849a4296d0d84368baa09d629256203185c37e0901f10b7425e2",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "One detached empty draft/revision0 survives exact creation retry, with no executable definition, version or run.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.native_and_human_share_incomplete_graph_and_exact_cas",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_native_and_human_share_incomplete_graph_and_exact_cas",
+      "scenario_sha256": "363b362c8b6f6ab1e67443759bb631c201fbaa10410738fdb846b5552f8b5845",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Current native UI actor and human share the same draft identity and revision; incomplete config/disconnected authoring persists without becoming executable.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.stale_graph_cannot_overwrite_newer_human_work",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_stale_graph_cannot_overwrite_newer_human_work",
+      "scenario_sha256": "7708c7edce81dc12ae806ee995cb8427a5f5c80d3425f3ad25b6dab0327d8889",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Stale CAS refuses and retains the exact newer human graph; unchanged acknowledged graph creates no revision.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.create_retry_cannot_change_original_scope_or_name",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_create_retry_cannot_change_original_scope_or_name",
+      "scenario_sha256": "d1b35643473fbe68fa844478c349e085de3196b79ace6c8c40e85c371b346b34",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Reusing a creation request key with changed scope/name refuses without replacing the original draft.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.foreign_entity_user_and_actor_hints_never_select_authority",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_foreign_entity_user_and_actor_hints_never_select_authority",
+      "scenario_sha256": "d135ea4ba2d3fc9519d7d72fed222fe865b6f2c9cf71bb45592f76edc85bac56",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Foreign entity/user and forged actor objects cannot read/write an owned draft or list it.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.original_native_lease_is_rechecked_but_human_history_survives",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_original_native_lease_is_rechecked_but_human_history_survives",
+      "scenario_sha256": "b7c439820b574ad7df3bb84cdc61b615a37c9e0747a2ad1e50b96a9f5c2a5e1f",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Revoked original native session cannot edit; current human retains access until its own membership is disabled.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.unsafe_unknown_duplicate_and_dangling_graph_writes_refuse_atomically",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_unsafe_unknown_duplicate_and_dangling_graph_writes_refuse_atomically",
+      "scenario_sha256": "3d1384cf4512bb1d75a5eb82d433a2d85c556b9a4c68a2568cf65e52aef5a299",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Unknown/effectful kinds, executable config, duplicate IDs, fabricated done status, dangling edges, nonfinite positions and controls refuse before any draft change.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.complete_publication_uses_real_fancy_export_and_immutable_version",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_complete_publication_uses_real_fancy_export_and_immutable_version",
+      "scenario_sha256": "fd89db648fbb32671b7973307babe2b840a1f62f33494cab30ec08c28e4bf080",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Real published Fancy exporter creates an immutable validated version; publication itself creates no run and explicit later deterministic execution yields Ready Ada.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.incomplete_cycle_wrong_ports_and_prefilled_approval_cannot_publish",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_incomplete_cycle_wrong_ports_and_prefilled_approval_cannot_publish",
+      "scenario_sha256": "0e1269435aecdf5470493b721e1294cd0bba49356a6fd79f8cd4f884b1bda4f9",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Empty graph, unfinished config, invalid ports and cycles cannot publish; drafts remain editable and no definition/run appears.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.publish_receipt_retry_never_appends_twice_or_adopts_foreign_definition_edit",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_publish_receipt_retry_never_appends_twice_or_adopts_foreign_definition_edit",
+      "scenario_sha256": "a44f116d803a83f1c050f47f8aa917314f6a8e89aeb5002f547437f438a49e99",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Exact publish retry returns the original receipt without another version, including after a later authorized definition edit; newer draft publish conflicts rather than overwriting that edit.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.stored_hash_damage_and_transferred_entity_are_not_silently_repaired",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_stored_hash_damage_and_transferred_entity_are_not_silently_repaired",
+      "scenario_sha256": "5d83ffb98c9c440bd48b6062c8e48712bb54bbc9042c7282fd43f9bd73da2a81",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Stored graph hash damage and subsequently transferred entity ownership refuse; no implicit reset or authority adoption.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.http_actual_session_csrf_owner_and_closed_payload",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_http_actual_session_csrf_owner_and_closed_payload",
+      "scenario_sha256": "92c110caac064837497117cc1c495c95c240350bf74b65ab8e748ed705bf89eb",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b",
+      "expected_observation": "Actual session/CSRF permits scoped authoring; anonymous/missingCSRF/foreign reads/actor hints/stale CAS refuse with fixed statuses and no wrong-owner write.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Expected persisted identity/revision/hash, literal output Ready Ada, exact conflict/refusal and HTTP statuses are independent outcomes. Real Fancy export/runtime, current UI lease and actual DB/session/CSRF are exercised. force_login only establishes a test session; no UI/provider/agent-tool integration or protected-effect authority is claimed. Authoring accepts incomplete configs but publication retains existing full admission."
+    },
+    {
+      "scenario": "A05-DRAFTS.published_empty_config",
+      "test": "tests.test_workflow_drafts.WorkflowDraftTests.test_published_empty_config_omission_still_parks_real_durable_human_gate",
+      "scenario_sha256": "508fd052f5f50e0403d53441cecb7ab40512c3918d80af7c6ba85d9a49fe6352",
+      "expected_observation": "Preserve the literal published omission, park despite seeded approval, restore the default original question and complete only after the authenticated human answer.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic review; no external reviewer claimed",
+      "reason": "The real published exporter omits empty config. Preserve those bytes and accept the documented empty default through existing admission; transform still needs its expression. Real durable gate must pause on seeded approved:true and only actual recorded human response continues. No patched exporter, synthetic engine or relaxed unsafe-config policy. Prior publication test additionally asserts omitted trigger config, and auto-answer is now explicitly refused during draft admission.",
+      "source_sha256": "1f44a63df9bde02604a9cbfa00baf83d00a2ce1b3e0d027783ce8b73f76b836b"
+    },
+    {
+      "scenario": "A05-DRAFTS.two_real_connections_accept_only_one_original_revision",
+      "test": "tests.test_workflow_draft_boundaries.WorkflowDraftBoundaries.test_two_real_connections_accept_only_one_original_revision",
+      "scenario_sha256": "738e2116ef31f9dae5fce482941bc012481b1402832fedab3e110c4d0df6892a",
+      "source_sha256": "63cb82d8135a71c1c40769f2c8c97ce6e46475eb8433733a544484cbc0d98aa8",
+      "expected_observation": "Two real DB connections racing the same revision produce exactly one accepted write and one conflict, revision1 and no workflow run.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Actual separate connections/primary CAS and actual MigrationExecutor are exercised. One connection wins; a refused downgrade preserves the exact complete DTO. No mocked lock, synthetic success or time-based claim takeover. Downgrade refusal should be conditional on saved drafts so existing human/native historical migration tests still reach their own protected reversals."
+    },
+    {
+      "scenario": "A05-DRAFTS.reverse_migration_refuses_before_dropping_saved_authoring_work",
+      "test": "tests.test_workflow_draft_boundaries.WorkflowDraftBoundaries.test_reverse_migration_refuses_before_dropping_saved_authoring_work",
+      "scenario_sha256": "9ac77ce96943247222db57729ee2b7ce7c4ed945f8490b5ec062c18212f3df6e",
+      "source_sha256": "63cb82d8135a71c1c40769f2c8c97ce6e46475eb8433733a544484cbc0d98aa8",
+      "expected_observation": "Actual schema downgrade refuses before removing a saved draft; graph/identity/revision/publication remain intact for offline backup recovery.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Actual separate connections/primary CAS and actual MigrationExecutor are exercised. One connection wins; a refused downgrade preserves the exact complete DTO. No mocked lock, synthetic success or time-based claim takeover. Downgrade refusal should be conditional on saved drafts so existing human/native historical migration tests still reach their own protected reversals."
     }
   ]
 }

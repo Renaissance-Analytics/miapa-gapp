@@ -5151,6 +5151,162 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-DRAFTS",
+      "risk": "Incomplete or stale shared graphs could become executable, cross owner scope or manufacture privileged native authority.",
+      "scenarios": [
+        {
+          "id": "A05-DRAFTS.empty_detached_draft_is_idempotent_and_cannot_be_dispatched",
+          "kind": "positive",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "One detached empty draft/revision0 survives exact creation retry, with no executable definition, version or run.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_empty_detached_draft_is_idempotent_and_cannot_be_dispatched"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.native_and_human_share_incomplete_graph_and_exact_cas",
+          "kind": "positive",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Current native UI actor and human share the same draft identity and revision; incomplete config/disconnected authoring persists without becoming executable.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_native_and_human_share_incomplete_graph_and_exact_cas"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.stale_graph_cannot_overwrite_newer_human_work",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Stale CAS refuses and retains the exact newer human graph; unchanged acknowledged graph creates no revision.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_stale_graph_cannot_overwrite_newer_human_work"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.create_retry_cannot_change_original_scope_or_name",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Reusing a creation request key with changed scope/name refuses without replacing the original draft.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_create_retry_cannot_change_original_scope_or_name"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.foreign_entity_user_and_actor_hints_never_select_authority",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Foreign entity/user and forged actor objects cannot read/write an owned draft or list it.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_foreign_entity_user_and_actor_hints_never_select_authority"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.original_native_lease_is_rechecked_but_human_history_survives",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Revoked original native session cannot edit; current human retains access until its own membership is disabled.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_original_native_lease_is_rechecked_but_human_history_survives"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.unsafe_unknown_duplicate_and_dangling_graph_writes_refuse_atomically",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Unknown/effectful kinds, executable config, duplicate IDs, fabricated done status, dangling edges, nonfinite positions and controls refuse before any draft change.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_unsafe_unknown_duplicate_and_dangling_graph_writes_refuse_atomically"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.complete_publication_uses_real_fancy_export_and_immutable_version",
+          "kind": "positive",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Real published Fancy exporter creates an immutable validated version; publication itself creates no run and explicit later deterministic execution yields Ready Ada.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_complete_publication_uses_real_fancy_export_and_immutable_version"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.incomplete_cycle_wrong_ports_and_prefilled_approval_cannot_publish",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Empty graph, unfinished config, invalid ports and cycles cannot publish; drafts remain editable and no definition/run appears.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_incomplete_cycle_wrong_ports_and_prefilled_approval_cannot_publish"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.publish_receipt_retry_never_appends_twice_or_adopts_foreign_definition_edit",
+          "kind": "positive",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Exact publish retry returns the original receipt without another version, including after a later authorized definition edit; newer draft publish conflicts rather than overwriting that edit.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_publish_receipt_retry_never_appends_twice_or_adopts_foreign_definition_edit"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.stored_hash_damage_and_transferred_entity_are_not_silently_repaired",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Stored graph hash damage and subsequently transferred entity ownership refuse; no implicit reset or authority adoption.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_stored_hash_damage_and_transferred_entity_are_not_silently_repaired"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.http_actual_session_csrf_owner_and_closed_payload",
+          "kind": "negative",
+          "given": "An owned local installation and bounded authoring graph with actual human or current original native UI authority",
+          "when": "Create, read, edit or publish using actual persistent services/session endpoints",
+          "then": "Actual session/CSRF permits scoped authoring; anonymous/missingCSRF/foreign reads/actor hints/stale CAS refuse with fixed statuses and no wrong-owner write.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_http_actual_session_csrf_owner_and_closed_payload"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.published_empty_config",
+          "kind": "positive",
+          "given": "Actual Fancy exporter omits empty node config on a human-approval graph",
+          "when": "Publish and execute with a seeded approval, then record an actual human response",
+          "then": "Preserve the literal published omission, park despite seeded approval, restore the default original question and complete only after the authenticated human answer.",
+          "tests": [
+            "tests.test_workflow_drafts.WorkflowDraftTests.test_published_empty_config_omission_still_parks_real_durable_human_gate"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.two_real_connections_accept_only_one_original_revision",
+          "kind": "positive",
+          "given": "Owned persistent authoring work and actual database connections/migrations",
+          "when": "Race independent authors or downgrade the schema",
+          "then": "Two real DB connections racing the same revision produce exactly one accepted write and one conflict, revision1 and no workflow run.",
+          "tests": [
+            "tests.test_workflow_draft_boundaries.WorkflowDraftBoundaries.test_two_real_connections_accept_only_one_original_revision"
+          ]
+        },
+        {
+          "id": "A05-DRAFTS.reverse_migration_refuses_before_dropping_saved_authoring_work",
+          "kind": "negative",
+          "given": "Owned persistent authoring work and actual database connections/migrations",
+          "when": "Race independent authors or downgrade the schema",
+          "then": "Actual schema downgrade refuses before removing a saved draft; graph/identity/revision/publication remain intact for offline backup recovery.",
+          "tests": [
+            "tests.test_workflow_draft_boundaries.WorkflowDraftBoundaries.test_reverse_migration_refuses_before_dropping_saved_authoring_work"
+          ]
+        }
+      ]
     }
   ]
 }

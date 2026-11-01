@@ -99,10 +99,12 @@ def validate(value):
     try:
         POLICY.assert_safe(value)
         for node in raw['nodes']:
-            require(type(node) is dict and {'id','kind','config'} <= set(node) <= {'id','kind','config','position','label','description','startingMsg','stoppingMsg','inputs','outputs','width','height'})
+            require(type(node) is dict and {'id','kind'} <= set(node) <= {'id','kind','config','position','label','description','startingMsg','stoppingMsg','inputs','outputs','width','height'})
             handle(node['id']); kind = REGISTRY.get(node['kind'])
             require(kind is not None and kind.name.rsplit('/',1)[-1] in KINDS)
-            config = node['config']; require(type(config) is dict)
+            # Published Fancy exporters omit empty config. An absent object
+            # means its documented empty default; an explicit non-object refuses.
+            config = node.get('config',{}); require(type(config) is dict)
             require(set(config) <= {field.key for field in kind.config_schema})
             require(not REGISTRY.validate_config(kind,config))
             if kind.name.rsplit('/',1)[-1]=='transform':

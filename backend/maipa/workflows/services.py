@@ -1,8 +1,8 @@
 """Same authorized persistence boundary for future human and native Flow tools.
 
-This foundation deliberately exposes no HTTP/MCP execution surface yet. Only
-three deterministic published executors are bound. The site owns dispatch; editor and
-human gates are separate integration work, and no protected effect is enabled.
+This foundation exposes no HTTP/MCP execution surface yet. Five real published
+deterministic/durable-human executors are bound. The site owns dispatch; shared
+authoring and human responses have narrow session APIs. No protected effect is enabled.
 """
 import uuid
 

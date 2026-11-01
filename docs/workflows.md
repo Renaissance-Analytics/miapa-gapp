@@ -179,6 +179,35 @@ Shared visible controls and actual provider/browser acceptance remain A05 work.
 
 ## Shared authoring boundary
 
+Owned authoring drafts persist a bounded Fancy editor graph independently of
+executable versions. Empty/disconnected graphs and unfinished configuration are
+normal draft states. Unknown/effectful kinds, unsafe config fields, duplicate
+handles, dangling edges, nonfinite positions and fabricated execution status are
+refused. A draft never creates a run, human response, agent principal or grant.
+
+Human-session endpoints are `GET/POST /api/workflows/drafts/`,
+`GET/POST /api/workflows/drafts/<id>/` and
+`POST /api/workflows/drafts/<id>/publish/`. Every call requires the actual current
+owner/preparer or administrator. `X-Maipa-Workflow-Actor` is only an actual-session
+consistency guard, never submitted authority. Writes require CSRF and closed
+bounded JSON. Creation uses an exact retry UUID/name/entity identity. Graph
+writes use current draft revision CAS; stale authors cannot overwrite newer
+human work. Native authoring uses a sealed original-account/UI context rechecked
+on each call, without manufacturing the typed execution authority required by A04.
+
+Publishing uses the public Python Fancy graph types/exporter and existing full
+admission. The published format may omit empty `config`; its documented empty
+default is admitted without rewriting the exported schema. Missing required
+transform/input configuration still refuses. Actual durable human gates still
+park even when their empty config was omitted and inputs contain `approved`.
+Publication records an immutable version and fixed receipt, not dispatch. Exact
+retry returns the original receipt; a newer external definition edit conflicts
+with the next draft publication. Existing runs keep their original snapshots.
+The additive draft migration refuses reverse removal when saved drafts exist;
+recover from an offline backup. No editor component or native workflow tool is
+registered by this storage/API increment; actual shared UI/provider acceptance
+remains A05 work.
+
 The installed agent-integrations 0.53.0 Flow bridge declares synchronous setters.
 A finite public-package probe confirmed that an unresolved asynchronous setter
 can receive a successful tool response before persistence. A supported awaited,
