@@ -6,8 +6,9 @@ as human commands. Process death rolls back the entire deterministic node.
 """
 from contextlib import contextmanager
 import logging
-from threading import Event, Thread
+from threading import Event, Thread, RLock
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import connections, transaction
 from django.db.models import F
@@ -19,6 +20,8 @@ from .errors import Conflict, InvalidWorkflow, Unavailable
 from .models import WorkflowRun
 
 logger=logging.getLogger(__name__)
+_ACTIVE=None
+_STATUS_LOCK=RLock()
 
 
 @transaction.atomic
@@ -41,6 +44,9 @@ def process_job(run_id, expected_step):
         else:
             try: services._entity(member,run.origin_entity_id)
             except Unavailable: reason='scope_revoked'
+    if reason is None and run.origin_kind=='native':
+        from .native import guard_run
+        if not guard_run(run): reason='native_authority_revoked'
     if reason is None:
         try:
             # A refused snapshot/step must leave no partial checkpoint. The
@@ -70,6 +76,7 @@ class _ServingWorker:
     def __init__(self,guard,root,poll_seconds):
         self.guard,self.root,self.poll_seconds=guard,root,poll_seconds
         self.stop,self.failed=Event(),Event()
+        self.ready=Event()
         self.thread=Thread(target=self._loop,name='maipa-flow-worker',daemon=False)
 
     def _loop(self):
@@ -77,6 +84,7 @@ class _ServingWorker:
             while not self.stop.is_set():
                 self.guard.revalidate(self.root)
                 work_once(limit=1)
+                self.ready.set()
                 if self.stop.wait(self.poll_seconds): break
         except Exception:
             # Never log exceptions, paths, seeds, node config or private IDs.
@@ -88,17 +96,47 @@ class _ServingWorker:
 
 @contextmanager
 def serving(guard,root,*,poll_seconds=0.5):
+    global _ACTIVE
     if not isinstance(guard,InstallationLease): raise StorageUnavailable('Workflow worker unavailable')
     guard.revalidate(root)
     if type(poll_seconds) not in (int,float) or not 0.01<=poll_seconds<=10:
         raise StorageUnavailable('Workflow worker unavailable')
     runner=_ServingWorker(guard,root,poll_seconds)
-    runner.thread.start()
+    with _STATUS_LOCK:
+        if _ACTIVE is not None: raise StorageUnavailable('Workflow worker unavailable')
+        _ACTIVE=runner
     try:
+        runner.thread.start()
         yield runner
     finally:
         runner.stop.set()
         # Do not release the installation lease while an accepted deterministic
         # transaction is finishing. There is no unbounded I/O executor here.
-        runner.thread.join()
+        if runner.thread.ident is not None: runner.thread.join()
+        with _STATUS_LOCK:
+            if _ACTIVE is runner: _ACTIVE=None
     if runner.failed.is_set(): raise StorageUnavailable('Workflow worker unavailable')
+
+
+def runtime_status():
+    """Process-local worker evidence, not a claim about HTTP or provider health."""
+    with _STATUS_LOCK:
+        runner=_ACTIVE
+        state='not_running'
+        if runner is not None:
+            state='starting'
+            if runner.failed.is_set(): state='failed'
+            elif runner.stop.is_set(): state='stopping'
+            elif runner.thread.is_alive() and runner.ready.is_set():
+                try:
+                    runner.guard.revalidate(settings.DATA_ROOT)
+                    state='running'
+                except StorageUnavailable:
+                    state='failed'
+        return {'available':state=='running','state':state}
+
+
+@transaction.atomic
+def get_status(user):
+    services._principal(user)
+    return runtime_status()

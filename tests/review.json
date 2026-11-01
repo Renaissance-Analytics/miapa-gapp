@@ -5360,6 +5360,206 @@
       "decision": "aligned",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
       "reason": "Expected authorization refusals, closed counts, independent output/clock identities and actual process outcomes are asserted. Only launcher/thread fault seams are injected; the package Coordinator/store and historical migration execute for real. No native origin, UI, human gate or financial-effect acceptance is claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.native_origin_is_immutable_and_real_engine_checks_recorded_policy_each_node",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_native_origin_is_immutable_and_real_engine_checks_recorded_policy_each_node",
+      "scenario_sha256": "33fe48b56707553195a15092a6c76abd4dce0db8c39a534fa653b87fc4eb4b27",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Original account/session/UI/principal/grant evidence is immutable; the real engine completes three nodes once with current policy audits and no protocol handle in results.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.native_dispatch_needs_exact_agent_grant_and_never_borrows_human_authority",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_native_dispatch_needs_exact_agent_grant_and_never_borrows_human_authority",
+      "scenario_sha256": "8d2b9dd17a8c53c8c0c53a3c7b240a1df77ed4d1038051e74c67cc6a2ca7d00d",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Missing and human-only grants cannot queue a native run; an explicit matching agent grant can.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.forged_actor_and_foreign_native_registration_refuse_without_run",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_forged_actor_and_foreign_native_registration_refuse_without_run",
+      "scenario_sha256": "ec72977e779accb5317f6b1da77b28c054733c5135bb99827de93fdd7736a44e",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "A submitted actor dictionary, foreign binding or foreign principal cannot queue any run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.same_principal_cannot_silently_bind_to_another_session_or_account",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_same_principal_cannot_silently_bind_to_another_session_or_account",
+      "scenario_sha256": "d55046868a85d01270335a91a45e3af3d8367920f2464814135398db57632878",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Exact registration is idempotent; another session cannot silently replace the original principal binding.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.duplicate_native_delivery_is_exact_and_another_context_cannot_adopt_it",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_duplicate_native_delivery_is_exact_and_another_context_cannot_adopt_it",
+      "scenario_sha256": "1bcce028b31b0d215fe3bbe26e8b9a5e4a2442afa197da315a563e881a0813e9",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Exact native delivery deduplicates; another native context and local owner dispatch cannot adopt the key.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.grant_revocation_blocks_before_next_node_and_replacement_grant_does_not_adopt",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_grant_revocation_blocks_before_next_node_and_replacement_grant_does_not_adopt",
+      "scenario_sha256": "8595f6023080edbbb740f3921f7888d75b2547d87a887790774d6197aacfe243",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Revocation blocks before the next checkpoint; a replacement run grant cannot adopt or resume the old run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.restored_original_principal_requires_explicit_native_resume_and_keeps_checkpoint",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_restored_original_principal_requires_explicit_native_resume_and_keeps_checkpoint",
+      "scenario_sha256": "04686574c66d5be354808a2104e470131082e0197cf345958864f16f49c523f4",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Restoration requires an explicit original-context resume grant and exact step; stale deliveries do nothing and accepted checkpoint clocks/attempts remain unchanged.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.revoked_session_and_changed_ui_authority_cannot_survive_in_saved_actor",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_revoked_session_and_changed_ui_authority_cannot_survive_in_saved_actor",
+      "scenario_sha256": "d14b7d7c5371294a705e6187dc77c8f1531c7a2d06556d26af9a1403e623dfbd",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Revoking the actual session blocks work and invalidates saved actor reuse before any checkpoint.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.changed_principal_expiry_cannot_extend_original_native_binding",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_changed_principal_expiry_cannot_extend_original_native_binding",
+      "scenario_sha256": "02947fe6fef977c233bdab39167dc62e2e36abc66a697eb09807c2eb9997fa74",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Changing principal expiry cannot silently extend the captured native binding lifetime.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.policy_resource_revision_or_identity_change_blocks_the_original_snapshot",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_policy_resource_revision_or_identity_change_blocks_the_original_snapshot",
+      "scenario_sha256": "3a00e7b35a47870325b2b82423eead05131ea728b82fb62a62a89093a425ebfb",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "A changed policy resource revision blocks before any node rather than silently updating the graph binding.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.missing_native_evidence_never_falls_back_to_local_owner_authority",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_missing_native_evidence_never_falls_back_to_local_owner_authority",
+      "scenario_sha256": "61bc7d1ec13aad9d1e2366416d235dafef4eb1310989c26abc5b54b149f4313f",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Missing native evidence blocks execution; owner authority cannot serve as a fallback.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.native_inspection_requires_current_triage_grant_and_same_original_binding",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_native_inspection_requires_current_triage_grant_and_same_original_binding",
+      "scenario_sha256": "47e43025376b6414982e662755e404d8386b49c2a4464b255ea6aa15a6843647",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Native inspection requires current triage authority and the original enabled principal.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.no_worker_means_no_native_run_is_acknowledged_or_queued",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_no_worker_means_no_native_run_is_acknowledged_or_queued",
+      "scenario_sha256": "add5659ef0347fbcf2c89962672f5959cb875229a79701bd4a2aa31557728360",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "An unavailable worker cannot yield an acknowledged or queued native run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.status_is_scoped_and_stays_unavailable_until_a_pass_succeeds",
+      "test": "tests.test_workflow_status.WorkflowStatusTests.test_status_is_scoped_and_stays_unavailable_until_a_pass_succeeds",
+      "scenario_sha256": "dd55860fcc260f631f8c0f02ed413b124ea69d3f476aab94e01ea3505012205f",
+      "source_sha256": "21e18c5048fcf8aeff4cc54d4e8b542277d1da9422b24ec4428fa5798a9dd0de",
+      "expected_observation": "Only an actual successful first pass yields running/available; startup, shutdown and forged caller remain unavailable.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.worker_failure_is_reported_without_a_false_ready_or_private_diagnostic",
+      "test": "tests.test_workflow_status.WorkflowStatusTests.test_worker_failure_is_reported_without_a_false_ready_or_private_diagnostic",
+      "scenario_sha256": "9e2d340f5d5ed78bb57368a371e5def2c072c8ed5ea7214c83197b097010fe92",
+      "source_sha256": "21e18c5048fcf8aeff4cc54d4e8b542277d1da9422b24ec4428fa5798a9dd0de",
+      "expected_observation": "Failure before first pass yields failed/unavailable with no ready event or private exception and surfaces at owned shutdown.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.real_worker_accepts_native_dispatch_restarts_and_finishes_from_durable_origin",
+      "test": "tests.test_workflow_status.WorkflowStatusTests.test_real_worker_accepts_native_dispatch_restarts_and_finishes_from_durable_origin",
+      "scenario_sha256": "6fc82109ffa73c37ade59c3076274a423c9a3d018e1fe96ed7ddc87dd7643f82",
+      "source_sha256": "21e18c5048fcf8aeff4cc54d4e8b542277d1da9422b24ec4428fa5798a9dd0de",
+      "expected_observation": "The actual leased worker admits a native run, stops before execution, and a restarted worker completes through the real persisted origin and Fancy engine.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Assertions observe refused queue writes, original identities, real policy decisions, checkpoint outputs/clocks and actual worker lifecycle. Only worker availability is injected for isolated authority cases; the separate real worker case does not inject execution or availability. No provider, UI, human gate or financial acceptance claimed."
+    },
+    {
+      "scenario": "A04-NATIVE.damaged_native_evidence_cannot_be_repaired_by_dispatch_deduplication",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_damaged_native_evidence_cannot_be_repaired_by_dispatch_deduplication",
+      "scenario_sha256": "8f5c1eb3a47e087b5140230e0318e79d783b1cb49e2968beee88f18c1e689974",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Dispatch deduplication cannot reconstruct missing native origin evidence or create a second run.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Actual policy, persisted checkpoints and MigrationExecutor are observed. Availability is injected only to isolate admission for the migration case. Assertions retain exact refusal, no-repair and output identities."
+    },
+    {
+      "scenario": "A04-NATIVE.current_ui_epoch_account_and_role_changes_block_saved_native_authority",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_current_ui_epoch_account_and_role_changes_block_saved_native_authority",
+      "scenario_sha256": "d2dddb53fcef77cbc543a2f5f0202ce5f4f4db463333fda7c8547130356151a5",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "Changed UI authority epoch, current role or enabled account blocks before any checkpoint despite a saved sealed actor.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Actual policy, persisted checkpoints and MigrationExecutor are observed. Availability is injected only to isolate admission for the migration case. Assertions retain exact refusal, no-repair and output identities."
+    },
+    {
+      "scenario": "A04-NATIVE.current_human_owner_can_stop_native_work_after_agent_authority_is_revoked",
+      "test": "tests.test_workflow_native.NativeWorkflowTests.test_current_human_owner_can_stop_native_work_after_agent_authority_is_revoked",
+      "scenario_sha256": "174517d9eb668ce500b2a61a7034161ec9616bdaa46ea0bd0e387c3ad441dc91",
+      "source_sha256": "f52fd14e832af7c8c5553692e8ce7ed8ed2cff2492d4d443d46e3057c32bc740",
+      "expected_observation": "A foreign human cannot stop the run; its current human owner can cancel after agent revocation while retaining accepted output.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Actual policy, persisted checkpoints and MigrationExecutor are observed. Availability is injected only to isolate admission for the migration case. Assertions retain exact refusal, no-repair and output identities."
+    },
+    {
+      "scenario": "A04-NATIVE.native_migration_cannot_strip_provenance_into_local_owner_authority",
+      "test": "tests.test_workflow_status.WorkflowStatusTests.test_native_migration_cannot_strip_provenance_into_local_owner_authority",
+      "scenario_sha256": "cfc45c71dd69804daa9b69a33fc5178661159b38ea66fb72362db92e16fbd307",
+      "source_sha256": "21e18c5048fcf8aeff4cc54d4e8b542277d1da9422b24ec4428fa5798a9dd0de",
+      "expected_observation": "An actual reverse migration refuses before native evidence or origin kind can be stripped; the captured run and provenance remain intact.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed",
+      "reason": "Actual policy, persisted checkpoints and MigrationExecutor are observed. Availability is injected only to isolate admission for the migration case. Assertions retain exact refusal, no-repair and output identities."
     }
   ]
 }

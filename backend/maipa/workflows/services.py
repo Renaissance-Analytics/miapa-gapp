@@ -122,7 +122,14 @@ def get_definition(user,definition_id):
 
 @transaction.atomic
 def dispatch(user,definition_id,revision,seed,dispatch_key):
-    member = _principal(user); definition = _definition(member,definition_id); revision=_revision(revision)
+    member = _principal(user)
+    run,_ = _dispatch_row(member,definition_id,revision,seed,dispatch_key,origin_kind='local')
+    return _run_value(run)
+
+
+def _dispatch_row(member,definition_id,revision,seed,dispatch_key,*,origin_kind):
+    """Caller holds the authority transaction and supplies a trusted origin kind."""
+    definition = _definition(member,definition_id); revision=_revision(revision)
     require(type(seed) is dict)
     seed,digest = bounded_json(seed)
     require(type(dispatch_key) is str and 0<len(dispatch_key)<=128 and dispatch_key==dispatch_key.strip()
@@ -133,15 +140,15 @@ def dispatch(user,definition_id,revision,seed,dispatch_key):
     if old is not None:
         if (old.origin_owner_id,old.origin_installation_id,old.origin_entity_id) != (member.user_id,member.installation_id,definition.entity_id):
             raise Conflict()
-        if old.version_id!=version.pk or old.seed_sha256!=digest or old.seed!=seed: raise Conflict()
-        return _run_value(old)
+        if old.origin_kind!=origin_kind or old.version_id!=version.pk or old.seed_sha256!=digest or old.seed!=seed: raise Conflict()
+        return old,False
     require(WorkflowRun.objects.filter(definition=definition).count()<1000)
     _,graph_digest,_=validate(version.schema)
     if version.runtime != RUNTIME or version.schema_sha256!=graph_digest: raise Unavailable()
     run = WorkflowRun.objects.create(definition=definition,version=version,dispatch_key=dispatch_key,seed=seed,
         seed_sha256=digest,access_revision=member.installation.access_revision,origin_owner_id=member.user_id,
-        origin_installation_id=member.installation_id,origin_entity_id=definition.entity_id)
-    return _run_value(run)
+        origin_installation_id=member.installation_id,origin_entity_id=definition.entity_id,origin_kind=origin_kind)
+    return run,True
 
 
 @transaction.atomic
@@ -169,6 +176,9 @@ def advance(user,run_id,expected_step):
     if run.step!=_revision(expected_step): raise Conflict()
     if run.status in ('blocked','completed','failed','cancelled'): return _run_value(run)
     if not _origin_matches(run): raise Unavailable()
+    if run.origin_kind=='native':
+        from .native import guard_run
+        if not guard_run(run): raise Unavailable()
     coordinator = _coordinator(run)
     run.status = 'running'
     try:
@@ -212,6 +222,7 @@ def cancel(user,run_id,expected_step):
 def resume(user,run_id,expected_step):
     run = _run(_principal(user),run_id)
     if run.step!=_revision(expected_step) or run.status!='blocked': raise Conflict()
+    if run.origin_kind!='local': raise Unavailable()
     if not _origin_matches(run): raise Unavailable()
     _coordinator(run) # Recheck the immutable schema/seed before requeueing.
     run.status,run.error='queued',None

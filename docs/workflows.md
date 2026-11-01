@@ -28,8 +28,9 @@ seed and canonical SHA256 identities. Editing the definition cannot edit a run.
 The originating owner, installation and optional entity are captured at dispatch
 and remain immutable independently of definition metadata. Transferring a
 definition cannot expose its old run through a read or duplicate dispatch, and
-cannot transfer execution authority. Native-origin session/lease capture must
-be added before exposing native workflow tools; no such transport exists yet.
+cannot transfer execution authority. Native runs also retain their original
+account, session, UI lease, registered agent principal and dispatch grant. The
+internal native adapter is described below; no workflow transport exists yet.
 Reusing a dispatch key returns its original run only for the same version and
 seed. A conflicting delivery refuses. Dispatch keys are bounded opaque local
 identities, never credentials or provider idempotency claims.
@@ -79,7 +80,12 @@ them: the original authorized owner must explicitly resume at the current step,
 after schema/seed and scope validation. Accepted checkpoints and first-attempt
 clocks remain intact. Queue receipts contain counts only. Unexpected thread
 failures stop dispatch and log a fixed message, never raw exceptions or seeds;
-owned shutdown surfaces failure. There is no HTTP worker-health promise yet.
+owned shutdown surfaces failure. The scoped internal status service reports
+starting, running, stopping, failed or not_running from the actual worker thread.
+Running requires a successful first queue pass and a valid current installation
+lease for the configured storage root. HTTP readiness alone never supplies this
+status. Native dispatch refuses while the worker is unavailable; its receipt
+records availability observed at admission, not a promise of future execution.
 
 Migration preserves pre-origin run IDs, seeds, graphs and checkpoints without
 guessing their original principal from mutable definition metadata. Unverifiable
@@ -94,6 +100,37 @@ be added under this transaction-only contract. Recorded human responses,
 scheduling, native-origin transport and full outcome verification remain A04
 work; all persistent serving processes must be managed by Genie.
 
+## Internal native authority
+
+The trusted host can bind an **existing** typed `AgentPrincipal` to its actual
+owned account/session/UI lease. This creates neither a principal nor a policy
+grant. The binding is append-only, captures the principal's original expiry and
+cannot silently move that principal to a new login. Changed role, access epoch,
+disabled account, revoked session or changed/expired principal invalidates it.
+There is no implicit durable handoff beyond the originating connection.
+
+An owned entity-scoped immutable graph version is registered with an actual
+policy resource and captured resource revision/hash. Native dispatch needs a
+current explicit agent `workflow.run` grant, independent of any human grant.
+The run and original grant/binding evidence commit together. Exact duplicate
+delivery must match both inputs and original authority; missing evidence cannot
+be repaired by retrying dispatch or falling back to local owner authority.
+
+Every native node rechecks the original grant and current connection/resource
+authority inside the deterministic execution transaction. Revocation blocks the
+next checkpoint with `native_authority_revoked`; a newly issued grant cannot
+adopt the old run. Restoring the same principal requires an explicit native
+resume with its own current `workflow.resume` grant and exact run step. Native
+inspection requires `workflow.triage` and the original current binding. The
+current human owner can still read history and stop work after agent revocation.
+Local-owner resume cannot silently change a native run's actor.
+
+The native migration adds evidence without rewriting existing local records.
+Downgrading would remove the native marker and could confer local-owner
+authority, so reverse migration refuses before removing any evidence. Recover
+an older version from an offline backup instead. These internal services and
+their real-worker tests do not establish actual provider/tool/UI acceptance.
+
 ## Shared authoring boundary
 
 The installed agent-integrations 0.53.0 Flow bridge declares synchronous setters.
@@ -101,9 +138,11 @@ A finite public-package probe confirmed that an unresolved asynchronous setter
 can receive a successful tool response before persistence. A supported awaited,
 atomic node/edge commit/refusal contract shipped in0.54.0 and was independently
 verified in scratch, but is not adopted here. Its existing run/cancel controls
-still report success before async acceptance or after disposal; a supported
-awaited/refusable/lifecycle-safe control contract was requested only from the
-Fancy package slave. Optional graph validation and application acceptance remain
+still report success before async acceptance or after disposal. Release0.55.0
+was independently verified in scratch with awaited/refusable controls and
+lifecycle fencing:35public cases pass, but human-declined run activity still
+fails its acceptance case. It is not installed. A package-only reproducer is
+with the Fancy slave; optional graph validation and application acceptance remain
 open. No replacement bridge, deferred-success adapter
 or package patch is enabled here. Maipa owns its authorization and persistence;
 the package owner owns only reusable package contracts and releases.

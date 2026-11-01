@@ -4739,6 +4739,212 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A04-NATIVE",
+      "risk": "Native work could borrow human authority, survive revoked connections or report HTTP readiness as worker availability.",
+      "scenarios": [
+        {
+          "id": "A04-NATIVE.native_origin_is_immutable_and_real_engine_checks_recorded_policy_each_node",
+          "kind": "positive",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Original account/session/UI/principal/grant evidence is immutable; the real engine completes three nodes once with current policy audits and no protocol handle in results.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_native_origin_is_immutable_and_real_engine_checks_recorded_policy_each_node"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.native_dispatch_needs_exact_agent_grant_and_never_borrows_human_authority",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Missing and human-only grants cannot queue a native run; an explicit matching agent grant can.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_native_dispatch_needs_exact_agent_grant_and_never_borrows_human_authority"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.forged_actor_and_foreign_native_registration_refuse_without_run",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "A submitted actor dictionary, foreign binding or foreign principal cannot queue any run.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_forged_actor_and_foreign_native_registration_refuse_without_run"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.same_principal_cannot_silently_bind_to_another_session_or_account",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Exact registration is idempotent; another session cannot silently replace the original principal binding.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_same_principal_cannot_silently_bind_to_another_session_or_account"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.duplicate_native_delivery_is_exact_and_another_context_cannot_adopt_it",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Exact native delivery deduplicates; another native context and local owner dispatch cannot adopt the key.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_duplicate_native_delivery_is_exact_and_another_context_cannot_adopt_it"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.grant_revocation_blocks_before_next_node_and_replacement_grant_does_not_adopt",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Revocation blocks before the next checkpoint; a replacement run grant cannot adopt or resume the old run.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_grant_revocation_blocks_before_next_node_and_replacement_grant_does_not_adopt"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.restored_original_principal_requires_explicit_native_resume_and_keeps_checkpoint",
+          "kind": "positive",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Restoration requires an explicit original-context resume grant and exact step; stale deliveries do nothing and accepted checkpoint clocks/attempts remain unchanged.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_restored_original_principal_requires_explicit_native_resume_and_keeps_checkpoint"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.revoked_session_and_changed_ui_authority_cannot_survive_in_saved_actor",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Revoking the actual session blocks work and invalidates saved actor reuse before any checkpoint.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_revoked_session_and_changed_ui_authority_cannot_survive_in_saved_actor"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.changed_principal_expiry_cannot_extend_original_native_binding",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Changing principal expiry cannot silently extend the captured native binding lifetime.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_changed_principal_expiry_cannot_extend_original_native_binding"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.policy_resource_revision_or_identity_change_blocks_the_original_snapshot",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "A changed policy resource revision blocks before any node rather than silently updating the graph binding.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_policy_resource_revision_or_identity_change_blocks_the_original_snapshot"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.missing_native_evidence_never_falls_back_to_local_owner_authority",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Missing native evidence blocks execution; owner authority cannot serve as a fallback.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_missing_native_evidence_never_falls_back_to_local_owner_authority"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.native_inspection_requires_current_triage_grant_and_same_original_binding",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Native inspection requires current triage authority and the original enabled principal.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_native_inspection_requires_current_triage_grant_and_same_original_binding"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.no_worker_means_no_native_run_is_acknowledged_or_queued",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "An unavailable worker cannot yield an acknowledged or queued native run.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_no_worker_means_no_native_run_is_acknowledged_or_queued"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.status_is_scoped_and_stays_unavailable_until_a_pass_succeeds",
+          "kind": "positive",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Only an actual successful first pass yields running/available; startup, shutdown and forged caller remain unavailable.",
+          "tests": [
+            "tests.test_workflow_status.WorkflowStatusTests.test_status_is_scoped_and_stays_unavailable_until_a_pass_succeeds"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.worker_failure_is_reported_without_a_false_ready_or_private_diagnostic",
+          "kind": "negative",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "Failure before first pass yields failed/unavailable with no ready event or private exception and surfaces at owned shutdown.",
+          "tests": [
+            "tests.test_workflow_status.WorkflowStatusTests.test_worker_failure_is_reported_without_a_false_ready_or_private_diagnostic"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.real_worker_accepts_native_dispatch_restarts_and_finishes_from_durable_origin",
+          "kind": "positive",
+          "given": "An owned nonfinancial workflow and separately registered original native connection with explicit policy grants",
+          "when": "Native dispatch, inspection, resume or a leased worker observes current durable authority",
+          "then": "The actual leased worker admits a native run, stops before execution, and a restarted worker completes through the real persisted origin and Fancy engine.",
+          "tests": [
+            "tests.test_workflow_status.WorkflowStatusTests.test_real_worker_accepts_native_dispatch_restarts_and_finishes_from_durable_origin"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.damaged_native_evidence_cannot_be_repaired_by_dispatch_deduplication",
+          "kind": "negative",
+          "given": "An owned deterministic native run with original recorded authority",
+          "when": "Storage damage, current connection changes, human stop or historical rollback occurs",
+          "then": "Dispatch deduplication cannot reconstruct missing native origin evidence or create a second run.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_damaged_native_evidence_cannot_be_repaired_by_dispatch_deduplication"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.current_ui_epoch_account_and_role_changes_block_saved_native_authority",
+          "kind": "negative",
+          "given": "An owned deterministic native run with original recorded authority",
+          "when": "Storage damage, current connection changes, human stop or historical rollback occurs",
+          "then": "Changed UI authority epoch, current role or enabled account blocks before any checkpoint despite a saved sealed actor.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_current_ui_epoch_account_and_role_changes_block_saved_native_authority"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.current_human_owner_can_stop_native_work_after_agent_authority_is_revoked",
+          "kind": "positive",
+          "given": "An owned deterministic native run with original recorded authority",
+          "when": "Storage damage, current connection changes, human stop or historical rollback occurs",
+          "then": "A foreign human cannot stop the run; its current human owner can cancel after agent revocation while retaining accepted output.",
+          "tests": [
+            "tests.test_workflow_native.NativeWorkflowTests.test_current_human_owner_can_stop_native_work_after_agent_authority_is_revoked"
+          ]
+        },
+        {
+          "id": "A04-NATIVE.native_migration_cannot_strip_provenance_into_local_owner_authority",
+          "kind": "negative",
+          "given": "An owned deterministic native run with original recorded authority",
+          "when": "Storage damage, current connection changes, human stop or historical rollback occurs",
+          "then": "An actual reverse migration refuses before native evidence or origin kind can be stripped; the captured run and provenance remain intact.",
+          "tests": [
+            "tests.test_workflow_status.WorkflowStatusTests.test_native_migration_cannot_strip_provenance_into_local_owner_authority"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -56,6 +56,7 @@ class WorkflowRun(models.Model):
     origin_owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT, editable=False)
     origin_installation = models.ForeignKey('workspace.Installation', null=True, on_delete=models.PROTECT, editable=False)
     origin_entity = models.ForeignKey('intake.Entity', null=True, on_delete=models.PROTECT, editable=False)
+    origin_kind = models.CharField(max_length=8, default='local', editable=False)
     status = models.CharField(max_length=12, default='queued')
     step = models.PositiveIntegerField(default=0)
     error = models.CharField(max_length=32, null=True)
@@ -65,12 +66,13 @@ class WorkflowRun(models.Model):
         indexes = [models.Index(fields=('status','created_at','id'), name='flow_dispatch_queue')]
         constraints = [models.UniqueConstraint(fields=('definition','dispatch_key'), name='flow_dispatch_identity'),
                        models.CheckConstraint(condition=models.Q(status__in=RUN_STATUSES), name='flow_run_status'),
+                       models.CheckConstraint(condition=models.Q(origin_kind__in=('local','native')), name='flow_run_origin_kind'),
                        models.CheckConstraint(condition=models.Q(step__lt=2_000_000_000), name='flow_run_step')]
 
     def save(self, *args, **kwargs):
         if not self._state.adding:
             fields = ('definition_id','version_id','dispatch_key','seed','seed_sha256','access_revision','created_at',
-                      'origin_owner_id','origin_installation_id','origin_entity_id')
+                      'origin_owner_id','origin_installation_id','origin_entity_id','origin_kind')
             original = type(self).objects.filter(pk=self.pk).values(*fields).first()
             if original is None or any(original[field] != getattr(self,field) for field in fields):
                 raise ValueError('Workflow run inputs are immutable')
@@ -91,3 +93,44 @@ class NodeCheckpoint(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('run','node_id'), name='flow_node_claim_identity'),
                        models.CheckConstraint(condition=models.Q(status__in=NODE_STATUSES), name='flow_node_status')]
+
+
+class NativeEvidence(models.Model):
+    """Trusted host provenance, never rewritten to adopt a new connection."""
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValueError('Native workflow evidence is append-only')
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValueError('Native workflow evidence is append-only')
+
+
+class NativePrincipalBinding(NativeEvidence):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT)
+    account = models.ForeignKey('agent_accounts.AgentAccount', on_delete=models.PROTECT)
+    session = models.ForeignKey('agent_accounts.SessionReference', on_delete=models.PROTECT)
+    ui = models.ForeignKey('agent_accounts.UiComposition', on_delete=models.PROTECT)
+    agent = models.OneToOneField('policies.AgentPrincipal', on_delete=models.PROTECT)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+
+class NativeGraphBinding(NativeEvidence):
+    version = models.OneToOneField(DefinitionVersion, on_delete=models.PROTECT)
+    resource = models.OneToOneField('policies.PolicyResource', on_delete=models.PROTECT)
+    resource_revision = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+
+class NativeRunAuthority(NativeEvidence):
+    run = models.OneToOneField(WorkflowRun, on_delete=models.PROTECT)
+    binding = models.ForeignKey(NativePrincipalBinding, on_delete=models.PROTECT)
+    graph = models.ForeignKey(NativeGraphBinding, on_delete=models.PROTECT)
+    grant = models.ForeignKey('policies.AuthorityGrant', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
