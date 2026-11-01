@@ -182,9 +182,14 @@ class ConnectionRecoveryTests(TestCase):
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                 observed=json.loads(pool.submit(process.stdout.readline).result(timeout=10))
             profile_name=observed['profile_name']
-            with ProcessWitness(observed['root_pid']) as root, ProcessWitness(observed['descendant_pid']) as descendant:
-                self.assertFalse(root.exited);self.assertFalse(descendant.exited)
+            with ProcessWitness(observed['owner_pid']) as owner, ProcessWitness(observed['root_pid']) as root, ProcessWitness(observed['descendant_pid']) as descendant:
+                self.assertFalse(owner.exited);self.assertFalse(root.exited);self.assertFalse(descendant.exited)
                 process.kill();process.wait(timeout=5)
+                # A Windows venv redirector can exit before its real Python
+                # interpreter releases the installation/profile locks. Require
+                # that exact server's exit, rather than treating launcher exit
+                # or a recycled PID as proof that offline maintenance is safe.
+                self.assertTrue(owner.wait(5),'The actual lock-owning server must exit before recovery')
                 with install_lock(self.data) as guard:
                     self.assertEqual(self.recover(guard),{'conversations':1,'quarantined_runtimes':1})
                 self.assertTrue(root.exited);self.assertTrue(descendant.exited)

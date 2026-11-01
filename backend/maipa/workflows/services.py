@@ -84,7 +84,9 @@ def _definition_value(row):
 
 
 def _run_value(run):
-    state = DjangoClaimStore(run).state(str(run.pk))
+    # History includes host release state, even if damaged response evidence
+    # prevents the engine from accepting it. Never fabricate runnable state.
+    state = {row.node_id:row for row in run.checkpoints.order_by('pk')}
     return {'id':str(run.pk),'definition_id':str(run.definition_id),'definition_revision':run.version.revision,
         'schema_sha256':run.version.schema_sha256,'runtime':run.version.runtime,'step':run.step,'status':run.status,'error':run.error,
         'outputs':{key:row.output for key,row in state.items() if row.status=='completed'},
@@ -165,8 +167,11 @@ def _coordinator(run):
     # Bind only real, supported deterministic package executors. Do not use
     # builtin.executors(), whose unrelated defaults include offline fake clients.
     executors.bind('manual_trigger',trigger.manual_trigger).bind('transform',logic.transform).bind('output',output.output)
+    from .gates import executors_for
+    store=DjangoClaimStore(run)
+    for kind,executor in executors_for(run,store).items():executors.bind(kind,executor)
     start = next(node.id for node in graph.nodes if node.type.rsplit('/',1)[-1]=='manual_trigger')
-    return Coordinator(graph=graph,executors=executors,run=str(run.pk),store=DjangoClaimStore(run),
+    return Coordinator(graph=graph,executors=executors,run=str(run.pk),store=store,
                        initial_inputs={start:run.seed},kinds=REGISTRY)
 
 
@@ -174,7 +179,7 @@ def _coordinator(run):
 def advance(user,run_id,expected_step):
     run = _run(_principal(user),run_id)
     if run.step!=_revision(expected_step): raise Conflict()
-    if run.status in ('blocked','completed','failed','cancelled'): return _run_value(run)
+    if run.status in ('waiting','blocked','completed','failed','cancelled'): return _run_value(run)
     if not _origin_matches(run): raise Unavailable()
     if run.origin_kind=='native':
         from .native import guard_run
@@ -190,6 +195,8 @@ def advance(user,run_id,expected_step):
                 outcome = coordinator.run_node(ready[0],owner=uuid.uuid4().hex)
                 if outcome.status=='failed':
                     run.status,run.error='failed','execution_failed'
+                elif outcome.status=='paused':
+                    run.status,run.error='waiting',None
             coordinator.advance()
             state=coordinator.store.state(str(run.pk))
             if Frontier.is_complete(coordinator.graph,state):

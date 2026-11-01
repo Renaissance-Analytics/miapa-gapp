@@ -14,7 +14,7 @@ from fancy_flow.security import GraphPolicy
 from .errors import InvalidWorkflow
 
 RUNTIME = 'fancy-flow/0.29.0'
-KINDS = ('manual_trigger', 'transform', 'output')
+KINDS = ('manual_trigger', 'transform', 'output', 'human_approval', 'user_input')
 REGISTRY = builtin.register(NodeKindRegistry())
 POLICY = replace(GraphPolicy.untrusted(allow=list(KINDS)), max_nodes=30, max_edges=60, max_bytes=65536,
                  max_depth=12, max_string_length=20000)
@@ -55,6 +55,27 @@ def handle(value):
     return value
 
 
+def gate_config(kind,config):
+    """Bounded host form policy, over the published human-node field contract."""
+    allowed={'title','description'} if kind=='human_approval' else {'title','fields'}
+    require(type(config) is dict and set(config)<=allowed)
+    title=config.get('title','Approve action' if kind=='human_approval' else 'Need your input')
+    require(type(title) is str and 0<len(title.strip())<=120)
+    if kind=='human_approval':
+        description=config.get('description')
+        require(description is None or type(description) is str and len(description)<=2000)
+        return {'title':title,'description':description}
+    fields=config.get('fields')
+    require(type(fields) is list and 1<=len(fields)<=12)
+    seen=set()
+    for field in fields:
+        require(type(field) is dict and {'key','label','type'}<=set(field)<={'key','label','type','required'})
+        handle(field['key']);require(field['key'] not in seen);seen.add(field['key'])
+        require(type(field['label']) is str and 0<len(field['label'].strip())<=120)
+        require(field['type'] in ('text','textarea','checkbox') and type(field.get('required',False)) is bool)
+    return {'title':title,'fields':fields}
+
+
 def validate(value):
     value, digest = bounded_json(value,65536)
     require(type(value) is dict and {'version','graph'} <= set(value) <= {'version','graph','$schema','metadata','view'})
@@ -86,6 +107,8 @@ def validate(value):
             require(not REGISTRY.validate_config(kind,config))
             if kind.name.rsplit('/',1)[-1]=='transform':
                 require(type(config.get('expression')) is str and 0 < len(config['expression']) <= 20000)
+            if kind.name.rsplit('/',1)[-1] in ('human_approval','user_input'):
+                gate_config(kind.name.rsplit('/',1)[-1],config)
             for key in ('label','description','startingMsg','stoppingMsg'):
                 if key in node: require(type(node[key]) is str and len(node[key]) <= 1024)
             for key,default in (('inputs','in'),('outputs','out')):

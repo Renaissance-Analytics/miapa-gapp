@@ -170,8 +170,11 @@ def control(actor, account, action, session_key, *, authorization_code=None):
             worker.cancel.set()
             worker.publish(phase='stopping')
         elif action == 'disconnect':
-            worker.stopping.set()
-            worker.publish(phase='stopping')
+            # Publishing after the signal races verified shutdown, which may
+            # already clear this exact worker token. Stop is still unconditional
+            # if the last authority checkpoint itself refuses.
+            try:worker.publish(phase='stopping')
+            finally:worker.stopping.set()
         else: raise ValueError('Unknown operation')
         worker.wake.set()
 

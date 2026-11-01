@@ -5,8 +5,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-RUN_STATUSES = ('queued', 'running', 'blocked', 'completed', 'failed', 'cancelled')
-NODE_STATUSES = ('claimed', 'completed', 'skipped', 'failed', 'paused')
+RUN_STATUSES = ('queued', 'running', 'waiting', 'blocked', 'completed', 'failed', 'cancelled')
+NODE_STATUSES = ('claimed', 'completed', 'skipped', 'failed', 'paused', 'released')
 
 
 class Definition(models.Model):
@@ -95,21 +95,21 @@ class NodeCheckpoint(models.Model):
                        models.CheckConstraint(condition=models.Q(status__in=NODE_STATUSES), name='flow_node_status')]
 
 
-class NativeEvidence(models.Model):
-    """Trusted host provenance, never rewritten to adopt a new connection."""
+class WorkflowEvidence(models.Model):
+    """Trusted provenance and accepted responses, never rewritten in place."""
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
         if not self._state.adding:
-            raise ValueError('Native workflow evidence is append-only')
+            raise ValueError('Workflow evidence is append-only')
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        raise ValueError('Native workflow evidence is append-only')
+        raise ValueError('Workflow evidence is append-only')
 
 
-class NativePrincipalBinding(NativeEvidence):
+class NativePrincipalBinding(WorkflowEvidence):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT)
@@ -121,16 +121,43 @@ class NativePrincipalBinding(NativeEvidence):
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
 
-class NativeGraphBinding(NativeEvidence):
+class NativeGraphBinding(WorkflowEvidence):
     version = models.OneToOneField(DefinitionVersion, on_delete=models.PROTECT)
     resource = models.OneToOneField('policies.PolicyResource', on_delete=models.PROTECT)
     resource_revision = models.PositiveIntegerField()
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
 
-class NativeRunAuthority(NativeEvidence):
+class NativeRunAuthority(WorkflowEvidence):
     run = models.OneToOneField(WorkflowRun, on_delete=models.PROTECT)
     binding = models.ForeignKey(NativePrincipalBinding, on_delete=models.PROTECT)
     graph = models.ForeignKey(NativeGraphBinding, on_delete=models.PROTECT)
     grant = models.ForeignKey('policies.AuthorityGrant', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+
+class HumanGate(WorkflowEvidence):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    run = models.ForeignKey(WorkflowRun, on_delete=models.PROTECT, related_name='human_gates')
+    node_id = models.CharField(max_length=80)
+    kind = models.CharField(max_length=16)
+    request = models.JSONField()
+    observed_input = models.JSONField()
+    input_sha256 = models.CharField(max_length=64)
+    request_sha256 = models.CharField(max_length=64)
+    parked_step = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('run','node_id'),name='flow_human_gate_identity'),
+            models.CheckConstraint(condition=models.Q(kind__in=('human_approval','user_input')),name='flow_human_gate_kind')]
+
+
+class HumanResponse(WorkflowEvidence):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    gate = models.OneToOneField(HumanGate, on_delete=models.PROTECT, related_name='response')
+    human = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    request_key = models.UUIDField()
+    answer = models.JSONField()
+    answer_sha256 = models.CharField(max_length=64)
     created_at = models.DateTimeField(default=timezone.now, editable=False)

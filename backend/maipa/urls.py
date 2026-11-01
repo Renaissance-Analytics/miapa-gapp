@@ -14,6 +14,7 @@ from .workspace.access import users as admin_users
 from .intake import views as intake
 from .intake.catalog_views import clients as client_catalog
 from .policies import views as policies
+from .workflows import views as workflows
 
 urlpatterns = [
     path("", development.shell, name="development-shell"),
@@ -24,6 +25,8 @@ urlpatterns = [
     path("api/session/csrf/", workspace.csrf_bootstrap, name="session-csrf"),
     path("api/session/login/", workspace.session_login, name="session-login"),
     path("api/workspace/", workspace.workspace_state, name="workspace"),
+    path('api/workflows/runs/<uuid:run_id>/human/',workflows.pending,name='workflow-human-gate'),
+    path('api/workflows/runs/<uuid:run_id>/gates/<uuid:gate_id>/response/',workflows.response,name='workflow-human-response'),
     path('api/admin/users/', admin_users, name='admin-users'),
     path('api/admin/users/<int:target>/', admin_users, name='admin-user'),
     path('api/intake/catalog/', client_catalog, name='client-catalog'),

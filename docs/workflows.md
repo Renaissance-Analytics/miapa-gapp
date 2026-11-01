@@ -2,16 +2,18 @@
 
 Maipa uses published Python `fancy-flow` 0.29.0 for execution and
 `@particle-academy/fancy-flow` 0.81.0 for the forthcoming shared editor. This
-checkpoint provides internal Django services, stores and site-owned dispatch.
-It does not yet expose workflow HTTP/MCP tools or present workflow UI.
+checkpoint provides Django services, stores and site-owned dispatch, with narrow
+human-session endpoints for pending questions and recorded responses. Workflow
+authoring/run MCP tools and workflow UI are not yet exposed.
 Chat remains the only fixed view. A04/A05 and their integrated acceptance remain
 unfinished.
 
-Only the published `manual_trigger`, `transform` and `output` executors are
-bound. The host never installs the engine's unrelated offline fake clients.
+The published `manual_trigger`, `transform`, `output`, `DurableApproval` and
+`DurableUserInput` executors are bound. The host never installs the engine's
+unrelated offline fake clients or framework-free human pass-through executors.
 Transform uses the package's dot-path/template semantics, not JavaScript
 evaluation or accounting arithmetic. Network, terminal, provider, storage,
-subflow and human gate kinds are refused. Financial effects still require the
+subflow and other unadmitted kinds are refused. Financial effects still require the
 proposal/approval system and independently verified outcomes.
 
 ## Ownership and immutable runs
@@ -96,8 +98,8 @@ offline backup recovery rather than stripping captured origins in place.
 This recovery model relies on **deterministic execution without external
 effects**. It does not establish safe replay of payments, postings, network
 requests, processes or ambiguous provider outcomes. Those executors must not
-be added under this transaction-only contract. Recorded human responses,
-scheduling, native-origin transport and full outcome verification remain A04
+be added under this transaction-only contract. Scheduling, native-origin
+transport and full outcome verification remain A04
 work; all persistent serving processes must be managed by Genie.
 
 ## Internal native authority
@@ -131,6 +133,50 @@ authority, so reverse migration refuses before removing any evidence. Recover
 an older version from an offline backup instead. These internal services and
 their real-worker tests do not establish actual provider/tool/UI acceptance.
 
+## Recorded nonfinancial human gates
+
+Both durable human executors pause even when their upstream inputs contain
+`approved` or `values`. Admission refuses `autoAnswerFromInput`, notification
+credentials and unsupported form configuration. Input gates accept a bounded
+list of explicit text, textarea or checkbox fields. Approval responses must be
+exact booleans; user-input responses must match the admitted field names/types
+and bounds. Graph content never supplies a human response.
+
+The store captures an append-only request containing the original run/version,
+node, actual executor input, bounded question/form, parked step and canonical
+hash. A waiting run leaves the dispatch queue. Responses are append-only and
+record the actual current human owner plus an opaque retry key and answer hash.
+Another user, changed authority, cancellation, wrong gate/version/hash/step or a
+conflicting retry refuses atomically. An exact acknowledged retry returns its
+fixed recorded receipt without advancing a subsequent question or requeueing
+completed/cancelled work.
+
+Human-session APIs are `GET /api/workflows/runs/<run>/human/` and
+`POST /api/workflows/runs/<run>/gates/<gate>/response/`. The POST requires the
+session's CSRF token and only `expected_step`, `definition_revision`,
+`request_sha256`, `request_key` and `answer`. Actor/node hints are refused.
+These APIs are not registered in any model/native tool set. They acknowledge
+response persistence, not active execution or a provider-side outcome.
+
+Recording a response atomically changes only the exact paused checkpoint to a
+host-owned `released` state and requeues at the next step. That state is omitted
+from the engine's claim view only when valid durable response evidence exists.
+A new claim retains its first-attempt clock and increments the gate attempt;
+completed checkpoints remain intact. Supported `Submissions.park/record` is
+restored from accepted records separately from seeds/config. Actual Fancy
+executors and Frontier perform routing, dead-branch skips and continuation; the
+host implements no alternative scheduler or approval executor. Empty terminal
+port lists and real approval/denial ports are accepted literally.
+
+Original native authority still must hold when a human answers and before every
+following native node. A human answer cannot replace a revoked login/grant or
+silently create a durable handoff. These gates do not confer financial posting,
+payment, filing or report-release authority. The gate migration refuses reverse
+schema removal before accepted response evidence can be stripped; use offline
+backup recovery. Tests include actual process exit before and after recording a
+response, connection races, sequential gates and original checkpoint identities.
+Shared visible controls and actual provider/browser acceptance remain A05 work.
+
 ## Shared authoring boundary
 
 The installed agent-integrations 0.53.0 Flow bridge declares synchronous setters.
@@ -138,11 +184,11 @@ A finite public-package probe confirmed that an unresolved asynchronous setter
 can receive a successful tool response before persistence. A supported awaited,
 atomic node/edge commit/refusal contract shipped in0.54.0 and was independently
 verified in scratch, but is not adopted here. Its existing run/cancel controls
-still report success before async acceptance or after disposal. Release0.55.0
-was independently verified in scratch with awaited/refusable controls and
-lifecycle fencing:35public cases pass, but human-declined run activity still
-fails its acceptance case. It is not installed. A package-only reproducer is
-with the Fancy slave; optional graph validation and application acceptance remain
+still report success before async acceptance or after disposal. Release0.55.1
+was independently verified in scratch, including its exact archive/closure and
+40targeted public cases for awaited/refusable controls, lifecycle fencing and
+declined/approved run and delete activity. It resolves the measured0.55decline
+activity defect. It is not installed; optional graph validation and application acceptance remain
 open. No replacement bridge, deferred-success adapter
 or package patch is enabled here. Maipa owns its authorization and persistence;
 the package owner owns only reusable package contracts and releases.

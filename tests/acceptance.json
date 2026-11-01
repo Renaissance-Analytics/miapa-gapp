@@ -4945,6 +4945,212 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A04-GATES",
+      "risk": "Graph/agent inputs could impersonate human answers, lose paused claims or replay accepted work after recovery. Integrated native disconnect must remain correct when shutdown completes immediately.",
+      "scenarios": [
+        {
+          "id": "A04-GATES.prefilled_input_cannot_answer_gate_and_waiting_leaves_dispatch_queue",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Both actual durable gates park despite prefilled approved/values; only the trigger output is accepted and waiting work leaves the queue.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_prefilled_input_cannot_answer_gate_and_waiting_leaves_dispatch_queue"
+          ]
+        },
+        {
+          "id": "A04-GATES.exact_human_boolean_routes_real_approved_and_denied_ports_without_replay",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Exact true/false answers route through real approved/denied ports, skip the dead branch, retain first clocks and never replay the completed trigger.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_exact_human_boolean_routes_real_approved_and_denied_ports_without_replay"
+          ]
+        },
+        {
+          "id": "A04-GATES.recorded_user_input_is_validated_and_real_output_uses_only_human_values",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Missing, extra, wrong-type and oversized fields refuse; the real output uses only recorded human values.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_recorded_user_input_is_validated_and_real_output_uses_only_human_values"
+          ]
+        },
+        {
+          "id": "A04-GATES.approval_rejects_truthy_nonbooleans_and_actor_hints",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Truthy nonbooleans and submitted actor dictionaries cannot approve or release work.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_approval_rejects_truthy_nonbooleans_and_actor_hints"
+          ]
+        },
+        {
+          "id": "A04-GATES.response_and_request_are_append_only_and_acknowledged_retry_is_exact",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Request/response evidence is append-only; an exact acknowledged retry returns its fixed receipt even after completion, while conflicting retries create no extra response.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_response_and_request_are_append_only_and_acknowledged_retry_is_exact"
+          ]
+        },
+        {
+          "id": "A04-GATES.stale_node_version_hash_step_and_foreign_human_refuse_atomically",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Wrong gate identity, original version, request hash or step and a foreign owner refuse without response/step mutation.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_stale_node_version_hash_step_and_foreign_human_refuse_atomically"
+          ]
+        },
+        {
+          "id": "A04-GATES.cancel_and_revoked_current_human_cannot_record_or_release_gate",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Disabled current membership and cancellation prevent answers and checkpoint release.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_cancel_and_revoked_current_human_cannot_record_or_release_gate"
+          ]
+        },
+        {
+          "id": "A04-GATES.graph_edit_does_not_change_pending_question_or_response_version",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Editing the definition does not edit the pending original question/version or change denial routing.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_graph_edit_does_not_change_pending_question_or_response_version"
+          ]
+        },
+        {
+          "id": "A04-GATES.auto_answer_and_unbounded_or_unsupported_form_schema_are_never_admitted",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Auto-answer configuration and empty, duplicated or unsupported input fields never become executable definitions.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_auto_answer_and_unbounded_or_unsupported_form_schema_are_never_admitted"
+          ]
+        },
+        {
+          "id": "A04-GATES.damaged_response_cannot_release_or_answer_a_paused_checkpoint",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Missing durable response evidence after release blocks execution with snapshot_unavailable and no fabricated approval output.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_damaged_response_cannot_release_or_answer_a_paused_checkpoint"
+          ]
+        },
+        {
+          "id": "A04-GATES.human_response_requires_real_session_csrf_and_owned_current_role",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Anonymous, missing-CSRF, foreign-owner and changed-role HTTP calls cannot read or answer another scope or record any response.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateHttpTests.test_human_response_requires_real_session_csrf_and_owned_current_role"
+          ]
+        },
+        {
+          "id": "A04-GATES.authenticated_command_records_actual_human_and_rejects_actor_or_stale_hints",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "The actual session human is recorded; submitted actor/node hints and stale version evidence refuse before an accepted response requeues the exact gate.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateHttpTests.test_authenticated_command_records_actual_human_and_rejects_actor_or_stale_hints"
+          ]
+        },
+        {
+          "id": "A04-GATES.a_human_response_cannot_substitute_for_revoked_native_origin_or_an_agent_actor",
+          "kind": "negative",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "A sealed native agent is not a human responder and a human answer cannot replace revoked original native authority; owner stop remains available.",
+          "tests": [
+            "tests.test_workflow_gates.NativeHumanGateTests.test_a_human_response_cannot_substitute_for_revoked_native_origin_or_an_agent_actor"
+          ]
+        },
+        {
+          "id": "A04-GATES.approval_request_and_recorded_denial_survive_separate_process_exits",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "An actual parked request and recorded denial survive separate process exits, route the denied branch and retain original checkpoint clocks/attempt history.",
+          "tests": [
+            "tests.test_workflow_gate_process.HumanGateProcessTests.test_approval_request_and_recorded_denial_survive_separate_process_exits"
+          ]
+        },
+        {
+          "id": "A04-GATES.recorded_user_values_survive_restart_without_replaying_completed_prefix",
+          "kind": "positive",
+          "given": "An owned immutable nonfinancial workflow containing actual Fancy durable human executors",
+          "when": "A worker parks, a current authenticated human answers or a process restarts",
+          "then": "Actual process restart restores accepted user values and completed-prefix identity without replay.",
+          "tests": [
+            "tests.test_workflow_gate_process.HumanGateProcessTests.test_recorded_user_values_survive_restart_without_replaying_completed_prefix"
+          ]
+        },
+        {
+          "id": "A04-GATES.reverse_migration_refuses_before_removing_recorded_human_evidence",
+          "kind": "negative",
+          "given": "A completed real workflow with an append-only accepted human response",
+          "when": "An actual historical schema downgrade attempts to remove gate evidence",
+          "then": "Rollback refuses before removing any human response, preserving its original receipt identity.",
+          "tests": [
+            "tests.test_workflow_gate_migration.HumanGateMigrationTests.test_reverse_migration_refuses_before_removing_recorded_human_evidence"
+          ]
+        },
+        {
+          "id": "A04-GATES.sequential_gates_do_not_reuse_an_answer_or_release_the_next_question",
+          "kind": "positive",
+          "given": "Actual recorded human gates and server-owned original run authority",
+          "when": "Sequential questions, native continuation or concurrent incompatible human responses occur",
+          "then": "Two actual sequential gates retain distinct pending identities and answers. Retrying the first receipt cannot release or advance the second; its human values alone reach the output.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateTests.test_sequential_gates_do_not_reuse_an_answer_or_release_the_next_question"
+          ]
+        },
+        {
+          "id": "A04-GATES.current_original_native_run_continues_only_after_recorded_human_answer",
+          "kind": "positive",
+          "given": "Actual recorded human gates and server-owned original run authority",
+          "when": "Sequential questions, native continuation or concurrent incompatible human responses occur",
+          "then": "An actual currently authorized native run parks and resumes through the real engine only after its original human owner records the exact answer.",
+          "tests": [
+            "tests.test_workflow_gates.NativeHumanGateTests.test_current_original_native_run_continues_only_after_recorded_human_answer"
+          ]
+        },
+        {
+          "id": "A04-GATES.racing_human_answers_record_and_release_exactly_once",
+          "kind": "positive",
+          "given": "Actual recorded human gates and server-owned original run authority",
+          "when": "Sequential questions, native continuation or concurrent incompatible human responses occur",
+          "then": "Two actual connections race incompatible answers: one records and one conflicts, with one response/step transition and routing matching the accepted answer.",
+          "tests": [
+            "tests.test_workflow_gates.HumanGateConcurrencyTests.test_racing_human_answers_record_and_release_exactly_once"
+          ]
+        },
+        {
+          "id": "A04-GATES.verified_cleanup_may_finish_at_stop_signal",
+          "kind": "positive",
+          "given": "An actual owned ACP peer waiting at native startup with no UI authority allocated",
+          "when": "Verified shutdown and token cleanup finish immediately after the human disconnect signal, before the request continues",
+          "then": "Disconnect acknowledges without503, retains original account/selection, allocates no session/UI authority and leaves zero verified native survivors.",
+          "tests": [
+            "tests.test_native_stop_order.NativeStopOrderingTests.test_verified_cleanup_can_finish_immediately_when_disconnect_is_signalled"
+          ]
+        }
+      ]
     }
   ]
 }

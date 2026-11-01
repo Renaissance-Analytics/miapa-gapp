@@ -1,6 +1,7 @@
 """Finite synthetic launcher owning real installation/profile locks and an isolated job."""
 import asyncio
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -21,6 +22,6 @@ async def run():
             child=await sandbox.spawn([str(code/'node.exe'),'--preserve-symlinks','--preserve-symlinks-main',str(code/'worker.mjs'),'hang'],
                 scope=scope,cwd=work,env={},limit=4096)
             observed=json.loads(await child.stdout.readline())
-            print(json.dumps({'root_pid':child.pid,'descendant_pid':observed['descendant_pid'],'profile_name':sandbox.profile_name}),flush=True)
+            print(json.dumps({'owner_pid':os.getpid(),'root_pid':child.pid,'descendant_pid':observed['descendant_pid'],'profile_name':sandbox.profile_name}),flush=True)
             await child.wait()
 asyncio.run(asyncio.wait_for(run(),25))

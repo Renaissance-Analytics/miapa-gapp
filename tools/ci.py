@@ -213,9 +213,10 @@ class Commands:
             target = self.artifacts / "backend.json"
             target.unlink(missing_ok=True)
             try:
-                # The complete375-case diagnostic took313s; this aggregate
-                # budget covers the suite without changing any test's limits.
-                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=420)
+                # The complete549-case diagnostic took508s. This aggregate
+                # allowance covers the expanded suite; individual test limits,
+                # required test identities and failure behavior stay unchanged.
+                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=600)
             except ValueError:
                 from tools.alignment import discovered_test_ids
                 from tools.backend_reporting import failure_evidence
