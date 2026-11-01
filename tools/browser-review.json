@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "29b5858151cb08df556a120e80263e7a5a794a51c191c9045f310f846f47fd1c",
-    "tools/check_browser.py": "ed71db8cc33e0451cc8c26440075b2c9281f46b4f9ca8fb337026171a80b032a",
+    "tools/browser.mjs": "2487e90535f52ea7ff4facb8fd08c5c9d2215c0457f99ba0bb1115ef6f93353c",
+    "tools/check_browser.py": "95fd7d161c1944ff84223b6ed401c8754851ef6a0ab797809121597c3eee6995",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "b2855111e5ffcd0c235811272fc139b876b311ce4465e650af474507c1680b9f"
+    "tests/fixtures/agent_chat_peer.py": "ee4e7f094e6cc59f091f2ae21fc8fcce0437e33fd46e3b8004229464866a0910"
   },
   "cases": [
     {
@@ -135,6 +135,11 @@
       "expected": "All prior native provider lock/disconnect, unsupported-runtime refusal, separate drafts, original transcript, reload and no-fallback checks remain, with the unavailable registration now Independent ACP because Claude has an adapter. Add native selection/Connect Claude, synthetic subscription consent, masked private callback input and submission; Ready must remove the auth form, preserve unsent chat draft and empty transcript, exclude the callback from DOM, and stop before returning to the original Codex consumer. Actual app HTTP/authority/UI are used; only the dedicated fixture supplies a finite ACP peer and third-provider label. No real model/authenticated native or generic-client claim. Original38 cases and operation budgets retained. Initial browser failure is preserved: sequential native Home/ArrowDown committed an intermediate provider and locked the control before the third option. Endpoint Home/End or one adjacent arrow now makes the intended single native selection, retaining actual input events, final value checks and original bound. Finite Claude consent now uses the independently measured2.1.311 claude.com/cai/oauth/authorize route, exercising both consumer layers through the private browser sign-in flow; all38 cases/actions/bounds and callback/draft/transcript assertions remain. Preserved real-browser red confirms the exact href assertion still expected the old route after its finite native peer changed; only that expected URL literal advances to the measured current route. Masked-input, native actions, transcript/draft, current-authority and cleanup assertions/budgets remain unchanged."
     },
     {
+      "id": "shared-workflow-editor-and-native-authoring",
+      "kind": "positive",
+      "expected": "Actual chat Send reaches the deterministic native peer and production public Flow bridge/current-session broker, creates an owned stable draft and composes the published controlled FlowEditor. Three actual nodes and two edges retain the exact configured Transform. A native pointer drag is durably acknowledged. A subsequent native authoring update retains that human position, draft/node identity, mounted chat and unsent follow-up. Reload reads the identical saved graph/revision and does not replay a native receipt. No model/run acceptance is claimed."
+    },
+    {
       "id": "preferences-save-conflict-recovery",
       "kind": "positive",
       "expected": "Native appearance controls, reload, independent concurrent preference write, exact stale conflict, disabled controls and explicit authoritative reload retain their original outcomes. Contextual notes/facts are chosen by actual chat requests and stay independent of legacy saved-view metadata."
@@ -237,7 +242,7 @@
   "watchdog_progress_review": {
     "reviewer": "Maipa semantic browser review, no external reviewer claimed",
     "scope": "Two ignored local fixture-progress JSON files; they never satisfy/replace final browser evidence.",
-    "allowed": "Closed phase/count0..38/cleanup plus fixed cleanup checkpoint, integer stop status, allowlisted stop error code and boolean root-alive. No raw DOM/user values/cookies/URLs/paths/auth/error text. Optional private progress never satisfies the final gate.",
+    "allowed": "Closed phase/count0..39/cleanup plus fixed cleanup checkpoint, integer stop status, allowlisted stop error code and boolean root-alive. No raw DOM/user values/cookies/URLs/paths/auth/error text. Optional private progress never satisfies the final gate.",
     "lifetime": "Node progress timer is unref and cleared before cleanup; progress failure cannot replace required final result. Python stages preserve original order and all case/native action/assertion/deadline policies. Progress disk failures cannot interrupt finally cleanup; Node records its initial fixed state to avoid a stale previous-browser marker.",
     "limit": "Original180second watchdog failure cause and its cleanup remain unconfirmed. New metadata is diagnostic, not a claimed repair or successful original cleanup."
   },
@@ -252,5 +257,12 @@
     "change": "Before closing its own debugger socket, request Browser.close and race its bounded existing CDP reply with the owned child exit. Then require actual exit. On failure retain the own-PID bounded force-stop fallback. Existing endpoint-closed and guarded fresh-profile-removal assertions remain mandatory. The helper removes its temporary exit listener even on failure.",
     "deadlines": "Existing CDP15s and until15s bounds apply to the added graceful operation; fallback stop10s/exit15s and child120s/parent420s remain. This adds a bounded close attempt; no assertion or original operation deadline is removed.",
     "diagnostic": "Inner child120s timeout now retains stdout/stderr privately after own-PID stop15s and drain10s, while forcing cleanup false. Three actual fresh-profile runs remain required; raw/progress logs are not public artifacts."
+  },
+  "shared_workflow_review": {
+    "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+    "scope": "Adds one actual browser scenario after the unchanged provider/account restoration scenario. Original38 case actions/assertions/deadlines remain. The fixture exact catalog expands by13 authoring names; premature startup authority refusal remains.",
+    "authority": "Server owned actor/session/CAS; no injected graph, principal, run, credential or native capability. Finite real published bridge; actual graph and native pointer changes rather than fabricated status.",
+    "diagnostic": "Closed workflow_editor phase and completed count39. No private values added to public failure metadata. Original three120second child windows and420second parent remain. The original15second human-drag assertion is unchanged. On its failure only, fixed phase/count and synthetic position floats plus an owned-fixture screenshot remain private; the original failure is rethrown and all cleanup assertions remain. No raw values enter public CI metadata.",
+    "pointer": "Use the actual published node header, require its real draggable class and native pointer hit, and send three native movement samples with animation-frame acknowledgment before release. No DOM-dispatched event, graph mutation, artificial position update or increased deadline. The exact durable position-change, agent-preserves-human-edit and reload assertions remain; previous failure is retained."
   }
 }

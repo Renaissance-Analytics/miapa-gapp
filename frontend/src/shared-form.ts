@@ -134,7 +134,7 @@ export function parseFormActivity(value: unknown, ui: string): NativeFormActivit
 }
 export class FormActivityCursor {
   private seen = new Set<string>();
-  accept(activity: NativeFormActivity | undefined, ui: string | null, initial = false): boolean {
+  accept(activity: Pick<NativeFormActivity,'id'|'ui_id'> | undefined, ui: string | null, initial = false): boolean {
     if (!activity || !ui || activity.ui_id !== ui || this.seen.has(activity.id)) return false;
     this.seen.add(activity.id);
     if (this.seen.size > 128) this.seen.delete(this.seen.values().next().value!);

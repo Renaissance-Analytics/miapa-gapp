@@ -40,7 +40,8 @@ def conversation(request):
             state = chat.snapshot(request.user)
             state.update(transient(request.user.pk, request.session.session_key, snapshot=state,
                 include_login=False, include_models=request.headers.get('X-Maipa-Agent-Models') == '1',
-                include_activity=request.headers.get('X-Maipa-Agent-Activity') == '1'))
+                include_activity=request.headers.get('X-Maipa-Agent-Activity') == '1',
+                include_workflow_activity=request.headers.get('X-Maipa-Agent-Workflow-Activity') == '1'))
             return JsonResponse(_visible_state(request, state))
         if request.content_type != 'application/json':
             raise ValueError('Invalid request')
@@ -110,7 +111,8 @@ def stream(request):
                 state = chat.snapshot(actor)
                 from .chat_runtime import transient
                 state.update(transient(owner, key, snapshot=state, include_models=request.headers.get('X-Maipa-Agent-Models') == '1',
-                    include_activity=request.headers.get('X-Maipa-Agent-Activity') == '1'))
+                    include_activity=request.headers.get('X-Maipa-Agent-Activity') == '1',
+                    include_workflow_activity=request.headers.get('X-Maipa-Agent-Workflow-Activity') == '1'))
                 state = _visible_state(request, state)
             except (chat.ChatUnavailable, get_user_model().DoesNotExist):
                 yield b'event: revoked\ndata: {}\n\n'

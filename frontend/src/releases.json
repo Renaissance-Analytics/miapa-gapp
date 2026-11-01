@@ -1,5 +1,23 @@
 [
   {
+    "id": "development-38",
+    "label": "Development update 38",
+    "cards": [
+      {
+        "title": "Build a workflow together",
+        "description": "Ask Maipa to create a workflow draft. The shared Fancy editor shows its nodes and connections, and you can move nodes or edit their settings."
+      },
+      {
+        "title": "Keep shared changes saved",
+        "description": "Your edits and Maipa edits use the same saved draft. Conflicts keep your unsaved graph for review, and reloading restores saved work."
+      },
+      {
+        "title": "Save a workflow version",
+        "description": "Ask Maipa to publish the current draft as a saved version. Publishing saves the definition without starting a run."
+      }
+    ]
+  },
+  {
     "id": "development-37",
     "label": "Development update 37",
     "cards": [
@@ -242,20 +260,6 @@
       {
         "title": "Private agent UI tools",
         "description": "Agent UI requests now keep your account and access boundaries. Provider sign-in and live chat are still in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-18",
-    "label": "Development update 18",
-    "cards": [
-      {
-        "title": "Manage your clients and entities",
-        "description": "Administrators and preparers can create their own client records, add entities and change display names in Client setup beside the conversation. Changes keep a history, and conflicting edits require a reload before another save."
-      },
-      {
-        "title": "Agent connection is still being built",
-        "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress."
       }
     ]
   }

@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, lazy, Suspense, useContext } from 'react';
 import { Screen, ScreenSystem, registerSchemaComponents, type ScreenSchema } from '@particle-academy/fancy-screens';
 import { Callout, ContentRenderer, Heading, renderMarkdown } from '@particle-academy/react-fancy';
 import { IntakeWorkspace } from './IntakeWorkspace.js';
@@ -8,8 +8,11 @@ import type { Composition } from './agent-chat.js';
 import { CHAT_PROSE } from './content-policy.js';
 import { ClientTable, type ClientColumn } from './ClientTable.js';
 import type { FormBinding, NativeFormActivity } from './shared-form.js';
+import type {WorkflowActivity} from './shared-workflow.js';
 
 const Principal = createContext('');
+const SharedWorkflowEditor = lazy(() => import('./WorkflowEditor.js').then(module => ({default:module.WorkflowEditor})));
+const SharedWorkflowActivity=createContext<WorkflowActivity|undefined>(undefined);
 const SharedForm = createContext<{ binding?: FormBinding; refreshRevision?: number; activity?: NativeFormActivity }>({});
 function SharedClientCatalog() {
   const shared = useContext(SharedForm), userId = useContext(Principal);
@@ -27,11 +30,17 @@ registerSchemaComponents({
   'Maipa.ClientFacts': () => <IntakeWorkspace />,
   'Maipa.ClientCatalog': SharedClientCatalog,
   'Maipa.AdminUsers': () => <AdminUsers userId={useContext(Principal)} />,
+  'Maipa.Workflow': ({draft_id}) => {
+    const userId=useContext(Principal),draftId=String(draft_id);
+    return <Suspense fallback={<span role="status">Loading workflow…</span>}>
+      <SharedWorkflowEditor key={`${userId}:${draftId}`} userId={userId} draftId={draftId} activity={useContext(SharedWorkflowActivity)} />
+    </Suspense>;
+  },
 });
 
 /** The exact server-controlled schema is shared by human controls and agent tools. */
-export function AgentSurface({ userId, ui, live, refreshRevision, activity }: { userId: string; ui: Pick<Composition,'composition'>;
-  live?: Composition | null; refreshRevision?: number; activity?: NativeFormActivity }) {
+export function AgentSurface({ userId, ui, live, refreshRevision, activity,workflowActivity }: { userId: string; ui: Pick<Composition,'composition'>;
+  live?: Composition | null; refreshRevision?: number; activity?: NativeFormActivity;workflowActivity?:WorkflowActivity }) {
   if (!ui.composition) return null;
   let componentId: string | undefined;
   function visit(node: ScreenSchema) {
@@ -41,7 +50,7 @@ export function AgentSurface({ userId, ui, live, refreshRevision, activity }: { 
   // A saved offline view does not inherit authority from a different live panel.
   if (live?.composition && JSON.stringify(live.composition) === JSON.stringify(ui.composition)) visit(ui.composition.schema);
   const binding = live && componentId ? { userId, accountId: live.account_id, leaseId: live.id, componentId } : undefined;
-  return <Principal.Provider value={userId}><SharedForm.Provider value={{ binding, refreshRevision, activity }}><ScreenSystem>
+  return <Principal.Provider value={userId}><SharedForm.Provider value={{ binding, refreshRevision, activity }}><SharedWorkflowActivity.Provider value={live?.id===workflowActivity?.ui_id?workflowActivity:undefined}><ScreenSystem>
     <Screen id={`composition-user-${userId}`} title={ui.composition.title} schema={ui.composition.schema} />
-  </ScreenSystem></SharedForm.Provider></Principal.Provider>;
+  </ScreenSystem></SharedWorkflowActivity.Provider></SharedForm.Provider></Principal.Provider>;
 }

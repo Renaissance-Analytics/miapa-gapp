@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
+      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
+      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
+      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "a3042c01c8de277da6f9f43970d832615e85c0ec779cfc801fa4845ab902a92e",
+      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -1040,6 +1040,76 @@
       "decision": "aligned",
       "reviewer": "Maipa independent security acceptance review; no external reviewer claimed",
       "reason": "A changed principal is an authority boundary, not recoverable pending-input contention. Test requires old values be removed before any retry."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.1",
+      "test": "shared-workflow.test.mjs#held graph acknowledgment preserves newer human edits and serializes exact revisions",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "679e3b1b160b289cfd7237c3accab4a1ea6bc92705accafab9e7b4d4df3d774b",
+      "expected_observation": "Held graph acknowledgment preserves newer human input and subsequent writes use the acknowledged revisions0then1, ending at revision2.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Literal typed outputs, immutable original runtime/hash, current identity, one-winner CAS/newer edit retention and closed metadata are independent observations. Public TS export/Fancy durable execution/real Django services are used. Controller tests inject only the transport seam to control response ordering; no provider/UI/full-app acceptance is implied."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.2",
+      "test": "shared-workflow.test.mjs#a native conflict preserves local graph until explicit reload and never overwrites remotely",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "5a9cea6934e3cef7375bbc264f5a98d6c9e76702bc7d875094d11e55cf556fdf",
+      "expected_observation": "Conflict retains the exact local graph, makes no automatic retry and only explicit reload adopts the saved native graph.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Literal typed outputs, immutable original runtime/hash, current identity, one-winner CAS/newer edit retention and closed metadata are independent observations. Public TS export/Fancy durable execution/real Django services are used. Controller tests inject only the transport seam to control response ordering; no provider/UI/full-app acceptance is implied."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.3",
+      "test": "shared-workflow.test.mjs#editor projection detaches semantic data and drops only documented canvas interaction state",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "9432dad6047b0ccdf3e4156b63fbd9507ef1323c3b356b8ac9423fc37f449470",
+      "expected_observation": "Persistent semantic graph data is detached; selection/dragging/measurement are transient, while nonfinite config and unsupported parent semantics refuse.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Literal typed outputs, immutable original runtime/hash, current identity, one-winner CAS/newer edit retention and closed metadata are independent observations. Public TS export/Fancy durable execution/real Django services are used. Controller tests inject only the transport seam to control response ordering; no provider/UI/full-app acceptance is implied."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.4",
+      "test": "shared-workflow.test.mjs#actor changes and disposal fence late private graph responses and clear prior scope",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "da172f20e74e7e711b7836a21c132050bbb63434ede73d10b2a23fbebb048b90",
+      "expected_observation": "Disposal or actor-change refusal clears private graph state and a late response cannot restore it.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Literal typed outputs, immutable original runtime/hash, current identity, one-winner CAS/newer edit retention and closed metadata are independent observations. Public TS export/Fancy durable execution/real Django services are used. Controller tests inject only the transport seam to control response ordering; no provider/UI/full-app acceptance is implied."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.5",
+      "test": "shared-workflow.test.mjs#wrong principal draft handles and fabricated metadata are refused before rendering",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "8168ee196927cdfaf87ebb79f3493f1f3293929b652eb1e0a4089f1fec0ae3e3",
+      "expected_observation": "Closed owned DTO/component parsing refuses a foreign principal, wrong handle, boolean revision and arbitrary metadata/graph injection.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Literal typed outputs, immutable original runtime/hash, current identity, one-winner CAS/newer edit retention and closed metadata are independent observations. Public TS export/Fancy durable execution/real Django services are used. Controller tests inject only the transport seam to control response ordering; no provider/UI/full-app acceptance is implied."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.activity",
+      "test": "shared-workflow.test.mjs#workflow activity accepts only current lease value-free authoring receipts",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "a03f66bf3cf31727043a40816abccfd91255013c0829537af1495af0605c3a60",
+      "expected_observation": "Only the closed current-lease authoring receipt is admitted; private graph metadata, execution claims, foreign lease and invalid counters refuse.",
+      "decision": "aligned",
+      "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
+      "reason": "Strict value-free current-lease activity admission is a separate privacy/execution-claim boundary; native status narration cannot impersonate worker outcomes."
+    },
+    {
+      "scenario": "A05-WORKFLOW-CONTROLLER.canvas_interaction",
+      "test": "shared-workflow.test.mjs#controlled canvas retains local interaction state without persisting it or interrupting a drag",
+      "source_sha256": "5929b584b1dce93da0ef01992c8e57018becfd7174a08b42f293ee81064fa4c3",
+      "scenario_sha256": "bf584b0b5dacf326e8c36b6cc29cf2ffbf0956b23d4d0f1b2f76447213024d41",
+      "expected_observation": "Canvas selection/measurement/drag state stays local and survives its save acknowledgment. Only semantic position changes persist once; polling cannot interrupt the drag.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent controlled-UI review; no external reviewer claimed",
+      "reason": "A controlled whole editor must receive its actual interaction state even though only semantic graph data belongs in storage. The real pointer drag failed after rendering correction; no assertion/deadline is relaxed and no server field is stripped."
     }
   ]
 }

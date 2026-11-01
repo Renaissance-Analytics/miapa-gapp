@@ -1,10 +1,11 @@
 # Deterministic workflow foundation
 
-Maipa uses published Python `fancy-flow` 0.29.0 for execution and
-`@particle-academy/fancy-flow` 0.81.0 for the forthcoming shared editor. This
-checkpoint provides Django services, stores and site-owned dispatch, with narrow
-human-session endpoints for pending questions and recorded responses. Workflow
-authoring/run MCP tools and workflow UI are not yet exposed.
+Maipa uses published Python `fancy-flow` 0.30.1 for execution and
+`@particle-academy/fancy-flow` 0.82.1 for the shared editor. Django owns scoped
+storage and site-owned dispatch, with narrow human-session endpoints for pending
+questions and recorded responses. The dynamic `Maipa.Workflow` component and
+scoped native tools share the same authoring draft. Native execution controls
+are not exposed by this authoring increment.
 Chat remains the only fixed view. A04/A05 and their integrated acceptance remain
 unfinished.
 
@@ -204,23 +205,35 @@ Publication records an immutable version and fixed receipt, not dispatch. Exact
 retry returns the original receipt; a newer external definition edit conflicts
 with the next draft publication. Existing runs keep their original snapshots.
 The additive draft migration refuses reverse removal when saved drafts exist;
-recover from an offline backup. No editor component or native workflow tool is
-registered by this storage/API increment; actual shared UI/provider acceptance
-remains A05 work.
+recover from an offline backup.
 
-The installed agent-integrations 0.53.0 Flow bridge declares synchronous setters.
-A finite public-package probe confirmed that an unresolved asynchronous setter
-can receive a successful tool response before persistence. A supported awaited,
-atomic node/edge commit/refusal contract shipped in0.54.0 and was independently
-verified in scratch, but is not adopted here. Its existing run/cancel controls
-still report success before async acceptance or after disposal. Release0.55.1
-was independently verified in scratch, including its exact archive/closure and
-40targeted public cases for awaited/refusable controls, lifecycle fencing and
-declined/approved run and delete activity. It resolves the measured0.55decline
-activity defect. It is not installed; optional graph validation and application acceptance remain
-open. No replacement bridge, deferred-success adapter
-or package patch is enabled here. Maipa owns its authorization and persistence;
-the package owner owns only reusable package contracts and releases.
+The installed agent-integrations 0.55.1 public Flow bridge uses its awaited
+atomic commit contract. A finite app transport passes complete proposed records
+to Django; only a committed current revision is acknowledged. Deleting a node
+and its attached edges is one draft transaction. Agent writes require a prior
+read of the same visible draft, current original session authority and exact CAS.
+Stale, replaced, foreign or revoked drafts refuse. Fixed value-free receipts
+identify accepted authoring changes; they never claim execution.
+
+The public controlled `FlowEditor` owns canvas, palette and configuration UI.
+Human edits persist through the same draft service. Pending saves preserve newer
+typing, conflicts keep the local graph until explicit reload, and actor changes
+clear private state. In a narrow panel Add node opens the kit palette and
+selecting a node opens its settings. Chat remains mounted. There is no fixed workflow page, replacement
+renderer, graph runner or package patch.
+
+The native tool list includes current owned draft discovery, idempotent creation,
+public graph reads/edits and immutable publication. It excludes browser Run,
+native execution, arbitrary kind discovery and fabricated node status. Run,
+cancel, triage and shared human-gate controls still require their separate A05
+authority and provider acceptance.
+
+The runtime upgrade retains existing immutable 0.29 graph, seed and history
+identities. They remain readable but cannot advance under a different runtime.
+An explicit new publication records 0.30.1 as a new immutable version; it does
+not relabel or replay an old run. Transform fields use real public typed values
+and selected-mode validation. Python and TypeScript native Unicode trimming
+edges are not claimed to be universally identical.
 
 The editor and actual in-app build, triage, update and run acceptance follow this
 foundation. Package verification, focused tests or this document alone do not

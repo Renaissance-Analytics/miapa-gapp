@@ -27,6 +27,7 @@ from .provider_runtime import ensure_codex, ensure_claude
 from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
 from .form_tools import FormBroker,public_form_tools,TOOLS as FORM_TOOLS
+from .workflow_tools import WorkflowBroker,public_workflow_tools,TOOLS as WORKFLOW_TOOLS
 
 _workers, _lock = {}, threading.RLock()
 NATIVE_START_TIMEOUT = 30
@@ -58,6 +59,11 @@ Only the application's UI tools are authorized here. Explain when a requested ca
 When Client setup is visible, form_list/form_get_values expose its shared pending input.
 Read the form before filling it with form_set_value/form_set_values. A stale write means re-read and review current values.
 Filling is pending input only: client creation and unsupported form submission still require the human's existing controls.
+For workflows, call maipa_workflow_list first. maipa_workflow_create creates an owned draft only.
+Present Maipa.Workflow with props draft_id, then read flow_get_state before using the public flow_* authoring tools.
+Use only the admitted canonical kinds returned by maipa_workflow_list. Human and agent edit the same revisioned graph.
+A stale write requires reading and reviewing current work before trying again. maipa_workflow_publish records a version only.
+Workflow run/cancel and execution grants are not exposed here yet. Never report a published version as an executed workflow.
 '''
 
 
@@ -85,7 +91,7 @@ def start(actor, row, session_key):
             raise chat.ChatUnavailable('Conversation unavailable') from None
 
 
-def transient(owner, session_key, *, include_login=True, include_models=True, include_activity=False, snapshot=None):
+def transient(owner, session_key, *, include_login=True, include_models=True, include_activity=False, include_workflow_activity=False, snapshot=None):
     with _lock:
         worker = _workers.get(owner)
         if not worker or worker.session_key != session_key or worker.stopping.is_set():
@@ -102,9 +108,12 @@ def transient(owner, session_key, *, include_login=True, include_models=True, in
         activity=getattr(worker,'ui_activity',None)
         current_ui=snapshot.get('ui') if snapshot else None
         include_activity=include_activity and current_ui and activity and current_ui['id']==activity['ui_id'] and snapshot['phase'] in ('ready','thinking')
+        workflow_activity=getattr(worker,'workflow_activity',None)
+        include_workflow_activity=include_workflow_activity and current_ui and workflow_activity and current_ui['id']==workflow_activity['ui_id'] and snapshot['phase'] in ('ready','thinking')
         return {**({'login': dict(worker.consent)} if include_login and worker.consent else {}),
                 **({'models': json.loads(json.dumps(worker.models))} if include_models and worker.models else {}),
-                **({'activity':dict(activity)} if include_activity else {})}
+                **({'activity':dict(activity)} if include_activity else {}),
+                **({'workflow_activity':dict(workflow_activity)} if include_workflow_activity else {})}
 
 
 def change_model(actor, account, model_id, revision, selection_revision, session_key):
@@ -198,6 +207,8 @@ class _Worker:
         self.last_active = time.monotonic()
         self.models, self.loop = None, None
         self.form_tools, self.form_broker = [], None
+        self.workflow_tools, self.workflow_broker = [], None
+        self.workflow_activity=None
         self.ui_activity=None
 
     def check(self):
@@ -244,6 +255,8 @@ class _Worker:
                 Conversation.objects.filter(pk=self.identity, worker=self.token).update(ui_id=fresh, revision=F('revision') + 1)
                 self.ui_id, self.handler = fresh, handler
                 self.form_broker=FormBroker(actor,str(self.account_id),fresh)
+                self.workflow_broker=WorkflowBroker(actor,str(self.account_id),fresh)
+                self.workflow_activity=None
                 self.ui_activity=None
             self.binding = (member.installation_id, member.role, member.installation.access_revision)
         if self.lease:
@@ -323,6 +336,8 @@ class _Worker:
         self.ui_id = open_ui_lease(actor, str(self.account_id), self.reference)
         self.handler = bind_ui_handler(actor, str(self.account_id), self.ui_id)
         self.form_broker=FormBroker(actor,str(self.account_id),self.ui_id)
+        self.workflow_broker=WorkflowBroker(actor,str(self.account_id),self.ui_id)
+        self.workflow_activity=None
         self.ui_activity=None
         self.publish(ui_id=self.ui_id, phase='ready')
 
@@ -345,14 +360,23 @@ class _Worker:
     async def handle_ui(self, request):
         await db(self.check)
         if request == {'method':'tools/list','params':{}}:
-            return {'tools':_tools()+self.form_tools}
+            return {'tools':_tools()+self.form_tools+self.workflow_tools}
         if not self.ui_id:
             # Native MCP discovery precedes verified native startup. Only
             # static definitions are available here: no catalog data or UI calls.
             if request == {'method': 'tools/list', 'params': {}}:
                 return {'tools': _tools()}
             raise chat.ChatUnavailable('UI unavailable')
-        if (request.get('method')=='tools/call' and request.get('params',{}).get('name') in FORM_TOOLS):
+        if (request.get('method')=='tools/call' and request.get('params',{}).get('name') in WORKFLOW_TOOLS):
+            result=await self.workflow_broker.call(request['params']['name'],request['params']['arguments'])
+            def publish_workflow_activity():
+                with _lock:
+                    self.publish()
+                    activity=self.workflow_broker.last_activity
+                    if activity and activity['ui_id']==self.ui_id:self.workflow_activity=dict(activity)
+            await db(publish_workflow_activity)
+            return result
+        elif (request.get('method')=='tools/call' and request.get('params',{}).get('name') in FORM_TOOLS):
             result=await self.form_broker.call(request['params']['name'],request['params']['arguments'])
             def publish_activity():
                 with _lock:
@@ -429,6 +453,7 @@ class _Worker:
 
     async def conversation(self):
         self.form_tools=await public_form_tools()
+        self.workflow_tools=await public_workflow_tools()
         preparation = asyncio.create_task(asyncio.to_thread(_database(self.prepare)))
         try:
             capsule, sandbox = await asyncio.shield(preparation)

@@ -54,7 +54,7 @@ let failClientTableRead = false;
 const pausedComposerSends = [];
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
 const progressPhases = new Set(['fixture_input', 'browser_binary', 'profile_parent', 'browser_launch',
-  'debug_endpoint', 'service_storage', 'ui_composition', 'admin_users', 'client_catalog', 'agent_shell',
+  'debug_endpoint', 'service_storage', 'ui_composition', 'admin_users', 'client_catalog', 'agent_shell', 'workflow_editor',
   'anonymous', 'release_controls', 'theme', 'keyboard_divider', 'mobile_panels', 'login', 'logout_viewer',
   'authenticated_scope', 'transport_csrf', 'intake_recovery', 'intake_facts', 'intake_history', 'intake_scope',
   'authority', 'first_run', 'setup_chat', 'setup_isolation', 'work_views', 'layout', 'layout_resume',
@@ -66,7 +66,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 38 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 39 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -903,6 +903,55 @@ try {
   await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && !document.getElementById('maipa-agent-provider').disabled"), 'original provider selected again');
   await requestComponent('Present a note after provider change', 'Maipa.Note');
   record('agent-provider-choice-and-account-restore');
+  phase = 'workflow_editor';
+  await requestComponent('Build a shared workflow', 'Maipa.Workflow');
+  const workflowReady=()=>until(()=>evaluate("document.querySelector('[data-workflow-phase]')?.dataset.workflowPhase==='ready' && document.querySelectorAll('.workflow-workspace .react-flow__node').length===3"),'shared controlled workflow ready');
+  await workflowReady();
+  const readWorkflow=()=>evaluate("(async()=>{const id=document.querySelector('[data-workflow-draft]').dataset.workflowDraft;const s=await(await fetch('/api/session/')).json();const r=await fetch('/api/workflows/drafts/'+id+'/',{headers:{'X-Maipa-Workflow-Actor':String(s.user.id)}});if(r.status!==200)throw Error('Owned workflow read failed');return r.json();})()");
+  const builtWorkflow=await readWorkflow();
+  assert.equal(builtWorkflow.graph.edges.length,2);
+  const transformNode=builtWorkflow.graph.nodes.find(n=>n.data.kind==='@particle-academy/transform');
+  assert.deepEqual(transformNode.data.config,{mode:'fields',fields:[{key:'greeting',value:'Hello {{ in.name }}'}]});
+  assert.equal(await evaluate("!!document.querySelector('.workflow-workspace .react-flow')"),true);
+  const nodeDrag=await evaluate(`(()=>{const n=document.querySelector('.workflow-workspace .react-flow__node[data-id="${transformNode.id}"]');const r=n.querySelector('.ff-node__header').getBoundingClientRect();const x=Math.round(r.x+r.width/2),y=Math.round(r.y+r.height/2);return {x,y,hit:n.contains(document.elementFromPoint(x,y)),draggable:n.classList.contains('draggable')};})()`);
+  assert.equal(nodeDrag.hit,true,'native pointer reaches the public workflow node');
+  assert.equal(nodeDrag.draggable,true,'public workflow node permits human dragging');
+  await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:nodeDrag.x,y:nodeDrag.y});
+  await command('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',buttons:1,clickCount:1,x:nodeDrag.x,y:nodeDrag.y});
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>resolve(true)))');
+  for(const fraction of [0.25,0.5,1]){
+    await command('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,x:nodeDrag.x+24*fraction,y:nodeDrag.y+32*fraction});
+    await evaluate('new Promise(resolve=>requestAnimationFrame(()=>resolve(true)))');
+  }
+  await command('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,x:nodeDrag.x+24,y:nodeDrag.y+32});
+  try {
+    await until(async()=>{const saved=await readWorkflow();return saved.revision>builtWorkflow.revision&&JSON.stringify(saved.graph.nodes.find(n=>n.id===transformNode.id).position)!==JSON.stringify(transformNode.position);},'native human node position saved');
+  } catch(error) {
+    console.error('Owned synthetic workflow drag diagnostic',JSON.stringify({before:transformNode.position,
+      after:(await readWorkflow()).graph.nodes.find(n=>n.id===transformNode.id).position,
+      surface:await evaluate("(()=>{const w=document.querySelector('.workflow-workspace');return {phase:w?.dataset.workflowPhase,revision:Number(w?.dataset.workflowRevision),selected:document.querySelectorAll('.workflow-workspace .react-flow__node.selected').length};})()") }));
+    const failedWorkflow=await command('Page.captureScreenshot',{format:'png'});
+    writeFileSync('artifacts/ci/workflow-editor-failure.png',Buffer.from(failedWorkflow.data,'base64'));throw error;
+  }
+  await workflowReady();
+  const humanWorkflow=await readWorkflow();
+  await evaluate("window.maipaWorkflowChat=document.querySelector('[data-pane=agent]');true");
+  await typeChat('Update the shared workflow');await click('Send');
+  await typeChat('Synthetic unsent workflow follow-up');
+  await waitForAgent('Maipa.Workflow');
+  await until(()=>evaluate("document.querySelector('.workflow-workspace')?.textContent.includes('Native revised step')"),'accepted native update reaches the same public canvas');
+  await workflowReady();
+  const nativeWorkflow=await readWorkflow();
+  assert.equal(nativeWorkflow.id,humanWorkflow.id);assert.ok(nativeWorkflow.revision>humanWorkflow.revision);
+  assert.equal(nativeWorkflow.graph.nodes.find(n=>n.id===transformNode.id).data.label,'Native revised step');
+  assert.deepEqual(nativeWorkflow.graph.nodes.find(n=>n.id===transformNode.id).position,humanWorkflow.graph.nodes.find(n=>n.id===transformNode.id).position);
+  assert.equal(await evaluate("document.querySelector('[data-pane=agent]')===window.maipaWorkflowChat && document.getElementById('maipa-chat-message').value==='Synthetic unsent workflow follow-up'"),true);
+  const workflowScreenshot=await command('Page.captureScreenshot',{format:'png'});
+  writeFileSync('artifacts/ci/workflow-editor.png',Buffer.from(workflowScreenshot.data,'base64'));
+  await command('Page.reload');await preferencesReady();await workflowReady();
+  assert.deepEqual(await readWorkflow(),nativeWorkflow);
+  assert.equal(await evaluate("!document.querySelector('[data-native-workflow-activity]')"),true,'reload does not replay native authoring activity');
+  record('shared-workflow-editor-and-native-authoring');
   phase = 'preferences';
   await preferencesReady();
   await click('Dark'); await preferencesReady();

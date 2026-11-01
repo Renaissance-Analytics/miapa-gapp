@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BROWSER_RUN_SECONDS = 120
 BROWSER_PROFILE_RUNS = 3  # First administrator, ordinary session, fresh-profile restore.
 BROWSER_FIXTURE_OVERHEAD_SECONDS = 60
-BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog", "agent_shell",
+BROWSER_PHASES = {"fixture_input", "browser_binary", "profile_parent", "browser_launch", "debug_endpoint", "service_storage", "ui_composition", "admin_users", "client_catalog", "agent_shell", "workflow_editor",
                   "anonymous", "release_controls", "theme", "keyboard_divider", "mobile_panels",
                   "login", "logout_viewer", "authenticated_scope", "transport_csrf", "intake_recovery", "intake_facts", "intake_history", "intake_scope", "authority", "first_run", "setup_chat", "setup_isolation", "work_views", "layout", "layout_resume", "preferences", "browser_exceptions", "cleanup"}
 BROWSER_SETUP_CHECKPOINTS = {'setup_mobile', 'setup_display_name', 'setup_workspace', 'setup_resume',

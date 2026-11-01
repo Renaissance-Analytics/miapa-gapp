@@ -41,6 +41,7 @@ BROWSER_CASES = (
     'agent-cancel-and-chat-restore',
     'agent-reconnect-after-transport-loss',
     'agent-provider-choice-and-account-restore',
+    'shared-workflow-editor-and-native-authoring',
     'preferences-save-conflict-recovery',
     'layout-gestures-conflict-recovery',
     'intake-facts-and-evidence',

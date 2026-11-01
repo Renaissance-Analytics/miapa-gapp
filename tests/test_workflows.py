@@ -101,7 +101,7 @@ class WorkflowTests(TestCase):
         rows = {r.node_id:r for r in NodeCheckpoint.objects.all()}
         self.assertEqual({key:row.attempts for key,row in rows.items()}, {'start':1,'format':1,'result':1})
         self.assertEqual({key:row.ports for key,row in rows.items()}, {'start':['out'],'format':['out'],'result':[]})
-        self.assertEqual(run['runtime'], 'fancy-flow/0.29.0')
+        self.assertEqual(run['runtime'], 'fancy-flow/0.30.1')
         self.assertEqual((Engagement.objects.count(), Entity.objects.count()), (1, 1))
 
     def test_actual_typescript_export_runs_in_python_without_dropping_canvas_or_ports(self):

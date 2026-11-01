@@ -1,5 +1,6 @@
 """Application-owned UI tools. Models supply schemas, never actor/path/code authority."""
 from functools import wraps
+from uuid import UUID
 import json
 import re
 
@@ -68,6 +69,7 @@ def _components(role):
         ('Maipa.ClientTable', 'Read-only current owned clients from the scoped service, not supplied rows. Props: columns, an ordered unique subset of name/entity_count. No identifiers, bindings or data snapshots.'),
         ('Maipa.ClientFacts', 'Owned client facts and evidence; no props. Server-scoped services load the data.'),
         ('Maipa.ClientCatalog', 'Owned client/entity metadata controls; no props. Writes require current service authority.'),
+        ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':
         items.append(('Maipa.AdminUsers', 'Local user/access controls; no props. Every operation rechecks server administrator authority.'))
@@ -109,6 +111,12 @@ def validate_schema(value, role):
                 raise ValueError('Invalid note')
             if item['type'] == 'Maipa.Callout' and item['props']['tone'] not in ('info', 'attention', 'neutral'):
                 raise ValueError('Invalid commentary tone')
+        elif item['type'] == 'Maipa.Workflow':
+            _object(item,('id','type','props'));_object(item['props'],('draft_id',))
+            identity=item['props']['draft_id']
+            if type(identity) is not str or str(UUID(identity))!=identity or item['type'] in controls:
+                raise ValueError('Invalid workflow reference')
+            controls.add(item['type'])
         elif item['type'] == 'Maipa.ClientTable':
             _object(item, ('id', 'type', 'props'))
             _object(item['props'], ('columns',))

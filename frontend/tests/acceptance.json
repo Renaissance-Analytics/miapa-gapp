@@ -1091,6 +1091,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-WORKFLOW-CONTROLLER",
+      "risk": "A workflow editor or package upgrade could discard values, overwrite newer edits, inherit another principal or relabel immutable execution history.",
+      "scenarios": [
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.1",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "held graph acknowledgment preserves newer human edits and serializes exact revisions",
+          "then": "Held graph acknowledgment preserves newer human input and subsequent writes use the acknowledged revisions0then1, ending at revision2.",
+          "tests": [
+            "shared-workflow.test.mjs#held graph acknowledgment preserves newer human edits and serializes exact revisions"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.2",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "a native conflict preserves local graph until explicit reload and never overwrites remotely",
+          "then": "Conflict retains the exact local graph, makes no automatic retry and only explicit reload adopts the saved native graph.",
+          "tests": [
+            "shared-workflow.test.mjs#a native conflict preserves local graph until explicit reload and never overwrites remotely"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.3",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "editor projection detaches semantic data and drops only documented canvas interaction state",
+          "then": "Persistent semantic graph data is detached; selection/dragging/measurement are transient, while nonfinite config and unsupported parent semantics refuse.",
+          "tests": [
+            "shared-workflow.test.mjs#editor projection detaches semantic data and drops only documented canvas interaction state"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.4",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "actor changes and disposal fence late private graph responses and clear prior scope",
+          "then": "Disposal or actor-change refusal clears private graph state and a late response cannot restore it.",
+          "tests": [
+            "shared-workflow.test.mjs#actor changes and disposal fence late private graph responses and clear prior scope"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.5",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "wrong principal draft handles and fabricated metadata are refused before rendering",
+          "then": "Closed owned DTO/component parsing refuses a foreign principal, wrong handle, boolean revision and arbitrary metadata/graph injection.",
+          "tests": [
+            "shared-workflow.test.mjs#wrong principal draft handles and fabricated metadata are refused before rendering"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.activity",
+          "kind": "negative",
+          "given": "An activity receipt from an actual native workflow bridge",
+          "when": "A receipt is parsed for the currently visible UI lease",
+          "then": "Only the closed current-lease authoring receipt is admitted; private graph metadata, execution claims, foreign lease and invalid counters refuse.",
+          "tests": [
+            "shared-workflow.test.mjs#workflow activity accepts only current lease value-free authoring receipts"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.canvas_interaction",
+          "kind": "positive",
+          "given": "The real controlled canvas emits selection, measurement and a position drag while persistence can be pending",
+          "when": "The host acknowledges interaction changes, polls and receives a held graph-save response",
+          "then": "Canvas selection/measurement/drag state stays local and survives its save acknowledgment. Only semantic position changes persist once; polling cannot interrupt the drag.",
+          "tests": [
+            "shared-workflow.test.mjs#controlled canvas retains local interaction state without persisting it or interrupting a drag"
+          ]
+        }
+      ]
     }
   ]
 }

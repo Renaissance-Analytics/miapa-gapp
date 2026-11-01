@@ -51,10 +51,12 @@ def validate_graph(value):
     require(type(value['nodes']) is list and len(value['nodes'])<=30 and type(value['edges']) is list and len(value['edges'])<=60)
     ids=set()
     for node in value['nodes']:
-        require(type(node) is dict and set(node)=={'id','type','position','data'})
+        require(type(node) is dict and {'id','type','position','data'}<=set(node)<={'id','type','position','data','width','height'})
         handle(node['id']);require(node['id'] not in ids);ids.add(node['id'])
         position=node['position'];require(type(position) is dict and set(position)=={'x','y'})
         require(all(type(n) in (int,float) and abs(n)<=1_000_000 for n in position.values()))
+        for key in ('width','height'):
+            if key in node:require(type(node[key]) in (int,float) and 0<node[key]<=10000)
         data=node['data'];require(type(data) is dict and {'kind','label','config'}<=set(data)<={'kind','label','config','description','startingMsg','stoppingMsg','status'})
         require(type(data['kind']) is str and node['type']==data['kind'])
         kind=REGISTRY.get(data['kind']);require(kind is not None and kind.name.rsplit('/',1)[-1] in KINDS)
@@ -154,7 +156,7 @@ def _export(value):
         data=node['data']
         nodes.append(FlowNode(id=node['id'],type=data['kind'],x=node['position']['x'],y=node['position']['y'],
             label=data['label'],config=data['config'],description=data.get('description'),
-            starting_msg=data.get('startingMsg'),stopping_msg=data.get('stoppingMsg')))
+            starting_msg=data.get('startingMsg'),stopping_msg=data.get('stoppingMsg'),width=node.get('width'),height=node.get('height')))
     edges=[FlowEdge(id=e['id'],source=e['source'],target=e['target'],source_handle=e.get('sourceHandle'),
         target_handle=e.get('targetHandle'),label=e.get('label')) for e in value['edges']]
     return export_workflow(FlowGraph(nodes=tuple(nodes),edges=tuple(edges)))

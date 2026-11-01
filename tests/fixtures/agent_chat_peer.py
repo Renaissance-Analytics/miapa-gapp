@@ -76,7 +76,10 @@ for line in sys.stdin:
             raise RuntimeError('Pre-session tool discovery unavailable')
         if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
                 'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
-                'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit'}:
+                'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
+                'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
+                'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
+                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})
@@ -107,7 +110,31 @@ for line in sys.stdin:
         try:
             catalog = callback('maipa_ui_catalog', {})
             revision = catalog['revision']
-            if 'fill shared client draft' in text:
+            if 'build a shared workflow' in text:
+                def workflow_call(name,arguments):
+                    result=callback(name,arguments)
+                    if result.get('isError'):raise RuntimeError('Synthetic workflow callback refused')
+                    return result['structuredContent']
+                workflow_call('maipa_workflow_list',{})
+                draft=workflow_call('maipa_workflow_create',{'name':'Synthetic shared workflow','entity_id':None,'request_id':'shared-workflow'})
+                callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present',{
+                    'revision':revision,'title':'Shared workflow',
+                    'schema':{'id':'shared-workflow','type':'Maipa.Workflow','props':{'draft_id':draft['id']}}})
+                workflow_call('flow_get_state',{})
+                nodes=[]
+                for kind,label,config,x in (
+                    ('manual_trigger','Start',{},0),
+                    ('transform','Shared step',{'mode':'fields','fields':[{'key':'greeting','value':'Hello {{ in.name }}'}]},320),
+                    ('output','Result',{},640)):
+                    nodes.append(workflow_call('flow_add_node',{'kind':'@particle-academy/'+kind,'label':label,'config':config,'x':x,'y':0}))
+                for start,end in zip(nodes,nodes[1:]):workflow_call('flow_connect',{'source':start['id'],'target':end['id']})
+            elif 'update the shared workflow' in text:
+                graph=callback('flow_get_state',{})
+                if graph.get('isError'):raise RuntimeError('Synthetic workflow read refused')
+                node=next(node for node in graph['structuredContent']['nodes'] if node['data']['kind'].endswith('/transform'))
+                result=callback('flow_update_node',{'id':node['id'],'label':'Native revised step'})
+                if result.get('isError'):raise RuntimeError('Synthetic workflow update refused')
+            elif 'fill shared client draft' in text:
                 if not catalog['composition'] or catalog['composition']['schema']['type']!='Maipa.ClientCatalog':
                     callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present',{'revision':revision,'title':'Shared work',
                         'schema':{'id':'shared-root','type':'Maipa.ClientCatalog'}})

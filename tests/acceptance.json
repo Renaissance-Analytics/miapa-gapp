@@ -5307,6 +5307,158 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-EDITOR",
+      "risk": "A workflow editor or package upgrade could discard values, overwrite newer edits, inherit another principal or relabel immutable execution history.",
+      "scenarios": [
+        {
+          "id": "A05-EDITOR.1",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "test_actual_editor_fields_export_preserves_typed_outputs_and_literal_schema",
+          "then": "The actual TS0.82.1 exported schema remains literal in an immutable version and the real durable engine outputs person=Hello Ada, numeric7 and booleanFalse.",
+          "tests": [
+            "tests.test_workflow_editor_interop.WorkflowEditorInteropTests.test_actual_editor_fields_export_preserves_typed_outputs_and_literal_schema"
+          ]
+        },
+        {
+          "id": "A05-EDITOR.2",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "test_actual_untouched_editor_defaults_are_publishable_and_preserve_input",
+          "then": "The actual public editor default config publishes and completes without discarding its original input.",
+          "tests": [
+            "tests.test_workflow_editor_interop.WorkflowEditorInteropTests.test_actual_untouched_editor_defaults_are_publishable_and_preserve_input"
+          ]
+        },
+        {
+          "id": "A05-EDITOR.3",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "test_invalid_mode_types_and_value_with_trimmed_blank_key_never_persist",
+          "then": "Unknown mode, malformed fields, whitespace-key configured value and nonstring expression refuse before any definition is persisted.",
+          "tests": [
+            "tests.test_workflow_editor_interop.WorkflowEditorInteropTests.test_invalid_mode_types_and_value_with_trimmed_blank_key_never_persist"
+          ]
+        },
+        {
+          "id": "A05-EDITOR.4",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "test_old_runtime_history_is_readable_but_never_relabelled_or_executed",
+          "then": "Original0.29 runtime history and immutable version stay readable/unchanged; current engine refuses to advance them, while an explicit new version records0.30.1.",
+          "tests": [
+            "tests.test_workflow_editor_interop.WorkflowEditorInteropTests.test_old_runtime_history_is_readable_but_never_relabelled_or_executed"
+          ]
+        },
+        {
+          "id": "A05-EDITOR.5",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "test_workflow_component_contains_only_one_stable_draft_reference",
+          "then": "Registered workflow accepts one stable draft UUID and refuses injected graph/owner/path/duplicate controls.",
+          "tests": [
+            "tests.test_workflow_editor_interop.WorkflowEditorInteropTests.test_workflow_component_contains_only_one_stable_draft_reference"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-NATIVE-WORKFLOW",
+      "risk": "Native authoring could bypass the shared revision/current UI authority or falsely acknowledge a write that has not persisted.",
+      "scenarios": [
+        {
+          "id": "A05-NATIVE-WORKFLOW.public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities",
+          "kind": "negative",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities",
+          "then": "Only scoped authoring/public schema tools are exposed; native run/cancel/fabricated status/global kind discovery/undo remain absent.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run",
+          "kind": "positive",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run",
+          "then": "Exact creation retry returns one owned draft; changed retry refuses and authoring creates no executable definition/run/principal.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.actual_public_bridge_awaits_same_owned_draft_and_value_free_receipt",
+          "kind": "positive",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_actual_public_bridge_awaits_same_owned_draft_and_value_free_receipt",
+          "then": "The actual published Flow bridge acknowledges one durable draft revision, preserves its declared config and returns the same current state as the human HTTP endpoint; receipt contains no node label/config.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_actual_public_bridge_awaits_same_owned_draft_and_value_free_receipt"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.newer_human_edit_refuses_stale_native_write_until_reread",
+          "kind": "negative",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_newer_human_edit_refuses_stale_native_write_until_reread",
+          "then": "A native write computed before a newer human edit refuses and leaves that graph intact; explicit public reread enables the next revision.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_newer_human_edit_refuses_stale_native_write_until_reread"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.unread_unsafe_forged_status_and_invalid_config_calls_do_not_write",
+          "kind": "negative",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_unread_unsafe_forged_status_and_invalid_config_calls_do_not_write",
+          "then": "Unread writes, unsupported/effectful kinds, unadmitted aliases, forged actor/status and invalid whitespace-key config cannot change the saved graph or emit accepted activity.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_unread_unsafe_forged_status_and_invalid_config_calls_do_not_write"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.delete_commits_node_and_all_attached_edges_as_one_revision",
+          "kind": "positive",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_delete_commits_node_and_all_attached_edges_as_one_revision",
+          "then": "One actual public delete removes the selected node and all attached edges in one durable revision.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_delete_commits_node_and_all_attached_edges_as_one_revision"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.replaced_visible_draft_foreign_actor_and_revoked_session_refuse",
+          "kind": "negative",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_replaced_visible_draft_foreign_actor_and_revoked_session_refuse",
+          "then": "A replaced visible draft, foreign original actor and revoked original native session all refuse without mutating the earlier graph or creating a run.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_replaced_visible_draft_foreign_actor_and_revoked_session_refuse"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.publish_records_current_immutable_graph_without_automatic_execution_authority",
+          "kind": "positive",
+          "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
+          "when": "test_publish_records_current_immutable_graph_without_automatic_execution_authority",
+          "then": "Current visible observed graph publishes once with exact retry receipt; stale publish refuses and no run or native execution authority is automatically created.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_publish_records_current_immutable_graph_without_automatic_execution_authority"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-WORKFLOW.publication_observes_current_graph",
+          "kind": "negative",
+          "given": "The native agent read revision1, then a human changed the same owned visible graph at revision2",
+          "when": "The agent discovers current metadata and attempts to publish revision2 without reading its changed graph",
+          "then": "Publication refuses with no definition/run or draft changes. A new public graph read permits that exact revision to publish without execution.",
+          "tests": [
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_publication_requires_current_graph_read_after_a_newer_human_edit"
+          ]
+        }
+      ]
     }
   ]
 }

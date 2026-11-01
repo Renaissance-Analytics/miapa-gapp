@@ -13,7 +13,7 @@ from fancy_flow.security import GraphPolicy
 
 from .errors import InvalidWorkflow
 
-RUNTIME = 'fancy-flow/0.29.0'
+RUNTIME = 'fancy-flow/0.30.1'
 KINDS = ('manual_trigger', 'transform', 'output', 'human_approval', 'user_input')
 REGISTRY = builtin.register(NodeKindRegistry())
 POLICY = replace(GraphPolicy.untrusted(allow=list(KINDS)), max_nodes=30, max_edges=60, max_bytes=65536,
@@ -108,7 +108,12 @@ def validate(value):
             require(set(config) <= {field.key for field in kind.config_schema})
             require(not REGISTRY.validate_config(kind,config))
             if kind.name.rsplit('/',1)[-1]=='transform':
-                require(type(config.get('expression')) is str and 0 < len(config['expression']) <= 20000)
+                # Complete publication requires the selected authoring mode's
+                # explicit config; unfinished expression drafts stay editable.
+                if config.get('mode','expression')=='expression':
+                    require(type(config.get('expression')) is str and 0 < len(config['expression'].strip()) <= 20000)
+                else:
+                    require(config.get('mode')=='fields' and type(config.get('fields')) is list)
             if kind.name.rsplit('/',1)[-1] in ('human_approval','user_input'):
                 gate_config(kind.name.rsplit('/',1)[-1],config)
             for key in ('label','description','startingMsg','stoppingMsg'):

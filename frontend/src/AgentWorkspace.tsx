@@ -14,6 +14,7 @@ import { SavedViews } from './SavedViews.js';
 import { COOLDOWN_MESSAGE, failureCooldown, failureStatus } from './turn-failure.js';
 import { TurnFailureNotice } from './TurnFailureNotice.js';
 import { FormActivityCursor, type NativeFormActivity } from './shared-form.js';
+import type {WorkflowActivity} from './shared-workflow.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -23,6 +24,14 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const [state, setState] = useState<ChatState>(emptyChat);
   const activityCursor = useRef(new FormActivityCursor());
   const [formActivity, setFormActivity] = useState<NativeFormActivity>();
+  const workflowActivityCursor=useRef(new FormActivityCursor());
+  const [workflowActivity,setWorkflowActivity]=useState<WorkflowActivity>();
+  useEffect(()=>{if(workflowActivityCursor.current.accept(state.workflow_activity,state.ui?.id??null))setWorkflowActivity(state.workflow_activity);},[state.workflow_activity?.id,state.ui?.id]);
+  useEffect(()=>{
+    if(!workflowActivity)return;
+    if(workflowActivity.ui_id!==state.ui?.id){setWorkflowActivity(undefined);return;}
+    const timer=setTimeout(()=>setWorkflowActivity(undefined),2000);return()=>clearTimeout(timer);
+  },[workflowActivity?.id,state.ui?.id]);
   useEffect(() => {
     if (activityCursor.current.accept(state.activity, state.ui?.id ?? null)) setFormActivity(state.activity);
   }, [state.activity?.id, state.ui?.id]);
@@ -107,10 +116,11 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
         const initial = await chatRequest(userId, undefined, abort.signal);
         if (!active) return;
         activityCursor.current.accept(initial.activity, initial.ui?.id ?? null, true);
+        workflowActivityCursor.current.accept(initial.workflow_activity,initial.ui?.id??null,true);
         setState(previous => newerChat(previous, initial)); setError('');
         while (active) {
           const response = await fetch('/api/agent/chat/stream/', { credentials: 'same-origin', cache: 'no-store', redirect: 'error',
-            headers: { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1', 'X-Maipa-Agent-Failures': '1', 'X-Maipa-Agent-Activity': '1' }, signal: abort.signal });
+            headers: { 'X-Maipa-Agent-Actor': userId, 'X-Maipa-Agent-Models': '1', 'X-Maipa-Agent-Failures': '1', 'X-Maipa-Agent-Activity': '1','X-Maipa-Agent-Workflow-Activity':'1' }, signal: abort.signal });
           if (response.status !== 200 || !response.body) throw Error('Conversation unavailable');
           await readEventStream(response.body, next => { if (active) setState(previous => newerChat(previous, next)); });
         }
@@ -264,7 +274,7 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
             if (!bridge.current) return; setBusy(true); void bridge.current.dismiss(liveUi).then(()=>personalViews.current?.clearActive())
               .catch(() => setError('The shared panel changed. Reconnect before closing it.')).finally(() => setBusy(false));
           }}>Close</Button></div></header>
-          <div className="composition-body"><AgentSurface userId={userId} ui={ui} live={liveUi} refreshRevision={state.revision} activity={formActivity} /></div></>}
+          <div className="composition-body"><AgentSurface userId={userId} ui={ui} live={liveUi} refreshRevision={state.revision} activity={formActivity} workflowActivity={workflowActivity} /></div></>}
       </section>
     </ResizablePanels>
   </main>;
