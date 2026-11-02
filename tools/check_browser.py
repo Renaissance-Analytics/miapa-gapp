@@ -342,9 +342,9 @@ def main():
             save_progress('first_run')
             first_run = run_browser(base_data | {'first_run': True,
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})
-            if (first_run.get('cleanup') is not True or first_run.get('checks') != 10
+            if (first_run.get('cleanup') is not True or first_run.get('checks') != 11
                     or first_run.get('scenarios') != ['local-first-run-admin', 'account-chat-resume-and-confirm',
-                        'client-catalog-create-rename-conflict', 'shared-workflow-human-permissions-and-native-run', 'admin-users-create-update-conflict', 'first-run-stays-closed', 'admin-users-restricted-login', 'client-catalog-restricted-scope',
+                        'client-catalog-create-rename-conflict', 'shared-workflow-human-permissions-and-native-run', 'shared-workflow-run-selection-and-reload', 'admin-users-create-update-conflict', 'first-run-stays-closed', 'admin-users-restricted-login', 'client-catalog-restricted-scope',
                         'no-uncaught-exceptions', 'owned-browser-cleanup']):
                 raise ValueError('First-run browser cleanup required')
             if (data_root / 'local-setup-code').exists():

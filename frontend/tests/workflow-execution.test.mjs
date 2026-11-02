@@ -5,8 +5,8 @@ import {SharedWorkflowController} from '../.test-build/shared-workflow.js';
 const draft='12345678-1234-4234-8234-123456789012',definition='22345678-1234-4234-8234-123456789012',runId='32345678-1234-4234-8234-123456789012';
 const publication={status:'published',draft_id:draft,draft_revision:2,definition_id:definition,definition_revision:1,schema_sha256:'a'.repeat(64)};
 const run=(status='queued',step=0)=>({id:runId,definition_id:definition,definition_revision:1,schema_sha256:'a'.repeat(64),runtime:'0.30.1',status,step,error:null,outputs:{},nodes:{}});
-const snapshot=(runs=[],worker=true)=>({draft_id:draft,draft_revision:2,publication,worker:{available:worker,state:worker?'running':'not_running'},runs});
-const value=(status='queued',step=0)=>({run:run(status,step),worker:{available:true,state:'running'},gate:null});
+const snapshot=(runs=[],worker=true)=>({draft_id:draft,draft_revision:2,publication,worker:{available:worker,state:worker?'running':'not_running'},runs,selection:{revision:0,run_id:runs[0]?.id??null,show_details:false,source:'default'}});
+const value=(status='queued',step=0)=>({run:run(status,step),worker:{available:true,state:'running'},gate:null,selection:{revision:1,run_id:runId,show_details:false,source:'human'}});
 
 test('acknowledged dispatch preserves its immutable version and reports server state only',async()=>{
  const calls=[];const c=new WorkflowExecutionController('1',draft,()=>{},async(action,command)=>{

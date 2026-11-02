@@ -12,8 +12,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connections,transaction,DatabaseError
 from django.db.models import F
-from backend.maipa.workflows import drafts,services,native
-from backend.maipa.workflows.models import NativePrincipalBinding,NativeRunAuthority
+from backend.maipa.workflows import drafts,services,native,execution,selection
+from backend.maipa.workflows.models import NativePrincipalBinding,NativeRunAuthority,WorkflowRun
 from backend.maipa.workflows.errors import Unavailable,Conflict,InvalidWorkflow
 from backend.maipa.workflows.schema import bounded_json,handle,KINDS
 from backend.maipa.intake.models import Entity
@@ -26,7 +26,8 @@ TOOLS={
  'flow_update_node':('id','label','description','config','x','y'),'flow_delete_node':('id',),
  'flow_connect':('source','target','sourceHandle','targetHandle','label'),'flow_disconnect':('id',),
  'maipa_workflow_list':(),'maipa_workflow_create':('name','entity_id','request_id'),'maipa_workflow_publish':('expected_revision',),
- 'flow_run':(),'flow_cancel':('runId',),'maipa_workflow_runs':()}
+ 'flow_run':(),'flow_cancel':('runId',),'maipa_workflow_runs':(),
+ 'maipa_workflow_select_run':('run_id','expected_revision','show_details')}
 READS={'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges'}
 MUTATIONS={'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect'}
 ALLOWED_KINDS={'@particle-academy/'+kind for kind in KINDS}
@@ -82,7 +83,7 @@ async def public_workflow_tools():
  global _definitions
  if _definitions is None:
   value=await _run({'nodes':[],'edges':[]},0)
-  if type(value) is not list or {tool.get('name') for tool in value}!=set(TOOLS)-{'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs'}:raise Unavailable()
+  if type(value) is not list or {tool.get('name') for tool in value}!=set(TOOLS)-{'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs','maipa_workflow_select_run'}:raise Unavailable()
   own=[]
   for name,description,properties in (
    ('maipa_workflow_list','Read your owned workflow drafts, available client entity IDs/names, current visible draft and admitted kinds. Use an available entity_id when creating a client workflow. No execution authority.',{}),
@@ -90,7 +91,9 @@ async def public_workflow_tools():
     {'name':{'type':'string','minLength':1,'maxLength':128},'entity_id':{'type':['string','null'],'format':'uuid'},'request_id':{'type':'string','minLength':1,'maxLength':80}}),
    ('maipa_workflow_publish','Publish the visible, observed draft as one validated immutable version. Creates no run or execution grant.',
     {'expected_revision':{'type':'integer','minimum':0,'maximum':1999999998}}),
-   ('maipa_workflow_runs','Inspect saved actual runs of the visible workflow under the original registered principal and current triage grant. Returns no authority or human answers.',{})):
+   ('maipa_workflow_runs','Inspect saved actual runs and the shared selected run/details revision of the visible workflow under original current triage authority. Human runs are read-only; native origin is never adopted.',{}),
+   ('maipa_workflow_select_run','Select a run returned by maipa_workflow_runs and show/hide its details in the same human UI. Use the observed selection revision. No run, grant or human answer is created.',
+    {'run_id':{'type':'string','format':'uuid'},'expected_revision':{'type':'integer','minimum':0,'maximum':1999999998},'show_details':{'type':'boolean'}})):
    own.append({'name':name,'description':description,'inputSchema':{'type':'object','properties':properties,'required':list(properties),'additionalProperties':False}})
   _definitions=value+own
  return deepcopy(_definitions)
@@ -101,6 +104,8 @@ class WorkflowBroker:
   self.actor,self.account_id,self.identity=actor,services.identity(account_id),services.identity(identity)
   self.observed=None;self.lock=asyncio.Lock();self.last_activity=None
   self.observed_runs={}
+  self.observed_selection=None
+  self.observed_navigation=None
 
  def _actor(self):return drafts.native_actor(self.actor,self.account_id,self.identity)
 
@@ -156,11 +161,23 @@ class WorkflowBroker:
  @transaction.atomic
  def _runs(self):
   current=self._current();context,binding=self._execution_actor();publication=current['draft']['publication']
-  if not publication:return {'runs':[]}
-  rows=NativeRunAuthority.objects.filter(binding=binding,run__definition_id=publication['definition_id']).select_related('run').order_by('-run__created_at','-run_id')[:10]
-  runs=[native.get_run(context,str(row.run_id)) for row in rows]
+  state=execution.snapshot(self.actor,current['draft']['id'])
+  runs=[native.inspect_shared_run(context,row['id']) for row in state['runs']]
   self.observed_runs={r['id']:r for r in runs}
-  return {'runs':runs}
+  self.observed_selection=state['selection']
+  self.observed_navigation=(current['component'],current['draft']['id'])
+  return {'runs':runs,'selection':state['selection']}
+
+ @transaction.atomic
+ def _select_run(self,args):
+  current=self._current();context,_=self._execution_actor()
+  if (self.observed_navigation!=(current['component'],current['draft']['id'])
+      or self.observed_selection is None or args['expected_revision']!=self.observed_selection['revision']
+      or args['run_id'] not in self.observed_runs):raise Conflict()
+  native.inspect_shared_run(context,args['run_id'])
+  result=selection.change(self.actor,current['draft']['id'],**args,source='agent')
+  self.observed_selection=result
+  return result
 
  @transaction.atomic
  def _control(self,original,tool,revision,run_id):
@@ -172,7 +189,9 @@ class WorkflowBroker:
    if not publication or publication['draft_revision']!=revision:raise Conflict()
    native.prepare_graph(self.actor,publication['definition_id'],publication['definition_revision'])
    key=str(uuid.uuid5(uuid.UUID(self.identity),'flow-run:'+current['draft']['id']+':'+str(revision)))
-   native.dispatch(context,publication['definition_id'],publication['definition_revision'],{},key)
+   existed=WorkflowRun.objects.filter(definition_id=publication['definition_id'],dispatch_key=key).exists()
+   run=native.dispatch(context,publication['definition_id'],publication['definition_revision'],{},key)
+   if not existed:selection.focus(self.actor,current['draft']['id'],run['id'],source='agent')
   elif tool=='flow_cancel':
    if run_id is None:
     if len(self.observed_runs)!=1:raise Unavailable()
@@ -200,6 +219,8 @@ class WorkflowBroker:
      elif key=='config':
       if type(value) is not dict:return _error()
      elif key=='expected_revision':services._revision(value)
+     elif key=='show_details':
+      if type(value) is not bool:return _error()
      elif key=='entity_id' and value is None:pass
      elif type(value) is not str:return _error()
     if name=='flow_add_node' and arguments.get('kind') not in ALLOWED_KINDS:return _error()
@@ -207,6 +228,7 @@ class WorkflowBroker:
     if name=='maipa_workflow_list':return _result(await _database(self._metadata))
     if name=='maipa_workflow_create':return _result(await _database(self._create,arguments))
     if name=='maipa_workflow_runs':return _result(await _database(self._runs))
+    if name=='maipa_workflow_select_run':return _result(await _database(self._select_run,arguments))
     current=await _database(self._current)
     if name in MUTATIONS or name in ('maipa_workflow_publish','flow_run','flow_cancel'):
      if not self.observed or (self.observed['component'],self.observed['draft']['id'])!=(current['component'],current['draft']['id']):return _error()

@@ -202,6 +202,17 @@ def get_run(context,run_id):
 
 
 @transaction.atomic
+def inspect_shared_run(context,run_id):
+    """Triage may read local-owner work, never adopt its execution."""
+    user,member,binding,policy=_resolve(context);run=services._run(member,run_id)
+    if run.origin_kind=='native':return get_run(context,run_id)
+    if run.origin_kind!='local' or not services._origin_matches(run):raise Unavailable()
+    prepare_graph(user,str(run.definition_id),run.version.revision)
+    graph=_graph(member,run.definition,run.version);_check(policy,graph,'triage','node')
+    return services._run_value(run)
+
+
+@transaction.atomic
 def cancel(context,run_id,expected_step):
     user,member,binding,policy=_resolve(context)
     run=services._run(member,run_id)

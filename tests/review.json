@@ -5025,11 +5025,11 @@
       "scenario": "A05-SHARED-FORM.native-policy",
       "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities",
       "scenario_sha256": "55bf3808ac17b491fa42442995246cd482db1af674035cd282a554ee7a6b85af",
-      "source_sha256": "0fb9adc5bd684fd12823e18b7698a1c84f05b877d40cb0dfc82fbcce2a2ddb0a",
+      "source_sha256": "0e8831055b367ba57e269e588da17c082cfc71582d400dbef2d3c49662937db7",
       "expected_observation": "Exactly32 explicit Maipa UI/form/workflow tools are permitted, including scoped execution controls; no wildcard, native or foreign tool is allowed and disabled returns empty.",
       "decision": "aligned",
       "reviewer": "Maipa independent native permission acceptance review; no external reviewer claimed",
-      "reason": "Real Claude confirmed local dont-ask denial of newly advertised run/triage tools. Exact expected32-tool policy assertion failed before changing the consumer host; only the three scoped tool names are added. NativeTools:none and no-wildcard/disabled/copy-isolation assertions remain."
+      "reason": "Real Claude confirmed local dont-ask denial of newly advertised run/triage tools. Exact expected32-tool policy assertion failed before changing the consumer host; only the three scoped tool names are added. NativeTools:none and no-wildcard/disabled/copy-isolation assertions remain. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain."
     },
     {
       "scenario": "A04-DURABLE.versions",
@@ -6164,12 +6164,12 @@
     {
       "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.catalog",
       "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_native_permission_policy_matches_every_published_workflow_tool",
-      "source_sha256": "0fb9adc5bd684fd12823e18b7698a1c84f05b877d40cb0dfc82fbcce2a2ddb0a",
+      "source_sha256": "0e8831055b367ba57e269e588da17c082cfc71582d400dbef2d3c49662937db7",
       "scenario_sha256": "c2b0bab6d0c7bc6f2de2c4bde01f49731318587a8f4c5a5cdef30bf272085a54",
       "expected_observation": "Every advertised workflow tool has exactly its scoped native permission; the three execution names are explicitly required.",
       "decision": "aligned",
       "reviewer": "Maipa independent actual-provider/native transport review; no external reviewer claimed",
-      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch."
+      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain."
     },
     {
       "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.relay",
@@ -6260,6 +6260,96 @@
       "reason": "Exact owned named-entity list, foreign-name exclusion and zero authority rows are asserted independently before implementation.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
       "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.human_and_native_select_the_same_saved_run_with_revision_conflicts",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_human_and_native_select_the_same_saved_run_with_revision_conflicts",
+      "scenario_sha256": "04b143572c2ffa035ddf4f10dac059f692041362da5a1e8897fb98a3ddfc42f4",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "Human and agent share the identical saved run/detail selection; revision increments1to2, stale human write409 preserves newer state, and no run is created.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.native_dispatch_selects_actual_receipt_and_opens_details",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_native_dispatch_selects_actual_receipt_and_opens_details",
+      "scenario_sha256": "ab01faf0ae25e87eaac3f96665f6c80975cc9eb53c8738e6f4d263a0fa1b9752",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "Actual native dispatch selects exactly its run, opens details and reports agent source; unread native selection refuses with one run.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.human_run_inspection_requires_agent_triage_and_never_adopts_execution",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_human_run_inspection_requires_agent_triage_and_never_adopts_execution",
+      "scenario_sha256": "f33b5aafba5ae45fbcc41a936f8d975e4835b5d45e0c2e7f863cfb3703d5d829",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "Without triage grant native inspection refuses; current triage permits owned human run read, while native cancellation cannot adopt that local run and creates no native evidence.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.foreign_different_workflow_csrf_and_actor_hints_cannot_select",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_foreign_different_workflow_csrf_and_actor_hints_cannot_select",
+      "scenario_sha256": "2d2697b9824cffbe9622e142471a0b094b178f5881b93f318879a26bc36c7fbc",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "Another workflow404, forged source400, anonymous401, missingCSRF403 and changed actor409 refuse selection.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.newer_human_navigation_and_revoked_session_refuse_stale_native_selection",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_newer_human_navigation_and_revoked_session_refuse_stale_native_selection",
+      "scenario_sha256": "ec81e5ab7a60c2637ab5b57d494631e12cf1393b8ba9a33c59e0928b55f30164",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "A newer human selection and revoked original session both fence stale native navigation without changing the current choice.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.older_selected_run_is_retained_in_bounded_history_and_details_survive_readback",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_older_selected_run_is_retained_in_bounded_history_and_details_survive_readback",
+      "scenario_sha256": "be29264b9fe4e6f3f587b93b025e196b1dd3a0c3c5af8862e5143be730750f98",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "An explicitly selected older owned run remains among at most10history entries and detail visibility survives readback.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.actual_failed_human_run_can_be_triaged_repaired_and_run_as_a_new_immutable_version",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_actual_failed_human_run_can_be_triaged_repaired_and_run_as_a_new_immutable_version",
+      "scenario_sha256": "986b0656a0253df1fa808735d399cdbc429e1c5aba82f20ffb479ffe2f8e3f4e",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d",
+      "expected_observation": "Real output-limit failure is preserved unchanged; authorized actual public bridge triage/repair publishes version3, executes new run to exact repaired output and never rewrites original history.",
+      "decision": "aligned",
+      "reason": "Independent exact selected IDs/revisions/source, HTTP refusals, grant/evidence counts, bounded history and real-engine failed-versus-repaired immutable outputs are asserted before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.retry_preserves_human_choice",
+      "test": "tests.test_workflow_selection.WorkflowSelectionTests.test_repeated_dispatch_does_not_steal_a_newer_human_selection",
+      "scenario_sha256": "2e7ab9dddcf580a0bc379eb9fa498e2a98daff24959c4b45e25e86070132d419",
+      "expected_observation": "Both human and native retries preserve the newer human choice/revision without creating another run.",
+      "decision": "aligned",
+      "reason": "Exact run count and complete original chosen receipt/revision are compared after real human and native idempotent dispatch, independently of callback narration.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d"
+    },
+    {
+      "scenario": "A05-SHARED-RUN-SELECTION.downgrade_preserves_choice",
+      "test": "tests.test_workflow_selection.WorkflowSelectionMigrationTests.test_downgrade_refuses_before_erasing_saved_human_navigation",
+      "scenario_sha256": "a0d5b1d52b63e68ceab7bae3ea0be990806f5b68f8eb97e38b81749a37f2898e",
+      "expected_observation": "Downgrade refuses before removing the saved choice, queued run or applied migration record.",
+      "decision": "aligned",
+      "reason": "The actual migration executor must raise before deletion; full saved receipt, actual queued run and applied migration are independently compared afterward.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d"
     }
   ]
 }

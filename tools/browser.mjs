@@ -66,7 +66,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 41 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 42 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -89,6 +89,11 @@ async function evaluate(expression) {
   const response = await command("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
   assert.ok(!response.exceptionDetails, "Browser evaluation failure");
   return response.result.value;
+}
+async function openRunDetails() {
+  const expanded=()=>evaluate("[...document.querySelectorAll('.workflow-execution button')].find(b=>b.textContent==='Run details')?.getAttribute('aria-expanded')==='true'");
+  if(!await expanded())await click('Run details');
+  await until(expanded,'shared run details acknowledged open');
 }
 async function checkChatViewport(width, height) {
   await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width <= 700 });
@@ -447,16 +452,32 @@ try {
     assert.deepEqual(Object.values(permissionRun.outputs).filter(v=>v?.greeting==='Hello ').length,2);
     assert.deepEqual(Object.values(permissionRun.nodes).map(n=>n.attempts),[1,1,1]);
     await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(permissionRun.id)}`),'actual native result selected in shared controls');
-    await click('Run details');
+    await openRunDetails();
     assert.equal(await evaluate("[...document.querySelectorAll('.workflow-execution textarea')].some(t=>t.value.includes('Hello '))"),true);
+    await click('▶ Run');
+    await until(async()=>{const r=await permissionRuns();return r.runs.length===2&&r.runs.every(run=>run.status==='completed');},'human second run completed');
+    const humanRun=(await permissionRuns()).runs.find(run=>run.id!==permissionRun.id);
+    await typeChat('Select earlier shared workflow run');await click('Send');await typeChat('Synthetic unsent permission follow-up');await waitForAgent('Maipa.Workflow');
+    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(permissionRun.id)}&&!!document.querySelector('[data-workflow-selection-source="agent"]')`),'agent selects actual earlier run in human UI');
+    assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Synthetic unsent permission follow-up');
+    const selector=await evaluate("document.querySelector('.workflow-execution select').id");
+    await select(selector,humanRun.id);
+    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(humanRun.id)}`),'human choice shared with agent');
+    const chosen=(await permissionRuns()).selection;assert.equal(chosen.run_id,humanRun.id);assert.equal(chosen.source,'human');assert.equal(chosen.show_details,true);
+    await command('Page.reload');await preferencesReady();
+    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(humanRun.id)}&&[...document.querySelectorAll('.workflow-execution button')].some(b=>b.textContent==='Run details'&&b.getAttribute('aria-expanded')==='true')`),'same shared selection and details restored');
+    assert.deepEqual((await permissionRuns()).selection,chosen);
+    await click('Agent permissions');
+    await until(()=>evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='Revoke agent execution'&&!b.disabled)"),'current permission restored after reload');
     await click('Revoke agent execution');
     await until(()=>evaluate("document.querySelector('[data-workflow-agent-permission]')?.dataset.workflowAgentPermission==='disabled'"),'human revocation persisted');
     await typeChat('Try revoked shared workflow');await click('Send');await typeChat('Synthetic unsent permission follow-up');await waitForAgent('Maipa.Workflow');
-    assert.equal((await permissionRuns()).runs.length,1,'revoked native request creates no run');
+    assert.equal((await permissionRuns()).runs.length,2,'revoked native request creates no run');
     assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Synthetic unsent permission follow-up');
     const permissionPreview=await command('Page.captureScreenshot',{format:'png'});
     writeFileSync('artifacts/ci/workflow-permissions.png',Buffer.from(permissionPreview.data,'base64'));
     record('shared-workflow-human-permissions-and-native-run');
+    record('shared-workflow-run-selection-and-reload');
     await requestComponent('Open client facts', 'Maipa.ClientFacts');
     await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(saved.setup.entity_id)}`), 'original setup facts remain reachable');
     phase = 'admin_users';
@@ -994,7 +1015,7 @@ try {
   await typeChat('Synthetic unsent workflow follow-up');
   await click('Publish version');
   await until(async()=>{const saved=await readWorkflow();return saved.publication?.draft_revision===saved.revision;},'human publication acknowledged');
-  await click('Run details');await fillWorkflowInput({name:'Ada'});
+  await openRunDetails();await fillWorkflowInput({name:'Ada'});
   await startWorkflow();
   await until(()=>evaluate("document.querySelector('[data-workflow-run-status]')?.dataset.workflowRunStatus==='completed'"),'real server workflow completes');
   const readRun=()=>evaluate("(async()=>{const id=document.querySelector('[data-workflow-run]').dataset.workflowRun;const s=await(await fetch('/api/session/')).json();const r=await fetch('/api/workflows/runs/'+id+'/',{headers:{'X-Maipa-Workflow-Actor':String(s.user.id)}});if(r.status!==200)throw Error('Owned run read failed');return r.json();})()");
@@ -1010,7 +1031,7 @@ try {
   await until(()=>evaluate("document.querySelector('[data-workflow-phase]')?.dataset.workflowPhase==='ready' && document.querySelectorAll('.workflow-workspace .react-flow__node').length===4"),'shared approval node saved');
   await click('Publish version');
   await until(async()=>{const saved=await readWorkflow();return saved.publication?.draft_revision===saved.revision;},'approval publication acknowledged');
-  await click('Run details');await fillWorkflowInput({name:'Ada',approved:true});
+  await openRunDetails();await fillWorkflowInput({name:'Ada',approved:true});
   await startWorkflow();await until(()=>evaluate("!!document.querySelector('[data-workflow-gate]')"),'real durable human gate visible');
   const waitingWorkflow=await readRun();assert.equal(waitingWorkflow.run.status,'waiting');assert.equal(waitingWorkflow.gate.kind,'human_approval');
   assert.equal(Object.hasOwn(waitingWorkflow.run.outputs,outputNode.id),false);

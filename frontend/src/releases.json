@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-41",
+    "label": "Development update 41",
+    "cards": [
+      {
+        "title": "Inspect the same saved run",
+        "description": "Maipa can select a saved run and open its details in your workflow component. Your own run choice and detail visibility are saved and restored on reload."
+      },
+      {
+        "title": "Keep failures separate from repairs",
+        "description": "Run history keeps the failed version and its actual result. A repaired publication runs as a new immutable version; selecting history clearly identifies an older run."
+      }
+    ]
+  },
+  {
     "id": "development-40",
     "label": "Development update 40",
     "cards": [
@@ -258,20 +272,6 @@
       {
         "title": "Connection support stays explicit",
         "description": "Providers without a supported connection remain unavailable instead of falling back to Codex. Additional ACP connections and the Codex startup correction are still in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-21",
-    "label": "Development update 21",
-    "cards": [
-      {
-        "title": "Reconnect a stopped conversation",
-        "description": "Reconnect now checks your saved conversation and restarts a stopped connection, keeping the transcript and your unsent draft."
-      },
-      {
-        "title": "Provider startup correction in progress",
-        "description": "The connection can still stop shortly after subscription sign-in. The provider startup correction and real agent verification are still in progress."
       }
     ]
   }

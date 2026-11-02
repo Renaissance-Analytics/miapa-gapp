@@ -5693,6 +5693,102 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-SHARED-RUN-SELECTION",
+      "risk": "Private or stale navigation could conceal the true selected run, bypass native authority or rewrite failed execution history.",
+      "scenarios": [
+        {
+          "id": "A05-SHARED-RUN-SELECTION.human_and_native_select_the_same_saved_run_with_revision_conflicts",
+          "kind": "positive",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "human and native select the same saved run with revision conflicts",
+          "then": "Human and agent share the identical saved run/detail selection; revision increments1to2, stale human write409 preserves newer state, and no run is created.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_human_and_native_select_the_same_saved_run_with_revision_conflicts"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.native_dispatch_selects_actual_receipt_and_opens_details",
+          "kind": "positive",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "native dispatch selects actual receipt and opens details",
+          "then": "Actual native dispatch selects exactly its run, opens details and reports agent source; unread native selection refuses with one run.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_native_dispatch_selects_actual_receipt_and_opens_details"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.human_run_inspection_requires_agent_triage_and_never_adopts_execution",
+          "kind": "negative",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "human run inspection requires agent triage and never adopts execution",
+          "then": "Without triage grant native inspection refuses; current triage permits owned human run read, while native cancellation cannot adopt that local run and creates no native evidence.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_human_run_inspection_requires_agent_triage_and_never_adopts_execution"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.foreign_different_workflow_csrf_and_actor_hints_cannot_select",
+          "kind": "negative",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "foreign different workflow csrf and actor hints cannot select",
+          "then": "Another workflow404, forged source400, anonymous401, missingCSRF403 and changed actor409 refuse selection.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_foreign_different_workflow_csrf_and_actor_hints_cannot_select"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.newer_human_navigation_and_revoked_session_refuse_stale_native_selection",
+          "kind": "negative",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "newer human navigation and revoked session refuse stale native selection",
+          "then": "A newer human selection and revoked original session both fence stale native navigation without changing the current choice.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_newer_human_navigation_and_revoked_session_refuse_stale_native_selection"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.older_selected_run_is_retained_in_bounded_history_and_details_survive_readback",
+          "kind": "positive",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "older selected run is retained in bounded history and details survive readback",
+          "then": "An explicitly selected older owned run remains among at most10history entries and detail visibility survives readback.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_older_selected_run_is_retained_in_bounded_history_and_details_survive_readback"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.actual_failed_human_run_can_be_triaged_repaired_and_run_as_a_new_immutable_version",
+          "kind": "positive",
+          "given": "Owned workflow, original native connection, independent real run/policy/worker fixtures",
+          "when": "actual failed human run can be triaged repaired and run as a new immutable version",
+          "then": "Real output-limit failure is preserved unchanged; authorized actual public bridge triage/repair publishes version3, executes new run to exact repaired output and never rewrites original history.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_actual_failed_human_run_can_be_triaged_repaired_and_run_as_a_new_immutable_version"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.retry_preserves_human_choice",
+          "kind": "negative",
+          "given": "An acknowledged human/native dispatch followed by a newer human run choice",
+          "when": "Retry the identical dispatch key",
+          "then": "Both human and native retries preserve the newer human choice/revision without creating another run.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionTests.test_repeated_dispatch_does_not_steal_a_newer_human_selection"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-SELECTION.downgrade_preserves_choice",
+          "kind": "negative",
+          "given": "A migrated install with actual saved human run navigation and immutable queued run",
+          "when": "Run the real Django migration executor backwards",
+          "then": "Downgrade refuses before removing the saved choice, queued run or applied migration record.",
+          "tests": [
+            "tests.test_workflow_selection.WorkflowSelectionMigrationTests.test_downgrade_refuses_before_erasing_saved_human_navigation"
+          ]
+        }
+      ]
     }
   ]
 }

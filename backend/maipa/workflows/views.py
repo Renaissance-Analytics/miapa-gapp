@@ -7,7 +7,7 @@ from backend.maipa.api import error,method_not_allowed
 from backend.maipa.intake.views import body
 from backend.maipa.intake.schema import InvalidFact
 from backend.maipa.workspace.policy import authorize
-from . import gates,drafts,execution,permissions
+from . import gates,drafts,execution,permissions,selection
 from backend.maipa.acp import _object,_invalid_number
 from .errors import Unavailable,InvalidWorkflow,Conflict
 from .schema import require
@@ -122,6 +122,16 @@ def execution_run(request,run_id):
     denied=_draft_actor(request)
     if denied is not None:return denied
     return JsonResponse(execution.inspect(request.user,str(run_id)))
+
+
+@endpoint
+def select_run(request,draft_id):
+    if request.method!='POST':return method_not_allowed('POST')
+    denied=_draft_actor(request)
+    if denied is not None:return denied
+    command,denied=_draft_body(request,('expected_revision','run_id','show_details'))
+    if denied is not None:return denied
+    return JsonResponse(selection.change(request.user,str(draft_id),**command))
 
 
 @endpoint

@@ -1339,6 +1339,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-SHARED-RUN-CLIENT",
+      "risk": "Local navigation or stale receipts could show a different run from the shared server state.",
+      "scenarios": [
+        {
+          "id": "A05-SHARED-RUN-CLIENT.0",
+          "kind": "positive",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "polling follows the actual shared selected run and details instead of a private preference",
+          "then": "Polling and a fresh controller restore the exact server-selected run and detail/source state.",
+          "tests": [
+            "workflow-selection.test.mjs#polling follows the actual shared selected run and details instead of a private preference"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.1",
+          "kind": "positive",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "human choice awaits its exact revisioned acknowledgment and then reads the real selected output",
+          "then": "The human command carries observed revision1 and target; no optimistic replacement occurs, then revision2 and the actual selected output are read.",
+          "tests": [
+            "workflow-selection.test.mjs#human choice awaits its exact revisioned acknowledgment and then reads the real selected output"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.2",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "foreign or malformed shared selection is rejected before any private run inspection",
+          "then": "Unknown selected ID, source, malformed details and invalid revision are refused before display.",
+          "tests": [
+            "workflow-selection.test.mjs#foreign or malformed shared selection is rejected before any private run inspection"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.3",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "a stale or ambiguous navigation write requires readback and never retries over a newer agent choice",
+          "then": "Uncertain/conflicting navigation cannot retry before readback and never overwrites the newer agent choice.",
+          "tests": [
+            "workflow-selection.test.mjs#a stale or ambiguous navigation write requires readback and never retries over a newer agent choice"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.4",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "a wrong selection receipt and late disposal cannot replace current run evidence",
+          "then": "Mismatched acknowledgment refuses while keeping prior evidence; disposal fences a late receipt and clears private state.",
+          "tests": [
+            "workflow-selection.test.mjs#a wrong selection receipt and late disposal cannot replace current run evidence"
+          ]
+        }
+      ]
     }
   ]
 }

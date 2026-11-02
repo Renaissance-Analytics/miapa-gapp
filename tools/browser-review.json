@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "124c4282175e7738454280ffc236ef42db8e1f1bba80f6ba3aafb7aa148df024",
-    "tools/check_browser.py": "5a2d370bb776c1244fe67feb685069b9d05429fe6cbfaddf76eac62460dc1496",
+    "tools/browser.mjs": "8b841100ff37fb62c077db091d7edcf4e1eacd904cd7ecc683d11bbc79884e0d",
+    "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "ccfd991fe3e3ceb605b1e279206f7b0bf9d7971dc06462c7a4135df23acc6586"
+    "tests/fixtures/agent_chat_peer.py": "2f4186ed2177788f2e4211ecc28fcb219f02a4b8f72fb2fde15e5e0cb8941fd2"
   },
   "cases": [
     {
@@ -28,6 +28,11 @@
       "id": "shared-workflow-human-permissions-and-native-run",
       "kind": "positive",
       "expected": "The actual first-run administrator authorizes their owned original connection for the existing named synthetic client, creating zero runs. Deterministic ACP dispatch creates one real completed worker run with exact Hello-space outputs and one attempt per node, observed in shared controls. Native human revocation makes the next native request refuse with unchanged one-run count and unsent chat. No actual-provider claim."
+    },
+    {
+      "id": "shared-workflow-run-selection-and-reload",
+      "kind": "positive",
+      "expected": "The actual original scoped ACP path selects an older real run and opens its shared details. Native human Select chooses the other real run; exact run ID, revision, human source and detail visibility persist through reload. No grant, dispatch or human answer is created by navigation; the current chat draft is preserved during handoff."
     },
     {
       "id": "admin-users-create-update-conflict",
@@ -286,5 +291,10 @@
     "scope": "One new case in the existing first-run administrator profile;10first-run/41aggregate cases. The ordinary profile remains a preparer and its original40combined identities/assertions are preserved. No production role promotion, extra profile, relaxed role boundary or deadline.",
     "expected": "Human pointer actions use the real session/CSRF authorization API; deterministic ACP calls real original-principal native services and the production worker. Exact run count/output and actual refusal, not model narration, establish results.",
     "state": "Run selection remains a local human control in this increment. Shared agent run selection and full failure/repair acceptance remain A05 work."
+  },
+  "shared_run_selection_review": {
+    "scope": "One added scenario (42aggregate/11first-run), all41existing identities retained. Existing details controls now ensure the acknowledged saved panel is open rather than assuming local visibility resets on reload. Existing output/grant/revocation checks remain; extra explicit human run changes that fixture count1to2. No assertions, deadlines, permissions or cleanup gates relaxed.",
+    "authority": "Native navigation requires current original triage grant, observed actual run and selectionCAS. Local human runs can be inspected under triage but cannot acquire native execution provenance. Native origin/current-grant checks remain strict.",
+    "state": "Immutable run snapshots are distinct from selected run/detail state; selected history remains among at most10entries. Agent-source state is derived server-side; human source hints refuse. Repeated dispatch cannot steal a newer human choice."
   }
 }

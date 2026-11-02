@@ -191,3 +191,16 @@ class HumanResponse(WorkflowEvidence):
     answer = models.JSONField()
     answer_sha256 = models.CharField(max_length=64)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+
+class WorkflowSelection(models.Model):
+    """Shared navigation of an owned draft; never execution evidence."""
+    draft = models.OneToOneField(WorkflowDraft,primary_key=True,on_delete=models.PROTECT)
+    run = models.ForeignKey(WorkflowRun,null=True,on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    show_details = models.BooleanField(default=False)
+    source = models.CharField(max_length=8,default='human')
+
+    class Meta:
+        constraints=[models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000),name='flow_selection_revision'),
+            models.CheckConstraint(condition=models.Q(source__in=('human','agent')),name='flow_selection_source')]

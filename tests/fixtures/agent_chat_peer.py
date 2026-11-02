@@ -79,7 +79,7 @@ for line in sys.stdin:
                 'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
                 'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
                 'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
-                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','flow_run','flow_cancel','maipa_workflow_runs'}:
+                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','flow_run','flow_cancel','maipa_workflow_runs','maipa_workflow_select_run'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})
@@ -129,6 +129,12 @@ for line in sys.stdin:
                     ('output','Result',{},640)):
                     nodes.append(workflow_call('flow_add_node',{'kind':'@particle-academy/'+kind,'label':label,'config':config,'x':x,'y':0}))
                 for start,end in zip(nodes,nodes[1:]):workflow_call('flow_connect',{'source':start['id'],'target':end['id']})
+            elif 'select earlier shared workflow run' in text:
+                observed=callback('maipa_workflow_runs',{})
+                if observed.get('isError'):raise RuntimeError('Shared run inspection refused')
+                state=observed['structuredContent'];target=state['runs'][-1]['id']
+                result=callback('maipa_workflow_select_run',{'run_id':target,'expected_revision':state['selection']['revision'],'show_details':True})
+                if result.get('isError'):raise RuntimeError('Shared run selection refused')
             elif 'run authorized shared workflow' in text or 'try revoked shared workflow' in text:
                 callback('flow_get_state',{})
                 result=callback('flow_run',{})

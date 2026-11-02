@@ -33,8 +33,8 @@ class SharedFormPolicyTests(unittest.TestCase):
             'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
             'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
             'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish',
-            'flow_run','flow_cancel','maipa_workflow_runs')}
+            'flow_run','flow_cancel','maipa_workflow_runs','maipa_workflow_select_run')}
         self.assertEqual(set(observed['enabled']),expected)
-        self.assertEqual(len(observed['enabled']),32)
+        self.assertEqual(len(observed['enabled']),33)
         self.assertEqual(observed['disabled'],[])
         self.assertFalse(any('*' in name or name=='exec' for name in observed['enabled']))
