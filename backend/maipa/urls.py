@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/workflows/drafts/<uuid:draft_id>/',workflows.draft,name='workflow-draft'),
     path('api/workflows/drafts/<uuid:draft_id>/publish/',workflows.publish_draft,name='workflow-publish-draft'),
     path('api/workflows/drafts/<uuid:draft_id>/execution/',workflows.execution_draft,name='workflow-execution'),
+    path('api/workflows/drafts/<uuid:draft_id>/agent-authority/<uuid:account_id>/<uuid:ui_id>/',workflows.agent_authority,name='workflow-agent-authority'),
     path('api/workflows/runs/<uuid:run_id>/',workflows.execution_run,name='workflow-run'),
     path('api/workflows/runs/<uuid:run_id>/cancel/',workflows.execution_control,{'operation':'cancel'},name='workflow-cancel'),
     path('api/workflows/runs/<uuid:run_id>/resume/',workflows.execution_control,{'operation':'resume'},name='workflow-resume'),

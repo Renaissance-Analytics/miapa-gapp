@@ -66,7 +66,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 40 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 41 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -430,6 +430,33 @@ try {
     assert.deepEqual(await evaluate("(async()=>({preferences:await(await fetch('/api/workspace/preferences/')).json(),layout:await(await fetch('/api/workspace/layout/')).json(),setup:await(await fetch('/api/onboarding/')).json()}))()"), beforeCatalog);
     assert.deepEqual(await evaluate(`(async()=> (await fetch('/api/intake/entities/'+${JSON.stringify(saved.setup.entity_id)}+'/')).json())()`), saved.entity);
     record('client-catalog-create-rename-conflict');
+    phase='workflow_editor';
+    await requestComponent('Build a shared workflow for '+catalogEntity,'Maipa.Workflow');
+    await until(()=>evaluate("document.querySelector('[data-workflow-phase]')?.dataset.workflowPhase==='ready'&&document.querySelectorAll('.workflow-workspace .react-flow__node').length===3"),'administrator shared workflow');
+    await click('Publish version');
+    await until(()=>evaluate("!([...document.querySelectorAll('button')].some(b=>b.textContent==='Publish version'))"),'administrator publishes exact graph');
+    const permissionRuns=()=>evaluate("(async()=>{const id=document.querySelector('[data-workflow-draft]').dataset.workflowDraft;const s=await(await fetch('/api/session/')).json();const r=await fetch('/api/workflows/drafts/'+id+'/execution/',{headers:{'X-Maipa-Workflow-Actor':String(s.user.id)}});if(r.status!==200)throw Error('Owned execution read refused');return r.json();})()");
+    await click('Agent permissions');
+    await until(()=>evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='Allow agent execution for up to one hour'&&!b.disabled)"),'human original-connection authorization available');
+    await click('Allow agent execution for up to one hour');
+    await until(()=>evaluate("document.querySelector('[data-workflow-agent-permission]')?.dataset.workflowAgentPermission==='enabled'"),'human permission persisted');
+    assert.equal((await permissionRuns()).runs.length,0,'authorization creates no run');
+    await typeChat('Run authorized shared workflow');await click('Send');await typeChat('Synthetic unsent permission follow-up');await waitForAgent('Maipa.Workflow');
+    await until(async()=>{const s=await permissionRuns();return s.runs.length===1&&s.runs[0].status==='completed';},'human-authorized actual native worker execution');
+    const permissionRun=(await permissionRuns()).runs[0];
+    assert.deepEqual(Object.values(permissionRun.outputs).filter(v=>v?.greeting==='Hello ').length,2);
+    assert.deepEqual(Object.values(permissionRun.nodes).map(n=>n.attempts),[1,1,1]);
+    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(permissionRun.id)}`),'actual native result selected in shared controls');
+    await click('Run details');
+    assert.equal(await evaluate("[...document.querySelectorAll('.workflow-execution textarea')].some(t=>t.value.includes('Hello '))"),true);
+    await click('Revoke agent execution');
+    await until(()=>evaluate("document.querySelector('[data-workflow-agent-permission]')?.dataset.workflowAgentPermission==='disabled'"),'human revocation persisted');
+    await typeChat('Try revoked shared workflow');await click('Send');await typeChat('Synthetic unsent permission follow-up');await waitForAgent('Maipa.Workflow');
+    assert.equal((await permissionRuns()).runs.length,1,'revoked native request creates no run');
+    assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Synthetic unsent permission follow-up');
+    const permissionPreview=await command('Page.captureScreenshot',{format:'png'});
+    writeFileSync('artifacts/ci/workflow-permissions.png',Buffer.from(permissionPreview.data,'base64'));
+    record('shared-workflow-human-permissions-and-native-run');
     await requestComponent('Open client facts', 'Maipa.ClientFacts');
     await until(() => evaluate(`document.querySelector('[data-entity-id]')?.dataset.entityId === ${JSON.stringify(saved.setup.entity_id)}`), 'original setup facts remain reachable');
     phase = 'admin_users';

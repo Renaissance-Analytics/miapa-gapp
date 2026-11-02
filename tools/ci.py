@@ -19,6 +19,7 @@ BROWSER_CASES = (
     'local-first-run-admin',
     'account-chat-resume-and-confirm',
     'client-catalog-create-rename-conflict',
+    'shared-workflow-human-permissions-and-native-run',
     'admin-users-create-update-conflict',
     'first-run-stays-closed',
     'admin-users-restricted-login',

@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "077d9e02f445374acf2ad631ea4605151db4e148eac99e1b82c032a316c02a90",
-    "tools/check_browser.py": "c3b79c3e07563398a80b6a369bc00b5c1dc1c5afe425cdccc4e45be3602f9518",
+    "tools/browser.mjs": "124c4282175e7738454280ffc236ef42db8e1f1bba80f6ba3aafb7aa148df024",
+    "tools/check_browser.py": "5a2d370bb776c1244fe67feb685069b9d05429fe6cbfaddf76eac62460dc1496",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "ba2e8ae8c7927d94e999deddd56270f0b32ecd0cd4540d39dac5e786e93531c4"
+    "tests/fixtures/agent_chat_peer.py": "ccfd991fe3e3ceb605b1e279206f7b0bf9d7971dc06462c7a4135df23acc6586"
   },
   "cases": [
     {
@@ -23,6 +23,11 @@
       "id": "client-catalog-create-rename-conflict",
       "kind": "positive",
       "expected": "A native chat request reaches the deterministic ACP peer and production worker/public Fancy Form bridge to present ClientCatalog and atomically fill exact pending values. The real browser displays both values, original catalog remains identical, opted-in activity is closed/value-free and absent from legacy DTOs. Native human typing is acknowledged into the same draft and does not invent a new agent receipt. Explicit human Create still performs the existing business submission. All prior native create/rename/entity actions, exact audited revisions, stale409/reload, original finance data, preferences/layout/onboarding and conversation identity assertions remain. No fixed page or real-model acceptance claimed."
+    },
+    {
+      "id": "shared-workflow-human-permissions-and-native-run",
+      "kind": "positive",
+      "expected": "The actual first-run administrator authorizes their owned original connection for the existing named synthetic client, creating zero runs. Deterministic ACP dispatch creates one real completed worker run with exact Hello-space outputs and one attempt per node, observed in shared controls. Native human revocation makes the next native request refuse with unchanged one-run count and unsent chat. No actual-provider claim."
     },
     {
       "id": "admin-users-create-update-conflict",
@@ -276,5 +281,10 @@
     "authority": "Authenticated native human controls exercise real session/CSRF endpoints; the deterministic peer only edits the shared graph through real tools. It receives no human answer route, execution grant or claimed real-provider identity.",
     "controls": "Use the actual published Unicode Run/Cancel button labels and inherited fieldset disable state before clicking. Run input is a verified textarea reached with native keyboard entry; old input-only fill assertions remain unchanged. Observe the exact owned chat input id and original output preserved by the real approval executor. Feed times describe current UI observation, not execution-event timestamps.",
     "draft_precondition": "The new execution case establishes its own current unsent chat draft after the preceding original authoring case reload. It then retains the exact unchanged preservation assertions across Run and approval/cancel. Prior39 actions/assertions remain. The first failure assumed an in-memory draft survived reload; it is retained. Cross-reload unsent draft durability remains P04 work, not a claim of this execution increment."
+  },
+  "human_permissions_review": {
+    "scope": "One new case in the existing first-run administrator profile;10first-run/41aggregate cases. The ordinary profile remains a preparer and its original40combined identities/assertions are preserved. No production role promotion, extra profile, relaxed role boundary or deadline.",
+    "expected": "Human pointer actions use the real session/CSRF authorization API; deterministic ACP calls real original-principal native services and the production worker. Exact run count/output and actual refusal, not model narration, establish results.",
+    "state": "Run selection remains a local human control in this increment. Shared agent run selection and full failure/repair acceptance remain A05 work."
   }
 }

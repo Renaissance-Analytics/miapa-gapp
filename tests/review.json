@@ -6180,6 +6180,86 @@
       "decision": "aligned",
       "reviewer": "Maipa independent actual-provider/native transport review; no external reviewer claimed",
       "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch."
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.human_admin_records_one_original_connection_and_exact_nonfinancial_grants",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_human_admin_records_one_original_connection_and_exact_nonfinancial_grants",
+      "scenario_sha256": "9f75dcaf4adf3a7d25458e062b438f358ebeb7713afb770b83768fd132758253",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "Exactly one original session binding and four one-hour nonfinancial grants are recorded; the audited human identity is derived server-side, response contains no private authority identifiers, and no run is created.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.retry_and_stale_policy_do_not_mint_duplicate_authority",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_retry_and_stale_policy_do_not_mint_duplicate_authority",
+      "scenario_sha256": "966405315335928e4fc1d3c86f179498692be8c5ecf7385f56aa5d122e9d6b39",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "Stale policy/graph returns409; current desired-state retry succeeds with one principal, one binding and four grants.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.model_catalog_and_forged_actor_financial_expiry_fields_cannot_grant",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_model_catalog_and_forged_actor_financial_expiry_fields_cannot_grant",
+      "scenario_sha256": "06792ef9e991023d4a7bf25f9c70df00637b206a3aa1e30ee8326530d12f4400",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "The nonexistent model authorization tool and all extra HTTP fields refuse; no principal or grant is created.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.foreign_admin_changed_role_and_hidden_workflow_cannot_change_authority",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_foreign_admin_changed_role_and_hidden_workflow_cannot_change_authority",
+      "scenario_sha256": "bdce3754ddb26a4d84d2adbb8cf0b771adc7b1b6edaaea176be7af313b054f8c",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "Foreign/current-role/visibility checks refuse without provisioning; preparer snapshot reports no management authority.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.session_csrf_current_actor_and_revoked_original_binding_are_required",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_session_csrf_current_actor_and_revoked_original_binding_are_required",
+      "scenario_sha256": "4d6a6dc00343a80f8e7b1397ede34e1a3971c48a2281f08143ad11175afdfee9",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "Session, CSRF and actor guards refuse with401/403/409; revoked original session refuses404 with no principal.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.revocation_stops_next_real_node_and_reenable_cannot_rewrite_run_origin",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_revocation_stops_next_real_node_and_reenable_cannot_rewrite_run_origin",
+      "scenario_sha256": "bed0a28a781a967453af89beedf86b65dc154adeeb12dddd5d36a7a5c02e1bff",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "The next node blocks with exactly one checkpoint; reauthorization reuses the original binding but cannot adopt the old run whose immutable grant was revoked.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.expired_principal_cannot_be_extended_or_transferred_to_a_new_session",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_expired_principal_cannot_be_extended_or_transferred_to_a_new_session",
+      "scenario_sha256": "36e8d75ab5c38986c80040f07e130a37dedf95f406cf1ed137e20d3336c8b375",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f",
+      "expected_observation": "The request refuses404 and cannot extend or replace the original principal/binding.",
+      "decision": "aligned",
+      "reason": "Reviewed explicit HTTP status, persisted principal/binding/grant counts and independent real-worker checkpoint/origin assertions against the stated human/session/policy boundary. No implementation exists yet. Fixture import changed to a module alias so Django does not rediscover nine imported original tests; all seven behavioral assertions are unchanged.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-WORKFLOW-AUTHORITY.owned_entity_discovery",
+      "test": "tests.test_workflow_permissions.WorkflowPermissionTests.test_agent_discovers_owned_client_names_without_guessing_ids_or_creating_authority",
+      "scenario_sha256": "cb0609018500f7d1ff5e25c5459557ba378610174f1b220661685ef230ce7864",
+      "expected_observation": "Only the owned entity UUID and human-readable entity/client names are returned; no principal or grant is created.",
+      "decision": "aligned",
+      "reason": "Exact owned named-entity list, foreign-name exclusion and zero authority rows are asserted independently before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "source_sha256": "9e52d17c9e6d31afc9dc7986f439669e4d86c3eb65d231c4b5d2f0bae6e9fa3f"
     }
   ]
 }

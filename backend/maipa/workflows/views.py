@@ -7,7 +7,7 @@ from backend.maipa.api import error,method_not_allowed
 from backend.maipa.intake.views import body
 from backend.maipa.intake.schema import InvalidFact
 from backend.maipa.workspace.policy import authorize
-from . import gates,drafts,execution
+from . import gates,drafts,execution,permissions
 from backend.maipa.acp import _object,_invalid_number
 from .errors import Unavailable,InvalidWorkflow,Conflict
 from .schema import require
@@ -102,6 +102,18 @@ def execution_draft(request,draft_id):
     command,denied=_draft_body(request,('expected_revision','definition_revision','request_key','seed'))
     if denied is not None:return denied
     return JsonResponse(execution.dispatch(request.user,str(draft_id),**command))
+
+
+@endpoint
+def agent_authority(request,draft_id,account_id,ui_id):
+    if request.method not in ('GET','POST'):return method_not_allowed('GET, POST')
+    denied=_draft_actor(request)
+    if denied is not None:return denied
+    args=(request.user,str(draft_id),str(account_id),str(ui_id))
+    if request.method=='GET':return JsonResponse(permissions.snapshot(*args))
+    command,denied=_draft_body(request,('expected_revision','expected_policy_version','enabled'))
+    if denied is not None:return denied
+    return JsonResponse(permissions.change(*args,**command))
 
 
 @endpoint

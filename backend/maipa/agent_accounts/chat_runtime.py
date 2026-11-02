@@ -64,6 +64,7 @@ Present Maipa.Workflow with props draft_id, then read flow_get_state before usin
 Use only the admitted canonical kinds returned by maipa_workflow_list. Human and agent edit the same revisioned graph.
 A stale write requires reading and reviewing current work before trying again. maipa_workflow_publish records a version only.
 flow_run requests the exact observed published graph from the server worker. It requires an already registered original principal and current execution grant; it creates neither.
+If execution authority is unavailable, the human administrator can open Agent permissions in the visible client workflow and authorize the current connection. Only that human control grants or revokes authority; there is no authorization tool. New permission lasts up to an hour and a new connection requires a fresh decision.
 Run acceptance means queued, not completed. Inspect maipa_workflow_runs for actual saved node states, outputs and failures before reporting outcomes.
 Read maipa_workflow_runs before flow_cancel so cancellation uses its observed step and original current authority.
 If execution authority or the worker is unavailable, explain that refusal. Never create authority, impersonate a human answer or report publication as execution.

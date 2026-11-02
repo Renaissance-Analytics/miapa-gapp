@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
+      "source_sha256": "b8f8a617e4c1bb90febc85ee37e9e35bf32ddd13b91488c9d8a986bcdeeca9f6",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
+      "source_sha256": "b8f8a617e4c1bb90febc85ee37e9e35bf32ddd13b91488c9d8a986bcdeeca9f6",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Update39 adds implemented run/gate controls, retains exact prior38/37/36 card assertions and rotates19 into history without loss. All23 unique groups remain.",
+      "reason": "Update39 adds implemented run/gate controls, retains exact prior38/37/36 card assertions and rotates19 into history without loss. All23 unique groups remain. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
+      "source_sha256": "b8f8a617e4c1bb90febc85ee37e9e35bf32ddd13b91488c9d8a986bcdeeca9f6",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
+      "source_sha256": "b8f8a617e4c1bb90febc85ee37e9e35bf32ddd13b91488c9d8a986bcdeeca9f6",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -1210,6 +1210,66 @@
       "decision": "aligned",
       "reviewer": "Maipa independent acknowledgment/lifecycle review; no external reviewer claimed",
       "reason": "Observed red: a normal background read silently discarded a human cancellation. Await read settlement while preserving the original observed CAS; do not disable editable question inputs during polling or resample authority from another run."
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.1",
+      "test": "workflow-permissions.test.mjs#human permission change uses observed policy and graph and waits for confirmed receipt",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a",
+      "scenario_sha256": "bf169c8f4ac8491d784333e1557fc708733f0108e9d07b2142516f7e9142067a",
+      "expected_observation": "Only a confirmed matching receipt changes enabled state; pending UI retains the prior state and sends the observed policy and graph revisions.",
+      "decision": "aligned",
+      "reason": "Independent deferred promises, exact command assertions, request counts, rejection checks and disposal assertions establish the advertised client boundary before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.2",
+      "test": "workflow-permissions.test.mjs#uncertain result requires fresh read and never repeats or invents the grant",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a",
+      "scenario_sha256": "84bf48b2b8c086d939df930c274e4ff14bdfec2abfa0303ca022d3bc67723699",
+      "expected_observation": "A lost receipt remains uncertain, cannot repeat writes before a read, and a fresh read restores the confirmed server state.",
+      "decision": "aligned",
+      "reason": "Independent deferred promises, exact command assertions, request counts, rejection checks and disposal assertions establish the advertised client boundary before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.3",
+      "test": "workflow-permissions.test.mjs#foreign connection extra authority fields and malformed expiry are refused before display",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a",
+      "scenario_sha256": "ab01f7fb92db41f0e6c045118e2db2b0dda5a1cf967bde2e03253831cd93805d",
+      "expected_observation": "Foreign connection/draft, extra authority fields, malformed expiry and invalid versions are rejected before display.",
+      "decision": "aligned",
+      "reason": "Independent deferred promises, exact command assertions, request counts, rejection checks and disposal assertions establish the advertised client boundary before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.4",
+      "test": "workflow-permissions.test.mjs#dispose fences pending grant acknowledgment and clears original connection state",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a",
+      "scenario_sha256": "b06a71e7e71f171659b10f487855a0784728ed93e8f41afcc5ce9c96ebde470d",
+      "expected_observation": "Disposal clears the state and fences a late accepted grant response.",
+      "decision": "aligned",
+      "reason": "Independent deferred promises, exact command assertions, request counts, rejection checks and disposal assertions establish the advertised client boundary before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.5",
+      "test": "workflow-permissions.test.mjs#nonadministrator and mismatched graph cannot send an authorization change",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a",
+      "scenario_sha256": "f8f01352153dd5fa83e03370fa578dd75e2ed3d91c8bc96730d1cdd449278138",
+      "expected_observation": "A nonadministrator and a graph revision mismatch send zero authorization writes.",
+      "decision": "aligned",
+      "reason": "Independent deferred promises, exact command assertions, request counts, rejection checks and disposal assertions establish the advertised client boundary before implementation.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "A05-HUMAN-PERMISSION-CLIENT.6",
+      "test": "workflow-permissions.test.mjs#human authorization waits for a held background read instead of losing the click",
+      "scenario_sha256": "afb8db10063d73286c1bf2f79b5bd1b9c188c768b25301358b412dddf6f972f3",
+      "expected_observation": "The original human intent waits for the read and sends exactly one confirmed authorization instead of being dropped.",
+      "decision": "aligned",
+      "reason": "An independently held polling Promise and explicit one-write/enabled assertions reproduce the lost-click race before correction.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "source_sha256": "ebdf184b800231aeac5f9aa2062a1193654ff74bcc5a7a186d711b5f9cf2c97a"
     }
   ]
 }

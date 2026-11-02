@@ -16,6 +16,7 @@ from backend.maipa.workflows import drafts,services,native
 from backend.maipa.workflows.models import NativePrincipalBinding,NativeRunAuthority
 from backend.maipa.workflows.errors import Unavailable,Conflict,InvalidWorkflow
 from backend.maipa.workflows.schema import bounded_json,handle,KINDS
+from backend.maipa.intake.models import Entity
 from . import ui
 from .models import UiComposition
 
@@ -84,7 +85,7 @@ async def public_workflow_tools():
   if type(value) is not list or {tool.get('name') for tool in value}!=set(TOOLS)-{'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs'}:raise Unavailable()
   own=[]
   for name,description,properties in (
-   ('maipa_workflow_list','Read your owned workflow draft identities/revisions, current visible draft and admitted canonical kinds. No execution authority.',{}),
+   ('maipa_workflow_list','Read your owned workflow drafts, available client entity IDs/names, current visible draft and admitted kinds. Use an available entity_id when creating a client workflow. No execution authority.',{}),
    ('maipa_workflow_create','Create an empty owned authoring draft. Reuse request_id for retries. Present Maipa.Workflow with its draft_id to edit it. Creates no run or authority.',
     {'name':{'type':'string','minLength':1,'maxLength':128},'entity_id':{'type':['string','null'],'format':'uuid'},'request_id':{'type':'string','minLength':1,'maxLength':80}}),
    ('maipa_workflow_publish','Publish the visible, observed draft as one validated immutable version. Creates no run or execution grant.',
@@ -118,12 +119,14 @@ class WorkflowBroker:
 
  @transaction.atomic
  def _metadata(self):
-  context=self._actor();rows=drafts.list_drafts(context)
+  context=self._actor();rows=drafts.list_drafts(context);_,member=drafts._principal(context)
+  entities=[{'id':str(row.pk),'name':row.name,'client_name':row.engagement.name} for row in Entity.objects.select_related('engagement').filter(
+   engagement__owner_id=member.user_id,engagement__installation_id=member.installation_id).order_by('name','id')[:100]]
   try:current=self._current()['draft'];visible={'id':current['id'],'revision':current['revision']}
   except Unavailable:visible=None
   self._actor()
   return {'drafts':[{key:row[key] for key in ('id','name','entity_id','revision')} for row in rows],
-   'current':visible,'kinds':sorted(ALLOWED_KINDS)}
+   'current':visible,'kinds':sorted(ALLOWED_KINDS),'entities':entities}
 
  @transaction.atomic
  def _create(self,args):

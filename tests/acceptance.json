@@ -5607,6 +5607,92 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-HUMAN-WORKFLOW-AUTHORITY",
+      "risk": "A model, foreign actor, stale browser or new connection could mint or extend execution authority without a current explicit human decision.",
+      "scenarios": [
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.human_admin_records_one_original_connection_and_exact_nonfinancial_grants",
+          "kind": "positive",
+          "given": "An administrator owns a visible workflow and original provider connection, with no execution authority",
+          "when": "Explicitly enable workflow authority in the authenticated human session",
+          "then": "Exactly one original session binding and four one-hour nonfinancial grants are recorded; the audited human identity is derived server-side, response contains no private authority identifiers, and no run is created.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_human_admin_records_one_original_connection_and_exact_nonfinancial_grants"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.retry_and_stale_policy_do_not_mint_duplicate_authority",
+          "kind": "negative",
+          "given": "A confirmed authorization and observed policy version",
+          "when": "Retry the stale request, refresh and repeat desired state, or submit a stale graph",
+          "then": "Stale policy/graph returns409; current desired-state retry succeeds with one principal, one binding and four grants.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_retry_and_stale_policy_do_not_mint_duplicate_authority"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.model_catalog_and_forged_actor_financial_expiry_fields_cannot_grant",
+          "kind": "negative",
+          "given": "The actual workflow broker and human authorization endpoint",
+          "when": "Ask the model tool or submit actor, financial-action, entity or expiry hints",
+          "then": "The nonexistent model authorization tool and all extra HTTP fields refuse; no principal or grant is created.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_model_catalog_and_forged_actor_financial_expiry_fields_cannot_grant"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.foreign_admin_changed_role_and_hidden_workflow_cannot_change_authority",
+          "kind": "negative",
+          "given": "Another administrator, a preparer, or a replaced visible workflow",
+          "when": "Attempt to authorize the original workflow connection",
+          "then": "Foreign/current-role/visibility checks refuse without provisioning; preparer snapshot reports no management authority.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_foreign_admin_changed_role_and_hidden_workflow_cannot_change_authority"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.session_csrf_current_actor_and_revoked_original_binding_are_required",
+          "kind": "negative",
+          "given": "Anonymous, missing CSRF, missing current-actor guard, or revoked session",
+          "when": "Access or mutate workflow authorization",
+          "then": "Session, CSRF and actor guards refuse with401/403/409; revoked original session refuses404 with no principal.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_session_csrf_current_actor_and_revoked_original_binding_are_required"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.revocation_stops_next_real_node_and_reenable_cannot_rewrite_run_origin",
+          "kind": "positive",
+          "given": "A real native dispatch using human-created authority and one completed node",
+          "when": "Human revokes authority before the next node, then reauthorizes",
+          "then": "The next node blocks with exactly one checkpoint; reauthorization reuses the original binding but cannot adopt the old run whose immutable grant was revoked.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_revocation_stops_next_real_node_and_reenable_cannot_rewrite_run_origin"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.expired_principal_cannot_be_extended_or_transferred_to_a_new_session",
+          "kind": "negative",
+          "given": "A human-authorized original principal that has expired",
+          "when": "Try to authorize again using the same original binding",
+          "then": "The request refuses404 and cannot extend or replace the original principal/binding.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_expired_principal_cannot_be_extended_or_transferred_to_a_new_session"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-WORKFLOW-AUTHORITY.owned_entity_discovery",
+          "kind": "positive",
+          "given": "Owned and foreign client entities and an original native UI connection",
+          "when": "The agent reads workflow metadata without execution grants",
+          "then": "Only the owned entity UUID and human-readable entity/client names are returned; no principal or grant is created.",
+          "tests": [
+            "tests.test_workflow_permissions.WorkflowPermissionTests.test_agent_discovers_owned_client_names_without_guessing_ids_or_creating_authority"
+          ]
+        }
+      ]
     }
   ]
 }

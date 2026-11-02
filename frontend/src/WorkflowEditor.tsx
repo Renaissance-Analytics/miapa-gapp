@@ -5,10 +5,12 @@ import {reactFancyFieldRenderers} from '@particle-academy/fancy-flow/fields/reac
 import {Button,Callout,Text,useTheme} from '@particle-academy/react-fancy';
 import {SharedWorkflowController,type WorkflowState,type WorkflowActivity} from './shared-workflow.js';
 import {WorkflowExecution} from './WorkflowExecution.js';
+import {WorkflowPermissions} from './WorkflowPermissions.js';
+import type {WorkflowConnection} from './workflow-permissions.js';
 
 const supported=new Set(['manual_trigger','transform','output','human_approval','user_input'].map(k=>'@particle-academy/'+k));
 const kindFilter:FlowEditorProps['kindFilter']=({kind})=>supported.has(kind.name);
-export function WorkflowEditor({userId,draftId,activity}:{userId:string;draftId:string;activity?:WorkflowActivity}){
+export function WorkflowEditor({userId,draftId,activity,connection}:{userId:string;draftId:string;activity?:WorkflowActivity;connection?:WorkflowConnection}){
  const theme=useTheme();
  const [state,setState]=useState<WorkflowState>({phase:'loading',saved:null,graph:null});
  const controller=useRef<SharedWorkflowController|null>(null),container=useRef<HTMLDivElement>(null);
@@ -38,7 +40,8 @@ export function WorkflowEditor({userId,draftId,activity}:{userId:string;draftId:
    <Button size="sm" variant="ghost" onClick={()=>{void controller.current?.load(true);}}>Reload saved workflow</Button></Callout>}
   {state.phase==='closed'&&<Callout color="amber" role="status">This workflow is no longer available.</Callout>}
   {activity&&activity.draft_id===state.saved?.id&&activity.revision===state.saved.revision&&<Callout color="blue" role="status" data-native-workflow-activity={activity.id}>Maipa updated this workflow.</Callout>}
-  {state.saved&&<WorkflowExecution userId={userId} draft={state.saved} flush={async()=>await controller.current?.flush()??false} />}
+  {state.saved&&<><WorkflowPermissions userId={userId} draft={state.saved} connection={connection} />
+   <WorkflowExecution userId={userId} draft={state.saved} flush={async()=>await controller.current?.flush()??false} /></>}
   <div ref={container}>{state.graph&&<fieldset disabled={!editable}><legend className="sr-only">Edit workflow</legend>
    <FlowEditor ref={editor} value={state.graph} onChange={graph=>controller.current?.change(graph)} height={height}
     className={theme.resolved==='light'?'ff-canvas--light':'dark'}

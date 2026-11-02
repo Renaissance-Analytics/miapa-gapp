@@ -116,7 +116,8 @@ for line in sys.stdin:
                     if result.get('isError'):raise RuntimeError('Synthetic workflow callback refused')
                     return result['structuredContent']
                 workflow_call('maipa_workflow_list',{})
-                draft=workflow_call('maipa_workflow_create',{'name':'Synthetic shared workflow','entity_id':None,'request_id':'shared-workflow'})
+                entity=str(uuid.UUID(text.rsplit(' for ',1)[1])) if ' for ' in text else None
+                draft=workflow_call('maipa_workflow_create',{'name':'Synthetic shared workflow','entity_id':entity,'request_id':'shared-workflow'})
                 callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present',{
                     'revision':revision,'title':'Shared workflow',
                     'schema':{'id':'shared-workflow','type':'Maipa.Workflow','props':{'draft_id':draft['id']}}})
@@ -128,6 +129,14 @@ for line in sys.stdin:
                     ('output','Result',{},640)):
                     nodes.append(workflow_call('flow_add_node',{'kind':'@particle-academy/'+kind,'label':label,'config':config,'x':x,'y':0}))
                 for start,end in zip(nodes,nodes[1:]):workflow_call('flow_connect',{'source':start['id'],'target':end['id']})
+            elif 'run authorized shared workflow' in text or 'try revoked shared workflow' in text:
+                callback('flow_get_state',{})
+                result=callback('flow_run',{})
+                if 'try revoked' in text:
+                    if result.get('isError') is not True:raise RuntimeError('Revoked workflow execution accepted')
+                else:
+                    if result.get('isError'):raise RuntimeError('Human-authorized native execution refused')
+                    if callback('maipa_workflow_runs',{}).get('isError'):raise RuntimeError('Native run inspection refused')
             elif 'add workflow approval' in text:
                 def workflow_control(name,arguments):
                     result=callback(name,arguments)
