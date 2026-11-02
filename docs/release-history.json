@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-22",
+    "label": "Development update 22",
+    "cards": [
+      {
+        "title": "Choose your agent provider",
+        "description": "The chat now saves your provider choice and keeps each account\u2019s conversation separate. Unsent drafts return when switching between providers in the open app."
+      },
+      {
+        "title": "Connection support stays explicit",
+        "description": "Providers without a supported connection remain unavailable instead of falling back to Codex. Additional ACP connections and the Codex startup correction are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-21",
     "label": "Development update 21",
     "cards": [

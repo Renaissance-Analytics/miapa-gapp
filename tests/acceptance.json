@@ -5789,6 +5789,122 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P04-DURABLE-DRAFT",
+      "risk": "Reload or ambiguous send can lose private draft content, duplicate a turn, or restore another principal/account draft.",
+      "scenarios": [
+        {
+          "id": "P04-DURABLE-DRAFT.0",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_saved_full_draft_and_explicit_empty_restore_without_provider_side_effects",
+          "then": "Exact supported full draft and explicit empty restore with revisions0to2, no conversation or provider work.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_full_draft_and_explicit_empty_restore_without_provider_side_effects"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.1",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_unselected_and_other_accounts_are_separate_and_reassignment_refuses",
+          "then": "Unselected/account scopes remain separate; foreign/reassigned identity refuses; original owner data is unchanged.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_unselected_and_other_accounts_are_separate_and_reassignment_refuses"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.2",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_stale_write_preserves_newer_draft_and_invalid_shapes_refuse",
+          "then": "Stale CAS and malformed/oversized/path-bearing drafts refuse without changing the saved revision or content.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_stale_write_preserves_newer_draft_and_invalid_shapes_refuse"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.3",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_saved_retry_identity_resolves_actual_accepted_request_without_duplicate",
+          "then": "An actual accepted request resolves the saved retry ID; an exact retry invokes no second worker and produces one user record.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_retry_identity_resolves_actual_accepted_request_without_duplicate"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.4",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_current_role_storage_and_original_installation_are_rechecked",
+          "then": "Changed current role or storage binding refuses; the original saved draft remains intact.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_current_role_storage_and_original_installation_are_rechecked"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.5",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_http_requires_current_actor_csrf_and_exact_body",
+          "then": "Anonymous/current actor/CSRF/exact JSON checks refuse; stale write409 preserves saved content.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_http_requires_current_actor_csrf_and_exact_body"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.6",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "test_file_metadata_is_honest_and_forged_pending_receipts_are_rejected",
+          "then": "File names are retained without invented bytes/refs; forged accepted receipt refuses and creates no conversation.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftStoreTests.test_file_metadata_is_honest_and_forged_pending_receipts_are_rejected"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.7",
+          "kind": "negative",
+          "given": "An owned acknowledged draft with actual saved evidence and a delayed or destructive lifecycle operation",
+          "when": "test_downgrade_refuses_before_removing_saved_draft_or_migration_record",
+          "then": "Downgrade refuses before erasing actual saved draft and applied migration record.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftMigrationTests.test_downgrade_refuses_before_removing_saved_draft_or_migration_record"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.8",
+          "kind": "positive",
+          "given": "Actual owned file-backed database and independent current input",
+          "when": "save_waits_for_another_owned_writer_without_losing_the_draft",
+          "then": "An actual concurrent SQLite writer is serialized before reading draft state; the draft saves once as revision2 instead of losing input or returning a lock-upgrade error.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_save_waits_for_another_owned_writer_without_losing_the_draft"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.9",
+          "kind": "positive",
+          "given": "Actual owned file-backed database and independent current input",
+          "when": "windows_pasted_text_line_endings_restore_exactly_without_sending",
+          "then": "Windows CRLF in supported text/pasted pills restores exactly and creates zero provider conversation.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_windows_pasted_text_line_endings_restore_exactly_without_sending"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT.10",
+          "kind": "positive",
+          "given": "Two actual saved views and a real concurrent local database writer",
+          "when": "Reorder while the other writer holds the database",
+          "then": "Existing saved-view reorder waits for the independent concurrent writer and commits exact reversed order at revision3, preserving all entries.",
+          "tests": [
+            "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_saved_view_reorder_waits_for_concurrent_draft_writer"
+          ]
+        }
+      ]
     }
   ]
 }

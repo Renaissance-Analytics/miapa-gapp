@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-42",
+    "label": "Development update 42",
+    "cards": [
+      {
+        "title": "Keep your unsent message",
+        "description": "Your saved draft now returns after reload for the same account, including pasted text and file names. Saving a draft never sends it."
+      },
+      {
+        "title": "Retry without another copy",
+        "description": "A prepared send keeps its original retry identity across reload. Confirmed sends clear only their matching draft; newer typing is kept. File contents still need supported delivery."
+      }
+    ]
+  },
+  {
     "id": "development-41",
     "label": "Development update 41",
     "cards": [
@@ -258,20 +272,6 @@
       {
         "title": "Live agent verification continues",
         "description": "Your provider choice and saved chats are retained. Actual model-driven UI verification and additional ACP connections are still in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-22",
-    "label": "Development update 22",
-    "cards": [
-      {
-        "title": "Choose your agent provider",
-        "description": "The chat now saves your provider choice and keeps each account\u2019s conversation separate. Unsent drafts return when switching between providers in the open app."
-      },
-      {
-        "title": "Connection support stays explicit",
-        "description": "Providers without a supported connection remain unavailable instead of falling back to Codex. Additional ACP connections and the Codex startup correction are still in progress."
       }
     ]
   }

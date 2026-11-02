@@ -41,6 +41,7 @@ BROWSER_CASES = (
     'agent-chat-stream-and-ui-control',
     'chat-draft-and-space-recovery',
     'agent-cancel-and-chat-restore',
+    'agent-draft-reload-and-retry',
     'agent-reconnect-after-transport-loss',
     'agent-provider-choice-and-account-restore',
     'shared-workflow-editor-and-native-authoring',

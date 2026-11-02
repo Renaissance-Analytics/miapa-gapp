@@ -117,6 +117,9 @@ export class PersonalViewsController {
   async load(): Promise<void> {
     if (this.closed || this.pending) return;
     const sequence = ++this.sequence;
+    // A refresh may carry a newer collection revision. Keep shortcuts visible
+    // but disable mutations until the current read is acknowledged.
+    this.notify({...this.state,phase:'loading'});
     try {
       const value = await request(this.userId,undefined,undefined,AbortSignal.any([this.lifetime.signal,AbortSignal.timeout(15000)]));
       if (this.closed || sequence !== this.sequence) return;

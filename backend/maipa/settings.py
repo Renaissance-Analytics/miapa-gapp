@@ -44,7 +44,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = "backend.maipa.urls"
 ASGI_APPLICATION = "backend.maipa.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATA_ROOT / "maipa.sqlite3"}}
+# Reserve short atomic transactions before reads so concurrent app writers queue.
+# Supported Django SQLite option; preserve the normal timeout and autocommit.
+DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATA_ROOT / "maipa.sqlite3",
+                         "OPTIONS": {"transaction_mode": "IMMEDIATE"}}}
 USE_TZ = True
 TIME_ZONE = "UTC"
 LANGUAGE_CODE = "en-us"

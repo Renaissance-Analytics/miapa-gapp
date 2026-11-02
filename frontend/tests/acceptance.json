@@ -1395,6 +1395,122 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P04-DURABLE-DRAFT-CLIENT",
+      "risk": "Reload or ambiguous send can lose private draft content, duplicate a turn, or restore another principal/account draft.",
+      "scenarios": [
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.0",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "acknowledged draft and explicit empty draft restore in a fresh controller without sending",
+          "then": "Saved full text and explicit empty survive fresh controller; only two explicit draft writes, zero provider sends.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#acknowledged draft and explicit empty draft restore in a fresh controller without sending"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.1",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "typing during a held read is retained and never written into another account",
+          "then": "Typing during the held initial read remains intact and the subsequent write targets only the original account.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#typing during a held read is retained and never written into another account"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.2",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "a lost save receipt preserves local input and requires explicit readback instead of overwrite",
+          "then": "Lost receipt retains local text, refuses automatic overwrite, and explicit readback restores actual saved text.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#a lost save receipt preserves local input and requires explicit readback instead of overwrite"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.3",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "retry is persisted before return and reuses the same ID after reload",
+          "then": "Prepare persists an exact retry ID before returning; fresh controller reuse produces no second preparation write.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#retry is persisted before return and reuses the same ID after reload"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.4",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "actual accepted evidence clears only the submitted snapshot and preserves newer typing",
+          "then": "Actual accepted evidence clears only the submitted snapshot, retaining different newer text.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#actual accepted evidence clears only the submitted snapshot and preserves newer typing"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.5",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "foreign restoration and late disposal cannot publish another account draft",
+          "then": "Foreign account response refuses and disposed controller cannot publish late private content.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#foreign restoration and late disposal cannot publish another account draft"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.6",
+          "kind": "negative",
+          "given": "An owned acknowledged draft with actual saved evidence and a delayed or destructive lifecycle operation",
+          "when": "an older acknowledgment preserves edited-and-restored identical draft text",
+          "then": "Edited-and-restored identical text survives an older send acknowledgment; pending ID retires only after actual receipt.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#an older acknowledgment preserves edited-and-restored identical draft text"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.7",
+          "kind": "negative",
+          "given": "An owned acknowledged draft with actual saved evidence and a delayed or destructive lifecycle operation",
+          "when": "a held save serializes newer typing and acknowledgment without stale parallel writes",
+          "then": "Held save serializes newer typing with CAS revisions0then1; saved final draft is Newer, with no parallel stale write.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#a held save serializes newer typing and acknowledgment without stale parallel writes"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.8",
+          "kind": "negative",
+          "given": "An original send and a held real save receipt while the person types newer input",
+          "when": "typing during retry preparation cannot cancel the captured send or clear newer input",
+          "then": "An acknowledged prepared ID is returned for the captured send even while newer draft typing remains unsaved; its original draft snapshot is preserved.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#typing during retry preparation cannot cancel the captured send or clear newer input"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.9",
+          "kind": "negative",
+          "given": "An original send and a held real save receipt while the person types newer input",
+          "when": "preparation captures its original draft before awaiting a held background save",
+          "then": "A send snapshot is captured before a background save completes; later acknowledgment preserves new typing rather than clearing it.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#preparation captures its original draft before awaiting a held background save"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.10",
+          "kind": "negative",
+          "given": "Existing saved views and a held refresh returning a newer current collection revision",
+          "when": "saved view controls cannot submit a stale reorder during an in-flight refresh",
+          "then": "No reorder POST is sent before the in-flight refresh is acknowledged; afterward exactly one POST uses current revision2.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#saved view controls cannot submit a stale reorder during an in-flight refresh"
+          ]
+        }
+      ]
     }
   ]
 }

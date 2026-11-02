@@ -130,6 +130,22 @@ class ChatSelection(models.Model):
                                               name='agent_selection_revision_budget')]
 
 
+class ChatDraftRecord(models.Model):
+    """Private unsent input; no provider, runtime or policy authority."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
+    installation = models.ForeignKey('workspace.Installation',on_delete=models.PROTECT)
+    storage_id = models.UUIDField()
+    scope = models.CharField(max_length=36)
+    account = models.ForeignKey(AgentAccount,null=True,on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField(default=0)
+    draft = models.JSONField()
+    pending = models.JSONField(null=True)
+
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=['user','scope'],name='agent_draft_owned_scope'),
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000),name='agent_draft_revision')]
+
+
 class Conversation(models.Model):
     """A user's durable transcript. Worker identity and UI authority stay server-owned."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -11,7 +11,7 @@ export function SavedViews({ state, controller, error, run }: { state: ViewsStat
   if (!views.length && state.phase !== 'unavailable' && !error) return null;
   const ready=state.phase==='ready' && !!controller;
   const invoke=(name:string,args:Record<string,unknown>)=>run(()=>controller!.tool(name,args));
-  return <div className="saved-view-bar" role="group" aria-label="Saved views" data-views-state={state.phase}>
+  return <div className="saved-view-bar" role="group" aria-label="Saved views" data-views-state={state.phase} data-views-revision={state.value?.revision}>
     {views.filter(v=>v.pinned).map(view=><Button key={view.id} size="sm" variant="ghost" title={view.title}
       aria-label={`Open saved view ${view.title}`} aria-pressed={state.activeId===view.id} disabled={!ready||!view.available}
       onClick={()=>invoke('screens_navigate',{screen:view.id})}><Icon name="pin" size="sm" /></Button>)}

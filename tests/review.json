@@ -6350,6 +6350,116 @@
       "reason": "The actual migration executor must raise before deletion; full saved receipt, actual queued run and applied migration are independently compared afterward.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
       "source_sha256": "2f7c47850ccc63dd7c1b11e6aab8480207810be4abf06dbbd327182c6d1e752d"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.0",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_full_draft_and_explicit_empty_restore_without_provider_side_effects",
+      "scenario_sha256": "90df9ee9511fd25d6cab900256bbd04fc7c43a616861c2c170290b6044ca30bd",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Exact supported full draft and explicit empty restore with revisions0to2, no conversation or provider work.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.1",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_unselected_and_other_accounts_are_separate_and_reassignment_refuses",
+      "scenario_sha256": "52d374f4b25e76d42e905b2cd65ed016efa0f63e44be4c5ae3ec208bdb3df8f4",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Unselected/account scopes remain separate; foreign/reassigned identity refuses; original owner data is unchanged.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.2",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_stale_write_preserves_newer_draft_and_invalid_shapes_refuse",
+      "scenario_sha256": "8cd6248725cbae5d82cdb04998a1c262585ce388e117f6fd8569c2a474d84360",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Stale CAS and malformed/oversized/path-bearing drafts refuse without changing the saved revision or content.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.3",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_retry_identity_resolves_actual_accepted_request_without_duplicate",
+      "scenario_sha256": "8749d7c7e0be3b1aebe9f5411cab740e4659a18afca7dbeea0ab85795783a76c",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "An actual accepted request resolves the saved retry ID; an exact retry invokes no second worker and produces one user record.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.4",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_current_role_storage_and_original_installation_are_rechecked",
+      "scenario_sha256": "c098da2da2ddc6f76de6c7c840e804a0739bf299439f9e4a30ce88a53189034b",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Changed current role or storage binding refuses; the original saved draft remains intact.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.5",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_http_requires_current_actor_csrf_and_exact_body",
+      "scenario_sha256": "e12abe7e8e234ad8e456ad12ebdab9309a130c293064f54ddb82cbb87946f7dc",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Anonymous/current actor/CSRF/exact JSON checks refuse; stale write409 preserves saved content.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.6",
+      "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_file_metadata_is_honest_and_forged_pending_receipts_are_rejected",
+      "scenario_sha256": "e19c125af42aa0617e42c46a3cc1d5e1be1dddc58c3d4ec6ab69e5a3641c5faf",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "File names are retained without invented bytes/refs; forged accepted receipt refuses and creates no conversation.",
+      "decision": "aligned",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.7",
+      "test": "tests.test_chat_draft_store.ChatDraftMigrationTests.test_downgrade_refuses_before_removing_saved_draft_or_migration_record",
+      "scenario_sha256": "d850f74d11e14f68860bbbe2f27c925aea85f1d3e5b7f3c9f4c8c66899ea0712",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Downgrade refuses before erasing actual saved draft and applied migration record.",
+      "decision": "aligned",
+      "reason": "Actual migration executor or deferred write ordering and exact independent saved content/receipt expectations guard against destructive or stale outcomes.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.8",
+      "test": "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_save_waits_for_another_owned_writer_without_losing_the_draft",
+      "scenario_sha256": "6cc2d6ee6c64296a13891bebdf3a440bc6210fd1da7ad574315a949e41a666ac",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "An actual concurrent SQLite writer is serialized before reading draft state; the draft saves once as revision2 instead of losing input or returning a lock-upgrade error.",
+      "decision": "aligned",
+      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.9",
+      "test": "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_windows_pasted_text_line_endings_restore_exactly_without_sending",
+      "scenario_sha256": "7ac3c8bc0d6c7cc7bcb3ba6ff91d9f29bdbfd9d31b92a8d96d4fac7b24a44d52",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "expected_observation": "Windows CRLF in supported text/pasted pills restores exactly and creates zero provider conversation.",
+      "decision": "aligned",
+      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-DURABLE-DRAFT.10",
+      "test": "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_saved_view_reorder_waits_for_concurrent_draft_writer",
+      "scenario_sha256": "8f25de8326099432fd5a30f21d1ef7f56a6bb7e2519cbee53668779894baa403",
+      "expected_observation": "Existing saved-view reorder waits for the independent concurrent writer and commits exact reversed order at revision3, preserving all entries.",
+      "decision": "aligned",
+      "reason": "The original browser pin reorder now overlaps draft autosaves. A real bounded writer and exact public service outcome reproduce the lock-upgrade failure before changing supported connection settings.",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5"
     }
   ]
 }

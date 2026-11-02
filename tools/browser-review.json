@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "8b841100ff37fb62c077db091d7edcf4e1eacd904cd7ecc683d11bbc79884e0d",
+    "tools/browser.mjs": "3b99de9dbf96fc41a08cc5b54c75f503777f688302936ad8075858093221b2c8",
     "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "2f4186ed2177788f2e4211ecc28fcb219f02a4b8f72fb2fde15e5e0cb8941fd2"
@@ -133,6 +133,11 @@
       "id": "agent-cancel-and-chat-restore",
       "kind": "positive",
       "expected": "A deterministic ACP turn deliberately waits after a partial reply. Native Stop interrupts it; the actual consumer persists the interrupted partial text and returns Ready. Page reload restores the exact saved message array and interruption state without uncaught errors."
+    },
+    {
+      "id": "agent-draft-reload-and-retry",
+      "kind": "positive",
+      "expected": "Actual native browser restores acknowledged full unsent text/file metadata and the original retry ID after reload, refuses missing attachment delivery, and restores a later unsent draft without adding provider messages."
     },
     {
       "id": "agent-reconnect-after-transport-loss",
@@ -296,5 +301,7 @@
     "scope": "One added scenario (42aggregate/11first-run), all41existing identities retained. Existing details controls now ensure the acknowledged saved panel is open rather than assuming local visibility resets on reload. Existing output/grant/revocation checks remain; extra explicit human run changes that fixture count1to2. No assertions, deadlines, permissions or cleanup gates relaxed.",
     "authority": "Native navigation requires current original triage grant, observed actual run and selectionCAS. Local human runs can be inspected under triage but cannot acquire native execution provenance. Native origin/current-grant checks remain strict.",
     "state": "Immutable run snapshots are distinct from selected run/detail state; selected history remains among at most10entries. Agent-source state is derived server-side; human source hints refuse. Repeated dispatch cannot steal a newer human choice."
-  }
+  },
+  "durable_draft_review": "Keep all42prior scenarios and budgets. New reloads verify full draft/file metadata, unsupported byte refusal, same failed-send retry identity and no auto resubmission. Existing acknowledged-send edited/restored text assertions stay intact.",
+  "current_turn_acknowledgment_review": "Async prepared draft persistence means the previous ready turn is not the clicked send. Capture each actual closed send request ID; retain the original15s until budget while requiring that exact latest user/complete assistant and rendered conversation revision. Pin controls additionally acknowledge the actual native collection revision before reordering. No assertion/deadline/case is weakened or removed. Require the selected native result to be completed in the actual UI before asserting saved output text; the backend completing and an earlier running UI with the same ID are different observations. Existing output assertion, IDs and time budgets are retained."
 }

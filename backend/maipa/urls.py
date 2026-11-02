@@ -16,7 +16,11 @@ from .intake.catalog_views import clients as client_catalog
 from .policies import views as policies
 from .workflows import views as workflows
 
+from .agent_accounts.draft_views import drafts as chat_drafts
+
 urlpatterns = [
+    path("api/agent/drafts/unselected/",chat_drafts,name="chat-unselected-draft"),
+    path("api/agent/drafts/<uuid:account_id>/",chat_drafts,name="chat-owned-draft"),
     path("", development.shell, name="development-shell"),
     path("assets/<path:path>", development.asset, name="development-asset"),
     path("api/health/", api.health, name="health"),

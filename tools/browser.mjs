@@ -52,6 +52,8 @@ const passed = [];
 let holdComposerSends = false;
 let failClientTableRead = false;
 const pausedComposerSends = [];
+const draftTrace=[];
+let sendRequests=0,sendBeforeClick=0,lastSendId=null;
 const record = id => { assert.ok(!passed.includes(id)); passed.push(id); };
 const progressPhases = new Set(['fixture_input', 'browser_binary', 'profile_parent', 'browser_launch',
   'debug_endpoint', 'service_storage', 'ui_composition', 'admin_users', 'client_catalog', 'agent_shell', 'workflow_editor',
@@ -66,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 42 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 43 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -87,6 +89,7 @@ async function until(predicate, label) {
 }
 async function evaluate(expression) {
   const response = await command("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+  if(response.exceptionDetails)console.error("Owned evaluation diagnostic",JSON.stringify({text:response.exceptionDetails.text,description:response.exceptionDetails.exception?.description?.slice(0,180)}));
   assert.ok(!response.exceptionDetails, "Browser evaluation failure");
   return response.result.value;
 }
@@ -136,16 +139,21 @@ async function click(label) {
   if (label === 'Account setup' && await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Account setup')?.getAttribute('aria-expanded')==='true'")) return;
   const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button, summary')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled || b.closest('[inert]')) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); const x=r.x+r.width/2,y=r.y+r.height/2; const hit=document.elementFromPoint(x,y); return r.width && r.height && hit && b.contains(hit) ? {x,y} : null; })()`), `Visible enabled button ${label}`);
   assert.ok(point, `Visible button ${label}`);
+  if(label==='Send')sendBeforeClick=sendRequests;
   await command("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
   await command("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
 }
 
 async function waitForAgent(type) {
   try {
-  await until(() => evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();
-    const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();
-    return c.phase==='ready'&&c.messages.at(-1)?.state==='complete'&&c.ui?.composition?.schema.type===${JSON.stringify(type)};})()`), 'agent completed a shared composition');
-  await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'stream acknowledged completed agent turn');
+  let acceptedRevision=0,acceptedId;
+  await until(async()=>{
+    if(sendRequests<=sendBeforeClick||!lastSendId)return false;
+    acceptedId=lastSendId;
+    const result=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const r=await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}});if(r.status!==200)throw Error('Owned chat read refused');const c=await r.json();const lastUser=c.messages.filter(m=>m.role==='user').at(-1);return {done:lastUser?.id===${JSON.stringify(acceptedId)}&&c.phase==='ready'&&c.messages.at(-1)?.role==='assistant'&&c.messages.at(-1)?.state==='complete'&&c.ui?.composition?.schema.type===${JSON.stringify(type)},revision:c.revision};})()`);
+    if(result.done)acceptedRevision=result.revision;return result.done;
+  },'current submitted agent turn completed a shared composition');
+  await until(() => evaluate(`document.querySelector('.chat-status [role=status]')?.textContent==='Ready'&&Number(document.querySelector('[data-chat-revision]')?.dataset.chatRevision)>=${acceptedRevision}`), 'stream acknowledged current completed agent turn');
   } catch (error) {
     // Dedicated synthetic fixture only, fixed classifications/counts in PRIVATE
     // failure log. No transcript, identifiers, credentials or raw DOM/error text.
@@ -247,6 +255,10 @@ try {
   await new Promise((resolve, reject) => { socket.addEventListener("open", resolve, { once: true }); socket.addEventListener("error", reject, { once: true }); });
   socket.addEventListener("message", event => {
     const message = JSON.parse(event.data);
+    if(message.method==='Network.requestWillBeSent'&&message.params.request.url===fixture.origin+'/api/agent/chat/'&&message.params.request.method==='POST'){
+      let c;try{c=JSON.parse(message.params.request.postData??'{}');}catch{}
+      if(c?.action==='send'&&typeof c.request_id==='string'){sendRequests++;lastSendId=c.request_id;}
+    }
     if (message.method === 'Fetch.requestPaused') {
       const paused = message.params;
       let body;
@@ -278,6 +290,30 @@ try {
     if (message.id && pending.has(message.id)) {
       const entry = pending.get(message.id); pending.delete(message.id); clearTimeout(entry.timer);
       if (message.error) entry.reject(Error(`CDP ${entry.method} rejected: ${String(message.error.message).slice(0, 200)}`)); else entry.resolve(message.result);
+    }
+  });
+  socket.addEventListener('message',event=>{
+    const m=JSON.parse(event.data),p=m.params;if(!p)return;
+    if(m.method==='Network.requestWillBeSent'&&p.request.url.startsWith(fixture.origin+'/api/agent/drafts/')){
+      let c={};try{c=JSON.parse(p.request.postData??'{}');}catch{}
+      draftTrace.push({id:p.requestId,kind:'request',method:p.request.method,expected:c.expected_revision,pending:!!c.pending,text_length:c.draft?.text?.length});
+    }
+    if(m.method==='Network.requestWillBeSent'&&p.request.url.startsWith(fixture.origin+'/api/workflows/')){
+      let c={};try{c=JSON.parse(p.request.postData??'{}');}catch{}
+      draftTrace.push({kind:'workflow-request',method:p.request.method,publish:p.request.url.endsWith('/publish/'),expected:c.expected_revision});
+    }
+    if(m.method==='Network.responseReceived'&&p.response.url.startsWith(fixture.origin+'/api/workflows/'))draftTrace.push({kind:'workflow-status',publish:p.response.url.endsWith('/publish/'),status:p.response.status});
+    if(m.method==='Network.requestWillBeSent'&&p.request.url===fixture.origin+'/api/workspace/views/'){
+      let c={};try{c=JSON.parse(p.request.postData??'{}');}catch{}
+      draftTrace.push({kind:'view-request',method:p.request.method,expected:c.expected_revision,action:c.action});
+    }
+    if(m.method==='Network.responseReceived'&&p.response.url===fixture.origin+'/api/workspace/views/')draftTrace.push({kind:'view-status',status:p.response.status});
+    if(m.method==='Network.responseReceived'&&p.response.url===fixture.origin+'/api/agent/chat/'){
+      void command('Network.getResponseBody',{requestId:p.requestId}).then(v=>{try{const c=JSON.parse(v.body);draftTrace.push({kind:'chat-response',status:p.response.status,error:c.error?.code,phase:c.phase,messages_array:Array.isArray(c.messages)});}catch{}}).catch(()=>{});
+    }
+    if(m.method==='Network.responseReceived'&&p.response.url.startsWith(fixture.origin+'/api/agent/drafts/')){
+      draftTrace.push({id:p.requestId,kind:'status',status:p.response.status});
+      void command('Network.getResponseBody',{requestId:p.requestId}).then(v=>{try{const c=JSON.parse(v.body);draftTrace.push({id:p.requestId,kind:'response',status:p.response.status,revision:c.revision,error:c.error?.code,pending:!!c.pending,accepted:c.accepted,text_length:c.draft?.text?.length});}catch{}}).catch(()=>{});
     }
   });
   await command("Page.enable"); await command("Runtime.enable"); await command("Network.enable");
@@ -451,7 +487,7 @@ try {
     const permissionRun=(await permissionRuns()).runs[0];
     assert.deepEqual(Object.values(permissionRun.outputs).filter(v=>v?.greeting==='Hello ').length,2);
     assert.deepEqual(Object.values(permissionRun.nodes).map(n=>n.attempts),[1,1,1]);
-    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(permissionRun.id)}`),'actual native result selected in shared controls');
+    await until(()=>evaluate(`document.querySelector('[data-workflow-run]')?.dataset.workflowRun===${JSON.stringify(permissionRun.id)}&&document.querySelector('[data-workflow-run-status]')?.dataset.workflowRunStatus==='completed'`),'current completed native result selected in shared controls');
     await openRunDetails();
     assert.equal(await evaluate("[...document.querySelectorAll('.workflow-execution textarea')].some(t=>t.value.includes('Hello '))"),true);
     await click('▶ Run');
@@ -764,6 +800,7 @@ try {
   let pinState=await evaluate("(async()=>await(await fetch('/api/workspace/views/')).json())()");
   assert.equal(pinState.views[0].id,firstPin);assert.equal(pinState.views[0].schema.id,'shared-root');
   assert.equal(pinState.views[0].revision,3);assert.deepEqual(pinState.views[0].history.map(v=>v.title),['Shared work','Pinned review']);
+  await until(()=>evaluate(`Number(document.querySelector('[data-views-revision]')?.dataset.viewsRevision)===${pinState.revision}`),'current native collection revision acknowledged in human controls');
   await manageSavedViews();await select('maipa-saved-view',firstPin);await click('Move saved view later');
   await until(()=>evaluate(`(async()=>{const s=await(await fetch('/api/workspace/views/')).json();return s.views[1].id===${JSON.stringify(firstPin)};})()`),'saved pin order acknowledged');
   await click('Unpin');
@@ -826,6 +863,11 @@ try {
   await click('Send');
   await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('Remove them')"), 'unsupported delivery is explicitly refused');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value==='Draft before composition' && !!document.querySelector('[data-react-fancy-prompt-input-attachment]')"), true);
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'file metadata draft saved');
+  await command('Page.reload');await preferencesReady();
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'&&document.getElementById('maipa-chat-message')?.value==='Draft before composition'&&!!document.querySelector('[data-react-fancy-prompt-input-attachment]')"),'file name and full draft restored without invented bytes');
+  await click('Send');
+  await until(()=>evaluate("!!document.querySelector('[data-submit-state=error]')"),'unrestored attachment cannot silently disappear into a send');
   await click('Remove attachment');
   await command('Fetch.enable', { patterns: [{ urlPattern: fixture.origin + '/api/agent/chat/', requestStage: 'Request' }] });
   holdComposerSends = true;
@@ -841,7 +883,12 @@ try {
   await command('Fetch.failRequest', { requestId: pausedComposerSends[0].requestId, errorReason: 'Failed' });
   await until(() => evaluate("!!document.querySelector('[data-submit-state=error]')"), 'actual failed request preserves draft');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'New typing while pending Ω');
-  await typeChat('Check acknowledged send'); await click('Send');
+  await typeChat('Check acknowledged send');
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'unconfirmed retry and draft saved');
+  await command('Fetch.disable');await command('Page.reload');await preferencesReady();
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'&&document.getElementById('maipa-chat-message')?.value==='Check acknowledged send'"),'exact failed-send draft restored');
+  await command('Fetch.enable', { patterns: [{ urlPattern: fixture.origin + '/api/agent/chat/', requestStage: 'Request' }] });
+  await click('Send');
   await until(() => pausedComposerSends.length === 2, 'same message retry reaches transport');
   assert.equal(pausedComposerSends[1].body.request_id, pausedComposerSends[0].body.request_id, 'retry retains original idempotency identity');
   await typeChat('New typing after retry Ω'); holdComposerSends = false;
@@ -899,11 +946,15 @@ try {
   await click('Stop');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('small')?.textContent.includes('Interrupted')"), 'cancelled partial reply retained');
   const savedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
+  await typeChat('Durable unsent follow-up Ω');
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'unsent draft saved before reload');
   await command('Page.reload'); await preferencesReady();
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'live chat restored after reload');
   assert.deepEqual(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()"), savedChat);
   assert.equal(await evaluate("[...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('small')?.textContent.includes('Interrupted')"), true);
   record('agent-cancel-and-chat-restore');
+  await until(()=>evaluate("document.getElementById('maipa-chat-message')?.value==='Durable unsent follow-up Ω'&&document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'unsent draft restored without resubmitting saved transcript');
+  record('agent-draft-reload-and-retry');
   await typeChat('Simulate connection interruption'); await click('Send');
   await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('disconnected')"), 'deliberate owned transport interruption');
   const interruptedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
@@ -1328,6 +1379,21 @@ try {
   }
   throw error;
 } finally {
+  if(failedPhase==='work_views'){
+    try{
+      const d=await evaluate(`(async()=>{const r=await fetch('/api/workspace/views/');const s=await r.json();return{status:r.status,revision:s.revision,ids:s.views?.map(v=>v.id),selection:document.getElementById('maipa-saved-view')?.value,views_state:document.querySelector('[data-views-state]')?.dataset.viewsState,select_count:document.querySelectorAll('#maipa-saved-view').length,alerts:[...document.querySelectorAll('.saved-view-bar [role=alert],.maipa-views-popover [role=alert]')].map(e=>e.textContent),move_disabled:document.querySelector('[aria-label="Move saved view later"]')?.disabled};})()`);
+      writeFileSync('artifacts/ci/view-draft-failure.json',JSON.stringify(d,null,2));
+    }catch{}
+  }
+  if(failedPhase==='workflow_editor'){
+    try{
+      const d=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id,'X-Maipa-Agent-Failures':'1'}})).json();const id=document.querySelector('[data-workflow-draft]')?.dataset.workflowDraft;const r=id?await(await fetch('/api/workflows/drafts/'+id+'/execution/',{headers:{'X-Maipa-Workflow-Actor':s.user.id}})).json():null;return{phase:c.phase,failure:c.failure,messages:c.messages?.map(m=>({role:m.role,state:m.state})),draft_state:document.querySelector('[data-draft-state]')?.dataset.draftState,runs:r?.runs?.map(x=>({status:x.status,error:x.error,step:x.step,nodes:x.nodes}))};})()`);
+      const detail=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const host=document.querySelector('[data-workflow-draft]');const id=host?.dataset.workflowDraft;if(!id)return {};const r=await(await fetch('/api/workflows/drafts/'+id+'/',{headers:{'X-Maipa-Workflow-Actor':s.user.id}})).json();return {client_phase:host.dataset.workflowPhase,client_revision:host.dataset.workflowRevision,revision:r.revision,publication:r.publication,graph:r.graph};})()`);
+      writeFileSync('artifacts/ci/workflow-draft-failure.json',JSON.stringify({...d,...detail},null,2));
+      const shot=await command('Page.captureScreenshot',{format:'png'});writeFileSync('artifacts/ci/workflow-draft-failure.png',Buffer.from(shot.data,'base64'));
+    }catch{}
+  }
+  writeFileSync('artifacts/ci/draft-failure-trace.json',JSON.stringify(draftTrace,null,2));
   phase = "cleanup";
   recordProgress();
   clearInterval(progressTimer);

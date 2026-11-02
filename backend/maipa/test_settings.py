@@ -14,5 +14,6 @@ with patch.dict(os.environ, {"MAIPA_SECRET_KEY": "test-only-private-value-" * 4,
 # the installed database's concurrency semantics, in a fresh test-only directory.
 _test_database = tempfile.TemporaryDirectory(prefix='maipa-test-database-')
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:",
-    "TEST": {"NAME": str(Path(_test_database.name) / 'tests.sqlite3')}}}
+    "TEST": {"NAME": str(Path(_test_database.name) / 'tests.sqlite3')},
+    "OPTIONS": {"transaction_mode": "IMMEDIATE"}}}
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
