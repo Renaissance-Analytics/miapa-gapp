@@ -3,7 +3,7 @@ import {csrfToken} from './api.js';
 
 export interface Publication {status:'published';draft_id:string;draft_revision:number;definition_id:string;definition_revision:number;schema_sha256:string}
 export interface WorkflowDraft {id:string;owner_id:string;name:string;entity_id:string|null;revision:number;graph:FlowGraph;graph_sha256:string;publication:Publication|null}
-export interface WorkflowState {phase:'loading'|'ready'|'saving'|'conflict'|'unavailable'|'closed';saved:WorkflowDraft|null;graph:FlowGraph|null}
+export interface WorkflowState {phase:'loading'|'ready'|'saving'|'publishing'|'conflict'|'unavailable'|'closed';saved:WorkflowDraft|null;graph:FlowGraph|null}
 export interface WorkflowActivity {id:string;ui_id:string;draft_id:string;component_id:string;revision:number;action:'flow_add_node'|'flow_update_node'|'flow_delete_node'|'flow_connect'|'flow_disconnect';at_ms:number}
 export class WorkflowError extends Error {constructor(readonly kind:'conflict'|'closed'|'unavailable'|'invalid'){super('Workflow unavailable');}}
 type Request=(action:'read'|'write'|'publish',command?:Record<string,unknown>,signal?:AbortSignal)=>Promise<unknown>;
@@ -102,7 +102,7 @@ export class SharedWorkflowController {
   this.publish({...this.state,phase:problem instanceof WorkflowError&&problem.kind==='conflict'?'conflict':'unavailable'});
  }
  async load(explicit=false):Promise<void>{
-  if(this.abort.signal.aborted||this.writing||this.reading||this.pending||!explicit&&['conflict','unavailable'].includes(this.state.phase))return;
+  if(this.abort.signal.aborted||this.writing||this.reading||this.pending||this.state.phase==='publishing'||!explicit&&['conflict','unavailable'].includes(this.state.phase))return;
   if(!explicit&&this.state.graph?.nodes.some(node=>node.dragging||node.resizing))return;
   this.reading=true;const generation=++this.generation;
   try{const saved=parseWorkflowDraft(await this.request('read',undefined,this.abort.signal),this.id,this.user);
@@ -134,5 +134,15 @@ export class SharedWorkflowController {
   }
  }
  async flush():Promise<boolean>{if(this.writing)await this.writing;return this.state.phase==='ready'&&!!this.state.saved;}
+ async publishVersion():Promise<void>{
+  if(!await this.flush()||!this.state.saved)return;
+  const saved=this.state.saved;this.generation++;this.publish({...this.state,phase:'publishing'});
+  try{
+   const publication=parsePublication(await this.request('publish',{expected_revision:saved.revision},this.abort.signal),this.id);
+   if(this.abort.signal.aborted)return;
+   if(publication.draft_revision!==saved.revision)return fail();
+   this.publish({...this.state,phase:'ready',saved:{...saved,publication}});
+  }catch(problem){this.failed(problem);}
+ }
  dispose(){if(this.state.phase==='closed')return;this.generation++;this.abort.abort();this.pending=null;this.publish({phase:'closed',saved:null,graph:null});}
 }

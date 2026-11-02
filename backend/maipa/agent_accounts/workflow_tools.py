@@ -12,7 +12,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connections,transaction,DatabaseError
 from django.db.models import F
-from backend.maipa.workflows import drafts,services
+from backend.maipa.workflows import drafts,services,native
+from backend.maipa.workflows.models import NativePrincipalBinding,NativeRunAuthority
 from backend.maipa.workflows.errors import Unavailable,Conflict,InvalidWorkflow
 from backend.maipa.workflows.schema import bounded_json,handle,KINDS
 from . import ui
@@ -23,7 +24,8 @@ TOOLS={
  'flow_add_node':('kind','label','description','config','x','y'),
  'flow_update_node':('id','label','description','config','x','y'),'flow_delete_node':('id',),
  'flow_connect':('source','target','sourceHandle','targetHandle','label'),'flow_disconnect':('id',),
- 'maipa_workflow_list':(),'maipa_workflow_create':('name','entity_id','request_id'),'maipa_workflow_publish':('expected_revision',)}
+ 'maipa_workflow_list':(),'maipa_workflow_create':('name','entity_id','request_id'),'maipa_workflow_publish':('expected_revision',),
+ 'flow_run':(),'flow_cancel':('runId',),'maipa_workflow_runs':()}
 READS={'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges'}
 MUTATIONS={'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect'}
 ALLOWED_KINDS={'@particle-academy/'+kind for kind in KINDS}
@@ -39,7 +41,7 @@ def _database(operation,*args):
   for connection in connections.all():
    if not connection.in_atomic_block:connection.close()
 
-async def _run(graph,revision,name=None,arguments=None,commit=None):
+async def _run(graph,revision,name=None,arguments=None,commit=None,control=None):
  root=Path(__file__).resolve().parents[3]/'frontend';node=settings.ACP_NODE_EXECUTABLE or shutil.which('node')
  if not node or not Path(node).is_absolute():raise Unavailable()
  environment={key:value for key,value in os.environ.items() if key.upper() in {'PATH','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','TEMP','TMP'}}
@@ -61,6 +63,9 @@ async def _run(graph,revision,name=None,arguments=None,commit=None):
     if set(value)=={'kind','revision','graph'} and value['kind']=='commit' and commit:
      answer=await commit(value['revision'],value['graph'])
      process.stdin.write(json.dumps(answer,allow_nan=False).encode()+b'\n');await process.stdin.drain()
+    elif set(value)=={'kind','tool','revision','runId'} and value['kind']=='control' and control:
+     answer=await control(value['tool'],value['revision'],value['runId'])
+     process.stdin.write(json.dumps(answer,allow_nan=False).encode()+b'\n');await process.stdin.drain()
     elif set(value)=={'kind','result'} and value['kind']=='result':
      await process.wait()
      if process.returncode!=0:raise Unavailable()
@@ -76,14 +81,15 @@ async def public_workflow_tools():
  global _definitions
  if _definitions is None:
   value=await _run({'nodes':[],'edges':[]},0)
-  if type(value) is not list or {tool.get('name') for tool in value}!=set(TOOLS)-{'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish'}:raise Unavailable()
+  if type(value) is not list or {tool.get('name') for tool in value}!=set(TOOLS)-{'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs'}:raise Unavailable()
   own=[]
   for name,description,properties in (
    ('maipa_workflow_list','Read your owned workflow draft identities/revisions, current visible draft and admitted canonical kinds. No execution authority.',{}),
    ('maipa_workflow_create','Create an empty owned authoring draft. Reuse request_id for retries. Present Maipa.Workflow with its draft_id to edit it. Creates no run or authority.',
     {'name':{'type':'string','minLength':1,'maxLength':128},'entity_id':{'type':['string','null'],'format':'uuid'},'request_id':{'type':'string','minLength':1,'maxLength':80}}),
    ('maipa_workflow_publish','Publish the visible, observed draft as one validated immutable version. Creates no run or execution grant.',
-    {'expected_revision':{'type':'integer','minimum':0,'maximum':1999999998}})):
+    {'expected_revision':{'type':'integer','minimum':0,'maximum':1999999998}}),
+   ('maipa_workflow_runs','Inspect saved actual runs of the visible workflow under the original registered principal and current triage grant. Returns no authority or human answers.',{})):
    own.append({'name':name,'description':description,'inputSchema':{'type':'object','properties':properties,'required':list(properties),'additionalProperties':False}})
   _definitions=value+own
  return deepcopy(_definitions)
@@ -93,6 +99,7 @@ class WorkflowBroker:
   if not isinstance(actor,get_user_model()) or actor.is_authenticated is not True or actor.pk is None:raise Unavailable()
   self.actor,self.account_id,self.identity=actor,services.identity(account_id),services.identity(identity)
   self.observed=None;self.lock=asyncio.Lock();self.last_activity=None
+  self.observed_runs={}
 
  def _actor(self):return drafts.native_actor(self.actor,self.account_id,self.identity)
 
@@ -138,6 +145,42 @@ class WorkflowBroker:
   if revision!=original['draft']['revision'] or current['draft']['revision']!=revision:raise Conflict()
   return drafts.publish(self._actor(),original['draft']['id'],revision)
 
+ def _execution_actor(self):
+  rows=list(NativePrincipalBinding.objects.filter(owner_id=self.actor.pk,account_id=self.account_id,ui_id=self.identity)[:2])
+  if len(rows)!=1:raise Unavailable()
+  return native.actor(self.actor,str(rows[0].pk)),rows[0]
+
+ @transaction.atomic
+ def _runs(self):
+  current=self._current();context,binding=self._execution_actor();publication=current['draft']['publication']
+  if not publication:return {'runs':[]}
+  rows=NativeRunAuthority.objects.filter(binding=binding,run__definition_id=publication['definition_id']).select_related('run').order_by('-run__created_at','-run_id')[:10]
+  runs=[native.get_run(context,str(row.run_id)) for row in rows]
+  self.observed_runs={r['id']:r for r in runs}
+  return {'runs':runs}
+
+ @transaction.atomic
+ def _control(self,original,tool,revision,run_id):
+  current=self._current()
+  if (current['component'],current['draft']['id'],current['draft']['revision'])!=(original['component'],original['draft']['id'],revision):raise Conflict()
+  context,binding=self._execution_actor()
+  publication=current['draft']['publication']
+  if tool=='flow_run':
+   if not publication or publication['draft_revision']!=revision:raise Conflict()
+   native.prepare_graph(self.actor,publication['definition_id'],publication['definition_revision'])
+   key=str(uuid.uuid5(uuid.UUID(self.identity),'flow-run:'+current['draft']['id']+':'+str(revision)))
+   native.dispatch(context,publication['definition_id'],publication['definition_revision'],{},key)
+  elif tool=='flow_cancel':
+   if run_id is None:
+    if len(self.observed_runs)!=1:raise Unavailable()
+    run_id=next(iter(self.observed_runs))
+   if run_id not in self.observed_runs:raise Unavailable()
+   observed=self.observed_runs[run_id]
+   if not publication or observed['definition_id']!=publication['definition_id']:raise Unavailable()
+   native.cancel(context,run_id,observed['step'])
+  else:raise Unavailable()
+  return {'ok':True}
+
  async def tools(self):return await public_workflow_tools()
 
  async def call(self,name,arguments):
@@ -160,8 +203,9 @@ class WorkflowBroker:
     if name=='flow_get_node_schema' and arguments.get('name') not in ALLOWED_KINDS:return _error()
     if name=='maipa_workflow_list':return _result(await _database(self._metadata))
     if name=='maipa_workflow_create':return _result(await _database(self._create,arguments))
+    if name=='maipa_workflow_runs':return _result(await _database(self._runs))
     current=await _database(self._current)
-    if name in MUTATIONS or name=='maipa_workflow_publish':
+    if name in MUTATIONS or name in ('maipa_workflow_publish','flow_run','flow_cancel'):
      if not self.observed or (self.observed['component'],self.observed['draft']['id'])!=(current['component'],current['draft']['id']):return _error()
      state=deepcopy(self.observed)
     else:state=current
@@ -177,7 +221,12 @@ class WorkflowBroker:
       self.observed={'component':state['component'],'draft':deepcopy(row)}
       return {'ok':True,'graph':row['graph'],'revision':row['revision']}
      except (Unavailable,Conflict,InvalidWorkflow,ui.UiUnavailable):return {'ok':False}
-    result=await _run(state['draft']['graph'],state['draft']['revision'],name,arguments,commit)
+    async def control(tool,revision,run_id):
+     try:
+      if tool!=name or revision!=state['draft']['revision']:return {'ok':False}
+      return await _database(self._control,state,tool,revision,run_id)
+     except (Unavailable,Conflict,InvalidWorkflow,ui.UiUnavailable):return {'ok':False}
+    result=await _run(state['draft']['graph'],state['draft']['revision'],name,arguments,commit,control)
     checked=await _database(self._current)
     if (checked['component'],checked['draft']['id'])!=(state['component'],state['draft']['id']):return _error()
     if type(result) is not dict or set(result)-{'content','structuredContent','isError'} or type(result.get('content')) is not list:return _error()

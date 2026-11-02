@@ -5,6 +5,18 @@ from tools.ci import child_environment
 
 
 class SharedFormPolicyTests(unittest.TestCase):
+    def test_native_permission_policy_matches_every_published_workflow_tool(self):
+        from asgiref.sync import async_to_sync
+        from backend.maipa.agent_accounts.workflow_tools import public_workflow_tools
+        root=Path(__file__).resolve().parents[1]
+        result=subprocess.run([shutil.which('node'),'--input-type=module','--eval',
+            "import {claudeUiTools} from './backend/agent/host.mjs';console.log(JSON.stringify(claudeUiTools(true)));"],
+            cwd=root,env=child_environment(),capture_output=True,text=True,timeout=10,check=True)
+        permissions={name.removeprefix('mcp__maipa_ui__') for name in json.loads(result.stdout)
+            if name.startswith(('mcp__maipa_ui__flow_','mcp__maipa_ui__maipa_workflow_'))}
+        self.assertEqual(permissions,{tool['name'] for tool in async_to_sync(public_workflow_tools)()})
+        self.assertTrue({'flow_run','flow_cancel','maipa_workflow_runs'}<=permissions)
+
     def test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities(self):
         root=Path(__file__).resolve().parents[1]
         source="""import {claudeUiTools} from './backend/agent/host.mjs';
@@ -20,8 +32,9 @@ class SharedFormPolicyTests(unittest.TestCase):
             'form_set_value','form_set_values','form_focus','form_submit',
             'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
             'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
-            'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish')}
+            'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish',
+            'flow_run','flow_cancel','maipa_workflow_runs')}
         self.assertEqual(set(observed['enabled']),expected)
-        self.assertEqual(len(observed['enabled']),29)
+        self.assertEqual(len(observed['enabled']),32)
         self.assertEqual(observed['disabled'],[])
         self.assertFalse(any('*' in name or name=='exec' for name in observed['enabled']))

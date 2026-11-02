@@ -40,10 +40,11 @@ class SharedWorkflowToolTests(TestCase):
 
     def call(self,broker,tool,**arguments):return async_to_sync(broker.call)(tool,arguments)
 
-    def test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities(self):
+    def test_public_tool_catalog_exposes_scoped_authoring_controls_without_fabricated_status_or_native_capabilities(self):
         broker=self.broker();names={row['name'] for row in async_to_sync(broker.tools)()}
         self.assertTrue({'flow_get_state','flow_get_node_schema','flow_add_node','flow_delete_node','maipa_workflow_create','maipa_workflow_publish'}.issubset(names))
-        self.assertFalse({'flow_run','flow_cancel','flow_set_node_status','flow_list_node_kinds','agent_undo'}.intersection(names))
+        self.assertTrue({'flow_run','flow_cancel','maipa_workflow_runs'}.issubset(names))
+        self.assertFalse({'flow_set_node_status','flow_list_node_kinds','agent_undo'}.intersection(names))
 
     def test_create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run(self):
         broker=self.broker();args={'name':'Agent authored','entity_id':str(self.entity.pk),'request_id':'first-authoring'}

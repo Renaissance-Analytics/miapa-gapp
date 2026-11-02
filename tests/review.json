@@ -3255,7 +3255,7 @@
       "scenario": "A01-UI-MCP.native",
       "test": "tests.test_ui_mcp.UiMcpTests.test_actual_mcp_child_lists_and_calls_over_local_pipe_in_zero_capability_worker",
       "scenario_sha256": "af6dee58472f435729cb529642a6310ba4b0512195ec480999359d5ba36c2868",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "Exact synthetic results return, foreign capability never dispatches and both process-tree stops plus outer job/profile/capsule cleanup are verified",
       "decision": "aligned",
       "reason": "Real Node descendants use published launchProvider local-pipes inside the actual AppContainer. Exact RPC arguments/results, verified stop counts and cleanup are asserted; no vendor/model proof is claimed. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed. Original actual LOCAL-child tests retained verbatim; new measured-protocol case adds2025-11-25 with the same nonce/budget/stop boundary. Initial real native failure and finite red are preserved; no package change. Native lifecycle correction reviewed: required notifications/initialized is registered without granting authority; only omitted tools/list params become canonical empty params. Three separate real-process reds preserve protocol/version, notification and omission failures. The strengthened case now asserts exact canonical forwarded requests; null/unknown fields, tool args, nonce, budgets and error handling remain closed. Host-mode delta reviewed: existing test bodies/assertions remain, except two exact public version literals advance0.33.0 to0.33.1. The optional host fixture uses real WindowsHostWorker, preserves all prior isolated paths and adds independent existing-account/no-LOCAL/restricted-policy assertions. Status fixture forwards server execution mode only. No prior deadline or native refusal was relaxed.",
@@ -3265,7 +3265,7 @@
       "scenario": "A01-UI-MCP.limits",
       "test": "tests.test_ui_mcp.UiMcpTests.test_relay_redacts_callback_errors_rejects_oversized_frames_and_foreign_capability",
       "scenario_sha256": "5fff36c9d8d7d10145aca2abce63f74b9ff49b1a1c7bd5ce70cc52d978a66240",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "Only fixed safe errors return, excess or foreign requests never reach the callback, and real child and worker cleanup succeeds",
       "decision": "aligned",
       "reason": "The callback invocation list is exact, each error string is exact, a private sentinel is absent, and both native stop verdicts and outer cleanup must verify. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed. Original actual LOCAL-child tests retained verbatim; new measured-protocol case adds2025-11-25 with the same nonce/budget/stop boundary. Initial real native failure and finite red are preserved; no package change. Native lifecycle correction reviewed: required notifications/initialized is registered without granting authority; only omitted tools/list params become canonical empty params. Three separate real-process reds preserve protocol/version, notification and omission failures. The strengthened case now asserts exact canonical forwarded requests; null/unknown fields, tool args, nonce, budgets and error handling remain closed. Host-mode delta reviewed: existing test bodies/assertions remain, except two exact public version literals advance0.33.0 to0.33.1. The optional host fixture uses real WindowsHostWorker, preserves all prior isolated paths and adds independent existing-account/no-LOCAL/restricted-policy assertions. Status fixture forwards server execution mode only. No prior deadline or native refusal was relaxed.",
@@ -3275,7 +3275,7 @@
       "scenario": "A01-UI-MCP.valid-large",
       "test": "tests.test_ui_mcp.UiMcpTests.test_valid_maximum_component_tree_survives_mcp_text_and_structured_output",
       "scenario_sha256": "d58a8ee66e84dd464d536da3bcc7524e6d560e7f39e4618ea1e1ce3acf7ac189",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "The complete exact state survives a reply above64KiB while request limits and verified native cleanup remain intact",
       "decision": "aligned",
       "reason": "Native MCP result must exceed65536bytes while its actual schema is within32768bytes; exact full text/structured equivalence,15notes and real process-tree/outer/profile/capsule cleanup are asserted. The original oversized-request test remains unchanged. Startup review: use the same published prepareProcessTree(directory) contract as the production host. The controlled unavailable-default-cache fixture reproduces the hosted early exit before this explicit selection and all original real child/tool/frame/foreign-capability/stop/cleanup assertions pass after it. No deadline, ACL, capability, permission or outcome is relaxed. Original actual LOCAL-child tests retained verbatim; new measured-protocol case adds2025-11-25 with the same nonce/budget/stop boundary. Initial real native failure and finite red are preserved; no package change. Native lifecycle correction reviewed: required notifications/initialized is registered without granting authority; only omitted tools/list params become canonical empty params. Three separate real-process reds preserve protocol/version, notification and omission failures. The strengthened case now asserts exact canonical forwarded requests; null/unknown fields, tool args, nonce, budgets and error handling remain closed. Host-mode delta reviewed: existing test bodies/assertions remain, except two exact public version literals advance0.33.0 to0.33.1. The optional host fixture uses real WindowsHostWorker, preserves all prior isolated paths and adds independent existing-account/no-LOCAL/restricted-policy assertions. Status fixture forwards server execution mode only. No prior deadline or native refusal was relaxed.",
@@ -4065,7 +4065,7 @@
       "scenario": "A01-CLAUDE-MCP-PROTOCOL.connected",
       "test": "tests.test_ui_mcp.UiMcpTests.test_measured_claude_mcp_protocol_lists_and_calls_only_the_scoped_supplied_tools",
       "scenario_sha256": "0219da0ba605f2cb15ac63ea9c2a86f4cbbdd41be5b61cb80b3d71722620cde6",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "The exact protocol is echoed, the supplied tool list/call succeeds and every supervised descendant stops with the outer profile removed",
       "decision": "aligned",
       "reason": "Actual captured native initialize requests2025-11-25; older app server rejects it and real Claude reports failed/zero tools. The new test red observes no initialization result; supported tools-only protocol addition preserves exact capability forwarding and real foreign-nonce/verified-stop assertions. Official lifecycle/tools specs reviewed; no resources/sampling/tasks capabilities added. Native lifecycle correction reviewed: required notifications/initialized is registered without granting authority; only omitted tools/list params become canonical empty params. Three separate real-process reds preserve protocol/version, notification and omission failures. The strengthened case now asserts exact canonical forwarded requests; null/unknown fields, tool args, nonce, budgets and error handling remain closed. Host-mode delta reviewed: existing test bodies/assertions remain, except two exact public version literals advance0.33.0 to0.33.1. The optional host fixture uses real WindowsHostWorker, preserves all prior isolated paths and adds independent existing-account/no-LOCAL/restricted-policy assertions. Status fixture forwards server execution mode only. No prior deadline or native refusal was relaxed.",
@@ -4075,7 +4075,7 @@
       "scenario": "A01-CLAUDE-MCP-PROTOCOL.scoped",
       "test": "tests.test_ui_mcp.UiMcpTests.test_measured_claude_mcp_protocol_lists_and_calls_only_the_scoped_supplied_tools",
       "scenario_sha256": "ebdb397ed815fb488ddc0ec6aa04883e1fb9774b343cd425e59ed73ac44d3e37",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "The foreign capability is refused with the fixed error and no unscoped tool data or surviving process",
       "decision": "aligned",
       "reason": "Actual captured native initialize requests2025-11-25; older app server rejects it and real Claude reports failed/zero tools. The new test red observes no initialization result; supported tools-only protocol addition preserves exact capability forwarding and real foreign-nonce/verified-stop assertions. Official lifecycle/tools specs reviewed; no resources/sampling/tasks capabilities added. Native lifecycle correction reviewed: required notifications/initialized is registered without granting authority; only omitted tools/list params become canonical empty params. Three separate real-process reds preserve protocol/version, notification and omission failures. The strengthened case now asserts exact canonical forwarded requests; null/unknown fields, tool args, nonce, budgets and error handling remain closed. Host-mode delta reviewed: existing test bodies/assertions remain, except two exact public version literals advance0.33.0 to0.33.1. The optional host fixture uses real WindowsHostWorker, preserves all prior isolated paths and adds independent existing-account/no-LOCAL/restricted-policy assertions. Status fixture forwards server execution mode only. No prior deadline or native refusal was relaxed.",
@@ -4315,7 +4315,7 @@
       "scenario": "A01-MCP-CORRELATION.bounded",
       "test": "tests.test_ui_mcp.UiMcpTests.test_native_claude_tool_metadata_is_bounded_and_never_becomes_app_authority",
       "scenario_sha256": "e89a5a8444d01e647969eb9deba6811272fe94451c52a5db2c7626a3c0760276",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "The valid bounded metadata is discarded before forwarding exactly name/arguments, and the normal structured UI result succeeds with verified native process cleanup",
       "decision": "aligned",
       "reason": "Reviewed complete assertions and synthetic fixtures against independent host-mode expectations. Actual native process/job/token and immutable descendant witnesses verify Stop/owner death; cross-scope failure is tested before spawn. Actual public ClaudeDriver fixture asserts original machine environment, subscription, nativeTools:none and omitted processTree, plus completed turn/sticky prior refusal coverage. Status checks readiness-only output and API-key refusal. Finite fixtures do not claim authenticated model proof; separate actual startup evidence does. Existing account/profile authority and prior isolated tests are retained.",
@@ -4325,7 +4325,7 @@
       "scenario": "A01-MCP-CORRELATION.refused",
       "test": "tests.test_ui_mcp.UiMcpTests.test_native_claude_tool_metadata_is_bounded_and_never_becomes_app_authority",
       "scenario_sha256": "21e99d205eca1d299cf29678f5889dd5904eeeaca85eceb18b0512746bf64185",
-      "source_sha256": "0d5ba81a6601d9600a37adc8bf9a54424ca82748e1bacfd9cd5406a60f60ec82",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
       "expected_observation": "It returns only the generic refusal and forwards no extra app call; metadata supplies no principal or tool authority",
       "decision": "aligned",
       "reason": "Reviewed complete assertions and synthetic fixtures against independent host-mode expectations. Actual native process/job/token and immutable descendant witnesses verify Stop/owner death; cross-scope failure is tested before spawn. Actual public ClaudeDriver fixture asserts original machine environment, subscription, nativeTools:none and omitted processTree, plus completed turn/sticky prior refusal coverage. Status checks readiness-only output and API-key refusal. Finite fixtures do not claim authenticated model proof; separate actual startup evidence does. Existing account/profile authority and prior isolated tests are retained.",
@@ -5024,12 +5024,12 @@
     {
       "scenario": "A05-SHARED-FORM.native-policy",
       "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities",
-      "scenario_sha256": "e2a43d0f8e193971cc43f2066bcc7b195171f4aee5d9dfcc0abb4cb8748edfdd",
-      "source_sha256": "1b44032e004fe81697f45c3d8dea40ce07e4c8a79e30de93c3dfe7b631d18825",
-      "expected_observation": "Exactly the sixteen registered UI/view/Form tools are allowed for the supplied server; no native, wildcard, foreign or caller-mutated capability is added, and disabling UI grants none.",
+      "scenario_sha256": "55bf3808ac17b491fa42442995246cd482db1af674035cd282a554ee7a6b85af",
+      "source_sha256": "0fb9adc5bd684fd12823e18b7698a1c84f05b877d40cb0dfc82fbcce2a2ddb0a",
+      "expected_observation": "Exactly32 explicit Maipa UI/form/workflow tools are permitted, including scoped execution controls; no wildcard, native or foreign tool is allowed and disabled returns empty.",
       "decision": "aligned",
       "reviewer": "Maipa independent native permission acceptance review; no external reviewer claimed",
-      "reason": "Actual provider exposed an application allowlist omission masked by the direct deterministic peer. Assert the exact scoped capabilities actually passed by the driver, preserve UI-disabled denial and exclude native/wildcard/foreign permissions. NativeTools none and dontAsk remain independently covered by existing driver tests. Reviewed the exact13 scoped Workflow authoring/create/publish names added to the existing16; expected count29. Disabled policy, native/wildcard prohibition and defensive-copy assertion remain. Run/cancel/status/native/global-kind tools stay absent."
+      "reason": "Real Claude confirmed local dont-ask denial of newly advertised run/triage tools. Exact expected32-tool policy assertion failed before changing the consumer host; only the three scoped tool names are added. NativeTools:none and no-wildcard/disabled/copy-isolation assertions remain."
     },
     {
       "scenario": "A04-DURABLE.versions",
@@ -5963,18 +5963,18 @@
     },
     {
       "scenario": "A05-NATIVE-WORKFLOW.public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities",
-      "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
-      "scenario_sha256": "35287e301ec14ca07ba86ce8f23f054613ae7debc4b327e9c8440f7481cf2d7b",
-      "expected_observation": "Only scoped authoring/public schema tools are exposed; native run/cancel/fabricated status/global kind discovery/undo remain absent.",
+      "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_public_tool_catalog_exposes_scoped_authoring_controls_without_fabricated_status_or_native_capabilities",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
+      "scenario_sha256": "82b498d5588a3574a20d8e0984846786701660ecffc97347c99ff16b7b3bd3c5",
+      "expected_observation": "Public run/cancel/actual-run inspection controls join scoped authoring; fabricated status, native capabilities and global kind discovery remain absent. Dispatch still requires independent existing authority.",
       "decision": "aligned",
       "reviewer": "Maipa semantic acceptance review; no external reviewer claimed",
-      "reason": "Actual original session authority, published Node bridge and real Django service/API/CAS are used. Expected exact durable revision, config, atomic deletion, refusal/no write and value-free receipt are independent outcomes. Provider execution, real browser and privileged workflow running are not substituted by this test seam. Corrected only the test helper parameter collision with the real create tool name argument, so that creation/retry/no-authority assertions now execute; initial7passes/1fixture error retained."
+      "reason": "Explicit A05 execution-control extension replaces only the catalog absence assertion with positive presence plus unchanged fabricated/native capability exclusions. New independent public bridge tests separately prove grant refusal, actual engine effects, idempotency, stale graph, revocation, worker and cancel boundaries."
     },
     {
       "scenario": "A05-NATIVE-WORKFLOW.create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_create_retry_is_scoped_and_creates_no_execution_principal_grant_or_run",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "14aac8212806d09dcec0ea8898776df38173d925efb64577bdb0ff13f9fa8f57",
       "expected_observation": "Exact creation retry returns one owned draft; changed retry refuses and authoring creates no executable definition/run/principal.",
       "decision": "aligned",
@@ -5984,7 +5984,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.actual_public_bridge_awaits_same_owned_draft_and_value_free_receipt",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_actual_public_bridge_awaits_same_owned_draft_and_value_free_receipt",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "dd0a42f1b488ba40e7ead450d29b87de96be94b3f7076593939cb6af0bf19379",
       "expected_observation": "The actual published Flow bridge acknowledges one durable draft revision, preserves its declared config and returns the same current state as the human HTTP endpoint; receipt contains no node label/config.",
       "decision": "aligned",
@@ -5994,7 +5994,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.newer_human_edit_refuses_stale_native_write_until_reread",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_newer_human_edit_refuses_stale_native_write_until_reread",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "1fbdc7a1cd3dc0aa326bb77dfe2d82abc6b83fa988d08782f19a8784bb3f6cb2",
       "expected_observation": "A native write computed before a newer human edit refuses and leaves that graph intact; explicit public reread enables the next revision.",
       "decision": "aligned",
@@ -6004,7 +6004,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.unread_unsafe_forged_status_and_invalid_config_calls_do_not_write",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_unread_unsafe_forged_status_and_invalid_config_calls_do_not_write",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "c6f317d2aee906713ec09449cc5f315cfd7c6c20b7284cc25f7d2667339f2e62",
       "expected_observation": "Unread writes, unsupported/effectful kinds, unadmitted aliases, forged actor/status and invalid whitespace-key config cannot change the saved graph or emit accepted activity.",
       "decision": "aligned",
@@ -6014,7 +6014,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.delete_commits_node_and_all_attached_edges_as_one_revision",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_delete_commits_node_and_all_attached_edges_as_one_revision",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "d8ff6f8b6dad22706b9af0af6b0453cafd0eb99ff6d64973f3c821ed015cdfca",
       "expected_observation": "One actual public delete removes the selected node and all attached edges in one durable revision.",
       "decision": "aligned",
@@ -6024,7 +6024,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.replaced_visible_draft_foreign_actor_and_revoked_session_refuse",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_replaced_visible_draft_foreign_actor_and_revoked_session_refuse",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "296a48dcf6d82908444386ee4bdc85fd9e3c13de1506a4916a1b5555f1a08b20",
       "expected_observation": "A replaced visible draft, foreign original actor and revoked original native session all refuse without mutating the earlier graph or creating a run.",
       "decision": "aligned",
@@ -6034,7 +6034,7 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.publish_records_current_immutable_graph_without_automatic_execution_authority",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_publish_records_current_immutable_graph_without_automatic_execution_authority",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "c7c4a11203a4f54d38a18238f3d994026f6b3f71b7b468c28728279aa25bf6c1",
       "expected_observation": "Current visible observed graph publishes once with exact retry receipt; stale publish refuses and no run or native execution authority is automatically created.",
       "decision": "aligned",
@@ -6044,12 +6044,142 @@
     {
       "scenario": "A05-NATIVE-WORKFLOW.publication_observes_current_graph",
       "test": "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_publication_requires_current_graph_read_after_a_newer_human_edit",
-      "source_sha256": "f0f1f0ca2ee818ef593eebb2dd1f95a19f616f91b2f5699431249a33a6d9b5ee",
+      "source_sha256": "34dbcf486d82c6b3187a83a90fce20c03ced8b7fabc4504a09ce33db49ba50fd",
       "scenario_sha256": "c8bd79fd73042184230c303be4b745f50bacaafd35e858421932bd5db5f1b337",
       "expected_observation": "Publication refuses with no definition/run or draft changes. A new public graph read permits that exact revision to publish without execution.",
       "decision": "aligned",
       "reviewer": "Maipa independent security/semantic review; no external reviewer claimed",
       "reason": "Observed current graph is required separately from guessed/discovered metadata revision. Independent scratch case failed against unchanged frozen candidate before this adoption; assertions copied literally. All previous8 cases are retained."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.exact_published_revision_runs_real_engine_and_retries_do_not_duplicate",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_exact_published_revision_runs_real_engine_and_retries_do_not_duplicate",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "b2de3527b943bbe43c17e636c62f9ddb08e1f5939252b7e194e92576ad724705",
+      "expected_observation": "One immutable run, no early checkpoint, Ready Ada output, and one attempt per node",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.stale_unpublished_and_changed_retry_refuse_without_new_execution",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_stale_unpublished_and_changed_retry_refuse_without_new_execution",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "14aa3723b4698e98b5ecbc1c8f99b0e6f8bdb194f2e75c9ecd4bf3a37931c2e3",
+      "expected_observation": "409, no unintended run or checkpoint and original seed retained",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.stopped_worker_refuses_queueing_and_reports_its_actual_state",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_stopped_worker_refuses_queueing_and_reports_its_actual_state",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "a0e57bdb4b1ba67bd98704e33c25a23d8e8af67796be18f4123b5d226de2254d",
+      "expected_observation": "503, actual stopped status and no persisted run",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.foreign_actor_scope_and_revoked_role_cannot_read_or_run",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_foreign_actor_scope_and_revoked_role_cannot_read_or_run",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "afc4a45d2b261e77a398f11f4d8886faae30509e567884f41374654fd729bd38",
+      "expected_observation": "Foreign access refused and no extra run",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.cancel_requires_observed_step_and_prevents_all_future_nodes",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_cancel_requires_observed_step_and_prevents_all_future_nodes",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "b9f24e46eb929272edefac6f8f678ddce0da8d94879e9e3588820b15483809a2",
+      "expected_observation": "Stale cancellation refuses, exact cancellation persists, worker cannot execute any node",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.execution_endpoints_require_session_csrf_and_closed_command_shapes",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_execution_endpoints_require_session_csrf_and_closed_command_shapes",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "660e4647f883403dfcd574370ec41156b6c4e78bd3f50244797861d46bca85e2",
+      "expected_observation": "Requests refuse without creating a run",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-HTTP.pending_gate_is_real_and_human_answer_resumes_exact_original_run",
+      "test": "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_pending_gate_is_real_and_human_answer_resumes_exact_original_run",
+      "source_sha256": "e6e1f491e92c1bc3ec602b63b795cc60bd0de4c1445d3de69bcf07259835a4cf",
+      "scenario_sha256": "aecc9ac100e82bbba35b2c305eee87a483bbe569b7659a421cae0ef0a1d79d51",
+      "expected_observation": "Actual waiting question and no downstream output before answer; exact recorded human answer resumes and completes without replay",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
+      "reason": "Reviewed before production implementation: explicit HTTP status, actual persisted run/checkpoint counts, independent Ready Ada output, stopped-worker no-write and real gate pause/answer evidence. Worker availability patch supplies only process status, never effects or run outcomes."
+    },
+    {
+      "scenario": "A05-EXECUTION-NATIVE.public_run_accepts_once_only_with_current_original_grant_and_real_output",
+      "test": "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_public_run_accepts_once_only_with_current_original_grant_and_real_output",
+      "source_sha256": "a3702747b7eeb8edddb4b1449d169228cd1bc0f22761f77f328d1a2b85d7fd11",
+      "scenario_sha256": "646030c13c025a7227f8bef74d96887ca7be8cb6053212b8dcc92d73efbbcfc7",
+      "expected_observation": "One native run, accepted acknowledgment without fabricated outputs, real Ready output and one checkpoint attempt",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome and authority review; no external reviewer claimed",
+      "reason": "Real published run/cancel bridge and actual saved native policy/worker checkpoints are exercised. Worker-status patch never supplies engine effects. An initial fixture assigned a nonexistent revoked_at attribute; corrected to persisted enabled=False, preserving the intended refusal assertion. Earlier red/imported-fixture counts are retained separately."
+    },
+    {
+      "scenario": "A05-EXECUTION-NATIVE.public_cancel_needs_current_triage_and_cancel_grants_and_observed_step",
+      "test": "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_public_cancel_needs_current_triage_and_cancel_grants_and_observed_step",
+      "source_sha256": "a3702747b7eeb8edddb4b1449d169228cd1bc0f22761f77f328d1a2b85d7fd11",
+      "scenario_sha256": "82691ce2ccbece91744a0961b6ba91d0b3ad062d4a36eeee7bc80032b1c07e3d",
+      "expected_observation": "Premature refusal followed by saved cancellation with no executed node",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome and authority review; no external reviewer claimed",
+      "reason": "Real published run/cancel bridge and actual saved native policy/worker checkpoints are exercised. Worker-status patch never supplies engine effects. An initial fixture assigned a nonexistent revoked_at attribute; corrected to persisted enabled=False, preserving the intended refusal assertion. Earlier red/imported-fixture counts are retained separately."
+    },
+    {
+      "scenario": "A05-EXECUTION-NATIVE.newer_human_graph_or_revoked_principal_refuses_before_dispatch",
+      "test": "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_newer_human_graph_or_revoked_principal_refuses_before_dispatch",
+      "source_sha256": "a3702747b7eeb8edddb4b1449d169228cd1bc0f22761f77f328d1a2b85d7fd11",
+      "scenario_sha256": "54331cad696c3aec46d173e9b97c5eb37acbf34d50552908c3bd22eef221881b",
+      "expected_observation": "Both requests refuse with no run",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome and authority review; no external reviewer claimed",
+      "reason": "Real published run/cancel bridge and actual saved native policy/worker checkpoints are exercised. Worker-status patch never supplies engine effects. An initial fixture assigned a nonexistent revoked_at attribute; corrected to persisted enabled=False, preserving the intended refusal assertion. Earlier red/imported-fixture counts are retained separately."
+    },
+    {
+      "scenario": "A05-EXECUTION-NATIVE.worker_stopped_and_forged_origin_fields_create_no_run_or_success",
+      "test": "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_worker_stopped_and_forged_origin_fields_create_no_run_or_success",
+      "source_sha256": "a3702747b7eeb8edddb4b1449d169228cd1bc0f22761f77f328d1a2b85d7fd11",
+      "scenario_sha256": "1c441bb7694a9dd21bce58fd08d2e98848e0d5923cbdd9cdb0a458e6c48298a4",
+      "expected_observation": "Refusal, zero runs and no success activity",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome and authority review; no external reviewer claimed",
+      "reason": "Real published run/cancel bridge and actual saved native policy/worker checkpoints are exercised. Worker-status patch never supplies engine effects. An initial fixture assigned a nonexistent revoked_at attribute; corrected to persisted enabled=False, preserving the intended refusal assertion. Earlier red/imported-fixture counts are retained separately."
+    },
+    {
+      "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.catalog",
+      "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_native_permission_policy_matches_every_published_workflow_tool",
+      "source_sha256": "0fb9adc5bd684fd12823e18b7698a1c84f05b877d40cb0dfc82fbcce2a2ddb0a",
+      "scenario_sha256": "c2b0bab6d0c7bc6f2de2c4bde01f49731318587a8f4c5a5cdef30bf272085a54",
+      "expected_observation": "Every advertised workflow tool has exactly its scoped native permission; the three execution names are explicitly required.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent actual-provider/native transport review; no external reviewer claimed",
+      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch."
+    },
+    {
+      "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.relay",
+      "test": "tests.test_ui_mcp.UiMcpTests.test_workflow_results_preserve_actual_refusal_and_acknowledgment_without_private_or_fabricated_success",
+      "source_sha256": "aecff28b23b6b0ba2aa783a2141da53e7179b0112f02879e1e23c91d1c3fba76",
+      "scenario_sha256": "4c08ea492f03f1a36efaff29796af137435a87bf9f98a5e97771b4aef6777b9d",
+      "expected_observation": "The complete run refusal and cancel acknowledgment are preserved verbatim; malformed/private result is refused without disclosure, and both process trees stop.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent actual-provider/native transport review; no external reviewer claimed",
+      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch."
     }
   ]
 }

@@ -335,7 +335,10 @@ def main():
             from backend.maipa.windows_sandbox import _Api, _windows_paths
             environment = browser_environment(os.environ, _windows_paths(_Api()))
             def run_browser(data):
-                return browser_process(data, node, environment)
+                from backend.maipa.storage import install_lock
+                from backend.maipa.workflows.worker import serving
+                with install_lock(data_root) as guard,serving(guard,data_root,poll_seconds=0.05):
+                    return browser_process(data, node, environment)
             save_progress('first_run')
             first_run = run_browser(base_data | {'first_run': True,
                 'username': 'synthetic-first-admin', 'password': secrets.token_urlsafe(24)})

@@ -7,7 +7,7 @@ from backend.maipa.api import error,method_not_allowed
 from backend.maipa.intake.views import body
 from backend.maipa.intake.schema import InvalidFact
 from backend.maipa.workspace.policy import authorize
-from . import gates,drafts
+from . import gates,drafts,execution
 from backend.maipa.acp import _object,_invalid_number
 from .errors import Unavailable,InvalidWorkflow,Conflict
 from .schema import require
@@ -20,6 +20,7 @@ def endpoint(function):
         if denied is not None:return denied
         try:return function(request,*args,**kwargs)
         except (InvalidWorkflow,InvalidFact):return error('invalid_request',400)
+        except execution.WorkerUnavailable:return error('workflow_unavailable',503)
         except Unavailable:return error('not_found',404)
         except Conflict:return error('revision_conflict',409)
         except OperationalError:return error('workflow_unavailable',503)
@@ -90,3 +91,32 @@ def publish_draft(request,draft_id):
     command,denied=_draft_body(request,('expected_revision',))
     if denied is not None:return denied
     return JsonResponse(drafts.publish(request.user,str(draft_id),**command))
+
+
+@endpoint
+def execution_draft(request,draft_id):
+    if request.method not in ('GET','POST'):return method_not_allowed('GET, POST')
+    denied=_draft_actor(request)
+    if denied is not None:return denied
+    if request.method=='GET':return JsonResponse(execution.snapshot(request.user,str(draft_id)))
+    command,denied=_draft_body(request,('expected_revision','definition_revision','request_key','seed'))
+    if denied is not None:return denied
+    return JsonResponse(execution.dispatch(request.user,str(draft_id),**command))
+
+
+@endpoint
+def execution_run(request,run_id):
+    if request.method!='GET':return method_not_allowed('GET')
+    denied=_draft_actor(request)
+    if denied is not None:return denied
+    return JsonResponse(execution.inspect(request.user,str(run_id)))
+
+
+@endpoint
+def execution_control(request,run_id,operation):
+    if request.method!='POST':return method_not_allowed('POST')
+    denied=_draft_actor(request)
+    if denied is not None:return denied
+    command,denied=_draft_body(request,('expected_step',))
+    if denied is not None:return denied
+    return JsonResponse(execution.control(request.user,str(run_id),operation,command['expected_step']))

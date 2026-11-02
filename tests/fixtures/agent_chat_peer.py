@@ -79,7 +79,7 @@ for line in sys.stdin:
                 'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
                 'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
                 'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
-                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish'}:
+                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','flow_run','flow_cancel','maipa_workflow_runs'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})
@@ -128,6 +128,20 @@ for line in sys.stdin:
                     ('output','Result',{},640)):
                     nodes.append(workflow_call('flow_add_node',{'kind':'@particle-academy/'+kind,'label':label,'config':config,'x':x,'y':0}))
                 for start,end in zip(nodes,nodes[1:]):workflow_call('flow_connect',{'source':start['id'],'target':end['id']})
+            elif 'add workflow approval' in text:
+                def workflow_control(name,arguments):
+                    result=callback(name,arguments)
+                    if result.get('isError'):raise RuntimeError('Synthetic approval authoring refused')
+                    return result.get('structuredContent')
+                graph=workflow_control('flow_get_state',{})
+                source=next(n for n in graph['nodes'] if n['data']['kind'].endswith('/transform'))
+                target=next(n for n in graph['nodes'] if n['data']['kind'].endswith('/output'))
+                edge=next(e for e in graph['edges'] if e['source']==source['id'] and e['target']==target['id'])
+                workflow_control('flow_disconnect',{'id':edge['id']})
+                question=workflow_control('flow_add_node',{'kind':'@particle-academy/human_approval','label':'Human review',
+                    'config':{'title':'Approve synthetic workflow output'},'x':480,'y':180})
+                workflow_control('flow_connect',{'source':source['id'],'target':question['id']})
+                workflow_control('flow_connect',{'source':question['id'],'sourceHandle':'approved','target':target['id']})
             elif 'update the shared workflow' in text:
                 graph=callback('flow_get_state',{})
                 if graph.get('isError'):raise RuntimeError('Synthetic workflow read refused')

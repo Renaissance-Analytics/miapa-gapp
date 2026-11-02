@@ -14,6 +14,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class UiMcpTests(unittest.TestCase):
+    def test_workflow_results_preserve_actual_refusal_and_acknowledgment_without_private_or_fabricated_success(self):
+        report=self.probe('workflow-results')
+        self.assertEqual(report['results']['run'],{'content':[{'type':'text','text':'Execution refused'}],
+            'structuredContent':{'ok':False,'code':'forbidden'},'isError':True})
+        self.assertEqual(report['results']['cancel'],{'content':[{'type':'text','text':'Cancellation confirmed'}],
+            'structuredContent':{'ok':True}})
+        self.assertEqual(report['results']['invalid'],'UI tool unavailable')
+        self.assertNotIn('synthetic-private-result',json.dumps(report))
+        self.assert_stopped(report)
+
     def test_native_claude_tool_metadata_is_bounded_and_never_becomes_app_authority(self):
         report = self.probe('claude-meta')
         self.assertEqual(report['results']['call']['structuredContent'], {'accepted': True, 'revision': 1})

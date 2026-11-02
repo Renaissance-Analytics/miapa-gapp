@@ -105,7 +105,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
+      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
@@ -115,17 +115,17 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
+      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
+      "reason": "Update39 adds implemented run/gate controls, retains exact prior38/37/36 card assertions and rotates19 into history without loss. All23 unique groups remain.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
+      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
@@ -135,7 +135,7 @@
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "2ceec05d14ef0eecf99174156818a062dc4231e0ef39aa7498cd5cb6a3c43617",
+      "source_sha256": "f5d7d1e02d4aaaf02c0123c84e132b5a3bd2283525e7a61c1f7447f9124a66da",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained.",
@@ -1110,6 +1110,106 @@
       "decision": "aligned",
       "reviewer": "Maipa independent controlled-UI review; no external reviewer claimed",
       "reason": "A controlled whole editor must receive its actual interaction state even though only semantic graph data belongs in storage. The real pointer drag failed after rendering correction; no assertion/deadline is relaxed and no server field is stripped."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.1",
+      "test": "workflow-execution.test.mjs#acknowledged dispatch preserves its immutable version and reports server state only",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "e3e328ed6891b11fb43f1c823d16c61484b0e7ac8c04940161c957a95e2b0d49",
+      "expected_observation": "Exact revisions/seed/request identity and queued state with no invented output",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.2",
+      "test": "workflow-execution.test.mjs#unconfirmed dispatch retries retain the same request identity and seed",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "9eb488fd43a0c81ce3aee0caa2f923297a96c06cca0995c464b5341222836450",
+      "expected_observation": "Changed retry performs no request; identical retry preserves the original idempotency key/seed",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.3",
+      "test": "workflow-execution.test.mjs#stopped worker or stale draft cannot dispatch and cancellation uses exact observed step",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "ce7f25734b19f792b2f6b7d98d36ba8e9216bd96a1a5d25db71666c9cf68d49d",
+      "expected_observation": "No invalid dispatch and cancellation sends the exact original run/step",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.4",
+      "test": "workflow-execution.test.mjs#dispose fences a late accepted response without cancelling actual backend work",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "e9646464fb50d64ce078c5c6186a164e7effab91b405645224305904038cbad7",
+      "expected_observation": "Closed state and zero automatic cancellation",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.5",
+      "test": "workflow-execution.test.mjs#foreign definition and forged gate versions are refused before showing run evidence",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "6702daa08c5e05414383b30aaad5f3fdc4f72db9c1cfb785d78be604f3bfbe38",
+      "expected_observation": "Parser refuses both instead of showing trusted evidence",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.6",
+      "test": "workflow-execution.test.mjs#human publication acknowledges its exact saved graph without creating a run",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "818ad4aadc8756fa3f5b482ef9576b542dcc9033fdca935bfa5f02d47be861a6",
+      "expected_observation": "Publishing state prevents editing, exact revision is submitted and only publication is acknowledged",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.7",
+      "test": "workflow-execution.test.mjs#unconfirmed human answers retain the exact gate and retry identity without borrowing seeded values",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "a12e83371433933d9e88168e5ec3999ea8e24c39a01f8cad490c562d8a9f9462",
+      "expected_observation": "Original gate/input remains, changed retry performs no write and identical retry preserves the recorded request identity",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client lifecycle/acceptance review; no external reviewer claimed",
+      "reason": "Assertions cover held acknowledgments, unknown outcomes, exact retry identity, current revisions, foreign evidence, late disposal and session-only human answer state. No browser execution or model narration supplies effects."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.8",
+      "test": "workflow-execution.test.mjs#actor replacement closes execution state instead of retaining the previous human question",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "9f70b4a0905a4b7f963ef11e2c91534ccdad4ba11574bdeeed04d2c8889fa7b5",
+      "expected_observation": "Actor replacement immediately clears the previous snapshot/run/question and closes the controller.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client identity review; no external reviewer claimed",
+      "reason": "Both independent assertions failed against the original execution controller before the fix. Actor409 is a closed identity boundary, and a selected run must match the exact returned identity. Prior tests remain unchanged."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.9",
+      "test": "workflow-execution.test.mjs#an inspection receipt for a different run in the same workflow is refused",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "1e391c8b7e5b58d98bf6ef31e7ef294b6907304d7965eafc44b5622376a36729",
+      "expected_observation": "A mismatched run identity is refused before publishing any receipt or trusted run state.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent client identity review; no external reviewer claimed",
+      "reason": "Both independent assertions failed against the original execution controller before the fix. Actor409 is a closed identity boundary, and a selected run must match the exact returned identity. Prior tests remain unchanged."
+    },
+    {
+      "scenario": "A05-EXECUTION-CLIENT.10",
+      "test": "workflow-execution.test.mjs#a human cancellation waits for an in-flight status read instead of losing the click",
+      "source_sha256": "3c9a53fad87809e261cfc9a85e3f4257aee2985b79a0d68d65e508cb8fa68b12",
+      "scenario_sha256": "eaca0f2af4034e7f45a3d465b5e209d93fe3b48b3115a7236050ea58a4431636",
+      "expected_observation": "The click is retained, awaits the read and submits exactly one cancellation with the originally observed run and step.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent acknowledgment/lifecycle review; no external reviewer claimed",
+      "reason": "Observed red: a normal background read silently discarded a human cancellation. Await read settlement while preserving the original observed CAS; do not disable editable question inputs during polling or resample authority from another run."
     }
   ]
 }

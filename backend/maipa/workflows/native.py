@@ -199,3 +199,13 @@ def get_run(context,run_id):
     graph=_evidence(run,member,binding)
     _check(policy,graph,'triage','node')
     return services._run_value(run)
+
+
+@transaction.atomic
+def cancel(context,run_id,expected_step):
+    user,member,binding,policy=_resolve(context)
+    run=services._run(member,run_id)
+    if run.step!=services._revision(expected_step):raise Conflict()
+    graph=_evidence(run,member,binding)
+    _check(policy,graph,'cancel','node')
+    return services.cancel(user,run_id,expected_step)

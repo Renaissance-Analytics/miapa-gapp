@@ -1167,6 +1167,112 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-EXECUTION-CLIENT",
+      "risk": "Lost acknowledgments or component lifecycle could duplicate execution, erase human answers or show forged runtime state.",
+      "scenarios": [
+        {
+          "id": "A05-EXECUTION-CLIENT.1",
+          "kind": "positive",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Dispatch returns server queue acknowledgment",
+          "then": "Exact revisions/seed/request identity and queued state with no invented output",
+          "tests": [
+            "workflow-execution.test.mjs#acknowledged dispatch preserves its immutable version and reports server state only"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.2",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "A run receipt is lost, then changed and identical retries are requested",
+          "then": "Changed retry performs no request; identical retry preserves the original idempotency key/seed",
+          "tests": [
+            "workflow-execution.test.mjs#unconfirmed dispatch retries retain the same request identity and seed"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.3",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Worker is stopped or saved revision differs; later cancel an observed waiting run",
+          "then": "No invalid dispatch and cancellation sends the exact original run/step",
+          "tests": [
+            "workflow-execution.test.mjs#stopped worker or stale draft cannot dispatch and cancellation uses exact observed step"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.4",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Close the controller before its accepted response returns",
+          "then": "Closed state and zero automatic cancellation",
+          "tests": [
+            "workflow-execution.test.mjs#dispose fences a late accepted response without cancelling actual backend work"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.5",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Receive a foreign run or gate with an incorrect step",
+          "then": "Parser refuses both instead of showing trusted evidence",
+          "tests": [
+            "workflow-execution.test.mjs#foreign definition and forged gate versions are refused before showing run evidence"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.6",
+          "kind": "positive",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Await a held human publication response",
+          "then": "Publishing state prevents editing, exact revision is submitted and only publication is acknowledged",
+          "tests": [
+            "workflow-execution.test.mjs#human publication acknowledges its exact saved graph without creating a run"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.7",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Human answer receipt is lost and then changed and retried",
+          "then": "Original gate/input remains, changed retry performs no write and identical retry preserves the recorded request identity",
+          "tests": [
+            "workflow-execution.test.mjs#unconfirmed human answers retain the exact gate and retry identity without borrowing seeded values"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.8",
+          "kind": "negative",
+          "given": "An execution request bound to its original user and selected run",
+          "when": "actor replacement closes execution state instead of retaining the previous human question",
+          "then": "Actor replacement immediately clears the previous snapshot/run/question and closes the controller.",
+          "tests": [
+            "workflow-execution.test.mjs#actor replacement closes execution state instead of retaining the previous human question"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.9",
+          "kind": "negative",
+          "given": "An execution request bound to its original user and selected run",
+          "when": "an inspection receipt for a different run in the same workflow is refused",
+          "then": "A mismatched run identity is refused before publishing any receipt or trusted run state.",
+          "tests": [
+            "workflow-execution.test.mjs#an inspection receipt for a different run in the same workflow is refused"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.10",
+          "kind": "positive",
+          "given": "A ready human run control while its background status read is held",
+          "when": "The human clicks Cancel and the same observed status read completes",
+          "then": "The click is retained, awaits the read and submits exactly one cancellation with the originally observed run and step.",
+          "tests": [
+            "workflow-execution.test.mjs#a human cancellation waits for an in-flight status read instead of losing the click"
+          ]
+        }
+      ]
     }
   ]
 }

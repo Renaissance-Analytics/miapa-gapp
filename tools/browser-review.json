@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "2487e90535f52ea7ff4facb8fd08c5c9d2215c0457f99ba0bb1115ef6f93353c",
-    "tools/check_browser.py": "95fd7d161c1944ff84223b6ed401c8754851ef6a0ab797809121597c3eee6995",
+    "tools/browser.mjs": "077d9e02f445374acf2ad631ea4605151db4e148eac99e1b82c032a316c02a90",
+    "tools/check_browser.py": "c3b79c3e07563398a80b6a369bc00b5c1dc1c5afe425cdccc4e45be3602f9518",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "ee4e7f094e6cc59f091f2ae21fc8fcce0437e33fd46e3b8004229464866a0910"
+    "tests/fixtures/agent_chat_peer.py": "ba2e8ae8c7927d94e999deddd56270f0b32ecd0cd4540d39dac5e786e93531c4"
   },
   "cases": [
     {
@@ -140,6 +140,11 @@
       "expected": "Actual chat Send reaches the deterministic native peer and production public Flow bridge/current-session broker, creates an owned stable draft and composes the published controlled FlowEditor. Three actual nodes and two edges retain the exact configured Transform. A native pointer drag is durably acknowledged. A subsequent native authoring update retains that human position, draft/node identity, mounted chat and unsent follow-up. Reload reads the identical saved graph/revision and does not replay a native receipt. No model/run acceptance is claimed."
     },
     {
+      "id": "shared-workflow-published-run-and-reload",
+      "kind": "positive",
+      "expected": "Native human controls publish the exact shared graph and run it through the real installation-leased Python worker. Actual saved Hello Ada output and single node attempts survive reload. The deterministic ACP peer edits the same graph to add a real durable approval. Seeded approval does not bypass waiting; a native human click records approval and routes the original output. A second paused run is cancelled through the real human control, has no downstream output, and chat input remains intact. Provider simulation remains explicit and separate from actual-model acceptance."
+    },
+    {
       "id": "preferences-save-conflict-recovery",
       "kind": "positive",
       "expected": "Native appearance controls, reload, independent concurrent preference write, exact stale conflict, disabled controls and explicit authoritative reload retain their original outcomes. Contextual notes/facts are chosen by actual chat requests and stay independent of legacy saved-view metadata."
@@ -264,5 +269,12 @@
     "authority": "Server owned actor/session/CAS; no injected graph, principal, run, credential or native capability. Finite real published bridge; actual graph and native pointer changes rather than fabricated status.",
     "diagnostic": "Closed workflow_editor phase and completed count39. No private values added to public failure metadata. Original three120second child windows and420second parent remain. The original15second human-drag assertion is unchanged. On its failure only, fixed phase/count and synthetic position floats plus an owned-fixture screenshot remain private; the original failure is rethrown and all cleanup assertions remain. No raw values enter public CI metadata.",
     "pointer": "Use the actual published node header, require its real draggable class and native pointer hit, and send three native movement samples with animation-frame acknowledgment before release. No DOM-dispatched event, graph mutation, artificial position update or increased deadline. The exact durable position-change, agent-preserves-human-edit and reload assertions remain; previous failure is retained."
+  },
+  "shared_workflow_execution_review": {
+    "reviewer": "Maipa independent state/worker/browser review; no external reviewer claimed",
+    "scope": "One added browser case; all39 original cases, actions/assertions/deadlines and cleanup remain. Required aggregate becomes40; progress maximum40. The fixture now acquires its own real installation lease and starts/stops the production serving worker per existing child browser window. No loopback worker effect or execution success is simulated. Original three120second windows/420second parent remain.",
+    "authority": "Authenticated native human controls exercise real session/CSRF endpoints; the deterministic peer only edits the shared graph through real tools. It receives no human answer route, execution grant or claimed real-provider identity.",
+    "controls": "Use the actual published Unicode Run/Cancel button labels and inherited fieldset disable state before clicking. Run input is a verified textarea reached with native keyboard entry; old input-only fill assertions remain unchanged. Observe the exact owned chat input id and original output preserved by the real approval executor. Feed times describe current UI observation, not execution-event timestamps.",
+    "draft_precondition": "The new execution case establishes its own current unsent chat draft after the preceding original authoring case reload. It then retains the exact unchanged preservation assertions across Run and approval/cancel. Prior39 actions/assertions remain. The first failure assumed an in-memory draft survived reload; it is retained. Cross-reload unsent draft durability remains P04 work, not a claim of this execution increment."
   }
 }

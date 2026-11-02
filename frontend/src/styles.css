@@ -247,6 +247,14 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .workflow-workspace > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
 .workflow-workspace fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
 .workflow-workspace .ff-editor { max-width: 100%; }
+.workflow-execution {
+  --ff-run: #047857; --ff-run-hover: #065F46; --ff-danger: #B91C1C;
+  --ff-surface: var(--surface); --ff-surface-3: var(--raised); --ff-fg: var(--ink);
+  --ff-border: var(--border); --ff-radius-sm: 6px;
+  display: grid; gap: 6px; margin-block: 6px;
+}
+.workflow-run-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.workflow-execution form { display: grid; gap: 6px; }
 .contextual-panel > header h2 { min-width: 0; overflow-wrap: anywhere; }
 .contextual-panel > header > .view-actions { flex-shrink: 0; }
 .maipa-views-popover { display: grid; gap: 12px; width: min(340px, calc(100vw - 24px)); max-height: min(520px, calc(100dvh - 80px)); overflow: auto; background: var(--surface); color: var(--ink); padding: 14px; }

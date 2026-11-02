@@ -42,6 +42,7 @@ BROWSER_CASES = (
     'agent-reconnect-after-transport-loss',
     'agent-provider-choice-and-account-restore',
     'shared-workflow-editor-and-native-authoring',
+    'shared-workflow-published-run-and-reload',
     'preferences-save-conflict-recovery',
     'layout-gestures-conflict-recovery',
     'intake-facts-and-evidence',

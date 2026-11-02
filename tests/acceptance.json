@@ -4391,7 +4391,7 @@
           "kind": "positive",
           "given": "The real application Claude driver is restricted to the supplied Maipa MCP server",
           "when": "The driver receives its tool permission list with or without UI support",
-          "then": "Exactly the sixteen registered UI/view/Form tools are allowed for the supplied server; no native, wildcard, foreign or caller-mutated capability is added, and disabling UI grants none.",
+          "then": "Exactly32 explicit Maipa UI/form/workflow tools are permitted, including scoped execution controls; no wildcard, native or foreign tool is allowed and disabled returns empty.",
           "tests": [
             "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities"
           ]
@@ -5373,9 +5373,9 @@
           "kind": "negative",
           "given": "An actual owned account/session/UI lease and published authoritative Flow bridge over the same saved graph as the human",
           "when": "test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities",
-          "then": "Only scoped authoring/public schema tools are exposed; native run/cancel/fabricated status/global kind discovery/undo remain absent.",
+          "then": "Public run/cancel/actual-run inspection controls join scoped authoring; fabricated status, native capabilities and global kind discovery remain absent. Dispatch still requires independent existing authority.",
           "tests": [
-            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_public_tool_catalog_exposes_authoring_without_run_status_or_native_capabilities"
+            "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_public_tool_catalog_exposes_scoped_authoring_controls_without_fabricated_status_or_native_capabilities"
           ]
         },
         {
@@ -5456,6 +5456,154 @@
           "then": "Publication refuses with no definition/run or draft changes. A new public graph read permits that exact revision to publish without execution.",
           "tests": [
             "tests.test_shared_workflow_tools.SharedWorkflowToolTests.test_publication_requires_current_graph_read_after_a_newer_human_edit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-EXECUTION-HTTP",
+      "risk": "Browser controls could run a stale/foreign graph, duplicate work, forge progress, borrow identity or bypass a real human gate.",
+      "scenarios": [
+        {
+          "id": "A05-EXECUTION-HTTP.exact_published_revision_runs_real_engine_and_retries_do_not_duplicate",
+          "kind": "positive",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Run and repeat an exact published revision, then advance its actual Python worker",
+          "then": "One immutable run, no early checkpoint, Ready Ada output, and one attempt per node",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_exact_published_revision_runs_real_engine_and_retries_do_not_duplicate"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.stale_unpublished_and_changed_retry_refuse_without_new_execution",
+          "kind": "negative",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Submit stale/unpublished revisions and change the seed of an existing request",
+          "then": "409, no unintended run or checkpoint and original seed retained",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_stale_unpublished_and_changed_retry_refuse_without_new_execution"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.stopped_worker_refuses_queueing_and_reports_its_actual_state",
+          "kind": "negative",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Dispatch with independently reported stopped worker",
+          "then": "503, actual stopped status and no persisted run",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_stopped_worker_refuses_queueing_and_reports_its_actual_state"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.foreign_actor_scope_and_revoked_role_cannot_read_or_run",
+          "kind": "negative",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Use another owner, inconsistent actor header and revoked membership",
+          "then": "Foreign access refused and no extra run",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_foreign_actor_scope_and_revoked_role_cannot_read_or_run"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.cancel_requires_observed_step_and_prevents_all_future_nodes",
+          "kind": "positive",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Cancel a queued run with a stale step then its exact observed step",
+          "then": "Stale cancellation refuses, exact cancellation persists, worker cannot execute any node",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_cancel_requires_observed_step_and_prevents_all_future_nodes"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.execution_endpoints_require_session_csrf_and_closed_command_shapes",
+          "kind": "negative",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Use anonymous/no CSRF/missing actor/query/extra actor-field requests",
+          "then": "Requests refuse without creating a run",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_execution_endpoints_require_session_csrf_and_closed_command_shapes"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-HTTP.pending_gate_is_real_and_human_answer_resumes_exact_original_run",
+          "kind": "positive",
+          "given": "An owned shared draft and immutable publication, independently controlled worker availability and real Python engine/store",
+          "when": "Run the published durable approval node with a seeded approval, then answer through the session endpoint",
+          "then": "Actual waiting question and no downstream output before answer; exact recorded human answer resumes and completes without replay",
+          "tests": [
+            "tests.test_workflow_execution_http.WorkflowExecutionHttpTests.test_pending_gate_is_real_and_human_answer_resumes_exact_original_run"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-EXECUTION-NATIVE",
+      "risk": "Public execution callbacks could borrow human authority, duplicate a run or falsely acknowledge cancellation.",
+      "scenarios": [
+        {
+          "id": "A05-EXECUTION-NATIVE.public_run_accepts_once_only_with_current_original_grant_and_real_output",
+          "kind": "positive",
+          "given": "A shared visible graph, exact immutable publication and separately registered original principal with explicit scoped operator grants",
+          "when": "Refuse ungranted dispatch, grant the original principal, retry and advance the actual engine",
+          "then": "One native run, accepted acknowledgment without fabricated outputs, real Ready output and one checkpoint attempt",
+          "tests": [
+            "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_public_run_accepts_once_only_with_current_original_grant_and_real_output"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-NATIVE.public_cancel_needs_current_triage_and_cancel_grants_and_observed_step",
+          "kind": "positive",
+          "given": "A shared visible graph, exact immutable publication and separately registered original principal with explicit scoped operator grants",
+          "when": "Attempt premature cancellation, then inspect with triage and cancel with current typed grants",
+          "then": "Premature refusal followed by saved cancellation with no executed node",
+          "tests": [
+            "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_public_cancel_needs_current_triage_and_cancel_grants_and_observed_step"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-NATIVE.newer_human_graph_or_revoked_principal_refuses_before_dispatch",
+          "kind": "negative",
+          "given": "A shared visible graph, exact immutable publication and separately registered original principal with explicit scoped operator grants",
+          "when": "Change the saved graph after native read, then disable the registered original principal",
+          "then": "Both requests refuse with no run",
+          "tests": [
+            "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_newer_human_graph_or_revoked_principal_refuses_before_dispatch"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-NATIVE.worker_stopped_and_forged_origin_fields_create_no_run_or_success",
+          "kind": "negative",
+          "given": "A shared visible graph, exact immutable publication and separately registered original principal with explicit scoped operator grants",
+          "when": "Submit principal hints or dispatch while worker is stopped",
+          "then": "Refusal, zero runs and no success activity",
+          "tests": [
+            "tests.test_shared_workflow_execution.SharedWorkflowExecutionTests.test_worker_stopped_and_forged_origin_fields_create_no_run_or_success"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-NATIVE-EXECUTION-TRANSPORT",
+      "risk": "Advertised tools can remain denied by the native host, or a refused public bridge result can be rewrapped as success.",
+      "scenarios": [
+        {
+          "id": "A05-NATIVE-EXECUTION-TRANSPORT.catalog",
+          "kind": "positive",
+          "given": "Actual published public workflow tool definitions and the real host permission compiler",
+          "when": "Compare their complete workflow-name sets",
+          "then": "Every advertised workflow tool has exactly its scoped native permission; the three execution names are explicitly required.",
+          "tests": [
+            "tests.test_shared_form_policy.SharedFormPolicyTests.test_native_permission_policy_matches_every_published_workflow_tool"
+          ]
+        },
+        {
+          "id": "A05-NATIVE-EXECUTION-TRANSPORT.relay",
+          "kind": "negative",
+          "given": "The real local-pipe MCP child in its zero-capability worker",
+          "when": "Forward a refused run, acknowledged cancellation and malformed workflow result",
+          "then": "The complete run refusal and cancel acknowledgment are preserved verbatim; malformed/private result is refused without disclosure, and both process trees stop.",
+          "tests": [
+            "tests.test_ui_mcp.UiMcpTests.test_workflow_results_preserve_actual_refusal_and_acknowledgment_without_private_or_fabricated_success"
           ]
         }
       ]

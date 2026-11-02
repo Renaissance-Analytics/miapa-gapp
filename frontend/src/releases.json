@@ -1,5 +1,23 @@
 [
   {
+    "id": "development-39",
+    "label": "Development update 39",
+    "cards": [
+      {
+        "title": "Run your shared workflow",
+        "description": "Publish the saved graph, provide run input, and start it with the local workflow worker. Saved runs show their actual status, node results and outputs."
+      },
+      {
+        "title": "Answer a workflow question",
+        "description": "Approval and input requests appear beside the graph. Your recorded answer resumes the same run; you can cancel a waiting run."
+      },
+      {
+        "title": "Keep execution tied to access",
+        "description": "Maipa can request and inspect runs when its current connection already has the required workflow authority. Unavailable workers, stale graphs and revoked access refuse the operation."
+      }
+    ]
+  },
+  {
     "id": "development-38",
     "label": "Development update 38",
     "cards": [
@@ -250,16 +268,6 @@
       {
         "title": "Connect your ChatGPT subscription",
         "description": "Start sign-in from the conversation using your own ChatGPT subscription. The connection and saved chat belong to your Maipa account. The live agent workflow is awaiting its final sign-in and model verification."
-      }
-    ]
-  },
-  {
-    "id": "development-19",
-    "label": "Development update 19",
-    "cards": [
-      {
-        "title": "Private agent UI tools",
-        "description": "Agent UI requests now keep your account and access boundaries. Provider sign-in and live chat are still in progress."
       }
     ]
   }

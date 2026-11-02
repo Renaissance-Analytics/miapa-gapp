@@ -15,8 +15,8 @@ export function claudeUiTools(enabled) {
   return enabled ? [...['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`),
     ...['list', 'save', 'change', 'open'].map(operation => `mcp__maipa_ui__maipa_views_${operation}`),
     ...['list', 'describe', 'get_value', 'get_values', 'set_value', 'set_values', 'focus', 'submit'].map(operation => `mcp__maipa_ui__form_${operation}`),
-    ...['get_state','list_nodes','get_node','list_edges','get_node_schema','add_node','update_node','delete_node','connect','disconnect'].map(operation=>`mcp__maipa_ui__flow_${operation}`),
-    ...['list','create','publish'].map(operation=>`mcp__maipa_ui__maipa_workflow_${operation}`)] : [];
+    ...['get_state','list_nodes','get_node','list_edges','get_node_schema','add_node','update_node','delete_node','connect','disconnect','run','cancel'].map(operation=>`mcp__maipa_ui__flow_${operation}`),
+    ...['list','create','publish','runs'].map(operation=>`mcp__maipa_ui__maipa_workflow_${operation}`)] : [];
 }
 
 export function validateProfile(value) {

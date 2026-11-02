@@ -63,7 +63,10 @@ For workflows, call maipa_workflow_list first. maipa_workflow_create creates an 
 Present Maipa.Workflow with props draft_id, then read flow_get_state before using the public flow_* authoring tools.
 Use only the admitted canonical kinds returned by maipa_workflow_list. Human and agent edit the same revisioned graph.
 A stale write requires reading and reviewing current work before trying again. maipa_workflow_publish records a version only.
-Workflow run/cancel and execution grants are not exposed here yet. Never report a published version as an executed workflow.
+flow_run requests the exact observed published graph from the server worker. It requires an already registered original principal and current execution grant; it creates neither.
+Run acceptance means queued, not completed. Inspect maipa_workflow_runs for actual saved node states, outputs and failures before reporting outcomes.
+Read maipa_workflow_runs before flow_cancel so cancellation uses its observed step and original current authority.
+If execution authority or the worker is unavailable, explain that refusal. Never create authority, impersonate a human answer or report publication as execution.
 '''
 
 

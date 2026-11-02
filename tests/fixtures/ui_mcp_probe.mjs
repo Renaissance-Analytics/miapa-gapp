@@ -13,6 +13,11 @@ const calls = [], verdicts = [];
 const relay = await createUiRelay(async request => {
   calls.push(request);
   if (mode === 'errors') throw Error('synthetic-private-token-and-path');
+  if(mode==='workflow-results'&&request.method==='tools/call'){
+    if(request.params.name==='flow_run')return {content:[{type:'text',text:'Execution refused'}],structuredContent:{ok:false,code:'forbidden'},isError:true};
+    if(request.params.name==='flow_cancel')return {content:[{type:'text',text:'Cancellation confirmed'}],structuredContent:{ok:true}};
+    return {content:[],isError:'false',private:'synthetic-private-result'};
+  }
   return request.method === 'tools/list'
     ? { tools: [{ name: 'synthetic_ui', description: 'Synthetic fixture', inputSchema: { type: 'object' } }] }
     : mode === 'large' ? { id: 'synthetic-ui-lease', revision: 1, composition: { title: 'Large valid composition',
@@ -44,7 +49,12 @@ try {
   await child(relay.mcp, async peer => {
     results.initialize = await peer.request('initialize', { protocolVersion: mode === 'claude' ? '2025-11-25' : '2025-03-26', capabilities: {}, clientInfo: { name: 'synthetic', version: '1' } });
     if (mode === 'claude') peer.notify('notifications/initialized');
-    if (mode === 'normal' || mode === 'large' || mode === 'claude' || mode === 'claude-meta') {
+    if(mode==='workflow-results'){
+      results.run=await peer.request('tools/call',{name:'flow_run',arguments:{}});
+      results.cancel=await peer.request('tools/call',{name:'flow_cancel',arguments:{runId:'synthetic-run'}});
+      try{await peer.request('tools/call',{name:'maipa_workflow_runs',arguments:{}});results.invalid='accepted';}
+      catch(error){results.invalid=error.message;}
+    } else if (mode === 'normal' || mode === 'large' || mode === 'claude' || mode === 'claude-meta') {
       results.list = await peer.request('tools/list', mode === 'claude' ? undefined : {});
       results.call = await peer.request('tools/call', { name: 'synthetic_ui', arguments: { revision: 0 },
         ...(mode === 'claude-meta' ? { _meta: { 'claudecode/toolUseId': 'synthetic-native-use', progressToken: 0 } } : {}) });
