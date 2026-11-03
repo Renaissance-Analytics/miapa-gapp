@@ -69,6 +69,7 @@ def _components(role):
         ('Maipa.ClientTable', 'Read-only current owned clients from the scoped service, not supplied rows. Props: columns, an ordered unique subset of name/entity_count. No identifiers, bindings or data snapshots.'),
         ('Maipa.ClientFacts', 'Owned client facts and evidence; no props. Server-scoped services load the data.'),
         ('Maipa.ClientCatalog', 'Owned client/entity metadata controls; no props. Writes require current service authority.'),
+        ('Maipa.AgentSettings', 'Owned account/profile metadata and human controls for the actual provider connection/model; no props, secrets or model authorization. Model choices apply only to the live connection.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':

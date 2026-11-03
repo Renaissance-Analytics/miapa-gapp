@@ -64,7 +64,7 @@ export function compositionSchema(input: unknown): ScreenSchema {
       controls.add(v.type);
       return { id: v.id, type: v.type, props: { columns: [...v.props.columns] } };
     }
-    if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers'].includes(v.type)
+    if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers', 'Maipa.AgentSettings'].includes(v.type)
       || v.props !== undefined || controls.has(v.type)) return fail();
     controls.add(v.type);
     return { id: v.id, type: v.type };

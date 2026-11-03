@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "3b99de9dbf96fc41a08cc5b54c75f503777f688302936ad8075858093221b2c8",
+    "tools/browser.mjs": "7bd2dcd551167a06850eb1992d3facd2b9b147803c3ad319a30063ba7ee80ac0",
     "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "2f4186ed2177788f2e4211ecc28fcb219f02a4b8f72fb2fde15e5e0cb8941fd2"
+    "tests/fixtures/agent_chat_peer.py": "8b2422cd7f3cb0a62c3cfdbfb15b76862c9c3aeefcefc491f6af38fcfade835f"
   },
   "cases": [
     {
@@ -148,6 +148,11 @@
       "id": "agent-provider-choice-and-account-restore",
       "kind": "positive",
       "expected": "All prior native provider lock/disconnect, unsupported-runtime refusal, separate drafts, original transcript, reload and no-fallback checks remain, with the unavailable registration now Independent ACP because Claude has an adapter. Add native selection/Connect Claude, synthetic subscription consent, masked private callback input and submission; Ready must remove the auth form, preserve unsent chat draft and empty transcript, exclude the callback from DOM, and stop before returning to the original Codex consumer. Actual app HTTP/authority/UI are used; only the dedicated fixture supplies a finite ACP peer and third-provider label. No real model/authenticated native or generic-client claim. Original38 cases and operation budgets retained. Initial browser failure is preserved: sequential native Home/ArrowDown committed an intermediate provider and locked the control before the third option. Endpoint Home/End or one adjacent arrow now makes the intended single native selection, retaining actual input events, final value checks and original bound. Finite Claude consent now uses the independently measured2.1.311 claude.com/cai/oauth/authorize route, exercising both consumer layers through the private browser sign-in flow; all38 cases/actions/bounds and callback/draft/transcript assertions remain. Preserved real-browser red confirms the exact href assertion still expected the old route after its finite native peer changed; only that expected URL literal advances to the measured current route. Masked-input, native actions, transcript/draft, current-authority and cleanup assertions/budgets remain unchanged."
+    },
+    {
+      "id": "agent-settings-and-actual-model-controls",
+      "expected": "Agent presents one supported settings component; human changes an actual finite-peer model through original server/session authority; same conversation/UI/messages/unsent composer persist and reload with acknowledged model.",
+      "kind": "positive"
     },
     {
       "id": "shared-workflow-editor-and-native-authoring",
@@ -303,5 +308,6 @@
     "state": "Immutable run snapshots are distinct from selected run/detail state; selected history remains among at most10entries. Agent-source state is derived server-side; human source hints refuse. Repeated dispatch cannot steal a newer human choice."
   },
   "durable_draft_review": "Keep all42prior scenarios and budgets. New reloads verify full draft/file metadata, unsupported byte refusal, same failed-send retry identity and no auto resubmission. Existing acknowledged-send edited/restored text assertions stay intact.",
-  "current_turn_acknowledgment_review": "Async prepared draft persistence means the previous ready turn is not the clicked send. Capture each actual closed send request ID; retain the original15s until budget while requiring that exact latest user/complete assistant and rendered conversation revision. Pin controls additionally acknowledge the actual native collection revision before reordering. No assertion/deadline/case is weakened or removed. Require the selected native result to be completed in the actual UI before asserting saved output text; the backend completing and an earlier running UI with the same ID are different observations. Existing output assertion, IDs and time budgets are retained."
+  "current_turn_acknowledgment_review": "Async prepared draft persistence means the previous ready turn is not the clicked send. Capture each actual closed send request ID; retain the original15s until budget while requiring that exact latest user/complete assistant and rendered conversation revision. Pin controls additionally acknowledge the actual native collection revision before reordering. No assertion/deadline/case is weakened or removed. Require the selected native result to be completed in the actual UI before asserting saved output text; the backend completing and an earlier running UI with the same ID are different observations. Existing output assertion, IDs and time budgets are retained.",
+  "agent_settings_review": "Adds one44th case and finite peer component selector only; all43prior case IDs, assertions and operation/aggregate deadlines remain. Actual session/set_model changes feed the same controlled state in chat/settings; no fake model state or production adapter. Current user/profile read-only metadata reveals no credentials/home/private handles. No auth/model execution tool is added."
 }

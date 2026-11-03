@@ -1511,6 +1511,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-CONNECTION-SETTINGS-CLIENT",
+      "risk": "A settings component could expose another account, invent provider readiness or command a newer connection from stale controls.",
+      "scenarios": [
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.0",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Owned exact metadata accepts; foreign actor, readiness claims, credentials and home paths refuse.",
+          "tests": [
+            "agent-settings.test.mjs#settings are owned closed metadata and never credentials or readiness"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.1",
+          "kind": "positive",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Read only the same-origin settings endpoint with captured actor/no-store/no redirects/abort; malformed and denied responses refuse.",
+          "tests": [
+            "agent-settings.test.mjs#settings reads are same-origin captured-actor and have a bounded cancellable lifetime"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.2",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Model commands bind exact observed selection/conversation revisions and refuse busy/offline/unsupported choices.",
+          "tests": [
+            "agent-settings.test.mjs#model commands use only acknowledged live choices and exact observed revisions"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.3",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Stale rendered settings cannot command a newer account or conversation; exact current settings invoke once.",
+          "tests": [
+            "agent-settings.test.mjs#a stale settings control cannot send a command to a newer selected connection"
+          ]
+        }
+      ]
     }
   ]
 }

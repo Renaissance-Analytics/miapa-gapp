@@ -5905,6 +5905,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-CONNECTION-SETTINGS",
+      "risk": "A settings component could expose another account, invent provider readiness or command a newer connection from stale controls.",
+      "scenarios": [
+        {
+          "id": "P06-CONNECTION-SETTINGS.0",
+          "kind": "positive",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Owned metadata excludes other accounts/private handles and reads create no conversation/profile/worker.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsTests.test_owned_metadata_is_secret_free_and_does_not_prepare_or_connect"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS.1",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "An original profile cannot be adopted after account transfer or storage replacement.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsTests.test_original_profile_binding_is_rechecked_and_never_reassigned"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS.2",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Unsupported registrations stay unavailable, disabled accounts are absent and current viewer role refuses.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsTests.test_current_roles_disabled_accounts_and_unimplemented_registrations_are_honest"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS.3",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Read-only HTTP requires authenticated original actor, rejects query authority and refuses writes.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsTests.test_http_requires_original_actor_and_is_read_only_with_no_query_authority"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS.4",
+          "kind": "positive",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "The agent can present one no-props settings component at its current lease; selectors/duplicates/revocation refuse.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsTests.test_agent_can_present_one_current_settings_component_without_selectors"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS.5",
+          "kind": "positive",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "A real finite provider acknowledges Model B without replacing conversation/UI; metadata remains exact and stale Model A request refuses.",
+          "tests": [
+            "tests.test_agent_settings.AgentSettingsModelTests.test_settings_and_actual_model_acknowledgment_preserve_original_conversation"
+          ]
+        }
+      ]
     }
   ]
 }

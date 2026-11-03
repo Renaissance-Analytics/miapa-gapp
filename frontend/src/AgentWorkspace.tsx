@@ -16,6 +16,7 @@ import { COOLDOWN_MESSAGE, failureCooldown, failureStatus } from './turn-failure
 import { TurnFailureNotice } from './TurnFailureNotice.js';
 import { FormActivityCursor, type NativeFormActivity } from './shared-form.js';
 import type {WorkflowActivity} from './shared-workflow.js';
+import {applySettingsCommand} from './agent-settings.js';
 
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
@@ -138,13 +139,14 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const ui=activeView?{composition:{title:activeView.title,schema:activeView.schema!}}:liveUi;
   useEffect(() => { if (!ui) setFocusPanel(false); }, [!!ui]);
   async function action(payload: Record<string, unknown>) {
-    if (busy) return;
+    if (busy) return false;
     setBusy(true); setError('');
     try {
       const next = await chatRequest(userId, { ...payload, selection_revision: current.current.connection.revision });
       // A newer stream checkpoint can arrive before the POST acknowledgement.
       setState(previous => newerChat(previous, next));
-    } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
+      return true;
+    } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable');return false; }
     finally { setBusy(false); }
   }
   async function reconnect() {
@@ -285,7 +287,13 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
             if (!bridge.current) return; setBusy(true); void bridge.current.dismiss(liveUi).then(()=>personalViews.current?.clearActive())
               .catch(() => setError('The shared panel changed. Reconnect before closing it.')).finally(() => setBusy(false));
           }}>Close</Button></div></header>
-          <div className="composition-body"><AgentSurface userId={userId} ui={ui} live={liveUi} refreshRevision={state.revision} activity={formActivity} workflowActivity={workflowActivity} /></div></>}
+          <div className="composition-body"><AgentSurface userId={userId} ui={ui} live={liveUi} refreshRevision={state.revision} activity={formActivity} workflowActivity={workflowActivity}
+            settings={{state,busy,error,act:async(captured,kind,value='')=>{
+              if(busy)return false;
+              const ok=await applySettingsCommand(captured,current.current,kind,value,action);
+              if(!ok)setError('The settings change could not be confirmed. Reload the conversation before trying again.');
+              return ok;
+            }}} /></div></>}
       </section>
     </ResizablePanels>
   </main>;

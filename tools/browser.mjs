@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 43 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 44 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1002,6 +1002,22 @@ try {
   await until(() => evaluate("document.getElementById('maipa-agent-provider').value==='codex' && !document.getElementById('maipa-agent-provider').disabled"), 'original provider selected again');
   await requestComponent('Present a note after provider change', 'Maipa.Note');
   record('agent-provider-choice-and-account-restore');
+  await requestComponent('Open agent settings', 'Maipa.AgentSettings');
+  await until(()=>evaluate("document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'&&!!document.querySelector('#settings-model option[value=synthetic-b]')"),'owned settings and actual model choices');
+  const settingsBefore=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':String(s.user.id),'X-Maipa-Agent-Models':'1'}})).json();})()");
+  const settingsNext=settingsBefore.models.currentModelId==='synthetic-a'?'synthetic-b':'synthetic-a';
+  await typeChat('Unsent settings follow-up Ω');
+  await evaluate("window.maipaSettingsComposer=document.querySelector('#maipa-chat-message');true");
+  await select('settings-model',settingsNext);
+  await until(()=>evaluate(`document.getElementById('settings-model')?.value===${JSON.stringify(settingsNext)}&&document.getElementById('maipa-agent-model')?.value===${JSON.stringify(settingsNext)}&&!document.getElementById('settings-model').disabled`),'acknowledged model shared with persistent chat');
+  assert.equal(await evaluate("window.maipaSettingsComposer===document.querySelector('#maipa-chat-message')&&document.getElementById('maipa-chat-message').value==='Unsent settings follow-up Ω'"),true);
+  const settingsAfter=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':String(s.user.id),'X-Maipa-Agent-Models':'1'}})).json();})()");
+  assert.equal(settingsAfter.models.currentModelId,settingsNext);
+  for(const key of ['id','messages','ui','connection'])assert.deepEqual(settingsAfter[key],settingsBefore[key]);
+  await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'unsent settings draft acknowledged');
+  await command('Page.reload');await preferencesReady();
+  await until(()=>evaluate(`document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'&&document.getElementById('settings-model')?.value===${JSON.stringify(settingsNext)}&&document.getElementById('maipa-chat-message')?.value==='Unsent settings follow-up Ω'`),'same connection model and unsent draft after reload');
+  record('agent-settings-and-actual-model-controls');
   phase = 'workflow_editor';
   await requestComponent('Build a shared workflow', 'Maipa.Workflow');
   const workflowReady=()=>until(()=>evaluate("document.querySelector('[data-workflow-phase]')?.dataset.workflowPhase==='ready' && document.querySelectorAll('.workflow-workspace .react-flow__node').length===3"),'shared controlled workflow ready');

@@ -199,7 +199,7 @@ for line in sys.stdin:
                 callback('maipa_ui_dismiss', {'revision': revision})
             else:
                 component = ('Maipa.ClientFacts' if 'fact' in text else 'Maipa.ClientCatalog' if 'client setup' in text
-                    else 'Maipa.AdminUsers' if 'users and access' in text else 'Maipa.Note')
+                    else 'Maipa.AdminUsers' if 'users and access' in text else 'Maipa.AgentSettings' if 'agent settings' in text else 'Maipa.Note')
                 schema = {'id': 'shared-root', 'type': component}
                 if component == 'Maipa.Note':
                     schema['props'] = {'text': 'Synthetic updated note' if 'update' in text and 'delayed update' not in text else 'Synthetic shared note'}

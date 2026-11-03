@@ -17,8 +17,10 @@ from .policies import views as policies
 from .workflows import views as workflows
 
 from .agent_accounts.draft_views import drafts as chat_drafts
+from .agent_accounts.settings_view import settings as agent_settings
 
 urlpatterns = [
+    path("api/agent/settings/",agent_settings,name="agent-settings"),
     path("api/agent/drafts/unselected/",chat_drafts,name="chat-unselected-draft"),
     path("api/agent/drafts/<uuid:account_id>/",chat_drafts,name="chat-owned-draft"),
     path("", development.shell, name="development-shell"),

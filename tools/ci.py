@@ -44,6 +44,7 @@ BROWSER_CASES = (
     'agent-draft-reload-and-retry',
     'agent-reconnect-after-transport-loss',
     'agent-provider-choice-and-account-restore',
+    'agent-settings-and-actual-model-controls',
     'shared-workflow-editor-and-native-authoring',
     'shared-workflow-published-run-and-reload',
     'preferences-save-conflict-recovery',

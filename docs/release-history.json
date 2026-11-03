@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-23",
+    "label": "Development update 23",
+    "cards": [
+      {
+        "title": "Agent startup correction installed",
+        "description": "The Codex connection now uses the supported startup correction. Fresh sessions stay within the existing private-profile limits."
+      },
+      {
+        "title": "Live agent verification continues",
+        "description": "Your provider choice and saved chats are retained. Actual model-driven UI verification and additional ACP connections are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-22",
     "label": "Development update 22",
     "cards": [

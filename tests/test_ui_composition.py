@@ -61,7 +61,7 @@ class UiCompositionTests(TestCase):
         catalog = self.call(lease, 'maipa_ui_catalog', {})
         self.assertEqual(catalog['revision'], 0)
         self.assertEqual([item['type'] for item in catalog['components']],
-                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.Workflow'])
+                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Workflow'])
         self.assertNotIn('synthetic-private-provider-handle', json.dumps(catalog))
         presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Review', 'schema': SCHEMA})
         self.assertEqual(presented['composition'], {'title': 'Review', 'schema': SCHEMA})
