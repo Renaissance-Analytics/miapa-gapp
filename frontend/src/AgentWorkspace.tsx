@@ -226,12 +226,12 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
           {!!state.messages.length && <VirtualList className="chat-transcript" height="100%" items={state.messages}
             followTail={follow} onFollowChange={setFollow} onUnseenChange={setUnseen} estimateRowHeight={100} overscan={8}
             role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text"
-            renderRow={message => <article className={`chat-message ${message.role}`} data-message-id={message.id}>
+            renderRow={message => <div className="chat-row"><article className={`chat-message ${message.role}`} data-message-id={message.id}>
               <span>{message.role === 'user' ? 'You' : 'Maipa'}</span>
               {message.role === 'user' ? <Text size="sm" className="chat-user-text">{message.text}</Text>
                 : <ContentRenderer value={renderMarkdown(message.text, CHAT_PROSE)} format="html" className="maipa-content" />}
               {message.state === 'interrupted' && <small>Interrupted · partial reply retained</small>}
-            </article>} />}
+            </article></div>} />}
           {!follow && <Button size="sm" variant="ghost" onClick={() => setFollow(true)}>Back to latest{unseen ? ` (${unseen} new)` : ''}</Button>}
           {setup && <div className="chat-setup-panel"><AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
             onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} /></div>}

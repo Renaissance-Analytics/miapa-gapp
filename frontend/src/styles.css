@@ -176,7 +176,9 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .conversation-welcome { margin: min(8dvh, 60px) 0 16px; max-width: 620px; flex-shrink: 0; }
 .conversation-welcome h2 { font-size: clamp(24px, 3vw, 34px); line-height: 1.2; letter-spacing: -.9px; margin: 12px 0; font-weight: 550; }
 .conversation-welcome p { font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 56ch; }
-.chat-message { margin: 0 0 24px; overflow-wrap: anywhere; }
+/* Keep message spacing inside the row measured by VirtualList. */
+.chat-row { padding-bottom: 24px; }
+.chat-message { margin: 0; overflow-wrap: anywhere; }
 .chat-message > span { font-size: 11px; font-weight: 650; color: var(--muted); }
 .chat-message .chat-user-text { margin: 6px 0; white-space: pre-wrap; line-height: 1.75; }
 .maipa-content { overflow-wrap: anywhere; }

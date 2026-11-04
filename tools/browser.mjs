@@ -131,6 +131,31 @@ async function checkChatViewport(width, height) {
   assert.ok(geometry.paneScrollHeight <= geometry.paneHeight + 1,
     'Only transcript/setup content scrolls, never the whole conversation pane');
 }
+async function checkTranscriptTail(label) {
+  await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
+  const geometry = await evaluate(`(() => {
+    const list=document.querySelector('[data-react-fancy-virtual-list]');
+    const last=[...list.querySelectorAll('.chat-message')].at(-1);
+    const r=list.getBoundingClientRect(),m=last.getBoundingClientRect();
+    const body=list.parentElement;
+    return {label:${JSON.stringify(label)},following:list.dataset.reactFancyVirtualListFollowing,
+      viewport:{top:r.top,bottom:r.bottom,height:list.clientHeight},last:{top:m.top,bottom:m.bottom},
+      scrollTop:list.scrollTop,scrollHeight:list.scrollHeight,bottomGap:list.scrollHeight-list.clientHeight-list.scrollTop,
+      bodyHeight:body.clientHeight,bodyScrollHeight:body.scrollHeight,
+      end:Number(list.querySelector('[data-react-fancy-virtual-list-start]').dataset.reactFancyVirtualListStart)+list.querySelectorAll('[data-react-fancy-virtual-row-id]').length,total:Number(list.dataset.reactFancyVirtualListRows),
+      rows:[...list.querySelectorAll('[data-react-fancy-virtual-row-id]')].map(el=>({height:el.getBoundingClientRect().height,content:el.firstElementChild.getBoundingClientRect().height}))};
+  })()`);
+  writeFileSync('artifacts/ci/chat-tail.json',JSON.stringify(geometry));
+  surfaceEvidence.chat_tail_checks ??= []; surfaceEvidence.chat_tail_checks.push(geometry);
+  writeFileSync('artifacts/ci/chat-tail-checks.json',JSON.stringify(surfaceEvidence.chat_tail_checks));
+  const screenshot=await command('Page.captureScreenshot',{format:'png'});
+  writeFileSync('artifacts/ci/chat-tail.png',Buffer.from(screenshot.data,'base64'));
+  assert.equal(geometry.following,'true','Latest reply must still be followed');
+  assert.equal(geometry.end,geometry.total,'Following must render the actual final message');
+  assert.ok(geometry.last.bottom <= geometry.viewport.bottom + 1, `Latest reply must be visible after ${label}: ${JSON.stringify(geometry)}`);
+  assert.ok(geometry.bottomGap <= 1, `Following must reach actual scroll bottom after ${label}: ${JSON.stringify(geometry)}`);
+  assert.ok(geometry.bodyScrollHeight <= geometry.bodyHeight + 1, 'Transcript owns scrolling without a second clipped scroll container');
+}
 function command(method, params = {}) {
   const id = ++sequence;
   return new Promise((resolve, reject) => {
@@ -973,19 +998,36 @@ try {
   const scrollPoint = await evaluate("(()=>{const r=document.querySelector('[data-react-fancy-virtual-list]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
   await command('Input.dispatchMouseEvent', { type: 'mouseWheel', ...scrollPoint, deltaX: 0, deltaY: -1200 });
   await until(() => evaluate("document.querySelector('[data-react-fancy-virtual-list]').getAttribute('data-react-fancy-virtual-list-following')==='false'"), 'human scrolling pauses automatic following');
+  // Measured message spacing makes long histories taller than one wheel gesture.
+  const historyHeight=await evaluate("document.querySelector('[data-react-fancy-virtual-list]').scrollHeight");
+  await command('Input.dispatchMouseEvent', { type: 'mouseWheel', ...scrollPoint, deltaX: 0, deltaY: -historyHeight });
   await delay(250);
   assert.equal(await evaluate("document.querySelector('[data-react-fancy-virtual-list]').scrollTop < 5"), true);
+  await checkChatViewport(1200,800);
+  assert.equal(await evaluate("document.querySelector('[data-react-fancy-virtual-list]').getAttribute('data-react-fancy-virtual-list-following')==='false' && document.querySelector('[data-react-fancy-virtual-list]').scrollTop < 5"),true,'Resizing while reading history must preserve paused following');
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await click('Back to latest');
   await until(() => evaluate("document.querySelector('[data-react-fancy-virtual-list]').getAttribute('data-react-fancy-virtual-list-following')==='true'"), 'person resumes following explicitly');
+  await checkTranscriptTail('Back to latest');
+  await checkChatViewport(903,527);
+  await checkTranscriptTail('short-window resize');
   await typeChat('Unsent follow-up Ω');
   record('agent-chat-stream-and-ui-control');
   await click('Close contextual panel');
   await until(() => evaluate("!!document.querySelector('.chat-only')"), 'human dismissal reaches shared composition');
   assert.equal(await evaluate("window.maipaDraftNode===document.querySelector('#maipa-chat-message') && window.maipaDraftNode.value==='Unsent follow-up Ω'"), true);
   assert.equal(await evaluate("document.querySelector('.conversation').getBoundingClientRect().width >= innerWidth-5 && getComputedStyle(document.querySelector('[role=separator]')).display==='none'"), true);
+  await checkTranscriptTail('contextual-panel dismissal and message reflow');
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await checkTranscriptTail('expanded viewport');
+  for (const [width,height] of [[903,527],[1440,1000],[903,527],[1440,1000]]) {
+    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+    await checkTranscriptTail('repeated resize '+width+'x'+height);
+  }
   record('chat-draft-and-space-recovery');
   await typeChat('Present a note and wait for cancellation'); await click('Send');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Maipa is working…' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('p')?.textContent==='Synthetic agent '"), 'streaming partial reply');
+  await checkTranscriptTail('streaming partial reply');
   await click('Stop');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready' && [...document.querySelectorAll('.chat-message.assistant')].at(-1)?.querySelector('small')?.textContent.includes('Interrupted')"), 'cancelled partial reply retained');
   const savedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");

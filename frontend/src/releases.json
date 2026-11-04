@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-45",
+    "label": "Development update 45",
+    "cards": [
+      {
+        "title": "Keep the latest reply in view",
+        "description": "Chat now includes the spacing between messages when measuring its scroll position. Back to latest reaches the newest reply, including when the contextual panel changes size."
+      },
+      {
+        "title": "Keep following while resizing",
+        "description": "Resizing the window keeps the latest reply visible. Scrolling up still pauses following so you can read earlier messages."
+      }
+    ]
+  },
+  {
     "id": "development-44",
     "label": "Development update 44",
     "cards": [
@@ -258,20 +272,6 @@
       {
         "title": "Shared agent tools",
         "description": "Claude uses the same authorized contextual UI components in chat. Live model verification and additional ACP connections are still in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-25",
-    "label": "Development update 25",
-    "cards": [
-      {
-        "title": "Ready after agent startup",
-        "description": "The connection stays in Connecting until the agent finishes startup. A startup failure keeps the connection unavailable, and you can stop while it connects."
-      },
-      {
-        "title": "Live agent work continues",
-        "description": "Your saved account and chats stay in place. Actual model-driven UI verification and additional ACP connections remain in progress."
       }
     ]
   }

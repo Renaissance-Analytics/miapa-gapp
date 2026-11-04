@@ -154,3 +154,14 @@ correlation fields and discards them before forwarding the same canonical
 remain refused; no metadata supplies account, role or revision authority.
 See the public [MCP lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle)
 and [tools contract](https://modelcontextprotocol.io/specification/2025-11-25/server/tools).
+
+
+Chat uses the published Fancy VirtualList with stable message IDs and controlled
+following. Message spacing is padding inside an app-owned row, so it contributes
+to the measured height; external collapsing margins must not separate rows.
+Published react-fancy6.6.1 uses the current laid-out viewport when observing
+scroll and keeps following through viewport growth and width reflow.
+Human upward scrolling still pauses it; Back to latest resumes. Real
+browser acceptance checks the actual newest row and physical scroll bottom during
+streaming, short-window resize, panel dismissal/reflow and expansion, alongside
+composer/draft retention. These are separate from provider execution evidence.
