@@ -105,7 +105,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "38ef32e0092e0abe66c014317e75674026e0c3a010f8bf79a6b615aefff22d3b",
+      "source_sha256": "5867b2699db7717e9c40671056866334bf7ed9c9e19ccad9b024a1331e23a58c",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups.",
@@ -115,17 +115,17 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "38ef32e0092e0abe66c014317e75674026e0c3a010f8bf79a6b615aefff22d3b",
+      "source_sha256": "5867b2699db7717e9c40671056866334bf7ed9c9e19ccad9b024a1331e23a58c",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Update39 adds implemented run/gate controls, retains exact prior38/37/36 card assertions and rotates19 into history without loss. All23 unique groups remain. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups.",
+      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "38ef32e0092e0abe66c014317e75674026e0c3a010f8bf79a6b615aefff22d3b",
+      "source_sha256": "5867b2699db7717e9c40671056866334bf7ed9c9e19ccad9b024a1331e23a58c",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups.",
@@ -135,7 +135,7 @@
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "38ef32e0092e0abe66c014317e75674026e0c3a010f8bf79a6b615aefff22d3b",
+      "source_sha256": "5867b2699db7717e9c40671056866334bf7ed9c9e19ccad9b024a1331e23a58c",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups.",
@@ -1470,6 +1470,76 @@
       "decision": "aligned",
       "reason": "Independent exact identities, no-provider side effects and observed model/revision outcomes defined before implementation. Source hashes record review, not proof.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-1",
+      "test": "common-views.test.mjs#common header choices are finite role hints from current workspace metadata",
+      "scenario_sha256": "23b18705ef126a018833f1e5c7f3b24f605688d549f2a9b3d2c03eda1f3ad570",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "common header choices are finite role hints from current workspace metadata. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-2",
+      "test": "common-views.test.mjs#shortcut metadata is bounded cancellable and never follows redirects or submits chat",
+      "scenario_sha256": "28d8a9cddf72d036d5cb0bc6ee916d8679829351930bef74393bac1848cbaa7b",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "shortcut metadata is bounded cancellable and never follows redirects or submits chat. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-3",
+      "test": "common-views.test.mjs#offline shortcuts open existing components without a model message lease or saved pin",
+      "scenario_sha256": "d5c5e4d87893e3095857f4a4ef9753b6d389d8e0c23fc1c9045a972e8658446e",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "offline shortcuts open existing components without a model message lease or saved pin. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-4",
+      "test": "common-views.test.mjs#live shortcuts use the current shared composition and exact acknowledged revision",
+      "scenario_sha256": "7e3b169718bfd9f30e7ff40f3cc0cc430ac18b9c38efc962ef849b4525cd6c09",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "live shortcuts use the current shared composition and exact acknowledged revision. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-5",
+      "test": "common-views.test.mjs#delayed shortcut reads cannot target a changed connection or a disposed user mount",
+      "scenario_sha256": "8fb851b318bc3b36095277567de43224226694758c761f72b3af887cf0c687e9",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "delayed shortcut reads cannot target a changed connection or a disposed user mount. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-6",
+      "test": "common-views.test.mjs#role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request",
+      "scenario_sha256": "24424f0a9d28c615244eab5572f8b765be7fc51a3d3a746a70837e0a5f2ac8d3",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "common-header-7",
+      "test": "common-views.test.mjs#foreign or superseded UI acknowledgments are refused without replacing the visible panel",
+      "scenario_sha256": "6a2b899fd1b12f2306b5838d0e61616877b925da0fc1b989de3052800f8c215f",
+      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "expected_observation": "foreign or superseded UI acknowledgments are refused without replacing the visible panel. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+      "decision": "aligned",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     }
   ]
 }

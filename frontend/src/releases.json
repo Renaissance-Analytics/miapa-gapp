@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-44",
+    "label": "Development update 44",
+    "cards": [
+      {
+        "title": "Open common views from the header",
+        "description": "Use the header icons for Agent settings, Clients and, for administrators, User management. They open the existing components directly, even before connecting your agent."
+      },
+      {
+        "title": "Keep your place in the conversation",
+        "description": "Open and close a common view while keeping your unsent message. When connected, the shortcut opens the same contextual panel shared with Maipa."
+      }
+    ]
+  },
+  {
     "id": "development-43",
     "label": "Development update 43",
     "cards": [
@@ -258,20 +272,6 @@
       {
         "title": "Live agent work continues",
         "description": "Your saved account and chats stay in place. Actual model-driven UI verification and additional ACP connections remain in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-24",
-    "label": "Development update 24",
-    "cards": [
-      {
-        "title": "Clearer connection status",
-        "description": "The Codex connection now asks you to sign in only when the provider confirms you are signed out. A failed status check shows that the connection needs attention."
-      },
-      {
-        "title": "Live agent work continues",
-        "description": "Your saved provider choice, account and chats stay in place. Actual model-driven UI verification and additional ACP connections remain in progress."
       }
     ]
   }

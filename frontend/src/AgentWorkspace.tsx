@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {createPortal} from 'react-dom';
+import {HeaderShortcuts} from './HeaderShortcuts.js';
+import {CommonViewsController,type CommonView,type CommonViewKey} from './common-views.js';
 import { Button, ChatDrawer, ContentRenderer, Field, Icon, Input, PromptInput, ResizablePanels, Select, Text, VirtualList, renderMarkdown,
   type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
@@ -21,7 +24,7 @@ import {applySettingsCommand} from './agent-settings.js';
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
 
-export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { userId: string; layout: LayoutState;
+export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeCommit }: { userId: string; headerHost:HTMLDivElement|null; layout: LayoutState;
   onResize: (value: number) => void; onResizeCommit: (value: number) => void }) {
   const [state, setState] = useState<ChatState>(emptyChat);
   const activityCursor = useRef(new FormActivityCursor());
@@ -74,17 +77,35 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const [setup, setSetup] = useState(false);
   const [views,setViews]=useState<ViewsState>({phase:'loading',value:null,activeId:null});
   const [viewError,setViewError]=useState('');
+  const [offlineCommon,setOfflineCommon]=useState<CommonView|null>(null);
+  const [commonBusy,setCommonBusy]=useState(false);
+  const [commonError,setCommonError]=useState('');
+  const commonViews=useRef<CommonViewsController|null>(null);
   const personalViews=useRef<PersonalViewsController|null>(null);
   const current = useRef(state); current.current = state;
   const alive = useRef(true);
   useEffect(()=>{
     const controller=new PersonalViewsController(userId,setViews,()=>current.current.ui,
-      ()=>setFocusPanel(true),accepted=>setState(previous=>previous.ui?.id===accepted.id && previous.ui.account_id===accepted.account_id
+      ()=>{setOfflineCommon(null);setFocusPanel(true);},accepted=>setState(previous=>previous.ui?.id===accepted.id && previous.ui.account_id===accepted.account_id
         && previous.ui.revision<accepted.revision ? {...previous,ui:accepted}:previous));
     personalViews.current=controller;void controller.load();
     const focused=()=>{void controller.load();};window.addEventListener('focus',focused);
     return()=>{controller.dispose();personalViews.current=null;window.removeEventListener('focus',focused);};
   },[userId]);
+  useEffect(()=>{
+    const controller=new CommonViewsController(userId,()=>current.current,
+      accepted=>setState(previous=>previous.ui?.id===accepted.id&&previous.ui.account_id===accepted.account_id
+        &&previous.ui.revision<accepted.revision?{...previous,ui:accepted}:previous),
+      (view,shared)=>{personalViews.current?.clearActive();setOfflineCommon(shared?null:view);setFocusPanel(true);});
+    commonViews.current=controller;
+    return()=>{controller.dispose();commonViews.current=null;};
+  },[userId]);
+  useEffect(()=>{if(state.ui?.composition)setOfflineCommon(null);},[state.ui?.id,state.ui?.revision]);
+  async function openCommon(key:CommonViewKey){
+    setCommonBusy(true);setCommonError('');
+    try{await commonViews.current?.open(key);}catch{if(alive.current)setCommonError('The view could not be opened. Try its header shortcut again.');}
+    finally{if(alive.current)setCommonBusy(false);}
+  }
   useEffect(()=>{if(state.phase==='ready'||state.phase==='offline')void personalViews.current?.load();},[state.phase,state.revision]);
   useEffect(()=>{
     const controller=personalViews.current,active=controller?.state.value?.views.find(v=>v.id===controller.state.activeId);
@@ -136,7 +157,8 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   }, [userId, attempt]);
   const liveUi = state.ui?.composition ? state.ui : null;
   const activeView=views.value?.views.find(v=>v.id===views.activeId&&v.available&&v.schema);
-  const ui=activeView?{composition:{title:activeView.title,schema:activeView.schema!}}:liveUi;
+  const ui=activeView?{composition:{title:activeView.title,schema:activeView.schema!}}:liveUi??(offlineCommon?{composition:offlineCommon.composition}:null);
+  const activeCommon=({'Maipa.AgentSettings':'agent-settings','Maipa.ClientCatalog':'clients','Maipa.AdminUsers':'users'} as Record<string,CommonViewKey>)[ui?.composition?.schema.type??''];
   useEffect(() => { if (!ui) setFocusPanel(false); }, [!!ui]);
   async function action(payload: Record<string, unknown>) {
     if (busy) return false;
@@ -188,6 +210,8 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
   const canSwitch = !busy && !running && ['offline', 'unavailable'].includes(state.phase);
   const providerLabel = state.connection.label ?? 'your provider';
   return <main data-chat-revision={state.revision} className={`agent-workspace ${ui ? 'has-composition' : 'chat-only'} ${focusPanel ? 'focus-panel' : 'focus-chat'}`}>
+    {headerHost&&createPortal(<HeaderShortcuts userId={userId} active={activeCommon} busy={busy||commonBusy} open={key=>{void openCommon(key);}}/>,headerHost)}
+    {commonError&&<Text size="sm" role="alert" className="shell-recovery">{commonError}</Text>}
     {!ui&&<SavedViews state={views} controller={personalViews.current} error={viewError} run={operation=>{void viewAction(operation);}} />}
     {ui && <div className="context-switch" role="group" aria-label="Visible panel">
       <Button size="sm" variant="ghost" aria-pressed={!focusPanel} onClick={() => setFocusPanel(false)}>Conversation</Button>
@@ -281,9 +305,9 @@ export function AgentWorkspace({ userId, layout, onResize, onResizeCommit }: { u
           <SavedViews state={views} controller={personalViews.current} error={viewError} run={operation=>{void viewAction(operation);}} />
           {!activeView&&<Button size="sm" variant="ghost" aria-label="Save view" title="Save view" disabled={views.phase!=='ready'}
             onClick={()=>{void viewAction(()=>personalViews.current!.save(ui.composition!));}}><Icon name="pin" size="sm" /></Button>}
-          <Button size="sm" variant="ghost" aria-label="Close contextual panel" disabled={busy}
+          <Button size="sm" variant="ghost" aria-label="Close contextual panel" disabled={busy||commonBusy}
           onClick={() => {
-            if(!liveUi){personalViews.current?.clearActive();return;}
+            if(!liveUi){setOfflineCommon(null);personalViews.current?.clearActive();return;}
             if (!bridge.current) return; setBusy(true); void bridge.current.dismiss(liveUi).then(()=>personalViews.current?.clearActive())
               .catch(() => setError('The shared panel changed. Reconnect before closing it.')).finally(() => setBusy(false));
           }}>Close</Button></div></header>

@@ -269,3 +269,13 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 }
 
 .agent-settings { display: grid; gap: 8px; max-width: 560px; }
+.header-shortcut-host { display: flex; align-items: center; }
+.header-shortcuts { display: flex; align-items: center; gap: 2px; }
+.header-shortcuts button { width: 32px; height: 32px; min-width: 32px; padding: 6px; }
+.header-shortcuts button[aria-pressed="true"] { background: var(--canvas); color: var(--accent); }
+@media (max-width: 600px) {
+  .agent-first .brand h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .agent-first .build-updates > span:first-child { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .agent-first .app-header { gap: 6px; padding-inline: 8px; }
+  .shell-controls { gap: 4px; }
+}

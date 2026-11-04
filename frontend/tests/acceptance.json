@@ -1557,6 +1557,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "common-header-shortcuts",
+      "risk": "Stale header controls must not command another principal/connection or replace a newer panel; direct offline component access must not launch a model.",
+      "scenarios": [
+        {
+          "id": "common-header-1",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "common header choices are finite role hints from current workspace metadata",
+          "then": "common header choices are finite role hints from current workspace metadata. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#common header choices are finite role hints from current workspace metadata"
+          ]
+        },
+        {
+          "id": "common-header-2",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "shortcut metadata is bounded cancellable and never follows redirects or submits chat",
+          "then": "shortcut metadata is bounded cancellable and never follows redirects or submits chat. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#shortcut metadata is bounded cancellable and never follows redirects or submits chat"
+          ]
+        },
+        {
+          "id": "common-header-3",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "offline shortcuts open existing components without a model message lease or saved pin",
+          "then": "offline shortcuts open existing components without a model message lease or saved pin. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#offline shortcuts open existing components without a model message lease or saved pin"
+          ]
+        },
+        {
+          "id": "common-header-4",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "live shortcuts use the current shared composition and exact acknowledged revision",
+          "then": "live shortcuts use the current shared composition and exact acknowledged revision. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#live shortcuts use the current shared composition and exact acknowledged revision"
+          ]
+        },
+        {
+          "id": "common-header-5",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "delayed shortcut reads cannot target a changed connection or a disposed user mount",
+          "then": "delayed shortcut reads cannot target a changed connection or a disposed user mount. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#delayed shortcut reads cannot target a changed connection or a disposed user mount"
+          ]
+        },
+        {
+          "id": "common-header-6",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request",
+          "then": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request"
+          ]
+        },
+        {
+          "id": "common-header-7",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "foreign or superseded UI acknowledgments are refused without replacing the visible panel",
+          "then": "foreign or superseded UI acknowledgments are refused without replacing the visible panel. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#foreign or superseded UI acknowledgments are refused without replacing the visible panel"
+          ]
+        }
+      ]
     }
   ]
 }

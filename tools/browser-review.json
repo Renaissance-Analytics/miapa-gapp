@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "7bd2dcd551167a06850eb1992d3facd2b9b147803c3ad319a30063ba7ee80ac0",
+    "tools/browser.mjs": "ac41e0e90921bd39c3959ae2effe5f266b14d779f23d1591ac1f2c03f9cdc6a1",
     "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "8b2422cd7f3cb0a62c3cfdbfb15b76862c9c3aeefcefc491f6af38fcfade835f"
@@ -98,6 +98,11 @@
       "id": "csrf-and-real-zero-provider-transport",
       "kind": "negative",
       "expected": "Foreign account404, missing-CSRF403 and owned real transport201/transport_verified/provider_ready:false; no provider CLI/login/model."
+    },
+    {
+      "id": "common-header-shortcuts",
+      "kind": "positive",
+      "expected": "Native header pointer and keyboard actions open the existing registered Settings/Clients components before any model turn. Current-role hints exclude admin controls for preparers and all common controls for viewers; administrator opens User management directly. Mobile controls fit; exact unsent draft and original conversation/composer DOM survive. Original chat, connection/UI authority and personal view definitions remain equal offline. Connected header actions replace the same server-owned shared panel at exactly the acknowledged next revision with no additional conversation messages. Existing 44 cases and deadlines retained; no real-model acceptance claimed."
     },
     {
       "id": "keyboard-divider",

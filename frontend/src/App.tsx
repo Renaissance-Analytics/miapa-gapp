@@ -16,6 +16,7 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
 
 function WorkspaceSession({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const theme = useTheme();
+  const [headerHost,setHeaderHost]=useState<HTMLDivElement|null>(null);
   const [layout, setLayout] = useState<LayoutState>({ phase: session.state === 'authenticated' ? 'loading' : 'ready', split: 60 });
   const layoutController = useRef<LayoutController | null>(null);
   const [preferences, setPreferences] = useState(initialPreferences);
@@ -40,6 +41,7 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
     <header className="app-header">
       <div className="brand"><span className="brand-mark" aria-hidden="true">m</span><h1>Maipa</h1></div>
       <div className="shell-controls">
+        {session.state==='authenticated'&&<div className="header-shortcut-host" ref={setHeaderHost}/>}
         <BuildUpdates key={updatesStorageKey(session)} session={session} />
         <details className="account-menu"><summary aria-label="Account and appearance">Account</summary><div className="account-popover">
           <div className="appearance" role="group" aria-label="Appearance">
@@ -61,7 +63,7 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
       {(layout.phase === 'conflict' || layout.phase === 'unavailable') && <div className="shell-recovery" role="alert">
         Your saved panel width changed or could not be loaded. <Button size="sm" variant="ghost" onClick={() => void layoutController.current?.load()}>Reload saved layout</Button>
       </div>}
-      <AgentWorkspace userId={session.userId} layout={layout} onResize={split => layoutController.current?.change(split)}
+      <AgentWorkspace userId={session.userId} headerHost={headerHost} layout={layout} onResize={split => layoutController.current?.change(split)}
         onResizeCommit={split => { void layoutController.current?.commit(split); }} />
     </> : <main className="local-access" aria-label="Conversation">
       {session.state === 'anonymous' ? <LocalAccess refresh={refresh} /> : <>

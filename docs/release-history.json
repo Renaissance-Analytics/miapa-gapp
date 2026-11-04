@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-24",
+    "label": "Development update 24",
+    "cards": [
+      {
+        "title": "Clearer connection status",
+        "description": "The Codex connection now asks you to sign in only when the provider confirms you are signed out. A failed status check shows that the connection needs attention."
+      },
+      {
+        "title": "Live agent work continues",
+        "description": "Your saved provider choice, account and chats stay in place. Actual model-driven UI verification and additional ACP connections remain in progress."
+      }
+    ]
+  },
+  {
     "id": "development-23",
     "label": "Development update 23",
     "cards": [

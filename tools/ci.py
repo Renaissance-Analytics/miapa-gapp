@@ -34,6 +34,7 @@ BROWSER_CASES = (
     'owned-service-storage-private',
     'scoped-ui-composition-api',
     'csrf-and-real-zero-provider-transport',
+    'common-header-shortcuts',
     'keyboard-divider',
     'mobile-panels',
     'intake-initial-load-recovery',

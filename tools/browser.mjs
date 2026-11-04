@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 44 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 45 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -92,6 +92,12 @@ async function evaluate(expression) {
   if(response.exceptionDetails)console.error("Owned evaluation diagnostic",JSON.stringify({text:response.exceptionDetails.text,description:response.exceptionDetails.exception?.description?.slice(0,180)}));
   assert.ok(!response.exceptionDetails, "Browser evaluation failure");
   return response.result.value;
+}
+async function checkHeaderViewport(){
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  const geometry=await evaluate("[...document.querySelectorAll('.header-shortcuts button,.app-header .build-updates button,.app-header .account-menu>summary')].map(b=>{const r=b.getBoundingClientRect();return {label:b.getAttribute('aria-label')||b.textContent,left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth};})");
+  writeFileSync('artifacts/ci/header-geometry.json',JSON.stringify(geometry));
+  assert.ok(geometry.every(r=>r.left>=0&&r.right<=r.width&&r.top>=0&&r.bottom<=54),'Common header controls fit: '+JSON.stringify(geometry));
 }
 async function openRunDetails() {
   const expanded=()=>evaluate("[...document.querySelectorAll('.workflow-execution button')].find(b=>b.textContent==='Run details')?.getAttribute('aria-expanded')==='true'");
@@ -371,6 +377,15 @@ try {
     assert.equal(admin.setup.setup_required, false);
     assert.equal(await evaluate("!!document.querySelector('[name=\"password-confirmation\"]')"), false);
     record('local-first-run-admin');
+    await until(()=>evaluate("!!document.querySelector('.header-shortcuts [aria-label=\"User management\"]')"),'administrator header shortcut');
+    await click('User management');
+    await until(()=>evaluate("!!document.querySelector('.admin-users')"),'administrator component opens without a model turn');
+    assert.equal(await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return (await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages.length;})()"),0);
+    await command('Emulation.setDeviceMetricsOverride',{width:320,height:480,deviceScaleFactor:1,mobile:true});
+    await checkHeaderViewport();
+    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+    await click('Close contextual panel');
+
     phase = 'setup_chat';
     await chooseAgent();
     checkpoint = 'setup_mobile';
@@ -725,6 +740,34 @@ try {
   assert.equal(checks.body.provider_ready, false);
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
+  phase='work_views';
+  await until(()=>evaluate("document.querySelectorAll('.header-shortcuts button').length===2"),'preparer common header shortcuts');
+  assert.equal(await evaluate("!!document.querySelector('.header-shortcuts [aria-label=\"User management\"]')"),false);
+  await until(()=>evaluate("document.querySelector('.chat-controls')?.dataset.draftState==='ready'"),'header draft ready');
+  await typeChat('Unsent header navigation draft Ω');
+  await evaluate("window.headerComposer=document.getElementById('maipa-chat-message');window.headerConversation=document.querySelector('.conversation');true");
+  const headerBefore=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return {chat:await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json(),views:await(await fetch('/api/workspace/views/')).json()};})()");
+  assert.equal(headerBefore.chat.ui,null);assert.equal(headerBefore.chat.messages.length,0);
+  await click('Agent settings');
+  await until(()=>evaluate("document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'"),'offline header settings actual accounts');
+  assert.equal(await evaluate("document.querySelector('.header-shortcuts [aria-label=\"Agent settings\"]').getAttribute('aria-pressed')"),'true');
+  await click('Clients');
+  await until(()=>evaluate("!!document.querySelector('[data-catalog-state=ready]')"),'offline header current client catalog');
+  await click('Close contextual panel');
+  await command('Emulation.setDeviceMetricsOverride',{width:390,height:480,deviceScaleFactor:1,mobile:true});
+  assert.equal(await evaluate("(()=>{const b=document.querySelector('.header-shortcuts [aria-label=\"Agent settings\"]');b.focus();return document.activeElement===b;})()"),true);
+  await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+  await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until(()=>evaluate("document.querySelector('.conversation').inert&&!document.querySelector('.contextual-panel').inert&&document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'"),'keyboard mobile header panel');
+  await checkHeaderViewport();
+  await click('Close contextual panel');
+  await checkChatViewport(390,480);
+  assert.equal(await evaluate("window.headerComposer===document.getElementById('maipa-chat-message')&&window.headerConversation===document.querySelector('.conversation')&&window.headerComposer.value==='Unsent header navigation draft Ω'"),true);
+  const headerAfter=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return {chat:await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json(),views:await(await fetch('/api/workspace/views/')).json()};})()");
+  assert.deepEqual(headerAfter,headerBefore);
+  await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  record('common-header-shortcuts');
+
   await requestComponent('Open client facts', 'Maipa.ClientFacts');
   phase = "keyboard_divider";
   const divider = await evaluate("(() => {const d=document.querySelector('[role=separator]'); d.focus(); return +d.getAttribute('aria-valuenow');})()");
@@ -1017,6 +1060,14 @@ try {
   await until(()=>evaluate("document.querySelector('[data-draft-state]')?.dataset.draftState==='ready'"),'unsent settings draft acknowledged');
   await command('Page.reload');await preferencesReady();
   await until(()=>evaluate(`document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'&&document.getElementById('settings-model')?.value===${JSON.stringify(settingsNext)}&&document.getElementById('maipa-chat-message')?.value==='Unsent settings follow-up Ω'`),'same connection model and unsent draft after reload');
+
+  const commonSharedBefore=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json());})()");
+  await click('Clients');
+  await until(()=>evaluate("!!document.querySelector('[data-catalog-state=ready]')"),'human header replaces same agent panel');
+  const commonSharedAfter=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json());})()");
+  assert.equal(commonSharedAfter.ui.id,commonSharedBefore.ui.id);assert.equal(commonSharedAfter.ui.revision,commonSharedBefore.ui.revision+1);
+  assert.equal(commonSharedAfter.ui.composition.schema.type,'Maipa.ClientCatalog');assert.deepEqual(commonSharedAfter.messages,commonSharedBefore.messages);
+  await click('Agent settings');await until(()=>evaluate("document.querySelector('[data-agent-settings]')?.dataset.agentSettings==='ready'"),'header returns to same shared settings');
   record('agent-settings-and-actual-model-controls');
   phase = 'workflow_editor';
   await requestComponent('Build a shared workflow', 'Maipa.Workflow');
@@ -1282,6 +1333,7 @@ try {
     return {role:role.role,denied:denied.status,error:await denied.json(),history,foreign:foreign.status};})()`);
   checkpoint = 'viewer_assertions';
   assert.equal(viewer.role, "viewer"); assert.equal(viewer.denied, 403);
+  assert.equal(await evaluate("document.querySelectorAll('.header-shortcuts button').length"),0);
   assert.deepEqual(viewer.error, { error: { code: "permission_denied" } });
   assert.deepEqual(viewer.history, { checks: [] }); assert.equal(viewer.foreign, 404);
   record("logout-and-viewer-denial");
