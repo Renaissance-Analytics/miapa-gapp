@@ -16,6 +16,7 @@
     "src/shared-form.ts",
     "src/shared-workflow.ts",
     "src/common-views.ts",
-    "src/account-metadata.ts"
+    "src/account-metadata.ts",
+    "src/model-preference.ts"
   ]
 }

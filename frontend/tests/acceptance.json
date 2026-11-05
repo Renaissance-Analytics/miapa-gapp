@@ -1709,6 +1709,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "model-preference",
+      "risk": "A late or foreign save can fabricate persisted intent or retarget a newer native model/account.",
+      "scenarios": [
+        {
+          "id": "model-preference-1",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "model preference accepts only closed original metadata with paired model values",
+          "then": "model preference accepts only closed original metadata with paired model values; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#model preference accepts only closed original metadata with paired model values"
+          ]
+        },
+        {
+          "id": "model-preference-2",
+          "kind": "positive",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "remember sends only observed context and revision and never a browser model selection",
+          "then": "remember sends only observed context and revision and never a browser model selection; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#remember sends only observed context and revision and never a browser model selection"
+          ]
+        },
+        {
+          "id": "model-preference-3",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "stale model context and a connection changed during csrf bootstrap send zero writes",
+          "then": "stale model context and a connection changed during csrf bootstrap send zero writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#stale model context and a connection changed during csrf bootstrap send zero writes"
+          ]
+        },
+        {
+          "id": "model-preference-4",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "one pending write retains intention and explicit readback review prevents blind retries",
+          "then": "one pending write retains intention and explicit readback review prevents blind retries; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#one pending write retains intention and explicit readback review prevents blind retries"
+          ]
+        },
+        {
+          "id": "model-preference-5",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "lost or foreign acknowledgments keep original intent until the human accepts saved readback",
+          "then": "lost or foreign acknowledgments keep original intent until the human accepts saved readback; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#lost or foreign acknowledgments keep original intent until the human accepts saved readback"
+          ]
+        },
+        {
+          "id": "model-preference-6",
+          "kind": "positive",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "provider default is an explicit offline intent and disposal cannot publish or send late writes",
+          "then": "provider default is an explicit offline intent and disposal cannot publish or send late writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#provider default is an explicit offline intent and disposal cannot publish or send late writes"
+          ]
+        },
+        {
+          "id": "model-preference-7",
+          "kind": "positive",
+          "given": "Native Chrome independently reproduces TypeError for fetch called with a controller receiver, while an unbound transport succeeds",
+          "when": "Read, remember and clear the original future model using a transport with browser receiver semantics",
+          "then": "Original read reaches ready; exact current model and explicit default are acknowledged by two writes without Illegal invocation",
+          "tests": [
+            "model-preference.test.mjs#browser fetch receiver semantics support reading and saving the original preference"
+          ]
+        }
+      ]
     }
   ]
 }

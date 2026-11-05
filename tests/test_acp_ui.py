@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 from backend.maipa.acp import AcpClient, Scope
+from tests.peer_ready import wait_for_peer
 
 PEER = Path(__file__).resolve().parent / 'fixtures/acp_ui_peer.py'
 
@@ -15,10 +16,12 @@ class AcpUiTests(unittest.TestCase):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 owner = Scope('user-1', 'account-1')
-                client = AcpClient([sys.executable, str(PEER)], owner, Path(directory),
+                marker = Path(directory) / 'peer-ready'
+                client = AcpClient([sys.executable, str(PEER), str(marker)], owner, Path(directory),
                                    ui_handler=handler, timeout=timeout)
                 await client.start()
                 try:
+                    await wait_for_peer(self, marker)
                     await body(client, owner, await client.new_session(owner))
                 finally:
                     await client.close()

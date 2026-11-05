@@ -12,6 +12,7 @@ from backend.maipa.agent_accounts import chat
 from backend.maipa.agent_accounts.models import AgentAccount, Conversation
 from backend.maipa.storage import prepare_directory, prepare_files
 from backend.maipa.workspace.models import Installation, Membership
+from tests.peer_ready import wait_for_peer
 
 
 class RpcTurnFailureTests(unittest.TestCase):
@@ -19,9 +20,15 @@ class RpcTurnFailureTests(unittest.TestCase):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 scope=Scope('synthetic-owner','synthetic-account')
-                client=AcpClient([sys.executable,str(Path(__file__).parent/'fixtures/turn_failure_peer.py'),mode],scope,Path(directory),timeout=2)
+                marker=Path(directory)/'peer-ready'
+                client=AcpClient([sys.executable,str(Path(__file__).parent/'fixtures/turn_failure_peer.py'),mode,str(marker)],scope,Path(directory),timeout=2)
                 await client.start()
                 try:
+                    # These cases test RPC metadata, not cold Python startup.
+                    # Wait for the actual peer before starting the unchanged
+                    # two-second request deadlines; never synthesize a frame.
+                    elapsed=await wait_for_peer(self,marker)
+                    self.peer_startup_seconds=getattr(self,'peer_startup_seconds',[])+[elapsed]
                     await client.initialize(scope);session=await client.new_session(scope)
                     with self.assertRaises(AcpError) as refused:
                         if method=='session/prompt':await client.prompt(scope,session,'Synthetic input')

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-27",
+    "label": "Development update 27",
+    "cards": [
+      {
+        "title": "Claude sign-in link restored",
+        "description": "Maipa now recognizes Claude’s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-26",
     "label": "Development update 26",
     "cards": [
@@ -61,7 +71,7 @@
     "cards": [
       {
         "title": "Choose your agent provider",
-        "description": "The chat now saves your provider choice and keeps each account\u2019s conversation separate. Unsent drafts return when switching between providers in the open app."
+        "description": "The chat now saves your provider choice and keeps each account’s conversation separate. Unsent drafts return when switching between providers in the open app."
       },
       {
         "title": "Connection support stays explicit",

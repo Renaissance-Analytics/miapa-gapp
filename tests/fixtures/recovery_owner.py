@@ -19,6 +19,9 @@ async def run():
         shutil.copyfile(Path(__file__).with_name('isolation_worker.mjs'),code/'worker.mjs')
         scope=Scope('synthetic-restart-user','synthetic-restart-account')
         with WindowsSandbox(scope,profile,writable=(work,profile/'home'),readonly=(code,base/'supervisor'),installation_id='synthetic-restart-install') as sandbox:
+            if len(sys.argv)==6:
+                marker=Path(sys.argv[5]);pending=marker.with_suffix('.pending')
+                pending.write_text(json.dumps({'owner_pid':os.getpid(),'profile_name':sandbox.profile_name}),encoding='utf-8');os.replace(pending,marker)
             child=await sandbox.spawn([str(code/'node.exe'),'--preserve-symlinks','--preserve-symlinks-main',str(code/'worker.mjs'),'hang'],
                 scope=scope,cwd=work,env={},limit=4096)
             observed=json.loads(await child.stdout.readline())

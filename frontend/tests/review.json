@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "3c00f44123841be2e9116d0ed7e6b8e3bf28d8e37e50a32990ce18275e12857e",
+      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "3c00f44123841be2e9116d0ed7e6b8e3bf28d8e37e50a32990ce18275e12857e",
+      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained.",
+      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "3c00f44123841be2e9116d0ed7e6b8e3bf28d8e37e50a32990ce18275e12857e",
+      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "3c00f44123841be2e9116d0ed7e6b8e3bf28d8e37e50a32990ce18275e12857e",
+      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -1609,6 +1609,76 @@
       "expected_observation": "A clean input adopts the acknowledged saved name; newer local text remains and a changed server value requires explicit conflict review.",
       "decision": "aligned",
       "reason": "Actual draft values, acknowledged revisions and conflict readback distinguish a clean reload from newer unsent input; no source or implementation structure assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-1",
+      "test": "model-preference.test.mjs#model preference accepts only closed original metadata with paired model values",
+      "scenario_sha256": "89c1406a1654b5f746bd00d022278f9fb28f8a5eeffe2988a8bb0e284455b7dd",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "model preference accepts only closed original metadata with paired model values; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-2",
+      "test": "model-preference.test.mjs#remember sends only observed context and revision and never a browser model selection",
+      "scenario_sha256": "cc0488d33e76b2e319b390591ea1075d042da3f44ee7b989c07fa06051c2fe46",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "remember sends only observed context and revision and never a browser model selection; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-3",
+      "test": "model-preference.test.mjs#stale model context and a connection changed during csrf bootstrap send zero writes",
+      "scenario_sha256": "aefa35b0c36ccedc657e5aa69f639902f615925db85522215532d40f8c3faa51",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "stale model context and a connection changed during csrf bootstrap send zero writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-4",
+      "test": "model-preference.test.mjs#one pending write retains intention and explicit readback review prevents blind retries",
+      "scenario_sha256": "63c009a69c849c597232410d1957a8be463fd46c3458f80d02f18d6ead2abfa2",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "one pending write retains intention and explicit readback review prevents blind retries; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-5",
+      "test": "model-preference.test.mjs#lost or foreign acknowledgments keep original intent until the human accepts saved readback",
+      "scenario_sha256": "62934de057d58118fff403aeadd30b8e0f4a8a2f19a95c597299f24f980dca5a",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "lost or foreign acknowledgments keep original intent until the human accepts saved readback; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-6",
+      "test": "model-preference.test.mjs#provider default is an explicit offline intent and disposal cannot publish or send late writes",
+      "scenario_sha256": "6fc1f444b126c8758ce7e4bf6619e45f728183bba5e2fdaa7118b47db9bb4edc",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "provider default is an explicit offline intent and disposal cannot publish or send late writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+      "decision": "aligned",
+      "reason": "Independent closed inputs, actual request context/body/counts, delayed CSRF and explicit readback outcomes; no mirrored source or fake-success assertions.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "model-preference-7",
+      "test": "model-preference.test.mjs#browser fetch receiver semantics support reading and saving the original preference",
+      "scenario_sha256": "4b4a94a4dc4bc8344ba4fc81137643befb5b01b628abbd19837eb8b26e0c4a39",
+      "source_sha256": "d3a9a3aea1a439e0a0aef04490fe973d16e8afaf62142795227aaa1be44034b5",
+      "expected_observation": "Original read reaches ready; exact current model and explicit default are acknowledged by two writes without Illegal invocation",
+      "decision": "aligned",
+      "reason": "Real native Chrome probe independently proves fetch receiver contract; injected transport rejects a foreign receiver and accepts either unbound/global receiver. Assert ready and actual two persisted writes; no implementation source or fake-success status. Existing six outcome/context/ambiguity/disposal cases unchanged.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     }
   ]

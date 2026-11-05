@@ -1,7 +1,9 @@
 """Finite content-hostile RPC errors; never a provider/model acceptance fixture."""
 import json, sys
+from pathlib import Path
 
 mode=sys.argv[1]
+if len(sys.argv)==3:Path(sys.argv[2]).write_bytes(b'ready')
 for line in sys.stdin:
     request=json.loads(line);method=request.get('method')
     result={}

@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import {Button,Callout,Heading,Select,Text} from '@particle-academy/react-fancy';
 import {readSettings,type AgentSettingsSnapshot,type SettingsControls} from './agent-settings.js';
 import {AccountLabel} from './AccountLabel.js';
+import {ModelPreference} from './ModelPreference.js';
 
 export function AgentSettings({userId,controls}:{userId:string;controls:SettingsControls|null}){
  const [metadata,setMetadata]=useState<AgentSettingsSnapshot>();
@@ -35,6 +36,7 @@ export function AgentSettings({userId,controls}:{userId:string;controls:Settings
   </>}
   {s?.connection.account_id&&<AccountLabel key={`${userId}:${s.connection.account_id}`} userId={userId} accountId={s.connection.account_id}
    saved={value=>setMetadata(previous=>previous?{...previous,accounts:previous.accounts.map(row=>row.id===value.account_id?{...row,label:value.label}:row)}:previous)}/>}
+  {s?.connection.account_id&&<ModelPreference key={`model:${userId}:${s.connection.account_id}`} userId={userId} accountId={s.connection.account_id} chat={s} busy={!!controls?.busy}/>}
   {controls?.error&&<Callout role="alert" color="amber">{controls.error}</Callout>}
  </section>;
 }

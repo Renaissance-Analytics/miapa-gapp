@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from backend.maipa.acp import AcpClient, AcpError, Scope
+from tests.peer_ready import wait_for_peer
 
 ROOT = Path(__file__).resolve().parents[1]
 PEER = ROOT / "tests/fixtures/acp_peer.py"
@@ -20,9 +21,11 @@ class AcpClientTests(unittest.TestCase):
                 owner = Scope("user-1", "account-1")
                 env = {'MAIPA_ACP_PROFILE': json.dumps({'user_id': owner.user_id, 'account_id': owner.account_id,
                     'workspace': directory, 'provider': provider})} if provider else None
-                client = AcpClient([sys.executable, str(PEER), mode], owner, Path(directory), env=env, timeout=timeout, budget=budget)
+                marker = Path(directory) / 'peer-ready'
+                client = AcpClient([sys.executable, str(PEER), mode, str(marker)], owner, Path(directory), env=env, timeout=timeout, budget=budget)
                 await client.start()
                 try:
+                    await wait_for_peer(self, marker)
                     await body(client, owner)
                 finally:
                     await client.close()

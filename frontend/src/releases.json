@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-47",
+    "label": "Development update 47",
+    "cards": [
+      {
+        "title": "Remember a model for future connections",
+        "description": "In Agent settings, remember the model your connected provider has confirmed. Your current conversation and unsent message stay in place. The saved choice applies the next time you connect."
+      },
+      {
+        "title": "Choose the provider default again",
+        "description": "Clear a saved model without changing your active connection. If a provider cannot confirm your saved choice, it is kept so you can review it or choose the default before reconnecting."
+      }
+    ]
+  },
+  {
     "id": "development-46",
     "label": "Development update 46",
     "cards": [
@@ -51,7 +65,7 @@
       },
       {
         "title": "Choose an acknowledged model",
-        "description": "Use the provider\u2019s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
+        "description": "Use the provider’s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
       }
     ]
   },
@@ -209,7 +223,7 @@
     "cards": [
       {
         "title": "Keep drafts edited during a send",
-        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancy\u2019s published draft-revision fix."
+        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancy’s published draft-revision fix."
       }
     ]
   },
@@ -223,7 +237,7 @@
       },
       {
         "title": "Read conversations at your pace",
-        "description": "Fancy\u2019s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
+        "description": "Fancy’s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
       }
     ]
   },
@@ -233,7 +247,7 @@
     "cards": [
       {
         "title": "Fancy content and composer controls",
-        "description": "Agent replies, setup guidance and shared notes use Fancy\u2019s content renderer. The message input uses Fancy\u2019s multiline component while keeping drafts and confirmed sends."
+        "description": "Agent replies, setup guidance and shared notes use Fancy’s content renderer. The message input uses Fancy’s multiline component while keeping drafts and confirmed sends."
       },
       {
         "title": "Consistent connection controls",
@@ -262,16 +276,6 @@
       {
         "title": "Use your existing Claude sign-in",
         "description": "Claude checks the account already signed in on this machine. Maipa offers sign-in only when it is needed."
-      }
-    ]
-  },
-  {
-    "id": "development-27",
-    "label": "Development update 27",
-    "cards": [
-      {
-        "title": "Claude sign-in link restored",
-        "description": "Maipa now recognizes Claude\u2019s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
       }
     ]
   }

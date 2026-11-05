@@ -3,8 +3,8 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "7370b0c65042589115c3b9ac5de60030398407e5e24ded911ece45db5f41891f",
-    "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
+    "tools/browser.mjs": "0461baad80afe33f81b3fe03359b3a1207cabc5cc436fbac5c408089f6730111",
+    "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "8b2422cd7f3cb0a62c3cfdbfb15b76862c9c3aeefcefc491f6af38fcfade835f"
   },
@@ -165,6 +165,11 @@
       "expected": "Actual published Fancy Form/Input/Button on the shared agent-presented settings component loads only the original owned display metadata. Native Enter submits at the observed independent metadata revision; a second-tab CAS write makes the original human save conflict without dropping local text. Explicit reload shows the current name and keeps unsent input, blocks blind Save, and human Keep my name then Save uses the newly observed revision. Same account/provider/profile flag, original chat/conversation revision/messages/UI/selection/models and exact composer node/Unicode unsent draft are preserved. The saved label and original draft survive a real reload. No new provider command, account/profile binding, session, authority or business write. All45 prior scenarios/assertions/deadlines remain. Deterministic native fixture acceptance, not actual-model proof."
     },
     {
+      "id": "agent-future-model-preference",
+      "kind": "positive",
+      "expected": "Actual native human Remember current model saves only provider-acknowledged model from this owned current session at independent revision1, preserving exact current conversation/revision/messages/UI/selection/models, composer node and unsent draft. Real stopped/reconnected finite peer applies saved model after negotiation. Explicit default revision2 preserves active session/model; next explicit reconnect uses negotiated provider default. Metadata, transcript, saved preference and unsent draft survive actual reload. No actual-provider claim; same original46cases/assertions/deadlines and cleanup remain."
+    },
+    {
       "id": "shared-workflow-editor-and-native-authoring",
       "kind": "positive",
       "expected": "Actual chat Send reaches the deterministic native peer and production public Flow bridge/current-session broker, creates an owned stable draft and composes the published controlled FlowEditor. Three actual nodes and two edges retain the exact configured Transform. A native pointer drag is durably acknowledged. A subsequent native authoring update retains that human position, draft/node identity, mounted chat and unsent follow-up. Reload reads the identical saved graph/revision and does not replay a native receipt. No model/run acceptance is claimed."
@@ -319,5 +324,6 @@
   },
   "durable_draft_review": "Keep all42prior scenarios and budgets. New reloads verify full draft/file metadata, unsupported byte refusal, same failed-send retry identity and no auto resubmission. Existing acknowledged-send edited/restored text assertions stay intact.",
   "current_turn_acknowledgment_review": "Async prepared draft persistence means the previous ready turn is not the clicked send. Capture each actual closed send request ID; retain the original15s until budget while requiring that exact latest user/complete assistant and rendered conversation revision. Pin controls additionally acknowledge the actual native collection revision before reordering. No assertion/deadline/case is weakened or removed. Require the selected native result to be completed in the actual UI before asserting saved output text; the backend completing and an earlier running UI with the same ID are different observations. Existing output assertion, IDs and time budgets are retained.",
-  "agent_settings_review": "Adds one44th case and finite peer component selector only; all43prior case IDs, assertions and operation/aggregate deadlines remain. Actual session/set_model changes feed the same controlled state in chat/settings; no fake model state or production adapter. Current user/profile read-only metadata reveals no credentials/home/private handles. No auth/model execution tool is added."
+  "agent_settings_review": "Adds one44th case and finite peer component selector only; all43prior case IDs, assertions and operation/aggregate deadlines remain. Actual session/set_model changes feed the same controlled state in chat/settings; no fake model state or production adapter. Current user/profile read-only metadata reveals no credentials/home/private handles. No auth/model execution tool is added.",
+  "future_model_review": "Synthetic prepare now provisions original ProviderProfile metadata matching production prepare; no real home or credentials. Production API derives current model from exact session/worker token and checks original profile. Two additional explicit disconnect/reconnect cycles exercise new actual peer sessions without fabricated Ready. Original120second windows/420second parent and all46prior cases unchanged. Reviewed new-case fixture correction: require the actual existing offline chat label Connect your agent to begin, with the same native worker-release/disabled check. No application or original-case/assertion/deadline change. First run source change is retained; complete frozen-source CI repeats."
 }

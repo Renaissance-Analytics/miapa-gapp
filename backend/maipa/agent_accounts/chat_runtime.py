@@ -140,6 +140,20 @@ def change_model(actor, account, model_id, revision, selection_revision, session
         raise chat.ChatUnavailable('Model change unavailable') from None
 
 
+def confirmed_current_model(actor, account, conversation, session_key):
+    from backend.maipa.acp import model_catalog
+    with _lock:
+        worker = _workers.get(actor.pk)
+        if (not worker or worker.account_id != account.pk or worker.identity != conversation.pk
+                or worker.token != conversation.worker or worker.session_key != session_key or worker.stopping.is_set()):
+            raise chat.ChatUnavailable('Conversation unavailable')
+        models = model_catalog(worker.models) if worker.models else None
+        current = next((m for m in models['availableModels'] if m['modelId'] == models['currentModelId']), None) if models else None
+        if not current:
+            raise chat.ChatUnavailable('Model unavailable')
+        return current['modelId'], current['name']
+
+
 def refresh_actor(actor):
     with _lock:
         worker = _workers.get(actor.pk)
@@ -210,6 +224,7 @@ class _Worker:
         self.failure_kind = None
         self.last_active = time.monotonic()
         self.models, self.loop = None, None
+        self.preference_revision = None
         self.form_tools, self.form_broker = [], None
         self.workflow_tools, self.workflow_broker = [], None
         self.workflow_activity=None
@@ -334,8 +349,12 @@ class _Worker:
             await db(self.check)
             await db(lambda: Conversation.objects.filter(pk=self.identity, worker=self.token).update(heartbeat=timezone.now()))
 
+    @transaction.atomic
     def bind(self, private_handle):
+        from .model_preferences import check_intent, serialize_writes
+        serialize_writes()
         actor = self.check()
+        check_intent(actor, self.account_id, self.preference_revision)
         self.reference = record_session(actor, str(self.account_id), private_handle)
         self.ui_id = open_ui_lease(actor, str(self.account_id), self.reference)
         self.handler = bind_ui_handler(actor, str(self.account_id), self.ui_id)
@@ -344,6 +363,30 @@ class _Worker:
         self.workflow_activity=None
         self.ui_activity=None
         self.publish(ui_id=self.ui_id, phase='ready')
+
+    async def apply_preference(self):
+        from .model_preferences import connect_intent, check_intent
+        # native_ready has just validated the original live lease. Read intent
+        # under current primary ownership; bind rechecks the session/lease AND
+        # intent atomically after native I/O, before any Ready/UI authority.
+        actor = await db(lambda: get_user_model().objects.get(pk=self.owner, is_active=True))
+        intent = await db(connect_intent, actor, self.account_id)
+        self.preference_revision = intent['revision']
+        model = intent['model_id']
+        if model is not None:
+            catalog = self.client.model_state(self.lease.scope, self.session)
+            if not catalog or model not in {m['modelId'] for m in catalog['availableModels']}:
+                await db(check_intent, actor, self.account_id, intent['revision'], 'missing')
+                raise chat.ChatUnavailable('Saved model unavailable')
+            try:
+                await self.client.set_model(self.lease.scope, self.session, model)
+            except Exception:
+                await db(check_intent, actor, self.account_id, intent['revision'], 'unconfirmed')
+                raise chat.ChatUnavailable('Saved model unavailable') from None
+        if self.stopping.is_set():
+            raise chat.ChatUnavailable('Conversation unavailable')
+        with _lock:
+            self.models = self.client.model_state(self.lease.scope, self.session)
 
     async def native_ready(self, session):
         deadline = time.monotonic() + NATIVE_START_TIMEOUT
@@ -495,8 +538,8 @@ class _Worker:
         self.stage = 'native-start'
         if not await self.native_ready(session): return
         self.session = session
-        with _lock:
-            self.models = self.client.model_state(self.lease.scope, session)
+        self.stage = 'model-preference'
+        await self.apply_preference()
         details = self.client.session_details(self.lease.scope, session)
         await db(self.bind, details['sessionId'])
         self.last_active = time.monotonic()
@@ -542,7 +585,7 @@ class _Worker:
                 # Fixed operational labels only: no exception, provider output, IDs or paths.
                 import logging
                 stage = self.stage if type(self.stage) is str and self.stage in (
-                    'preparation', 'host-start', 'subscription-status', 'session-start', 'native-start', 'turn') else 'unknown'
+                    'preparation', 'host-start', 'subscription-status', 'session-start', 'native-start', 'model-preference', 'turn') else 'unknown'
                 logging.getLogger(__name__).error('Agent connection failed: stage=%s category=%s', stage, self.failure_kind)
         finally:
             self.stopping.set()

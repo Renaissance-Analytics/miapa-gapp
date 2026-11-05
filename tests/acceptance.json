@@ -6067,6 +6067,122 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-MODEL",
+      "risk": "A stored choice can forge provider acknowledgment, reset identity, override active work or race a later explicit default.",
+      "scenarios": [
+        {
+          "id": "P06-MODEL-1",
+          "kind": "positive",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Read owned future-model metadata without a worker",
+          "then": "Return closed provider-default revision0 without creating a profile/session/preference/audit",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_default_read_is_closed_owned_and_does_not_prepare_a_session"
+          ]
+        },
+        {
+          "id": "P06-MODEL-2",
+          "kind": "positive",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Remember the actual acknowledged current model",
+          "then": "Persist original-bound modelB/audit while all live identity/work/draft rows and current provider model stay unchanged",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_remember_derives_the_actual_model_and_audits_without_touching_live_work"
+          ]
+        },
+        {
+          "id": "P06-MODEL-3",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Submit anonymous, foreign, revoked, invalid authority/shape or missingCSRF requests",
+          "then": "Refuse every invalid scope/field without preference/audit side effects",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_current_actor_role_owner_csrf_and_closed_inputs_are_required"
+          ]
+        },
+        {
+          "id": "P06-MODEL-4",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Remember from foreign browser, stale/unknown conversation, busy session or model hint",
+          "then": "Refuse without model selection or preference mutation",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_unknown_stale_foreign_session_and_busy_context_cannot_remember_a_model"
+          ]
+        },
+        {
+          "id": "P06-MODEL-5",
+          "kind": "positive",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Repeat a stale save, current no-op and explicit default",
+          "then": "Conflict stale write, audit only actual preference changes, default intent leaves active modelB unchanged",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_stale_duplicate_and_noop_writes_preserve_acknowledged_preference"
+          ]
+        },
+        {
+          "id": "P06-MODEL-6",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Force audit failure, original profile mismatch or disabled account",
+          "then": "Roll back preference/audit and refuse without rebinding profile",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_profile_storage_disabled_account_and_audit_failure_refuse_without_rebinding"
+          ]
+        },
+        {
+          "id": "P06-MODEL-7",
+          "kind": "positive",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Explicitly reconnect after saving provider-confirmed modelB",
+          "then": "Negotiate provider again and acknowledge modelB before Ready, keeping original account/profile/conversation",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_named_preference_applies_after_negotiation_on_explicit_reconnect"
+          ]
+        },
+        {
+          "id": "P06-MODEL-8",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Reconnect with no models, then explicitly save default and reconnect",
+          "then": "Never fabricate Ready; retain modelB and fixed missing status, clear to default without auto-connect and negotiate modelA next",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_missing_catalog_retains_intent_and_default_recovery_never_revives_old_model"
+          ]
+        },
+        {
+          "id": "P06-MODEL-9",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Provider rejects applying saved model on reconnect",
+          "then": "Stop without Ready/UI/model claim and retain named intent with fixed unconfirmed status",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_native_refusal_never_publishes_ready_or_discards_saved_intent"
+          ]
+        },
+        {
+          "id": "P06-MODEL-10",
+          "kind": "negative",
+          "given": "An original owned account/profile, current membership and independent acknowledged session state",
+          "when": "Human clears preference while a real native model request is held",
+          "then": "Fence stale apply before Ready, retain cleared default and never revive modelB on next connect",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceTests.test_clearing_preference_during_native_io_fences_the_old_attempt"
+          ]
+        },
+        {
+          "id": "P06-MODEL-11",
+          "kind": "negative",
+          "given": "A durable original model preference",
+          "when": "Downgrade account schema",
+          "then": "Refuse before erasing preference/column/migration; restore test schema in finally and retain exact original row",
+          "tests": [
+            "tests.test_model_preferences.ModelPreferenceMigrationTests.test_downgrade_refuses_before_erasing_original_model_preference"
+          ]
+        }
+      ]
     }
   ]
 }

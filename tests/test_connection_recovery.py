@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 from unittest.mock import patch
 
@@ -174,14 +175,26 @@ class ConnectionRecoveryTests(TestCase):
         node=shutil.which('node');self.assertIsNotNone(node)
         runtime=self.base/'worker-crash123'
         fixture=Path(__file__).parent/'fixtures/recovery_owner.py'
-        process=subprocess.Popen([sys.executable,str(fixture),str(self.data),str(self.base),str(runtime),node],
+        prepared=self.root/'crash-environment-ready'
+        process=subprocess.Popen([sys.executable,str(fixture),str(self.data),str(self.base),str(runtime),node,str(prepared)],
             stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True)
         profile_name=None
         try:
+            # Actual lock/copy/sandbox setup precedes the original ten-second
+            # process-tree observation. No PID, readiness or recovery is faked.
+            deadline=time.monotonic()+15
+            while not prepared.is_file():
+                self.assertIsNone(process.poll(),'Finite crash fixture exited during setup')
+                self.assertLess(time.monotonic(),deadline,'Finite crash fixture setup unavailable')
+                time.sleep(.01)
+            bootstrap=json.loads(prepared.read_text(encoding='utf-8'));self.assertEqual(set(bootstrap),{'owner_pid','profile_name'})
+            profile_name=bootstrap['profile_name']
             import concurrent.futures
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                 observed=json.loads(pool.submit(process.stdout.readline).result(timeout=10))
             profile_name=observed['profile_name']
+            self.assertEqual(observed['owner_pid'],bootstrap['owner_pid'])
+            self.assertEqual(observed['profile_name'],bootstrap['profile_name'])
             with ProcessWitness(observed['owner_pid']) as owner, ProcessWitness(observed['root_pid']) as root, ProcessWitness(observed['descendant_pid']) as descendant:
                 self.assertFalse(owner.exited);self.assertFalse(root.exited);self.assertFalse(descendant.exited)
                 process.kill();process.wait(timeout=5)

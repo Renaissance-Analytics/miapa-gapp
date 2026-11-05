@@ -249,6 +249,12 @@ def main():
         from backend.maipa.agent_accounts import chat_runtime
         def synthetic_prepare(worker):
             worker.check()
+            # Synthetic metadata for the same profile origin production prepare
+            # provisions. No credentials or real provider home are created here.
+            from backend.maipa.agent_accounts.models import ProviderProfile
+            ProviderProfile.objects.get_or_create(account_id=worker.account_id, defaults={
+                'user_id':worker.owner, 'installation_id':worker.binding[0],
+                'storage_id':worker.storage_id, 'provider':worker.provider})
             workspace = fixture_root / ('chat-' + str(worker.identity))
             workspace.mkdir(exist_ok=True)
             scope = Scope(str(worker.owner), str(worker.account_id))

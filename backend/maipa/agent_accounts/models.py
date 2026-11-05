@@ -90,6 +90,46 @@ class ProviderProfile(models.Model):
         ]
 
 
+class AccountModelPreference(models.Model):
+    """Future connection intent bound to the original private profile."""
+    account = models.OneToOneField(AgentAccount, on_delete=models.PROTECT, editable=False)
+    profile = models.ForeignKey(ProviderProfile, on_delete=models.PROTECT, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    storage_id = models.UUIDField(editable=False)
+    provider = models.CharField(max_length=64, editable=False)
+    revision = models.PositiveIntegerField(default=0, editable=False)
+    model_id = models.CharField(max_length=200, null=True, editable=False)
+    model_name = models.CharField(max_length=120, null=True, editable=False)
+    issue = models.CharField(max_length=16, null=True, editable=False)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000), name='agent_model_preference_revision'),
+            models.CheckConstraint(condition=(models.Q(model_id__isnull=True, model_name__isnull=True, issue__isnull=True)
+                | (models.Q(model_id__isnull=False, model_name__isnull=False) & (models.Q(issue__isnull=True) | models.Q(issue__in=('missing', 'unconfirmed'))))), name='agent_model_preference_pair'),
+            models.CheckConstraint(condition=provider_id_condition(), name='agent_model_preference_provider'),
+        ]
+
+
+class ModelPreferenceEvent(models.Model):
+    account = models.ForeignKey(AgentAccount, on_delete=models.PROTECT, editable=False)
+    profile = models.ForeignKey(ProviderProfile, on_delete=models.PROTECT, editable=False)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    storage_id = models.UUIDField(editable=False)
+    revision = models.PositiveIntegerField(editable=False)
+    before = models.JSONField(editable=False)
+    after = models.JSONField(editable=False)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['account', 'revision'], name='agent_model_event_revision_unique'),
+            models.CheckConstraint(condition=models.Q(revision__gt=0, revision__lt=2_000_000_000), name='agent_model_event_revision_bounds'),
+        ]
+
+
 class SessionReference(models.Model):
     """Trusted host's durable private protocol mapping, never a readiness flag."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

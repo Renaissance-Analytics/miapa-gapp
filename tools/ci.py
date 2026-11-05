@@ -47,6 +47,7 @@ BROWSER_CASES = (
     'agent-provider-choice-and-account-restore',
     'agent-settings-and-actual-model-controls',
     'agent-owned-account-metadata',
+    'agent-future-model-preference',
     'shared-workflow-editor-and-native-authoring',
     'shared-workflow-published-run-and-reload',
     'preferences-save-conflict-recovery',
@@ -221,10 +222,11 @@ class Commands:
             target = self.artifacts / "backend.json"
             target.unlink(missing_ok=True)
             try:
-                # The complete549-case diagnostic took508s. This aggregate
-                # allowance covers the expanded suite; individual test limits,
-                # required test identities and failure behavior stay unchanged.
-                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=600)
+                # The complete646-case suite measured686.705s;720s leaves
+                # little headroom for shared-machine process startup. Allocate
+                #900s to the whole stage. Native/RPC/per-test/browser deadlines
+                #and every required case/assertion remain independently fixed.
+                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=900)
             except ValueError:
                 from tools.alignment import discovered_test_ids
                 from tools.backend_reporting import failure_evidence

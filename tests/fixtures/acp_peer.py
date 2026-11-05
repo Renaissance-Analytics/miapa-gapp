@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 
 mode = sys.argv[1]
 pending = []
@@ -17,6 +18,9 @@ def send(value):
     sys.stdout.write(json.dumps(value) + "\r\n")
     sys.stdout.flush()
 
+
+if len(sys.argv) == 3:
+    Path(sys.argv[2]).write_bytes(b'ready')
 
 for line in sys.stdin:
     message = json.loads(line)
