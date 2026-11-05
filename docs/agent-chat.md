@@ -165,3 +165,13 @@ Human upward scrolling still pauses it; Back to latest resumes. Real
 browser acceptance checks the actual newest row and physical scroll bottom during
 streaming, short-window resize, panel dismissal/reflow and expansion, alongside
 composer/draft retention. These are separate from provider execution evidence.
+
+
+Account display names are human settings on the existing shared Agent Settings
+component. The owned metadata endpoint uses a separate compare-and-swap revision
+and an atomic display-name audit; it never advances connection, conversation or
+access authority. Current membership, ownership, original profile/install/storage
+binding, actor and CSRF are rechecked. Unknown/lost/conflicting save results keep
+local text until explicit readback and review. Account/provider/profile IDs,
+machine sign-ins, transcripts, unsent chat drafts and shared UI leases are retained.
+No metadata mutation tool or credential/login action is exposed to the model.

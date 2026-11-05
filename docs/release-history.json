@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-26",
+    "label": "Development update 26",
+    "cards": [
+      {
+        "title": "Connect your Claude account",
+        "description": "Claude now has its own connection and private sign-in controls. Your selected provider, saved chat and unsent drafts stay separate from other accounts."
+      },
+      {
+        "title": "Shared agent tools",
+        "description": "Claude uses the same authorized contextual UI components in chat. Live model verification and additional ACP connections are still in progress."
+      }
+    ]
+  },
+  {
     "id": "development-25",
     "label": "Development update 25",
     "cards": [

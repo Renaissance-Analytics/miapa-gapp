@@ -85,8 +85,12 @@ class ChatDraftMigrationTests(TransactionTestCase):
         from django.db.migrations.executor import MigrationExecutor
         from backend.maipa.agent_accounts import draft_store
         key=str(self.account.pk);saved=draft_store.save(self.owner,key,0,draft(),None)
-        with self.assertRaisesRegex(RuntimeError,'Saved chat drafts require offline backup recovery'):
-            MigrationExecutor(connection).migrate([('agent_accounts','0009_uicomposition_form_drafts')])
+        try:
+            with self.assertRaisesRegex(RuntimeError,'Saved chat drafts require offline backup recovery'):
+                MigrationExecutor(connection).migrate([('agent_accounts','0009_uicomposition_form_drafts')])
+            self.assertIn(('agent_accounts','0010_chatdraftrecord'),MigrationExecutor(connection).loader.applied_migrations)
+        finally:
+            executor=MigrationExecutor(connection);executor.migrate(executor.loader.graph.leaf_nodes())
         self.assertEqual(draft_store.read(self.owner,key),saved)
         self.assertIn(('agent_accounts','0010_chatdraftrecord'),MigrationExecutor(connection).loader.applied_migrations)
 

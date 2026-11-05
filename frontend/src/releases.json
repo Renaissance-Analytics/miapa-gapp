@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-46",
+    "label": "Development update 46",
+    "cards": [
+      {
+        "title": "Name your agent accounts",
+        "description": "Choose a clear name for your selected account in Agent settings. Keep your existing sign-in, conversation and unsent chat message."
+      },
+      {
+        "title": "Review conflicting account names",
+        "description": "If another window changes the name, review the saved value while keeping your text. Choose which name to use before saving again."
+      }
+    ]
+  },
+  {
     "id": "development-45",
     "label": "Development update 45",
     "cards": [
@@ -258,20 +272,6 @@
       {
         "title": "Claude sign-in link restored",
         "description": "Maipa now recognizes Claude\u2019s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
-      }
-    ]
-  },
-  {
-    "id": "development-26",
-    "label": "Development update 26",
-    "cards": [
-      {
-        "title": "Connect your Claude account",
-        "description": "Claude now has its own connection and private sign-in controls. Your selected provider, saved chat and unsent drafts stay separate from other accounts."
-      },
-      {
-        "title": "Shared agent tools",
-        "description": "Claude uses the same authorized contextual UI components in chat. Live model verification and additional ACP connections are still in progress."
       }
     ]
   }

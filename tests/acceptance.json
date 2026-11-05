@@ -5971,6 +5971,102 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P06-METADATA",
+      "risk": "Account labels can overwrite newer human input, retarget another account or inadvertently alter connection/credential authority.",
+      "scenarios": [
+        {
+          "id": "P06-METADATA-1",
+          "kind": "positive",
+          "given": "A current owned account and existing protocol reference",
+          "when": "Read display metadata",
+          "then": "Return only the original actor/account/provider, display name, profile flag and revision0; no profile/session/worker creation or protocol secret exposure.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_read_is_owned_closed_metadata_without_preparing_a_provider"
+          ]
+        },
+        {
+          "id": "P06-METADATA-2",
+          "kind": "positive",
+          "given": "An original profile, revision7 connection, ready conversation, session and unsent draft",
+          "when": "Rename the owned account at metadata revision0",
+          "then": "Persist Unicode label at metadata revision1 with one original-binding audit; all profile, selection, conversation, session, draft and installation rows are identical.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_rename_is_audited_and_preserves_profile_selection_transcript_and_draft"
+          ]
+        },
+        {
+          "id": "P06-METADATA-3",
+          "kind": "negative",
+          "given": "A successful revision0 rename already stored",
+          "when": "Submit another tab or duplicate revision0 payload",
+          "then": "Both stale commands conflict; original acknowledged name and one audit remain.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_stale_and_duplicate_saves_cannot_overwrite_an_acknowledged_name"
+          ]
+        },
+        {
+          "id": "P06-METADATA-4",
+          "kind": "positive",
+          "given": "An unchanged original display name at current revision0",
+          "when": "Submit the same current name",
+          "then": "Acknowledge the existing name without creating a metadata revision or audit event.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_noop_is_not_a_new_metadata_revision_or_audit_event"
+          ]
+        },
+        {
+          "id": "P06-METADATA-5",
+          "kind": "negative",
+          "given": "Anonymous/foreign actors, changed role or disabled membership/account",
+          "when": "Attempt reads/writes, actor substitution and query authority",
+          "then": "Require current authenticated eligible owner and exact actor; refuse every forged or revoked scope without changing name or audit.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_current_owner_role_membership_account_and_actor_are_required"
+          ]
+        },
+        {
+          "id": "P06-METADATA-6",
+          "kind": "negative",
+          "given": "Invalid revisions, duplicate/unknown authority fields, malformed/budgeted JSON, bad names or missing CSRF",
+          "when": "Submit metadata writes",
+          "then": "Reject all invalid requests, oversized bodies and missing CSRF; retain original name with no audit.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_invalid_json_fields_revisions_names_and_csrf_cannot_change_metadata"
+          ]
+        },
+        {
+          "id": "P06-METADATA-7",
+          "kind": "negative",
+          "given": "An original account whose private profile user or installation storage origin no longer matches",
+          "when": "Attempt renaming",
+          "then": "Refuse both mismatches; do not rebind or replace the profile, name or audit.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_profile_origin_and_install_storage_mismatch_refuse_without_rebinding"
+          ]
+        },
+        {
+          "id": "P06-METADATA-8",
+          "kind": "negative",
+          "given": "An otherwise authorized rename whose audit append fails",
+          "when": "Save inside the metadata transaction",
+          "then": "Return a generic unavailable result; name and metadata revision both roll back and no audit or private error escapes.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataTests.test_audit_failure_rolls_back_both_label_and_metadata_revision"
+          ]
+        },
+        {
+          "id": "P06-METADATA-9",
+          "kind": "negative",
+          "given": "An acknowledged original owned account name and atomic display-name audit",
+          "when": "Attempt downgrade to the previous account schema",
+          "then": "Refuse before removing the metadata column, audit or migration record; retain exact original name/revision and audit history.",
+          "tests": [
+            "tests.test_account_metadata.AccountMetadataMigrationTests.test_downgrade_refuses_before_erasing_saved_account_name_history"
+          ]
+        }
+      ]
     }
   ]
 }

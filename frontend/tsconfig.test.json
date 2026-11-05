@@ -15,6 +15,7 @@
     "src/client-catalog.ts",
     "src/shared-form.ts",
     "src/shared-workflow.ts",
-    "src/common-views.ts"
+    "src/common-views.ts",
+    "src/account-metadata.ts"
   ]
 }

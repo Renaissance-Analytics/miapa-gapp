@@ -25,6 +25,7 @@ class AgentAccount(models.Model):
     provider = models.CharField(max_length=64, validators=[RegexValidator(PROVIDER_ID)])
     label = models.CharField(max_length=80)
     enabled = models.BooleanField(default=True)
+    metadata_revision = models.PositiveIntegerField(default=0, editable=False)
     last_check_started_at = models.DateTimeField(null=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -32,6 +33,27 @@ class AgentAccount(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["owner", "provider"], name="agent_account_owner_provider_unique"),
             models.CheckConstraint(condition=provider_id_condition(), name="agent_account_provider_id"),
+            models.CheckConstraint(condition=models.Q(metadata_revision__lt=2_000_000_000),
+                                   name='agent_account_metadata_revision'),
+        ]
+
+
+class AccountMetadataEvent(models.Model):
+    """Display-name history only; never a credential, profile or execution grant."""
+    account = models.ForeignKey(AgentAccount, on_delete=models.PROTECT, editable=False)
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    storage_id = models.UUIDField(editable=False)
+    revision = models.PositiveIntegerField(editable=False)
+    before_label = models.CharField(max_length=80, editable=False)
+    after_label = models.CharField(max_length=80, editable=False)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['account', 'revision'], name='agent_metadata_event_revision_unique'),
+            models.CheckConstraint(condition=models.Q(revision__gt=0, revision__lt=2_000_000_000),
+                                   name='agent_metadata_event_revision_bounds'),
         ]
 
 

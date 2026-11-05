@@ -6355,100 +6355,100 @@
       "scenario": "P04-DURABLE-DRAFT.0",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_full_draft_and_explicit_empty_restore_without_provider_side_effects",
       "scenario_sha256": "90df9ee9511fd25d6cab900256bbd04fc7c43a616861c2c170290b6044ca30bd",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Exact supported full draft and explicit empty restore with revisions0to2, no conversation or provider work.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.1",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_unselected_and_other_accounts_are_separate_and_reassignment_refuses",
       "scenario_sha256": "52d374f4b25e76d42e905b2cd65ed016efa0f63e44be4c5ae3ec208bdb3df8f4",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Unselected/account scopes remain separate; foreign/reassigned identity refuses; original owner data is unchanged.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.2",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_stale_write_preserves_newer_draft_and_invalid_shapes_refuse",
       "scenario_sha256": "8cd6248725cbae5d82cdb04998a1c262585ce388e117f6fd8569c2a474d84360",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Stale CAS and malformed/oversized/path-bearing drafts refuse without changing the saved revision or content.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.3",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_saved_retry_identity_resolves_actual_accepted_request_without_duplicate",
       "scenario_sha256": "8749d7c7e0be3b1aebe9f5411cab740e4659a18afca7dbeea0ab85795783a76c",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "An actual accepted request resolves the saved retry ID; an exact retry invokes no second worker and produces one user record.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.4",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_current_role_storage_and_original_installation_are_rechecked",
       "scenario_sha256": "c098da2da2ddc6f76de6c7c840e804a0739bf299439f9e4a30ce88a53189034b",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Changed current role or storage binding refuses; the original saved draft remains intact.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.5",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_http_requires_current_actor_csrf_and_exact_body",
       "scenario_sha256": "e12abe7e8e234ad8e456ad12ebdab9309a130c293064f54ddb82cbb87946f7dc",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Anonymous/current actor/CSRF/exact JSON checks refuse; stale write409 preserves saved content.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.6",
       "test": "tests.test_chat_draft_store.ChatDraftStoreTests.test_file_metadata_is_honest_and_forged_pending_receipts_are_rejected",
       "scenario_sha256": "e19c125af42aa0617e42c46a3cc1d5e1be1dddc58c3d4ec6ab69e5a3641c5faf",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "File names are retained without invented bytes/refs; forged accepted receipt refuses and creates no conversation.",
       "decision": "aligned",
-      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency.",
+      "reason": "Independent exact draft/identity/revision/side-effect counts and deferred-response refusals precede implementation; accepted send evidence uses actual conversation idempotency. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.7",
       "test": "tests.test_chat_draft_store.ChatDraftMigrationTests.test_downgrade_refuses_before_removing_saved_draft_or_migration_record",
       "scenario_sha256": "d850f74d11e14f68860bbbe2f27c925aea85f1d3e5b7f3c9f4c8c66899ea0712",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Downgrade refuses before erasing actual saved draft and applied migration record.",
       "decision": "aligned",
-      "reason": "Actual migration executor or deferred write ordering and exact independent saved content/receipt expectations guard against destructive or stale outcomes.",
+      "reason": "Actual migration executor or deferred write ordering and exact independent saved content/receipt expectations guard against destructive or stale outcomes. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.8",
       "test": "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_save_waits_for_another_owned_writer_without_losing_the_draft",
       "scenario_sha256": "6cc2d6ee6c64296a13891bebdf3a440bc6210fd1da7ad574315a949e41a666ac",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "An actual concurrent SQLite writer is serialized before reading draft state; the draft saves once as revision2 instead of losing input or returning a lock-upgrade error.",
       "decision": "aligned",
-      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked.",
+      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
       "scenario": "P04-DURABLE-DRAFT.9",
       "test": "tests.test_chat_draft_store.ChatDraftConcurrencyTests.test_windows_pasted_text_line_endings_restore_exactly_without_sending",
       "scenario_sha256": "7ac3c8bc0d6c7cc7bcb3ba6ff91d9f29bdbfd9d31b92a8d96d4fac7b24a44d52",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5",
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b",
       "expected_observation": "Windows CRLF in supported text/pasted pills restores exactly and creates zero provider conversation.",
       "decision": "aligned",
-      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked.",
+      "reason": "Real bounded independent database-writer contention and exact CRLF preservation assert user-facing outcomes before the correction. No service implementation is mocked. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
     },
     {
@@ -6457,9 +6457,9 @@
       "scenario_sha256": "8f25de8326099432fd5a30f21d1ef7f56a6bb7e2519cbee53668779894baa403",
       "expected_observation": "Existing saved-view reorder waits for the independent concurrent writer and commits exact reversed order at revision3, preserving all entries.",
       "decision": "aligned",
-      "reason": "The original browser pin reorder now overlaps draft autosaves. A real bounded writer and exact public service outcome reproduce the lock-upgrade failure before changing supported connection settings.",
+      "reason": "The original browser pin reorder now overlaps draft autosaves. A real bounded writer and exact public service outcome reproduce the lock-upgrade failure before changing supported connection settings. Historical downgrade still asserts the original refusal and applied0010; finally restores latest schema before the original exact service-read equality. No original assertion or migration protection removed.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed",
-      "source_sha256": "3828aa9898290d386262d7ff7047f0e10b034b0937fb2b62419f176ac95807a5"
+      "source_sha256": "2027cd64e755c77c03ce635bf743d30b9a71f528a9d4ca2c4cb6578d3880111b"
     },
     {
       "scenario": "P06-CONNECTION-SETTINGS.0",
@@ -6520,6 +6520,96 @@
       "decision": "aligned",
       "reason": "Independent exact identities, no-provider side effects and observed model/revision outcomes defined before implementation. Source hashes record review, not proof. Fixture teardown owns its normal worker stop/join and base teardown; original10s join assertion remains.",
       "reviewer": "Maipa independent acceptance review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-1",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_read_is_owned_closed_metadata_without_preparing_a_provider",
+      "scenario_sha256": "c11f7a3435ba0f6b771c0e4afda96a4b9935e970e6b141fb79c5f8ac360df4d3",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Return only the original actor/account/provider, display name, profile flag and revision0; no profile/session/worker creation or protocol secret exposure.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-2",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_rename_is_audited_and_preserves_profile_selection_transcript_and_draft",
+      "scenario_sha256": "502e186f0a9935117ec4e5c0b14da34edf2e31e5cc4c993687df88fc2755e0a8",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Persist Unicode label at metadata revision1 with one original-binding audit; all profile, selection, conversation, session, draft and installation rows are identical.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-3",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_stale_and_duplicate_saves_cannot_overwrite_an_acknowledged_name",
+      "scenario_sha256": "f9ac59cc79b1999e3653a28aa900e258b6518fd4fffb9673610965c138b59ce3",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Both stale commands conflict; original acknowledged name and one audit remain.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-4",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_noop_is_not_a_new_metadata_revision_or_audit_event",
+      "scenario_sha256": "39bfe7ea678ccb8f1dc7b4caf13b3446a49a6ebdfb9c7a762fc2c95c6562dfdb",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Acknowledge the existing name without creating a metadata revision or audit event.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-5",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_current_owner_role_membership_account_and_actor_are_required",
+      "scenario_sha256": "6ece0ba57cd35bc312647db2f6b77252200c5856b53d11295b09478a47410212",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Require current authenticated eligible owner and exact actor; refuse every forged or revoked scope without changing name or audit.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-6",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_invalid_json_fields_revisions_names_and_csrf_cannot_change_metadata",
+      "scenario_sha256": "0740340b9cdc3c87f079e4ae57dbc4b6de36bf0af4d1bdfd15b527e1edd4e64e",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Reject all invalid requests, oversized bodies and missing CSRF; retain original name with no audit.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-7",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_profile_origin_and_install_storage_mismatch_refuse_without_rebinding",
+      "scenario_sha256": "eb76f2724cf6ab2867b37c8565f611b21cb31c508f022e225f8fc1b58d159a66",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Refuse both mismatches; do not rebind or replace the profile, name or audit.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-8",
+      "test": "tests.test_account_metadata.AccountMetadataTests.test_audit_failure_rolls_back_both_label_and_metadata_revision",
+      "scenario_sha256": "a0a1e431e3c77a82103676d2d1de0aa09ca15175214363b14ce415a2ab36fb23",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Return a generic unavailable result; name and metadata revision both roll back and no audit or private error escapes.",
+      "decision": "aligned",
+      "reason": "Independent owner/revision/identity/callback/write-count and persistence outcomes above are asserted directly. Current connection authority and private resources must remain untouched; no implementation-shape or source-text assertion. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed. The conflict response uses the existing closed API error/code envelope; no status, scope, conflict or persistence assertion removed.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "P06-METADATA-9",
+      "test": "tests.test_account_metadata.AccountMetadataMigrationTests.test_downgrade_refuses_before_erasing_saved_account_name_history",
+      "scenario_sha256": "e265df509e2e63a9895e420e5ca6eb8c38e40193083d82ad35f7a328ed5b8245",
+      "source_sha256": "041814d479f6d9c3fc4294e39b5982bae6e35188fd7afc12efcd1506718794a0",
+      "expected_observation": "Refuse before removing the metadata column, audit or migration record; retain exact original name/revision and audit history.",
+      "decision": "aligned",
+      "reason": "Actual MigrationExecutor must refuse a destructive downgrade with the audit and original name/revision intact. Test finally restores schema for subsequent tests even when the guard is absent. No fake executor or skipped migration; absence of guard produces a real destructive red.",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
     }
   ]
 }

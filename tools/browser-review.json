@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "b54264aa7024e0736f9f79091bb99b70ef55e8c97d463cef424354151ead2b70",
+    "tools/browser.mjs": "7370b0c65042589115c3b9ac5de60030398407e5e24ded911ece45db5f41891f",
     "tools/check_browser.py": "174a73f8ca49827136d0ffe75d1c3a4464e6d063a2bd6750a0d2e36f134a80fb",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "8b2422cd7f3cb0a62c3cfdbfb15b76862c9c3aeefcefc491f6af38fcfade835f"
@@ -158,6 +158,11 @@
       "id": "agent-settings-and-actual-model-controls",
       "expected": "Agent presents one supported settings component; human changes an actual finite-peer model through original server/session authority; same conversation/UI/messages/unsent composer persist and reload with acknowledged model.",
       "kind": "positive"
+    },
+    {
+      "id": "agent-owned-account-metadata",
+      "kind": "positive",
+      "expected": "Actual published Fancy Form/Input/Button on the shared agent-presented settings component loads only the original owned display metadata. Native Enter submits at the observed independent metadata revision; a second-tab CAS write makes the original human save conflict without dropping local text. Explicit reload shows the current name and keeps unsent input, blocks blind Save, and human Keep my name then Save uses the newly observed revision. Same account/provider/profile flag, original chat/conversation revision/messages/UI/selection/models and exact composer node/Unicode unsent draft are preserved. The saved label and original draft survive a real reload. No new provider command, account/profile binding, session, authority or business write. All45 prior scenarios/assertions/deadlines remain. Deterministic native fixture acceptance, not actual-model proof."
     },
     {
       "id": "shared-workflow-editor-and-native-authoring",

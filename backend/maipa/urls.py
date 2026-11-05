@@ -18,8 +18,10 @@ from .workflows import views as workflows
 
 from .agent_accounts.draft_views import drafts as chat_drafts
 from .agent_accounts.settings_view import settings as agent_settings
+from .agent_accounts.metadata import metadata as agent_metadata
 
 urlpatterns = [
+    path('api/agent/accounts/<uuid:account_id>/metadata/', agent_metadata, name='agent-account-metadata'),
     path("api/agent/settings/",agent_settings,name="agent-settings"),
     path("api/agent/drafts/unselected/",chat_drafts,name="chat-unselected-draft"),
     path("api/agent/drafts/<uuid:account_id>/",chat_drafts,name="chat-owned-draft"),

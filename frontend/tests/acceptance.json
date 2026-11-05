@@ -1633,6 +1633,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "account-metadata",
+      "risk": "Account labels can overwrite newer human input, retarget another account or inadvertently alter connection/credential authority.",
+      "scenarios": [
+        {
+          "id": "account-metadata-1",
+          "kind": "negative",
+          "given": "Closed owned metadata input",
+          "when": "Parse wrong actor/account, extra authority, malformed revisions and labels",
+          "then": "Accept exactly the original closed row; refuse every foreign or invalid shape.",
+          "tests": [
+            "account-metadata.test.mjs#account metadata rejects foreign identities extra authority and invalid revisions"
+          ]
+        },
+        {
+          "id": "account-metadata-2",
+          "kind": "positive",
+          "given": "A captured principal/account/revision and current CSRF bootstrap",
+          "when": "Read and save a display name",
+          "then": "Use only the owned same-origin path, actor, CSRF and expected revision with bounded lifetime; refuse mismatched acknowledgments.",
+          "tests": [
+            "account-metadata.test.mjs#metadata transport binds the owned account actor csrf and exact observed revision"
+          ]
+        },
+        {
+          "id": "account-metadata-3",
+          "kind": "positive",
+          "given": "An original loaded name with a delayed write acknowledgment",
+          "when": "Edit again and attempt another save before completion",
+          "then": "Send exactly one write at the captured revision; accept its exact acknowledgment while retaining the newer unsent local text.",
+          "tests": [
+            "account-metadata.test.mjs#one pending rename preserves edits made before its exact acknowledgment arrives"
+          ]
+        },
+        {
+          "id": "account-metadata-4",
+          "kind": "negative",
+          "given": "A stale label write and another tab newer name",
+          "when": "Reload, review and explicitly keep local text before saving",
+          "then": "Retain local input, block blind retry, show newest readback, require human review and then send only the newly observed revision.",
+          "tests": [
+            "account-metadata.test.mjs#conflict readback keeps local text until explicit review before another save"
+          ]
+        },
+        {
+          "id": "account-metadata-5",
+          "kind": "negative",
+          "given": "A server save with lost response, or malformed/foreign/wrong-revision acknowledgment",
+          "when": "Attempt save and later read back",
+          "then": "Preserve input and old acknowledged metadata, stop automatic retry, and accept current saved state only after explicit readback/review.",
+          "tests": [
+            "account-metadata.test.mjs#lost or malformed save acknowledgments retain input and never automatically retry"
+          ]
+        },
+        {
+          "id": "account-metadata-6",
+          "kind": "negative",
+          "given": "A mounted original principal with delayed read or CSRF bootstrap",
+          "when": "Close that controller before completion",
+          "then": "Publish no late result and send no POST after disposal; state remains closed.",
+          "tests": [
+            "account-metadata.test.mjs#closing a principal during delayed reads or csrf bootstrap cannot publish or send a write"
+          ]
+        },
+        {
+          "id": "account-metadata-7",
+          "kind": "positive",
+          "given": "A clean original name or local input queued while a read is pending",
+          "when": "Explicitly reload a changed saved name",
+          "then": "A clean input adopts the acknowledged saved name; newer local text remains and a changed server value requires explicit conflict review.",
+          "tests": [
+            "account-metadata.test.mjs#explicit reload follows a changed saved name without replacing newer local input"
+          ]
+        }
+      ]
     }
   ]
 }
