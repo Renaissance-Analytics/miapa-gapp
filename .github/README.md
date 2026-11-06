@@ -1,16 +1,16 @@
-# Shared bootstrap checks
+# Checks are local only
+
+There is no hosted GitHub Actions workflow for this repository. The owner chose
+local-only CI on 2026-11-06, so no source, report or log is processed by a hosted
+runner.
 
 `tools/bootstrap.ps1` prepares the approved hash/lock-pinned environment without
-package lifecycle scripts. `.venv/Scripts/python.exe -m tools.ci` is the identical
-local and Actions entrypoint. It enforces both alignment gates before application
-tests and finishes with an isolated native-browser check of built React + Django.
+package lifecycle scripts. Run `.venv/Scripts/python.exe -m tools.ci` from the
+product root. It enforces both alignment gates before application tests and
+finishes with an isolated native-browser check of built React + Django.
 
-The workflow uses an ephemeral Windows2025 runner, full Actions commit pins,
-read-only contents permission and no persisted Git credentials or caches. It has
-no provider secrets or privileged fork jobs. Only sanitized `report.json`
-is uploaded; never upload runtime, browser profiles, SQLite, raw logs or env files.
-Fork code still executes as untrusted code on the disposable runner; do not add
-secrets, privileged jobs or self-hosted runners to this workflow.
+A pull request merges only after a clean local pass on its exact head commit and
+a privacy scan of every commit being pushed. Never commit or upload runtime data,
+browser profiles, SQLite databases, raw logs, env files or client records.
 
-See `docs/ci.md` for exact scope, prerequisites and evidence limits. Hosted
-execution remains unverified until the first approved source publication.
+See `docs/ci.md` for scope, prerequisites and evidence limits.

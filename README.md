@@ -144,9 +144,9 @@ build-identity contract. Keep these notes current as application work progresses
 
 The shared bootstrap pipeline is now `tools.ci`: see [CI checks](docs/ci.md)
 for locked environment preparation, alignment-first stage ordering, candidate
-evidence and the final isolated native-browser check. The GitHub workflow calls
-this same entrypoint on Windows2025. The approved bootstrap has hosted green
-evidence; changed P01 source still needs its own local and hosted candidate checks.
+evidence and the final isolated native-browser check. CI is local only: each PR
+merges after a clean local `python -m tools.ci` pass on its exact head commit and
+a privacy scan of the commits being pushed. There is no hosted workflow.
 
 The backend includes an application-owned Python ACP client and a Node host
 using exact published Prism ACP0.28.0. Authenticated transport checks now run
