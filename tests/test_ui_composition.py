@@ -61,7 +61,7 @@ class UiCompositionTests(TestCase):
         catalog = self.call(lease, 'maipa_ui_catalog', {})
         self.assertEqual(catalog['revision'], 0)
         self.assertEqual([item['type'] for item in catalog['components']],
-                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.ClientFacts', 'Maipa.ClientCatalog'])
+                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Workflow'])
         self.assertNotIn('synthetic-private-provider-handle', json.dumps(catalog))
         presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Review', 'schema': SCHEMA})
         self.assertEqual(presented['composition'], {'title': 'Review', 'schema': SCHEMA})
@@ -133,7 +133,8 @@ class UiCompositionTests(TestCase):
         lease = self.lease()
         listed = self.api().dispatch_ui(self.owner, str(self.account.pk), lease, {'method': 'tools/list', 'params': {}})
         self.assertEqual([item['name'] for item in listed['tools']],
-                         ['maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss'])
+                         ['maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
+                          'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open'])
         for value in (
             {'method': 'terminal/create', 'params': {}},
             {'method': 'tools/list', 'params': {'actor': str(self.other.pk)}},

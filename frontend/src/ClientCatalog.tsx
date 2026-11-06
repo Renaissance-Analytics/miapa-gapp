@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Card, Input, Select } from '@particle-academy/react-fancy';
+import { Button, Callout, Card, Form, Input, Select } from '@particle-academy/react-fancy';
 import { readClientCatalog, saveClientCatalog, type CatalogCommand, type CatalogFailure, type CatalogSnapshot } from './client-catalog.js';
+import { SharedFormController, type FormBinding, type FormState, type NativeFormActivity } from './shared-form.js';
 
-type Save = (command: CatalogCommand) => Promise<void>;
+type Save = (command: CatalogCommand) => Promise<boolean>;
 const messages: Record<CatalogFailure, string> = {
   invalid: 'Check the display names and client limits. Reload client setup before making another change.',
   denied: 'Your current account cannot manage these client records. Sign in with an enabled administrator or preparer account.',
@@ -10,16 +11,36 @@ const messages: Record<CatalogFailure, string> = {
   unavailable: 'We could not confirm the current client setup. Reload it before making another change.',
 };
 
-function NewClient({ save, full }: { save: Save; full: boolean }) {
+function NewClient({ save, full, controller, shared, activity }: { save: Save; full: boolean; controller: SharedFormController | null;
+  shared: FormState | null; activity?: NativeFormActivity }) {
   const [name, setName] = useState(''), [entity, setEntity] = useState('');
-  return <form className="intake-form" aria-label="Create client" onSubmit={event => {
-    event.preventDefault(); if (!full) void save({ action: 'create_engagement', name: name.trim(), entity_name: entity.trim() });
+  const blocked = full || !!shared && !['ready', 'saving'].includes(shared.phase);
+  async function submit() {
+    if (blocked) return;
+    if (controller) {
+      if (!await controller.flush() || !controller.state.saved) return;
+      const submitted = structuredClone(controller.state.saved), values = controller.state.values;
+      if (await save({ action: 'create_engagement', name: values.name.trim(), entity_name: values.entity_name.trim() })) await controller.clear(submitted);
+    } else if (await save({ action: 'create_engagement', name: name.trim(), entity_name: entity.trim() })) { setName(''); setEntity(''); }
+  }
+  return <Form className="intake-form" aria-label="Create client" data-shared-form={shared?.saved?.id} data-form-phase={shared?.phase}
+    data-form-revision={shared?.saved?.revision} onSubmit={event => {
+    event.preventDefault(); void submit();
   }}><h4>Add a client</h4>
-    <Input id="catalog-new-client" label="Client / engagement name" maxLength={128} required value={name} onValueChange={setName} disabled={full} />
-    <Input id="catalog-initial-entity" label="Initial entity name" maxLength={128} required value={entity} onValueChange={setEntity} disabled={full} />
+    <Input id="catalog-new-client" label="Client / engagement name" maxLength={128} required value={shared?.values.name ?? name}
+      onValueChange={value => controller ? controller.change('name', value) : setName(value)} disabled={blocked} />
+    <Input id="catalog-initial-entity" label="Initial entity name" maxLength={128} required value={shared?.values.entity_name ?? entity}
+      onValueChange={value => controller ? controller.change('entity_name', value) : setEntity(value)} disabled={blocked} />
+    {shared?.phase === 'saving' && <small role="status">Saving pending input…</small>}
+    {shared?.phase === 'loading' && <small role="status">Loading shared input…</small>}
+    {shared && ['conflict', 'unavailable'].includes(shared.phase) && <Callout color="amber" role="alert">
+      {shared.phase === 'conflict' ? 'The shared input changed. Your unsent values are kept here.' : 'We could not confirm the saved input. Your values are kept here.'}
+      <Button size="sm" variant="ghost" onClick={() => { void controller?.load(true); }}>Reload shared input</Button></Callout>}
+    {shared?.phase === 'closed' && <small role="status">This shared form is no longer available. Ask Maipa to open it again.</small>}
+    {activity && activity.form_id === shared?.saved?.id && activity.revision === shared.saved.revision && <Callout color="blue" role="status" data-native-form-activity={activity.id}>Maipa updated pending values.</Callout>}
     {full && <p role="status">You have reached the 100-client limit.</p>}
-    <Button type="submit" disabled={full}>Create client</Button>
-  </form>;
+    <Button type="submit" disabled={blocked}>Create client</Button>
+  </Form>;
 }
 
 function Rename({ id, name, kind, save }: { id: string; name: string; kind: 'client' | 'entity'; save: Save }) {
@@ -46,8 +67,19 @@ function AddEntity({ engagement, full, save }: { engagement: string; full: boole
   </form>;
 }
 
-export function ClientCatalog({ userId }: { userId: string }) {
+export function ClientCatalog({ userId, binding, refreshRevision, activity }: { userId: string; binding?: FormBinding;
+  refreshRevision?: number; activity?: NativeFormActivity }) {
   const [state, setState] = useState<CatalogSnapshot>();
+  const [shared, setShared] = useState<FormState | null>(binding ? { phase: 'loading', saved: null, values: { name: '', entity_name: '' } } : null);
+  const form = useRef<SharedFormController | null>(null);
+  useEffect(() => {
+    if (!binding) { setShared(null); return; }
+    const controller = new SharedFormController(binding, setShared); form.current = controller;
+    setShared(controller.state); void controller.load();
+    const timer = setInterval(() => { void controller.load(); }, 1500);
+    return () => { clearInterval(timer); controller.dispose(); form.current = null; };
+  }, [userId, binding?.accountId, binding?.leaseId, binding?.componentId]);
+  useEffect(() => { void form.current?.load(); }, [refreshRevision]);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'saving' | CatalogFailure>('loading');
   const [notice, setNotice] = useState('');
   const generation = useRef(0), pending = useRef(false);
@@ -62,15 +94,16 @@ export function ClientCatalog({ userId }: { userId: string }) {
   }
   useEffect(() => { void load(); return () => { generation.current++; }; }, [userId]);
   const save: Save = async command => {
-    if (!state || phase !== 'ready' || pending.current) return;
+    if (!state || phase !== 'ready' || pending.current) return false;
     pending.current = true;
     const attempt = ++generation.current, previous = state;
     setState(undefined); setNotice(''); setPhase('saving');
     const result = await saveClientCatalog(previous, command);
-    if (attempt !== generation.current) return;
+    if (attempt !== generation.current) return false;
     pending.current = false;
-    if (result.kind === 'ok') { setNotice('Client setup saved.'); await load(result.value.engagement_id); }
+    if (result.kind === 'ok') { setNotice('Client setup saved.'); await load(result.value.engagement_id); return true; }
     else setPhase(result.kind);
+    return false;
   };
   const busy = phase === 'loading' || phase === 'saving';
   const selected = state?.engagements.find(row => row.id === state.selected_engagement_id);
@@ -82,7 +115,7 @@ export function ClientCatalog({ userId }: { userId: string }) {
     {notice && <p role="status">{notice}</p>}
     {!busy && phase !== 'ready' && <p role="alert">{messages[phase]}</p>}
     {state && phase === 'ready' && <div data-catalog-revision={state.revision}>
-      <NewClient save={save} full={state.engagements.length >= 100} />
+      <NewClient save={save} full={state.engagements.length >= 100} controller={form.current} shared={shared} activity={activity} />
       {!state.engagements.length && <p>No client records yet. Create a client or continue Account setup in the conversation.</p>}
       {selected && <section aria-label="Selected client setup">
         <Select id="catalog-client" label="Select client" value={selected.id}

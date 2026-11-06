@@ -76,6 +76,21 @@ function checkedRequest(value) {
   throw unavailable();
 }
 
+function toolParams(params) {
+  if (!record(params) || !Object.hasOwn(params, '_meta')) return params;
+  // Native Claude adds protocol correlation metadata to tools/call. Validate
+  // the measured bounded fields here, then discard them before the canonical
+  // broker request. They cannot select a principal, tool or app revision.
+  if (!exact(params, ['name', 'arguments', '_meta']) || !record(params._meta)
+      || Object.keys(params._meta).some(key => !['progressToken', 'claudecode/toolUseId'].includes(key))) throw unavailable();
+  for (const [key, value] of Object.entries(params._meta)) {
+    const text = typeof value === 'string' && value.length > 0 && value.length <= 200 && !/[\x00-\x1f\x7f]/.test(value);
+    const number = key === 'progressToken' && Number.isSafeInteger(value);
+    if (!text && !number) throw unavailable();
+  }
+  return { name: params.name, arguments: params.arguments };
+}
+
 async function deadline(operation, close) {
   let timer;
   try {
@@ -87,7 +102,7 @@ async function deadline(operation, close) {
   finally { clearTimeout(timer); }
 }
 
-/** Both peers run under the SAME AppContainer SID. Python remains the authority. */
+/** Peers share the selected worker identity; Python remains the authority. */
 export async function createUiRelay(forward) {
   if (process.platform !== 'win32' || typeof forward !== 'function') throw unavailable();
   const nonce = randomBytes(32).toString('hex');
@@ -144,18 +159,38 @@ async function main() {
   void relay.closed.then(closed);
   void mcp.closed.then(closed);
   mcp.peer.handle('initialize', params => {
-    if (!record(params) || !['2024-11-05', '2025-03-26', '2025-06-18'].includes(params.protocolVersion)) throw unavailable();
+    if (!record(params) || !['2024-11-05', '2025-03-26', '2025-06-18', '2025-11-25'].includes(params.protocolVersion)) throw unavailable();
     return { protocolVersion: params.protocolVersion, capabilities: { tools: {} },
       serverInfo: { name: 'maipa-ui', version: '0.1.0' } };
+  });
+  // Required MCP lifecycle notification. Keep unknown notifications closed;
+  // this acknowledgment carries no authority, capabilities or tool arguments.
+  mcp.peer.onNotify('notifications/initialized', params => {
+    if (params !== undefined && !exact(params, [])) throw unavailable();
   });
   mcp.peer.handle('ping', () => ({}));
   for (const method of ['tools/list', 'tools/call']) {
     mcp.peer.handle(method, async params => {
       if (pending >= 8) throw unavailable();
-      const request = checkedRequest({ method, params });
+      // MCP tools/list has optional params. Canonicalize only omission; null,
+      // arbitrary fields and tool-call arguments retain the closed validator.
+      const request = checkedRequest({ method, params: method === 'tools/list'
+        ? (params === undefined ? {} : params) : toolParams(params) });
       pending++;
       try {
         const result = await deadline(() => relay.peer.request('maipa/ui', { nonce, request }), closed);
+        if (method === 'tools/call' && ['form_list','form_describe','form_get_value','form_get_values',
+          'form_set_value','form_set_values','form_focus','form_submit',
+          'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
+          'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect','flow_run','flow_cancel',
+          'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs','maipa_workflow_select_run'].includes(request.params.name)) {
+          // Public Fancy tools already return MCP results. Preserve refusals;
+          // wrapping an error DTO in isError:false would invent success.
+          if (!record(result) || Object.keys(result).some(key=>!['content','structuredContent','isError'].includes(key))
+            || !Array.isArray(result.content) || (result.isError !== undefined && typeof result.isError !== 'boolean')
+            || result.content.some(item=>!exact(item,['type','text']) || item.type!=='text' || typeof item.text!=='string')) throw unavailable();
+          return result;
+        }
         return method === 'tools/list' ? result : {
           content: [{ type: 'text', text: JSON.stringify(result) }], structuredContent: result, isError: false,
         };

@@ -1,145 +1,282 @@
 [
   {
-    "id": "development-19",
-    "label": "Development update 19",
+    "id": "development-47",
+    "label": "Development update 47",
     "cards": [
       {
-        "title": "Private agent UI tools",
-        "description": "Agent UI requests now keep your account and access boundaries. Provider sign-in and live chat are still in progress."
+        "title": "Remember a model for future connections",
+        "description": "In Agent settings, remember the model your connected provider has confirmed. Your current conversation and unsent message stay in place. The saved choice applies the next time you connect."
+      },
+      {
+        "title": "Choose the provider default again",
+        "description": "Clear a saved model without changing your active connection. If a provider cannot confirm your saved choice, it is kept so you can review it or choose the default before reconnecting."
       }
     ]
   },
   {
-    "id": "development-18",
-    "label": "Development update 18",
+    "id": "development-46",
+    "label": "Development update 46",
     "cards": [
-      { "title": "Manage your clients and entities", "description": "Administrators and preparers can create their own client records, add entities and change display names in Client setup beside the conversation. Changes keep a history, and conflicting edits require a reload before another save." },
-      { "title": "Agent connection is still being built", "description": "Private agent profile storage now has account ownership and isolated-worker checks. Provider sign-in and live conversations remain in progress." }
+      {
+        "title": "Name your agent accounts",
+        "description": "Choose a clear name for your selected account in Agent settings. Keep your existing sign-in, conversation and unsent chat message."
+      },
+      {
+        "title": "Review conflicting account names",
+        "description": "If another window changes the name, review the saved value while keeping your text. Choose which name to use before saving again."
+      }
     ]
   },
   {
-    "id": "development-17",
-    "label": "Development update 17",
+    "id": "development-45",
+    "label": "Development update 45",
     "cards": [
-      { "title": "Manage local users and roles", "description": "Administrators can add local users and update workspace roles and access in Users and access beside the conversation. Changes keep a revision history, conflicting edits require a reload, and the last active administrator stays protected." },
-      { "title": "Agent setup is still in progress", "description": "Private agent accounts keep their own scope. Provider connection and live conversations are still being built." }
+      {
+        "title": "Keep the latest reply in view",
+        "description": "Chat now includes the spacing between messages when measuring its scroll position. Back to latest reaches the newest reply, including when the contextual panel changes size."
+      },
+      {
+        "title": "Keep following while resizing",
+        "description": "Resizing the window keeps the latest reply visible. Scrolling up still pauses following so you can read earlier messages."
+      }
     ]
   },
   {
-    "id": "development-16",
-    "label": "Development update 16",
+    "id": "development-44",
+    "label": "Development update 44",
     "cards": [
-      { "title": "Private storage for future agent work", "description": "Maipa now preserves owned agent-resource records and checks their saved files through backup and restore. Provider account connection and live conversations are still being built." }
+      {
+        "title": "Open common views from the header",
+        "description": "Use the header icons for Agent settings, Clients and, for administrators, User management. They open the existing components directly, even before connecting your agent."
+      },
+      {
+        "title": "Keep your place in the conversation",
+        "description": "Open and close a common view while keeping your unsent message. When connected, the shortcut opens the same contextual panel shared with Maipa."
+      }
     ]
   },
   {
-    "id": "development-15",
-    "label": "Development update 15",
+    "id": "development-43",
+    "label": "Development update 43",
     "cards": [
-      { "title": "Your appearance and work view follow your account", "description": "Choose System, Light or Dark and switch between Client facts and Workspace guide. Your choices now restore after sign-in and in another browser." },
-      { "title": "Reload a changed preference", "description": "If another tab changes your choices or a save cannot be confirmed, Maipa offers an explicit reload of your saved preferences before another change." }
+      {
+        "title": "Open your agent settings",
+        "description": "Ask Maipa to show settings for your supported provider and owned accounts. Private app profile assignment is shown separately from actual connection status."
+      },
+      {
+        "title": "Choose an acknowledged model",
+        "description": "Use the provider’s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
+      }
     ]
   },
   {
-    "id": "development-14",
-    "label": "Development update 14",
+    "id": "development-42",
+    "label": "Development update 42",
     "cards": [
-      { "title": "Start in your browser", "description": "Create your local administrator with a username and password, then continue with the saved account-setup conversation. There is no setup code or file to find." },
-      { "title": "Keep your workspace through app updates", "description": "Local installation storage now stays separate from application code. Administrator maintenance tools can back up and restore saved accounts, setup conversations and pane widths. Existing installations have an explicit migration path that preserves their sign-in state." },
-      { "title": "More setup is still ahead", "description": "Live provider connections, conversations and automated workflows remain in progress. Saved appearance and view preferences are the next storage work." }
+      {
+        "title": "Keep your unsent message",
+        "description": "Your saved draft now returns after reload for the same account, including pasted text and file names. Saving a draft never sends it."
+      },
+      {
+        "title": "Retry without another copy",
+        "description": "A prepared send keeps its original retry identity across reload. Confirmed sends clear only their matching draft; newer typing is kept. File contents still need supported delivery."
+      }
     ]
   },
   {
-    "id": "development-13",
-    "label": "Development update 13",
+    "id": "development-41",
+    "label": "Development update 41",
     "cards": [
-      { "title": "Your pane width follows your account", "description": "Drag the divider or use its keyboard controls to save your pane width. It restores after sign-in and in another browser. Conflicting or unconfirmed saves offer an explicit reload." },
-      { "title": "Change work views alongside your conversation", "description": "Client facts and the workspace guide share the work area while your account setup conversation and unsent reply remain open. Live agent account connection is still being built." }
+      {
+        "title": "Inspect the same saved run",
+        "description": "Maipa can select a saved run and open its details in your workflow component. Your own run choice and detail visibility are saved and restored on reload."
+      },
+      {
+        "title": "Keep failures separate from repairs",
+        "description": "Run history keeps the failed version and its actual result. A repaired publication runs as a new immutable version; selecting history clearly identifies an older run."
+      }
     ]
   },
   {
-    "id": "development-12",
-    "label": "Development update 12",
+    "id": "development-40",
+    "label": "Development update 40",
     "cards": [
-      { "title": "Review your client authority", "description": "Client facts now include recorded financial and workflow authority, with duties, limits, validity and source references. You can revoke your recorded authority and reload its current state. The server checks exact approvals, scope, revisions, expiry and revocation. Financial execution and automated workflow runs are still being built." }
+      {
+        "title": "Authorize your agent in the app",
+        "description": "Open Agent permissions in a client workflow. An administrator can allow their current connection to run, inspect, resume and cancel workflows for that client for up to an hour."
+      },
+      {
+        "title": "Revoke execution when needed",
+        "description": "Revoke the connection permission from the same component. Subsequent agent actions and worker nodes check current access; reauthorizing cannot revive a run whose original grant was revoked."
+      },
+      {
+        "title": "Choose a client by name",
+        "description": "Maipa can discover your available client entities when creating a workflow. Human approvals and answers continue to require you."
+      }
     ]
   },
   {
-    "id": "development-11",
-    "label": "Development update 11",
+    "id": "development-39",
+    "label": "Development update 39",
     "cards": [
-      { "title": "Set up your local Maipa", "description": "New installations can create their administrator in the browser. Your account then has a saved guided conversation for your name, client, currency and reporting basis, with review before saving real client facts. Setup resumes after sign-in. Live agent connection remains a separate setup step." }
+      {
+        "title": "Run your shared workflow",
+        "description": "Publish the saved graph, provide run input, and start it with the local workflow worker. Saved runs show their actual status, node results and outputs."
+      },
+      {
+        "title": "Answer a workflow question",
+        "description": "Approval and input requests appear beside the graph. Your recorded answer resumes the same run; you can cancel a waiting run."
+      },
+      {
+        "title": "Keep execution tied to access",
+        "description": "Maipa can request and inspect runs when its current connection already has the required workflow authority. Unavailable workers, stale graphs and revoked access refuse the operation."
+      }
     ]
   },
   {
-    "id": "development-10",
-    "label": "Development update 10",
+    "id": "development-38",
+    "label": "Development update 38",
     "cards": [
-      { "title": "Reload your client facts", "description": "Reload facts now retries a failed engagement list as well as the current record. The list refreshes without switching away from your selected entity." }
+      {
+        "title": "Build a workflow together",
+        "description": "Ask Maipa to create a workflow draft. The shared Fancy editor shows its nodes and connections, and you can move nodes or edit their settings."
+      },
+      {
+        "title": "Keep shared changes saved",
+        "description": "Your edits and Maipa edits use the same saved draft. Conflicts keep your unsaved graph for review, and reloading restores saved work."
+      },
+      {
+        "title": "Save a workflow version",
+        "description": "Ask Maipa to publish the current draft as a saved version. Publishing saves the definition without starting a run."
+      }
     ]
   },
   {
-    "id": "development-9",
-    "label": "Development update 9",
+    "id": "development-37",
+    "label": "Development update 37",
     "cards": [
-      { "title": "Client facts with a history", "description": "Create private engagements and entities, record known or unknown facts with source references and effective dates, and review earlier assertions. Legal form and tax classification stay separate. Conflicting edits require a reload and review before another save." }
+      {
+        "title": "Fill a client form together",
+        "description": "Ask Maipa to open Client setup and fill its pending names. You can edit the same saved input. Creating a client still requires your Create client action."
+      },
+      {
+        "title": "Keep control of shared edits",
+        "description": "Conflicting edits keep your unsent input for review. A brief notice marks confirmed Maipa edits, and reloading restores saved input without replaying that notice."
+      }
     ]
   },
   {
-    "id": "development-8",
-    "label": "Development update 8",
+    "id": "development-36",
+    "label": "Development update 36",
     "cards": [
-      { "title": "Private connection workers", "description": "Connection checks now run in a separate Windows security boundary. Checks verify their worker has stopped, and private accounts and connection history continue to follow your workspace role and ownership. Live provider setup and conversations are still being built." }
+      {
+        "title": "Understand a failed reply",
+        "description": "Chat can show the provider-reported failure category and reset time in Connection details. Unconfirmed causes stay unconfirmed, and raw provider error text stays private."
+      },
+      {
+        "title": "Keep your draft during a usage limit",
+        "description": "A reported future reset pauses new sends for that account. Your draft remains editable, status survives login, and no reply is retried automatically."
+      }
     ]
   },
   {
-    "id": "development-7",
-    "label": "Development update 7",
+    "id": "development-35",
+    "label": "Development update 35",
     "cards": [
-      { "title": "Sign in to your workspace", "description": "Provisioned workspace members can now sign in and out. Access follows your server-assigned role, while private agent accounts and connection history stay with their owner. Live agent conversations and automated workflows are still being built." }
+      {
+        "title": "Compose smaller, useful pieces",
+        "description": "Maipa can compose compact headings, commentary callouts and a read-only client table in the shared panel using Fancy components."
+      },
+      {
+        "title": "Reopen current client records",
+        "description": "A saved client table keeps your column choice and loads current authorized records when reopened. Failed reloads clear old rows and offer a retry."
+      }
     ]
   },
   {
-    "id": "development-6",
-    "label": "Development update 6",
+    "id": "development-34",
+    "label": "Development update 34",
     "cards": [
-      { "title": "Browser checks before updates", "description": "The development checks now exercise the built workspace in a separate browser, including appearance, mobile panels, release notes and private agent connection checks. Live provider setup, conversations and accounting workflows are still being built." }
+      {
+        "title": "Keep useful views close",
+        "description": "Save a composed panel as your personal pin. Reopen it without losing your conversation or draft, rename or reorder it, and unpin it while keeping its definition history."
+      },
+      {
+        "title": "Shared, confirmed view changes",
+        "description": "Saved-view changes use current ownership, role and revision checks. Maipa waits for confirmed saves, and conflicts offer a reload instead of overwriting another edit."
+      }
     ]
   },
   {
-    "id": "development-5",
-    "label": "Development update 5",
+    "id": "development-33",
+    "label": "Development update 33",
     "cards": [
-      { "title": "Private agent connection checks", "description": "Agent account metadata and connection-check history now follow the signed-in user. Connection checks verify the installed transport without claiming that a provider is logged in. Live account setup and conversations are still being built." }
+      {
+        "title": "Keep chat controls in view",
+        "description": "The message composer stays in view as the window gets shorter. Conversation history scrolls in the space above it, and long drafts use a smaller editor in short windows."
+      }
     ]
   },
   {
-    "id": "development-4",
-    "label": "Development update 4",
+    "id": "development-32",
+    "label": "Development update 32",
     "cards": [
-      { "title": "Agent connection foundation", "description": "The backend now connects Python to the published Prism ACP host, checks user and account ownership, and handles streamed replies and connection failures. Live conversations and provider account setup are still being built." }
+      {
+        "title": "Keep drafts edited during a send",
+        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancy’s published draft-revision fix."
+      }
     ]
   },
   {
-    "id": "development-3",
-    "label": "Development update 3",
+    "id": "development-31",
+    "label": "Development update 31",
     "cards": [
-      { "title": "Builds with a name", "description": "The footer now pairs the release name with its build number, so you can see exactly which update you are viewing. Maipa checks for newer builds every 30 seconds and when you return to the tab." }
+      {
+        "title": "A complete Fancy chat composer",
+        "description": "Chat now uses Fancy PromptInput and its contextual request drawer. Drafts stay editable during sends and survive failed confirmations and provider changes."
+      },
+      {
+        "title": "Read conversations at your pace",
+        "description": "Fancy’s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
+      }
     ]
   },
   {
-    "id": "development-2",
-    "label": "Development update 2",
+    "id": "development-30",
+    "label": "Development update 30",
     "cards": [
-      { "title": "Track app updates", "description": "Maipa now checks for a newer build and offers a refresh when one is available. You choose when to refresh." },
-      { "title": "What's new, whenever you need it", "description": "Use What's new beside the build number to reopen the latest changes. After refreshing, new release notes appear once in this browser for each signed-in account." }
+      {
+        "title": "Fancy content and composer controls",
+        "description": "Agent replies, setup guidance and shared notes use Fancy’s content renderer. The message input uses Fancy’s multiline component while keeping drafts and confirmed sends."
+      },
+      {
+        "title": "Consistent connection controls",
+        "description": "When a connection changes, model choices and sign-in controls stay with the current conversation."
+      }
     ]
   },
   {
-    "id": "development-1",
-    "label": "Workspace foundation",
+    "id": "development-29",
+    "label": "Development update 29",
     "cards": [
-      { "title": "A calm workspace, in both themes", "description": "Conversation and Work area stay together, with System, Light and Dark appearance choices. Your private workspace still requires sign-in; accounting and agent workflows are being built." }
+      {
+        "title": "Choose your agent model",
+        "description": "Choose from models offered by your connected provider. A confirmed change keeps your conversation, draft and shared panel in place."
+      }
+    ]
+  },
+  {
+    "id": "development-28",
+    "label": "Development update 28",
+    "cards": [
+      {
+        "title": "Recover connections after a restart",
+        "description": "A server restart now clears stale connection controls while keeping your accounts, saved chat and unfinished requests."
+      },
+      {
+        "title": "Use your existing Claude sign-in",
+        "description": "Claude checks the account already signed in on this machine. Maipa offers sign-in only when it is needed."
+      }
     ]
   }
 ]

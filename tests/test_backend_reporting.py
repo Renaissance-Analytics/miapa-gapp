@@ -10,11 +10,19 @@ class BackendReportingTests(unittest.TestCase):
         identifier = "tests.test_worker_isolation.WorkerIsolationTests.test_real_worker_and_descendant_can_access_only_their_assigned_files"
         error = OSError("synthetic-private-path-and-token")
         error.operation, error.native_code = "create_process", 5
-        error.__context__ = TimeoutError("synthetic-private-child-detail")
+        error.__context__ = PermissionError(13, "synthetic-private-file-detail")
+        error.__context__.winerror = 5
+        error.__context__.__context__ = TimeoutError("synthetic-private-child-detail")
         record = failure_record(identifier, error, {identifier})
         self.assertEqual(record, {"test": identifier, "chain": [
-            {"kind": "OSError", "operation": "create_process", "native_code": 5}, {"kind": "TimeoutError"}]})
+            {"kind": "OSError", "operation": "create_process", "native_code": 5},
+            {"kind": "PermissionError", "errno": 13, "winerror": 5}, {"kind": "TimeoutError"}]})
         self.assertNotIn("synthetic-private", json.dumps(record))
+        for invalid in (True, -1, 2 ** 40, "synthetic-private-code"):
+            denied = PermissionError("synthetic-private-message")
+            denied.errno = invalid; denied.winerror = invalid
+            self.assertEqual(failure_record("unknown", denied, set()),
+                {"test": "unavailable", "chain": [{"kind": "PermissionError"}]})
 
     def test_unknown_test_exception_metadata_and_cycles_are_bounded_and_redacted(self):
         from tools.backend_reporting import failure_record
@@ -44,8 +52,10 @@ class BackendReportingTests(unittest.TestCase):
         identifier = "tests.test_backend_reporting.BackendReportingTests.test_untrusted_failure_report_fields_cannot_escape_the_ci_sanitizer"
         data = {"tests": 1, "passed": 0, "failed": 1, "skipped": 0, "secret": "synthetic-private",
             "failures": [{"test": identifier, "traceback": "synthetic-private", "chain": [
-                {"kind": "OSError", "operation": "grant_acl", "native_code": 5, "message": "synthetic-private"}]}]}
+                {"kind": "OSError", "operation": "grant_acl", "native_code": 5, "errno": 13, "winerror": 5, "message": "synthetic-private"},
+                {"kind": "PermissionError", "errno": True, "winerror": "synthetic-private-code"}]}]}
         evidence = failure_evidence(data, {identifier})
         self.assertEqual(evidence, {"returncode": 1, "tests": 1, "passed": 0, "failed": 1, "skipped": 0,
-            "failures": [{"test": identifier, "chain": [{"kind": "OSError", "operation": "grant_acl", "native_code": 5}]}]})
+            "failures": [{"test": identifier, "chain": [{"kind": "OSError", "operation": "grant_acl", "native_code": 5, "errno": 13, "winerror": 5},
+                {"kind": "PermissionError"}]}]})
         self.assertNotIn("synthetic-private", json.dumps(evidence))

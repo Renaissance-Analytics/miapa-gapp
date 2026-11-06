@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { canManageClients, readClientCatalog, saveClientCatalog } from '../.test-build/client-catalog.js';
-import { UserPanelModel, validateWorkSchema } from '../.test-build/user-panel.js';
+import { compositionSchema } from '../.test-build/agent-chat.js';
 
 const group = '11111111-1111-4111-8111-111111111111';
 const entity = '22222222-2222-4222-8222-222222222222';
@@ -113,25 +113,8 @@ test('client administration discovery admits preparers and administrators with a
   assert.equal(await canManageClients(async () => new Response('', { status: 403 })), false);
 });
 
-test('client setup is a reserved optional shared screen which preserves saved view choices and principal scope', async () => {
-  const saved = [];
-  const model = new UserPanelModel('1', id => { saved.push(id); return true; });
-  const foreign = new UserPanelModel('2');
-  try {
-    assert.equal((await model.server.callTool('screens_navigate', { screen: 'client-setup' })).isError, true);
-    assert.equal((await model.server.callTool('screens_create', { id: 'client-setup', kind: 'maipa-composition',
-      config: { schema: { id: 'fake-admin', type: 'Maipa.Note', props: { text: 'Impersonation' } } } })).isError, true);
-    model.enableClientAdministration(); model.enableClientAdministration();
-    assert.equal(model.current.views.filter(view => view.id === 'client-setup').length, 1);
-    assert.notEqual((await model.server.callTool('screens_navigate', { screen: 'client-setup' })).isError, true);
-    assert.equal(model.current.active, 'client-setup');
-    assert.deepEqual(saved, []);
-    assert.equal((await foreign.server.callTool('screens_navigate', { screen: 'client-setup' })).isError, true);
-    assert.throws(() => validateWorkSchema({ id: 'fake', type: 'Maipa.ClientCatalog' }));
-    assert.equal((await model.server.callTool('screens_destroy', { id: 'client-setup' })).isError, true);
-    assert.equal((await model.server.callTool('screens_update_content', { id: 'client-setup', partial: { schema: { id: 'x', type: 'Maipa.Note', props: { text: 'x' } } } })).isError, true);
-    model.navigate('workspace-guide');
-    assert.deepEqual(saved, ['workspace-guide']);
-  } finally { model.dispose(); foreign.dispose(); }
-  assert.equal(model.server.listTools().length, 0);
+test('client setup is an on-demand registered component with server-owned bindings', () => {
+  assert.deepEqual(compositionSchema({ id: 'client-setup', type: 'Maipa.ClientCatalog' }), { id: 'client-setup', type: 'Maipa.ClientCatalog' });
+  for (const props of [{ user_id: '2' }, { role: 'administrator' }, { engagement_id: 'foreign' }])
+    assert.throws(() => compositionSchema({ id: 'client-setup', type: 'Maipa.ClientCatalog', props }));
 });

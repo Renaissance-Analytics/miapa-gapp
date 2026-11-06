@@ -9,7 +9,7 @@ OPERATIONS = frozenset({"native", "create_profile", "grant_acl", "attributes", "
     "environment", "create_process", "assign_job", "verify_token", "resume"})
 
 
-def _frame(kind, operation=None, native_code=None, test_line=None):
+def _frame(kind, operation=None, native_code=None, test_line=None, errno=None, winerror=None):
     frame = {"kind": kind if kind in KINDS else "unavailable"}
     if operation in OPERATIONS:
         frame["operation"] = operation
@@ -17,6 +17,12 @@ def _frame(kind, operation=None, native_code=None, test_line=None):
             frame["native_code"] = native_code
     if type(test_line) is int and 1 <= test_line <= 1_000_000:
         frame["test_line"] = test_line
+    # Numeric OS categories locate denied operations without publishing their
+    # messages, filenames or arbitrary exception attributes.
+    if kind in {"OSError", "PermissionError", "FileNotFoundError", "TimeoutError"}:
+        for name, value, limit in (("errno", errno, 4096), ("winerror", winerror, 2 ** 32)):
+            if type(value) is int and 0 <= value < limit:
+                frame[name] = value
     return frame
 
 
@@ -41,7 +47,7 @@ def failure_record(identifier, error, known_tests):
     while isinstance(error, BaseException) and id(error) not in seen and len(chain) < 8:
         seen.add(id(error))
         chain.append(_frame(type(error).__name__, getattr(error, "operation", None), getattr(error, "native_code", None),
-                            _test_line(identifier, error, known_tests)))
+                            _test_line(identifier, error, known_tests), getattr(error, "errno", None), getattr(error, "winerror", None)))
         error = error.__cause__ or error.__context__
     return {"test": identifier if identifier in known_tests else "unavailable", "chain": chain}
 
@@ -83,7 +89,7 @@ def failure_evidence(value, known_tests):
         identifier = row.get("test")
         known = isinstance(identifier, str) and identifier in known_tests
         chain = [_frame(frame.get("kind"), frame.get("operation"), frame.get("native_code"),
-                        frame.get("test_line") if known else None)
+                        frame.get("test_line") if known else None, frame.get("errno"), frame.get("winerror"))
             for frame in frames[:8] if isinstance(frame, dict)] if isinstance(frames, list) else []
         result["failures"].append({"test": identifier if known else "unavailable", "chain": chain})
     return result

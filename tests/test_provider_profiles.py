@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import uuid
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
@@ -23,6 +24,34 @@ from tests.test_install_storage import descriptor
 
 
 class ProviderProfileTests(TestCase):
+    def test_claude_capsule_stages_verified_native_bytes_only_in_its_original_provider_lease(self):
+        import hashlib
+        from backend.maipa.agent_accounts import provider_runtime
+        self.account.provider = 'claude'
+        self.account.save(update_fields=['provider'])
+        reference = self.provision()
+        runtime = Path(__file__).resolve().parents[1]/'backend/agent'
+        native = self.base/'synthetic-native'
+        native.mkdir()
+        payload = b'Synthetic non-executable native artifact'
+        (native/'claude.exe').write_bytes(payload)
+        lock = {'entry': 'claude.exe', 'files': {'claude.exe': {
+            'size': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()}}}
+        with self.lease(reference) as lease, patch.object(provider_runtime, 'claude_lock', return_value=lock), \
+                patch.object(provider_runtime, 'verify_codex', side_effect=AssertionError('Provider fallback refused')):
+            with WorkerCapsule(lease.home.parent, runtime, shutil.which('node'), lease.scope,
+                    'claude', profile_lease=lease, ui_tools=True, provider_runtime=native) as capsule:
+                self.assertEqual(capsule.home, lease.home)
+                self.assertEqual(capsule.profile['provider'], 'claude')
+                binary = Path(capsule.profile['provider_binary'])
+                self.assertEqual(binary, capsule.code/'provider/claude.exe')
+                self.assertEqual(binary.read_bytes(), payload)
+                self.assertTrue((capsule.code/'ui-mcp.mjs').is_file())
+                self.assertTrue((capsule.code/'account.mjs').is_file())
+                base = capsule.base
+            self.assertFalse(base.exists())
+            self.assertTrue(lease.home.is_dir())
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix='maipa-profile-test-')
         self.addCleanup(temporary.cleanup)

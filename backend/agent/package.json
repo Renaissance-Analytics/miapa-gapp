@@ -7,6 +7,6 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@particle-academy/prism-acp": "0.28.0"
+    "@particle-academy/prism-acp": "0.33.1"
   }
 }

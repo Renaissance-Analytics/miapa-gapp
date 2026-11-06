@@ -2,7 +2,7 @@
 
 Maipa mounts the published `@particle-academy/fancy-app-update` detector once
 in its workspace and uses `@particle-academy/fancy-whats-new` for release cards.
-The footer shows the installed release name, build and **What's new** button. Newer deployed
+The compact header shows the installed release name, build and **What's new** button. Newer deployed
 builds offer **Refresh Maipa**; refresh is always the person's choice. There is
 no automatic reload.
 
@@ -26,6 +26,10 @@ so they describe the version the browser actually has. Keep groups newest first
 and retain immutable release IDs. Add a new group for each meaningful delivered
 change, describing only implemented behavior; do not present the whole roadmap
 as finished. The build validates nonempty, distinct release groups and text cards.
+The browser bundle keeps the most recent 20 groups. When adding the next group,
+move the oldest complete group unchanged to `docs/release-history.json`; do not
+reuse its ID or change its historical text. The archive preserves older notes
+without expanding the browser metadata budget.
 The first visit shows the newest group; later loads show missed groups. The
 button reopens the latest cards. Fancy owns selection and its seen cursor.
 

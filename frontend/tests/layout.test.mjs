@@ -16,7 +16,7 @@ test('saved layout reads are bounded same-origin and bound to the expected user'
   assert.equal(observed.options.cache, 'no-store');
   assert.equal(observed.options.redirect, 'error');
   assert.ok(observed.options.signal instanceof AbortSignal);
-  for (const response of [json({ ...snapshot, user_id: '2' }), json({ ...snapshot, split_basis_points: 4501 }),
+  for (const response of [json({ ...snapshot, user_id: '2' }), json({ ...snapshot, split_basis_points: 7201 }),
     json({ ...snapshot, revision: true }), json({ ...snapshot, layout_id: 'not-an-id' }),
     json({ ...snapshot, credential: 'private' }), json(snapshot, 503),
     new Response(' '.repeat(4097)), new Response(JSON.stringify(snapshot), { headers: { 'Content-Type': 'text/html' } })]) {
@@ -91,7 +91,7 @@ test('stale loads and disposed identities cannot publish another users saved wid
   const other = new LayoutController('2', () => {}, async () => json(snapshot));
   await other.load();
   assert.equal(other.current.phase, 'unavailable');
-  assert.equal(other.current.split, 28);
+  assert.equal(other.current.split, 60);
 });
 
 test('a pending commit locks further writes and stale acknowledgements after reload are ignored', async () => {

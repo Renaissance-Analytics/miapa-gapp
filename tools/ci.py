@@ -15,13 +15,55 @@ import time
 
 STAGES = ("alignment", "dependencies", "static", "backend", "frontend", "migrations", "build", "browser")
 ROOT = Path(__file__).resolve().parents[1]
-BROWSER_CASES = ('local-first-run-admin', 'account-chat-resume-and-confirm', 'client-catalog-create-rename-conflict', 'admin-users-create-update-conflict',
-                 'first-run-stays-closed', 'admin-users-restricted-login', 'client-catalog-restricted-scope',
-                 "anonymous-authority-and-build", "fancy-release-controls", "theme-and-reload", "keyboard-divider",
-                 "mobile-panels", "real-login-and-server-role", 'onboarding-user-isolation', "authenticated-account-scope", 'owned-service-storage-private', 'scoped-ui-composition-api', "csrf-and-real-zero-provider-transport",
-                 "intake-initial-load-recovery", 'persistent-chat-work-views', 'preferences-save-conflict-recovery', 'layout-gestures-conflict-recovery', "intake-facts-and-evidence", "intake-history-and-conflicts", 'client-authority-and-revocation', "logout-and-viewer-denial", "intake-user-isolation",
-                 'layout-user-isolation-and-login', 'preferences-user-isolation', 'layout-fresh-browser-restore', 'preferences-fresh-browser-restore',
-                 "no-uncaught-exceptions", "owned-browser-cleanup")
+BROWSER_CASES = (
+    'local-first-run-admin',
+    'account-chat-resume-and-confirm',
+    'client-catalog-create-rename-conflict',
+    'shared-workflow-human-permissions-and-native-run',
+    'shared-workflow-run-selection-and-reload',
+    'admin-users-create-update-conflict',
+    'first-run-stays-closed',
+    'admin-users-restricted-login',
+    'client-catalog-restricted-scope',
+    'anonymous-authority-and-build',
+    'fancy-release-controls',
+    'theme-and-reload',
+    'real-login-and-server-role',
+    'onboarding-user-isolation',
+    'authenticated-account-scope',
+    'owned-service-storage-private',
+    'scoped-ui-composition-api',
+    'csrf-and-real-zero-provider-transport',
+    'common-header-shortcuts',
+    'keyboard-divider',
+    'mobile-panels',
+    'intake-initial-load-recovery',
+    'persistent-chat-work-views',
+    'agent-chat-stream-and-ui-control',
+    'chat-draft-and-space-recovery',
+    'agent-cancel-and-chat-restore',
+    'agent-draft-reload-and-retry',
+    'agent-reconnect-after-transport-loss',
+    'agent-provider-choice-and-account-restore',
+    'agent-settings-and-actual-model-controls',
+    'agent-owned-account-metadata',
+    'agent-future-model-preference',
+    'shared-workflow-editor-and-native-authoring',
+    'shared-workflow-published-run-and-reload',
+    'preferences-save-conflict-recovery',
+    'layout-gestures-conflict-recovery',
+    'intake-facts-and-evidence',
+    'intake-history-and-conflicts',
+    'client-authority-and-revocation',
+    'logout-and-viewer-denial',
+    'intake-user-isolation',
+    'layout-user-isolation-and-login',
+    'preferences-user-isolation',
+    'layout-fresh-browser-restore',
+    'preferences-fresh-browser-restore',
+    'no-uncaught-exceptions',
+    'owned-browser-cleanup',
+)
 
 
 def _positive(value):
@@ -126,10 +168,19 @@ class Commands:
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as expired:
             subprocess.run(["taskkill.exe", "/PID", str(process.pid), "/T", "/F"],
                            capture_output=True, timeout=15, creationflags=subprocess.CREATE_NO_WINDOW)
-            process.wait(timeout=10)
+            try:
+                stdout, stderr = process.communicate(timeout=10)
+            except subprocess.TimeoutExpired as remaining:
+                stdout = remaining.stdout if remaining.stdout is not None else expired.stdout
+                stderr = remaining.stderr if remaining.stderr is not None else expired.stderr
+            def captured(value):
+                return value.decode('utf-8', errors='replace') if isinstance(value, bytes) else value or ''
+            # Retain private diagnostics even when an outer deadline wins. The
+            # stage still fails; raw output never enters the public JSON report.
+            (self.artifacts / 'last-failure.log').write_text(captured(stdout) + captured(stderr), encoding='utf-8')
             raise ValueError("Required command deadline")
         if process.returncode:
             # Raw child logs remain local; sanitized reports alone are artifact candidates.
@@ -148,7 +199,7 @@ class Commands:
             review = json.loads((self.root / "tools/browser-review.json").read_text(encoding="utf-8"))
             if review.get("decision") != "aligned" or tuple(item["id"] for item in review["cases"]) != BROWSER_CASES:
                 raise ValueError("Browser review missing")
-            for name in ("tools/browser.mjs", "tools/check_browser.py", "tools/browser-profile.mjs"):
+            for name in ("tools/browser.mjs", "tools/check_browser.py", "tools/browser-profile.mjs", "tests/fixtures/agent_chat_peer.py"):
                 digest = hashlib.sha256((self.root / name).read_text(encoding="utf-8").encode()).hexdigest()
                 if review["source_sha256"][name] != digest:
                     raise ValueError("Browser source review stale")
@@ -171,7 +222,11 @@ class Commands:
             target = self.artifacts / "backend.json"
             target.unlink(missing_ok=True)
             try:
-                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)])
+                # The complete646-case suite measured686.705s;720s leaves
+                # little headroom for shared-machine process startup. Allocate
+                #900s to the whole stage. Native/RPC/per-test/browser deadlines
+                #and every required case/assertion remain independently fixed.
+                self.command([sys.executable, "-m", "tools.check_backend", "--report", str(target)], timeout=900)
             except ValueError:
                 from tools.alignment import discovered_test_ids
                 from tools.backend_reporting import failure_evidence
@@ -201,7 +256,9 @@ class Commands:
             target = self.artifacts / "browser-result.json"
             target.unlink(missing_ok=True)
             try:
-                output = self.command([sys.executable, "-m", "tools.check_browser"], timeout=180)
+                from tools.check_browser import BROWSER_RUN_SECONDS, BROWSER_PROFILE_RUNS, BROWSER_FIXTURE_OVERHEAD_SECONDS
+                output = self.command([sys.executable, "-m", "tools.check_browser"],
+                    timeout=BROWSER_RUN_SECONDS * BROWSER_PROFILE_RUNS + BROWSER_FIXTURE_OVERHEAD_SECONDS)
             except Exception:
                 if target.is_file():
                     from tools.check_browser import browser_failure_evidence

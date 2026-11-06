@@ -1,0 +1,26 @@
+{
+  "package": "@anthropic-ai/claude-code-win32-x64",
+  "version": "2.1.311",
+  "tarball": "https://registry.npmjs.org/@anthropic-ai/claude-code-win32-x64/-/claude-code-win32-x64-2.1.311.tgz",
+  "integrity": "sha512-fKXnBqsAPxVeIc20kCdzI4GznhuCJxumy1ZbwkyIfgZRsZXKHzMaayrJ/Ro2O+Dfb/s9rG/gAqGkqJCsA3FgJg==",
+  "entry": "claude.exe",
+  "total_bytes": 298871002,
+  "files": {
+    "claude.exe": {
+      "size": 298870432,
+      "sha256": "966f4b2ce962298f5dee6a942e8c47c8f97392e69e728e622319a98b259c0680"
+    },
+    "package.json": {
+      "size": 272,
+      "sha256": "8e6bdefc92bb3f178fac86f5fcd7ac2d8de728beed20483e2f663605073157cb"
+    },
+    "LICENSE.md": {
+      "size": 148,
+      "sha256": "fe8260e23b045e5d1ce9c31d2dfe06a39ec9227a12b1bde4c8c6bcb50e9310c8"
+    },
+    "README.md": {
+      "size": 150,
+      "sha256": "88b447ebed5c162732eb18e9bd51aed947841a82272225a636b84bfbef06eb55"
+    }
+  }
+}

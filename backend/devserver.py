@@ -39,10 +39,14 @@ def main():
     os.environ["DJANGO_SETTINGS_MODULE"] = "backend.maipa.settings"
     from django.core.management import execute_from_command_line
     try:
-        with install_lock(data):
+        with install_lock(data) as installation_guard:
             prepare_files(data)
             execute_from_command_line(["manage.py", "migrate", "--noinput"])
-            execute_from_command_line(["manage.py", "runserver", f"127.0.0.1:{args.port}", "--noreload"])
+            from backend.maipa.agent_accounts.recovery import recover_connections
+            recover_connections(installation_guard)
+            from backend.maipa.workflows.worker import serving
+            with serving(installation_guard,data):
+                execute_from_command_line(["manage.py", "runserver", f"127.0.0.1:{args.port}", "--noreload"])
     except (OSError, ValueError, UnicodeError, RecursionError):
         parser.error("Private installation unavailable or already active")
 

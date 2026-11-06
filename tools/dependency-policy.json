@@ -1,17 +1,18 @@
 {
   "schema": 1,
-  "review": "Explicit Django exception and reviewed published Fancy/Prism closure, including P04 bounded screen/MCP composition and declared Zustand peer; versions/integrities verified without install scripts. Changes require renewed review. A01 adopts integrity-verified Prism ACP0.28.0 with unchanged zero runtime/peer dependencies and opt-in Windows LOCAL pipes; no lifecycle scripts.",
+  "review": "Django exception and published Fancy/Prism closure retained. Prism ACP0.33.1 gitHeade6700cc974503c7118ca61a4071b2e8b2ee89e60/public SRI/all61 installed files independently verified; zero direct/peer/optional runtime dependencies and no install hooks. Native Claude2.1.311/Codex0.163.0 public locks unchanged. Explicit owner2417/user2388 host-mode subscription reuse uses the CLI own machine login; no credential read/copy/import/container lease, unrelated SDK or wider ACL. nativeTools:none/fresh sessions/exact scoped MCP remain, with verified native job containment and truthful absence of OS filesystem isolation. Codex only measured gpt-5.3-codex if account eligible; default exec exposure stays refused. Generic ACP remains open. Targeted react-fancy5.60.0 to5.70.0 public SHA512/gitHead verified; only root package changes in full lock closure, no dependency/peer/engine declarations change. No install script approval or unrelated package update. Exact5.70.1 revision-safe draft patch verified from public SHA512/gitHead; only root Fancy lock entry changes from5.70.0. Dependency/peer/engine closure unchanged; scripts disabled, no package workaround. Targeted agent-integrations0.47.1 to0.50.0 awaited Screens commit/refusal contract: public338-file artifact/SRI/gitHead previously independently verified; installed bytes match. Every other lock entry remains identical; no runtime/peer/engine closure expansion or install hook. Targeted agent-integrations0.50.0 to0.53.0: exact public SRI/gitHead/all installed archive files verified;16 finite awaited-write/lifecycle/multi-form cases pass; no dependency/peer/engine closure or lifecycle scripts added. Every other lock entry is identical. Application integration remains separately tested. Fancy Flow Python0.29.0 wheel/sdist public SHA256 verified; no runtime requirements and installed runtime bytes identical. TypeScript0.81.0 public SHA512/gitHead/all installed138files verified; required Fancy core and React peers already present, optional CMS/AI peers absent and unused. Only Flow and root lock entries added; all existing entries identical. No lifecycle scripts executed, source build, SDK, queue or package modification. Verified targeted Flow Python0.30.1/TS0.82.1 and agent-integrations0.55.1 archives and installed bytes. Only two existing Node package/root lock records changed; all other closure entries identical. Python has no runtime requirements. Install hooks disabled. Fifty exact-public-runtime cases include editor defaults, real fields, whitespace-key refusal, padded keys, typed expressions and legacy expression behavior. Application integration/current runtime history remains separately checked. P04 supported scroll correction: public react-fancy6.6.1 SHA512/all1287 installed files verified; major Button default reviewed, actual submit types already explicit. Required published compatibility patches fancy-app-update0.7.1/all32files and fancy-whats-new0.1.1/all10files widen Fancy peer cap to<7. Required file-commons0.5.0/all10files adds tokenizers/theme helpers with zero runtime dependencies. Exactly root and these four lock records change; no added/removed package or unrelated peer/dev/runtime dependency, no install hooks executed. No Fancy edits/workarounds. Other locks/requirements unchanged; consumer native155 acceptance is separate.",
   "inputs": {
-    "requirements.txt": "b9506f8d86deb747e1677a8380884c2f0ddfb53a9d8ef41f77d2a7ccce769f51",
-    "frontend/package.json": "6e5003d3d0a3b234d12eec6c2b0e41a10cea6622dc7c2d02ee611314f02f298d",
-    "frontend/package-lock.json": "f9ead674c5c6773812cfa9f3064346759abe957ef856e9e4becce80fa56f0b98",
-    "backend/agent/package.json": "6a9fcaddc3cf06c2487157c2904162ca8bb3e14d658eb78166a1db72bfea72c4",
-    "backend/agent/package-lock.json": "c87c8c45d3ebf3973f296f71e4ea0395fbf9ebd2bc867df5a7397f24453ebca4"
+    "requirements.txt": "9f38c5a958aaf73a6f0ffa226619047cad3bc0268a66a6dea0973639c7cc74f1",
+    "frontend/package.json": "556e021bd42c283658ab0b208de29ddd203bea90ee73697ea869640dcf3cf3e0",
+    "frontend/package-lock.json": "15d865b492ad55930b308e746d02df33fcb84c2c61725842ad00cd11f84e775f",
+    "backend/agent/package.json": "4a24c8e411366bd06ea127ab54ec4b877b819173be9bcf3c904107397aaf04a2",
+    "backend/agent/package-lock.json": "2c0a206ba7b52fce0ec7633aa981b229d5a55f79d81b335fbbba93c4ee491e82"
   },
   "python": {
     "django": "5.2.18",
     "asgiref": "3.13.0",
     "sqlparse": "0.6.0",
-    "tzdata": "2026.5"
+    "tzdata": "2026.5",
+    "fancy-flow": "0.30.1"
   }
 }

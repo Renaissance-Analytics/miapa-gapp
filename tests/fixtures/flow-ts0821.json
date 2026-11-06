@@ -1,0 +1,198 @@
+{
+  "typescript": "0.82.1",
+  "fields": {
+    "id": "own/fields-types-trim-blank-duplicate",
+    "config": {
+      "mode": "fields",
+      "fields": [
+        {
+          "key": " person ",
+          "value": "{{ in.name }}"
+        },
+        {
+          "key": "count",
+          "value": "{{ in.count }}"
+        },
+        {
+          "key": "person",
+          "value": "Hello {{ in.name }}"
+        },
+        {
+          "key": "flag",
+          "value": "{{ in.flag }}"
+        },
+        {
+          "key": "",
+          "value": ""
+        }
+      ]
+    },
+    "seed": {
+      "name": "Ada",
+      "count": 7,
+      "flag": false
+    },
+    "expected": {
+      "person": "Hello Ada",
+      "count": 7,
+      "flag": false
+    },
+    "emits": null,
+    "schema": {
+      "$schema": "https://particle.academy/schemas/workflow/v1.json",
+      "version": 1,
+      "graph": {
+        "nodes": [
+          {
+            "id": "t",
+            "kind": "@particle-academy/manual_trigger",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "label": "t",
+            "config": {},
+            "inputs": [],
+            "outputs": [
+              {
+                "id": "out"
+              }
+            ]
+          },
+          {
+            "id": "tf",
+            "kind": "@particle-academy/transform",
+            "position": {
+              "x": 160,
+              "y": 0
+            },
+            "label": "tf",
+            "config": {
+              "mode": "fields",
+              "fields": [
+                {
+                  "key": " person ",
+                  "value": "{{ in.name }}"
+                },
+                {
+                  "key": "count",
+                  "value": "{{ in.count }}"
+                },
+                {
+                  "key": "person",
+                  "value": "Hello {{ in.name }}"
+                },
+                {
+                  "key": "flag",
+                  "value": "{{ in.flag }}"
+                },
+                {
+                  "key": "",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          {
+            "id": "o",
+            "kind": "@particle-academy/output",
+            "position": {
+              "x": 320,
+              "y": 0
+            },
+            "label": "o",
+            "config": {},
+            "inputs": [
+              {
+                "id": "in"
+              }
+            ],
+            "outputs": []
+          }
+        ],
+        "edges": [
+          {
+            "id": "one",
+            "source": "t",
+            "target": "tf"
+          },
+          {
+            "id": "two",
+            "source": "tf",
+            "target": "o"
+          }
+        ]
+      }
+    }
+  },
+  "defaults": {
+    "$schema": "https://particle.academy/schemas/workflow/v1.json",
+    "version": 1,
+    "graph": {
+      "nodes": [
+        {
+          "id": "t",
+          "kind": "@particle-academy/manual_trigger",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "label": "t",
+          "config": {},
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "out"
+            }
+          ]
+        },
+        {
+          "id": "tf",
+          "kind": "@particle-academy/transform",
+          "position": {
+            "x": 160,
+            "y": 0
+          },
+          "label": "tf",
+          "config": {
+            "mode": "fields",
+            "fields": [
+              {
+                "key": "",
+                "value": ""
+              }
+            ]
+          }
+        },
+        {
+          "id": "o",
+          "kind": "@particle-academy/output",
+          "position": {
+            "x": 320,
+            "y": 0
+          },
+          "label": "o",
+          "config": {},
+          "inputs": [
+            {
+              "id": "in"
+            }
+          ],
+          "outputs": []
+        }
+      ],
+      "edges": [
+        {
+          "id": "one",
+          "source": "t",
+          "target": "tf"
+        },
+        {
+          "id": "two",
+          "source": "tf",
+          "target": "o"
+        }
+      ]
+    }
+  }
+}

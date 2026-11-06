@@ -11,10 +11,18 @@ import math
 import os
 from pathlib import Path
 import uuid
+from urllib.parse import urlsplit
+from backend.maipa.turn_failure import reported_failure, validate_failure
 
 
 class AcpError(Exception):
     """Safe error; raw provider messages are never reflected."""
+
+
+class AcpTurnError(AcpError):
+    def __init__(self, failure):
+        super().__init__('Agent turn failed')
+        self.failure = validate_failure(failure)
 
 
 @dataclass(frozen=True)
@@ -41,6 +49,30 @@ def _invalid_number(value):
     raise ValueError("Invalid number")
 
 
+def model_catalog(value):
+    """A bounded provider-owned display catalog; no vendor metadata/authority."""
+    def text(item, maximum):
+        return type(item) is str and bool(item.strip()) and len(item) <= maximum and not any(ord(c) < 32 or ord(c) == 127 for c in item)
+    if type(value) is not dict or set(value) != {'availableModels', 'currentModelId'}:
+        raise ValueError('Model catalog unavailable')
+    available = value['availableModels']
+    if type(available) is not list or len(available) > 128:
+        raise ValueError('Model catalog unavailable')
+    if not available:
+        return None  # A provider without advertised choices remains non-selectable.
+    models, ids = [], set()
+    for item in available:
+        if (type(item) is not dict or not text(item.get('modelId'), 200) or not text(item.get('name'), 120)
+                or item['modelId'] != item['modelId'].strip() or item['modelId'] in ids):
+            raise ValueError('Model catalog unavailable')
+        ids.add(item['modelId'])
+        models.append({'modelId': item['modelId'], 'name': item['name']})
+    current = value['currentModelId']
+    if current is not None and (type(current) is not str or current not in ids):
+        raise ValueError('Model catalog unavailable')
+    return {'availableModels': models, 'currentModelId': current}
+
+
 class AcpClient:
     def __init__(self, command, scope, workspace, *, env=None, timeout=30, budget=1048576, launcher=None, ui_handler=None):
         if (not isinstance(scope, Scope) or not isinstance(command, (list, tuple)) or
@@ -62,6 +94,7 @@ class AcpClient:
         self._ui_handler = ui_handler
         self._callbacks = {}
         self._scope = scope
+        self._provider = None
         self._launcher = launcher  # Trusted server capability, never HTTP configuration.
         self._command = tuple(command)
         self._env = {key: value for key, value in os.environ.items()
@@ -83,6 +116,7 @@ class AcpClient:
                             not Path(profile["workspace"]).is_absolute() or
                             Path(profile["workspace"]).resolve() != self.workspace):
                         raise ValueError("Profile owner")
+                    self._provider = profile.get('provider')
                 except (ValueError, OSError, RecursionError):
                     raise PermissionError("ACP worker profile unavailable") from None
             self._env.update(env)
@@ -91,6 +125,7 @@ class AcpClient:
         self._reader = self._stderr = None
         self._failed = False
         self._pending = {}
+        self._pending_methods = {}
         self._next_id = 0
         self._sessions = {}
         self._turns = set()
@@ -217,7 +252,8 @@ class AcpClient:
         if future.done():
             raise ValueError("Duplicate response")
         if "error" in message:
-            future.set_exception(AcpError("ACP request refused"))
+            failure = reported_failure(message['error']) if self._pending_methods.get(number) == 'session/prompt' else None
+            future.set_exception(AcpTurnError(failure) if failure else AcpError("ACP request refused"))
         else:
             future.set_result(message["result"])
 
@@ -257,6 +293,7 @@ class AcpClient:
         number = self._next_id
         future = asyncio.get_running_loop().create_future()
         self._pending[number] = future
+        self._pending_methods[number] = method
         try:
             # A worker that never reads can fill its input pipe. The deadline
             # covers writing as well as waiting for the correlated response.
@@ -273,6 +310,7 @@ class AcpClient:
             raise
         finally:
             self._pending.pop(number, None)
+            self._pending_methods.pop(number, None)
             if not future.done():
                 future.cancel()
             elif not future.cancelled():
@@ -306,12 +344,93 @@ class AcpClient:
                 await self._terminate()
                 raise AcpError("ACP session unavailable")
             handle = str(uuid.uuid4())
+            if 'models' in result:
+                try:
+                    result = {**result, 'models': model_catalog(result['models'])}
+                except ValueError:
+                    self._fail()
+                    await self._terminate()
+                    raise AcpError('ACP model catalog unavailable') from None
             self._sessions[handle] = result
             return handle
 
+    def model_state(self, scope, session):
+        self._authorize(scope, session)
+        value = self._sessions[session].get('models')
+        return json.loads(json.dumps(value)) if value is not None else None
+
+    async def set_model(self, scope, session, model_id):
+        self._authorize(scope, session)
+        models = self.model_state(scope, session)
+        if not models or type(model_id) is not str or model_id not in {m['modelId'] for m in models['availableModels']}:
+            raise ValueError('Model unavailable')
+        if session in self._turns:
+            raise AcpError('Session busy')
+        self._turns.add(session)
+        try:
+            result = await self._request(scope, 'session/set_model',
+                {'sessionId': self._sessions[session]['sessionId'], 'modelId': model_id}, timeout=min(self._timeout, 10))
+            if type(result) is not dict or result:
+                raise AcpError('Model switch unconfirmed')
+            self._sessions[session]['models'] = {**models, 'currentModelId': model_id}
+        finally:
+            self._turns.discard(session)
+
+    async def subscription_status(self, scope, *, login=False):
+        self._authorize(scope)
+        if type(login) is not bool:
+            raise ValueError('Invalid account operation')
+        result = await self._request(scope, 'maipa/account/login' if login else 'maipa/account/status', {})
+        if (type(result) is not dict or set(result) - {'state', 'login'} or
+                result.get('state') not in ('ready', 'sign_in')):
+            raise AcpError('Account unavailable')
+        if 'login' in result:
+            import re
+            consent = result['login']
+            if result['state'] != 'sign_in' or type(consent) is not dict:
+                raise AcpError('Account unavailable')
+            if self._provider == 'claude':
+                url = consent.get('url')
+                if (set(consent) != {'url', 'accepts_code'} or consent['accepts_code'] is not True
+                        or type(url) is not str or len(url) > 2048 or re.search(r'[\x00-\x20\x7f]', url)):
+                    raise AcpError('Account unavailable')
+                try:
+                    parsed = urlsplit(url)
+                    valid = (parsed.scheme == 'https' and (parsed.netloc, parsed.path) in (
+                        ('claude.com', '/cai/oauth/authorize'), ('claude.ai', '/oauth/authorize'))
+                        and not parsed.fragment)
+                except ValueError:
+                    valid = False
+                if not valid: raise AcpError('Account unavailable')
+            elif (self._provider not in (None, 'codex') or set(consent) != {'url', 'code'} or
+                    consent['url'] != 'https://auth.openai.com/codex/device' or type(consent['code']) is not str or
+                    not re.fullmatch(r'[A-Z0-9]{4,8}-[A-Z0-9]{4,8}', consent['code'])):
+                raise AcpError('Account unavailable')
+        return result
+
+    async def authorize_subscription(self, scope, code):
+        self._authorize(scope)
+        if self._provider != 'claude': raise AcpError('Account unavailable')
+        if (type(code) is not str or not code or len(code) > 2048
+                or any(ord(c) <= 32 or ord(c) == 127 for c in code)):
+            raise ValueError('Invalid account operation')
+        result = await self._request(scope, 'maipa/account/authorize', {'code': code})
+        if type(result) is not dict or result != {'state': 'sign_in'}:
+            raise AcpError('Account unavailable')
+        return result
+
+    async def native_status(self, scope, session):
+        """Closed startup status for the application's current native adapter."""
+        self._authorize(scope, session)
+        result = await self._request(scope, 'maipa/native/status', {}, timeout=min(self._timeout, 5))
+        if (type(result) is not dict or set(result) != {'state'} or
+                type(result['state']) is not str or result['state'] not in ('starting', 'ready', 'unavailable')):
+            raise AcpError('Native session unavailable')
+        return result['state']
+
     def session_details(self, scope, session):
         self._authorize(scope, session)
-        return self._sessions[session].copy()
+        return json.loads(json.dumps(self._sessions[session]))
 
     async def prompt(self, scope, session, text):
         self._authorize(scope, session)

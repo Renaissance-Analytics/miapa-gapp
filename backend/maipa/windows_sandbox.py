@@ -40,8 +40,22 @@ class _ProcessInfo(c.Structure):
     _fields_ = [("process", w.HANDLE), ("thread", w.HANDLE), ("pid", w.DWORD), ("tid", w.DWORD)]
 
 
+class _ProcessEntry(c.Structure):
+    _fields_ = [('size', w.DWORD), ('usage', w.DWORD), ('pid', w.DWORD),
+        ('heap', c.c_size_t), ('module', w.DWORD), ('threads', w.DWORD),
+        ('parent', w.DWORD), ('priority', w.LONG), ('flags', w.DWORD), ('name', w.WCHAR * 260)]
+
+
 class _SecurityCapabilities(c.Structure):
     _fields_ = [("sid", c.c_void_p), ("capabilities", c.c_void_p), ("count", w.DWORD), ("reserved", w.DWORD)]
+
+
+class _SidAndAttributes(c.Structure):
+    _fields_ = [('sid', c.c_void_p), ('attributes', w.DWORD)]
+
+
+class _TokenGroups(c.Structure):
+    _fields_ = [('count', w.DWORD), ('groups', _SidAndAttributes * 1)]
 
 
 class _BasicLimits(c.Structure):
@@ -83,6 +97,7 @@ class _Api:
         define(u, "DestroyEnvironmentBlock", [c.c_void_p])
         define(k, "GetCurrentProcess", [], w.HANDLE)
         define(a, "ConvertSidToStringSidW", [c.c_void_p, c.POINTER(w.LPWSTR)])
+        define(a, 'ConvertStringSidToSidW', [w.LPCWSTR, c.POINTER(c.c_void_p)])
         define(a, "FreeSid", [c.c_void_p], c.c_void_p)
         define(a, "OpenProcessToken", [w.HANDLE, w.DWORD, c.POINTER(w.HANDLE)])
         define(a, "GetTokenInformation", [w.HANDLE, c.c_int, c.c_void_p, w.DWORD, c.POINTER(w.DWORD)])
@@ -104,6 +119,10 @@ class _Api:
         define(k, "TerminateProcess", [w.HANDLE, w.UINT])
         define(k, "CloseHandle", [w.HANDLE])
         define(k, "OpenProcess", [w.DWORD, w.BOOL, w.DWORD], w.HANDLE)
+        define(k, 'CreateToolhelp32Snapshot', [w.DWORD, w.DWORD], w.HANDLE)
+        define(k, 'Process32FirstW', [w.HANDLE, c.POINTER(_ProcessEntry)])
+        define(k, 'Process32NextW', [w.HANDLE, c.POINTER(_ProcessEntry)])
+        define(k, 'QueryFullProcessImageNameW', [w.HANDLE, w.DWORD, w.LPWSTR, c.POINTER(w.DWORD)])
 
 
 def _checked(value):
@@ -271,10 +290,14 @@ class _NativeProcess:
 
 
 class WindowsSandbox:
-    def __init__(self, scope, root, *, writable, readonly, installation_id):
+    _appcontainer = True
+    def __init__(self, scope, root, *, writable, readonly, installation_id, internet=False):
         if not isinstance(scope, Scope) or not isinstance(installation_id, str) or not 1 <= len(installation_id) <= 200:
             raise SandboxUnavailable("Worker identity unavailable")
         self.scope, self.root = scope, physical_path(root)
+        if type(internet) is not bool:
+            raise SandboxUnavailable('Worker network authority unavailable')
+        self.internet = internet
         self.writable = tuple(physical_path(path) for path in writable)
         self.readonly = tuple(physical_path(path) for path in readonly)
         paths = (*self.writable, *self.readonly)
@@ -314,6 +337,14 @@ class WindowsSandbox:
                 self._sid_string = value.value
             finally:
                 self.api.kernel.LocalFree(c.cast(value, c.c_void_p))
+            operation = 'effective_temp'
+            # Windows redirects each container's host TEMP into its own fresh
+            # OS profile. Provision that exact profile, never a shared parent.
+            profile = Path(_windows_paths(self.api)['LOCALAPPDATA']) / 'Packages' / self.profile_name
+            physical_path(profile)
+            self.effective_temp = profile / 'AC' / 'Temp'
+            self.effective_temp.mkdir(parents=True, exist_ok=True)
+            physical_path(self.effective_temp)
             operation = "grant_acl"
             self._acl(self.root, "(X,RA)")
             for path in self.readonly:
@@ -341,6 +372,25 @@ class WindowsSandbox:
             _checked(a.GetTokenInformation(token, 31, buffer, size.value, c.byref(size)))
             native_sid = c.cast(buffer, c.POINTER(c.c_void_p)).contents.value
             _checked(a.EqualSid(native_sid, self.sid))
+            # Verify the exact trusted network grant before resuming the suspended process.
+            a.GetTokenInformation(token, 30, None, 0, c.byref(size))
+            if not 4 <= size.value <= 4096:
+                raise SandboxUnavailable('Worker capability token unavailable')
+            groups_buffer = c.create_string_buffer(size.value)
+            _checked(a.GetTokenInformation(token, 30, groups_buffer, size.value, c.byref(size)))
+            count = c.cast(groups_buffer, c.POINTER(w.DWORD)).contents.value
+            if count != int(self.internet):
+                raise SandboxUnavailable('Worker capability token unavailable')
+            if self.internet:
+                expected = c.c_void_p()
+                _checked(a.ConvertStringSidToSidW('S-1-15-3-1', c.byref(expected)))
+                try:
+                    group = c.cast(groups_buffer, c.POINTER(_TokenGroups)).contents.groups[0]
+                    _checked(a.EqualSid(group.sid, expected))
+                    if group.attributes != 4:
+                        raise SandboxUnavailable('Worker capability token unavailable')
+                finally:
+                    k.LocalFree(expected)
             inside = w.BOOL()
             _checked(k.IsProcessInJob(process, job, c.byref(inside)))
             _checked(inside.value)
@@ -351,15 +401,24 @@ class WindowsSandbox:
         import msvcrt
         k, pi, attributes, job = self.api.kernel, _ProcessInfo(), None, None
         descriptors = []
+        internet_sid = c.c_void_p()
         operation = "attributes"
         try:
             size = c.c_size_t()
-            k.InitializeProcThreadAttributeList(None, 2, 0, c.byref(size))
+            attribute_count = 2 if self._appcontainer else 1
+            k.InitializeProcThreadAttributeList(None, attribute_count, 0, c.byref(size))
             buffer = c.create_string_buffer(size.value)
             attributes = c.cast(buffer, c.c_void_p)
-            _checked(k.InitializeProcThreadAttributeList(attributes, 2, 0, c.byref(size)))
+            _checked(k.InitializeProcThreadAttributeList(attributes, attribute_count, 0, c.byref(size)))
             security = _SecurityCapabilities(self.sid, None, 0, 0)
-            _checked(k.UpdateProcThreadAttribute(attributes, 0, 0x20009, c.byref(security), c.sizeof(security), None, None))
+            if self.internet:
+                # Internet client only: no private-network, server or loopback exemption.
+                _checked(self.api.advapi.ConvertStringSidToSidW('S-1-15-3-1', c.byref(internet_sid)))
+                capability = _SidAndAttributes(internet_sid, 4)
+                security.capabilities = c.cast(c.pointer(capability), c.c_void_p)
+                security.count = 1
+            if self._appcontainer:
+                _checked(k.UpdateProcThreadAttribute(attributes, 0, 0x20009, c.byref(security), c.sizeof(security), None, None))
             operation = "pipes"
             input_read, input_write = os.pipe()
             output_read, output_write = os.pipe()
@@ -381,7 +440,7 @@ class WindowsSandbox:
             operation = "environment"
             child_env = _windows_paths(self.api)
             child_env.update({key: value for key, value in env.items() if key.upper() in {"PATH", "SYSTEMROOT", "WINDIR", "MAIPA_ACP_PROFILE"}})
-            child_env.update(TEMP=str(cwd), TMP=str(cwd))
+            child_env.update(TEMP=str(self.effective_temp), TMP=str(self.effective_temp))
             block = c.create_unicode_buffer("\0".join(key + "=" + value for key, value in sorted(child_env.items(), key=lambda pair: pair[0].upper())) + "\0\0")
             operation = "create_process"
             _checked(k.CreateProcessW(command[0], c.create_unicode_buffer(subprocess.list2cmdline(command)), None, None, True,
@@ -397,6 +456,8 @@ class WindowsSandbox:
                 os.close(fd)
                 descriptors.remove(fd)
             child = _NativeProcess(self.api, pi, job, _PipeWriter(input_write, limit), _PipeReader(output_read, limit), _PipeReader(error_read, limit))
+            if not self._appcontainer:
+                child.isolation = 'windows-host-user'
             descriptors.clear()
             job = pi.process = None
             return child
@@ -409,6 +470,8 @@ class WindowsSandbox:
                 k.WaitForSingleObject(pi.process, 5000)
             raise error from None
         finally:
+            if internet_sid:
+                self.api.kernel.LocalFree(internet_sid)
             if pi.thread: k.CloseHandle(pi.thread)
             if pi.process: k.CloseHandle(pi.process)
             if job: k.CloseHandle(job)
@@ -458,6 +521,56 @@ class WindowsSandbox:
         self.close()
 
 
+class WindowsHostWorker(WindowsSandbox):
+    """Explicit local-user mode, with a kill-on-close job, NOT a file sandbox.
+
+    The native CLI alone accesses its existing machine subscription. No token
+    file, container ACL grant or credential copy is involved. This capability
+    is constructed only by the trusted original-account launcher.
+    """
+    _appcontainer = False
+
+    def __init__(self, scope, workspace):
+        if not isinstance(scope, Scope):
+            raise SandboxUnavailable('Worker identity unavailable')
+        self.scope, self.workspace = scope, physical_path(workspace)
+        self.writable = (self.workspace,)
+        self.api, self.sid, self.process = _Api(), c.c_void_p(), None
+        self.internet, self.revoked, self._created = False, False, False
+        self.host_token_verified = False
+        # The OS environment block supplies the actual process user's paths,
+        # including under scrubbed CI; request/profile input cannot override it.
+        paths = _windows_paths(self.api)
+        self.effective_temp = physical_path(Path(paths['LOCALAPPDATA']) / 'Temp')
+
+    def __enter__(self):
+        if self._created or self.revoked:
+            raise SandboxUnavailable('Worker already initialized')
+        self._created = True
+        return self
+
+    def _verify_token(self, process, job):
+        a, k, token = self.api.advapi, self.api.kernel, w.HANDLE()
+        _checked(a.OpenProcessToken(process, 0x8, c.byref(token)))
+        try:
+            flag, size = w.DWORD(), w.DWORD()
+            _checked(a.GetTokenInformation(token, 29, c.byref(flag), c.sizeof(flag), c.byref(size)))
+            if flag.value != 0:
+                raise SandboxUnavailable('Host worker token unavailable')
+            inside = w.BOOL()
+            _checked(k.IsProcessInJob(process, job, c.byref(inside)))
+            _checked(inside.value)
+            self.host_token_verified = True
+        finally:
+            k.CloseHandle(token)
+
+    def close(self):
+        if self.process is not None and self.process.returncode is None:
+            self.process.kill()
+            self.process._finish()
+        self._created, self.revoked = False, True
+
+
 class ProcessWitness:
     """Read-only handle evidence; a recycled PID cannot replace this process."""
     def __init__(self, pid):
@@ -476,6 +589,105 @@ class ProcessWitness:
 
     def __exit__(self, *args):
         self.api.kernel.CloseHandle(self.handle)
+
+
+def wait_runtime_exit(roots):
+    """Read-only five-second stop proof for owned staged executables/descendants.
+
+    Trusted restart consumer only, under installation AND profile locks. Never
+    kills a PID. Open handles prevent PID reuse from replacing the observed
+    process. Image paths are used only for exact owned-root comparisons and
+    never returned/logged; an uninspectable relevant process fails closed.
+    """
+    roots = tuple(physical_path(root) for root in roots)
+    if not roots:
+        return
+    api, deadline = _Api(), time.monotonic() + 5
+    k = api.kernel
+    names = {'node.exe', 'claude.exe', 'codex.exe'}
+    for root in roots:
+        for folder in ('code', 'supervisor'):
+            for path in (root/folder).rglob('*'):
+                if path.suffix.lower() == '.exe':
+                    names.add(path.name.lower())
+
+    def entries():
+        snapshot = k.CreateToolhelp32Snapshot(2, 0)
+        if not snapshot or snapshot == c.c_void_p(-1).value:
+            raise SandboxUnavailable('Worker restart stop unverified')
+        try:
+            entry = _ProcessEntry(); entry.size = c.sizeof(entry)
+            rows = []
+            available = k.Process32FirstW(snapshot, c.byref(entry))
+            while available:
+                rows.append((entry.pid, entry.parent, entry.name.lower()))
+                if len(rows) > 32768 or time.monotonic() >= deadline:
+                    raise SandboxUnavailable('Worker restart stop unverified')
+                available = k.Process32NextW(snapshot, c.byref(entry))
+            if c.get_last_error() != 18:  # ERROR_NO_MORE_FILES
+                raise SandboxUnavailable('Worker restart stop unverified')
+            return rows
+        finally:
+            _checked(k.CloseHandle(snapshot))
+
+    def open_process(pid):
+        handle = k.OpenProcess(0x101000, False, pid)  # query-limited + synchronize only
+        if not handle:
+            if c.get_last_error() == 87:  # process vanished after the snapshot
+                return None
+            raise SandboxUnavailable('Worker restart stop unverified')
+        return handle
+
+    while time.monotonic() < deadline:
+        rows, owned = entries(), {}
+        try:
+            for pid, _, name in rows:
+                if time.monotonic() >= deadline:
+                    raise SandboxUnavailable('Worker restart stop unverified')
+                if name not in names and not (name.startswith('prism-acp-supervisor-') and name.endswith('.exe')):
+                    continue
+                handle = open_process(pid)
+                if not handle:
+                    continue
+                try:
+                    if k.WaitForSingleObject(handle, 0) == 0:
+                        continue
+                    buffer = c.create_unicode_buffer(32768); size = w.DWORD(len(buffer))
+                    if not k.QueryFullProcessImageNameW(handle, 0, buffer, c.byref(size)):
+                        if k.WaitForSingleObject(handle, 0) == 0:
+                            continue
+                        raise SandboxUnavailable('Worker restart stop unverified')
+                    image = Path(buffer.value)
+                    if any(image.is_relative_to(root) for root in roots):
+                        owned[pid] = handle; handle = None
+                finally:
+                    if handle:
+                        _checked(k.CloseHandle(handle))
+            # Observe descendants too, even if their image lives outside the
+            # capsule. A snapshot parent ambiguity can only refuse recovery;
+            # there is no termination authority in this read-only probe.
+            changed = True
+            while changed:
+                if time.monotonic() >= deadline:
+                    raise SandboxUnavailable('Worker restart stop unverified')
+                changed = False
+                for pid, parent, _ in rows:
+                    if parent in owned and pid not in owned:
+                        handle = open_process(pid)
+                        if handle:
+                            owned[pid] = handle; changed = True
+            if not owned:
+                return
+            for handle in owned.values():
+                remaining = deadline-time.monotonic()
+                if remaining <= 0 or k.WaitForSingleObject(handle, int(remaining*1000)) != 0:
+                    raise SandboxUnavailable('Worker restart stop unverified')
+        finally:
+            for handle in owned.values():
+                _checked(k.CloseHandle(handle))
+        # Re-snapshot after all observed handles exit; a last child may have
+        # been created during the first snapshot. Locks exclude a new consumer.
+    raise SandboxUnavailable('Worker restart stop unverified')
 
 
 def remove_abandoned_profile(name):

@@ -1,5 +1,8 @@
 # Maipa
 
+The current agent-first integration is described in [Agent and shared shell](docs/agent-chat.md).
+Chat is the only fixed view; reusable components are presented on demand by the in-app agent.
+
 My AI Professional Accountant. Product repository spelling: `miapa-gapp`.
 
 This public repository contains a Python/Django API foundation and a TypeScript
@@ -12,8 +15,10 @@ not a usable accounting product or a release candidate.
 
 ## Check the backend
 
-Use Python 3.13 in an isolated environment. The only runtime distributions are
-the expressly allowed Django and its required dependencies, pinned by wheel hash.
+Use Python 3.13 in an isolated environment. Runtime distributions are the
+expressly allowed Django closure and published Fancy Flow, pinned by wheel hash.
+The [workflow foundation](docs/workflows.md) describes its current internal scope
+and remaining editor/agent/worker integration.
 
 ```powershell
 python -m venv .venv
@@ -139,9 +144,9 @@ build-identity contract. Keep these notes current as application work progresses
 
 The shared bootstrap pipeline is now `tools.ci`: see [CI checks](docs/ci.md)
 for locked environment preparation, alignment-first stage ordering, candidate
-evidence and the final isolated native-browser check. The GitHub workflow calls
-this same entrypoint on Windows2025. The approved bootstrap has hosted green
-evidence; changed P01 source still needs its own local and hosted candidate checks.
+evidence and the final isolated native-browser check. CI is local only: each PR
+merges after a clean local `python -m tools.ci` pass on its exact head commit and
+a privacy scan of the commits being pushed. There is no hosted workflow.
 
 The backend includes an application-owned Python ACP client and a Node host
 using exact published Prism ACP0.28.0. Authenticated transport checks now run

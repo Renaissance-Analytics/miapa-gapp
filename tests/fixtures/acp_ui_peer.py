@@ -1,11 +1,15 @@
 """Synthetic bidirectional ACP peer; no provider, credentials or model call."""
 import json
 import sys
+from pathlib import Path
 
 
 def send(value):
     print(json.dumps({'jsonrpc': '2.0', **value}), flush=True)
 
+
+if len(sys.argv) == 2:
+    Path(sys.argv[1]).write_bytes(b'ready')
 
 for line in sys.stdin:
     frame = json.loads(line)

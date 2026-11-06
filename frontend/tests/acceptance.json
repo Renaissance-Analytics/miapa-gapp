@@ -37,9 +37,9 @@
           "kind": "positive",
           "given": "An anonymous session in the approved A plus dark-mode shell",
           "when": "Render the real React workspace to markup",
-          "then": "Keep both named panels, Fancy's labelled separator at28percent, System/Light/Dark controls and separate preference keys",
+          "then": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
           "tests": [
-            "workspace.test.mjs#workspace keeps two named panels and the published accessible splitter",
+            "workspace.test.mjs#workspace starts with chat space and no empty work panel or fixed navigation",
             "workspace.test.mjs#workspace exposes System, Light and Dark choices without fake finance or provider controls",
             "workspace.test.mjs#theme storage is separate for each authenticated user and the signed-out workspace"
           ]
@@ -462,52 +462,6 @@
       ]
     },
     {
-      "id": "P04-WORK-VIEWS",
-      "risk": "Unbounded or unvalidated agent view documents can inject code, bind foreign data or leak a prior principals catalog.",
-      "scenarios": [
-        {
-          "id": "P04-WORK-VIEWS.composition",
-          "kind": "positive",
-          "given": "The published screen bridge and approved work-view catalog",
-          "when": "Create navigate update and remove a schema-driven work view",
-          "then": "The controlled active view and schema change through actual package tools and the real panel renders a Fancy screen",
-          "tests": [
-            "user-panel.test.mjs#published screen bridge creates navigates updates and removes bounded work views"
-          ]
-        },
-        {
-          "id": "P04-WORK-VIEWS.validation",
-          "kind": "negative",
-          "given": "An untrusted proposed view document",
-          "when": "Use arbitrary components, unsafe props, foreign-owner hints, duplicate IDs or unbounded structures",
-          "then": "Reject the document before rendering while accepting a registered bounded composition",
-          "tests": [
-            "user-panel.test.mjs#schema validation rejects arbitrary code bindings unsafe props and unbounded documents"
-          ]
-        },
-        {
-          "id": "P04-WORK-VIEWS.isolation",
-          "kind": "negative",
-          "given": "Two independent mounted principals and a private generated view",
-          "when": "Make invalid bridge changes or navigate from the other principal, then dispose the first",
-          "then": "Invalid operations preserve the complete catalog, other users cannot enumerate or select the view, and disposed tools are withdrawn",
-          "tests": [
-            "user-panel.test.mjs#invalid bridge changes preserve the current catalog and never gain another principals views"
-          ]
-        },
-        {
-          "id": "P04-WORK-VIEWS.bounds",
-          "kind": "negative",
-          "given": "A validated view and mutable caller-owned document",
-          "when": "Mutate the input after acceptance and exceed the eight-view catalog bound",
-          "then": "The accepted schema remains unchanged and the rejected ninth view changes no state",
-          "tests": [
-            "user-panel.test.mjs#accepted schema is copied and view quotas and reserved builtins remain enforced"
-          ]
-        }
-      ]
-    },
-    {
       "id": "P05-PREFERENCES-UI",
       "risk": "Wrong-user cosmetic state, lost writes, false saved results or divergent human/agent navigation.",
       "scenarios": [
@@ -572,21 +526,11 @@
           ]
         },
         {
-          "id": "P05-PREFERENCES-UI.7",
-          "kind": "positive",
-          "given": "The existing private published screens bridge and a personal-preference navigation gate",
-          "when": "Navigate from the human model and bridge, then restore saved built-in state",
-          "then": "Both navigation paths use the same gate and accepted built-in handles; restoration updates controlled state without writing and rejects arbitrary handles.",
-          "tests": [
-            "preferences.test.mjs#human and published screen navigation share the preference boundary and restore never writes"
-          ]
-        },
-        {
           "id": "P05-PREFERENCES-UI.8",
           "kind": "negative",
           "given": "An authenticated mount before its server preferences load",
           "when": "Render the workspace",
-          "then": "Show honest loading state, disable appearance edits and avoid provider/finance readiness claims.",
+          "then": "Expose loading through controlled state, disable appearance edits, retain the actual chat composer and render no fixed guide or redundant loading banner",
           "tests": [
             "preferences.test.mjs#authenticated workspace exposes loading and recovery state before allowing preference edits"
           ]
@@ -635,16 +579,6 @@
           "then": "Safe failure categories remain distinct; malformed receipts never confirm save and unsafe input sends no request",
           "tests": [
             "admin-users.test.mjs#conflicts denial bad receipts and authority-shaped choices never claim a saved change"
-          ]
-        },
-        {
-          "id": "P06-ACCESS-UI.shared-view",
-          "kind": "positive",
-          "given": "One mounted principal with the optional administrator view",
-          "when": "Use the controlled administrator client or published shared screen bridge",
-          "then": "Only one fixed admin screen is added; shared navigation preserves work preferences and arbitrary schemas/reserved-ID impersonation stay refused",
-          "tests": [
-            "user-panel.test.mjs#administration is a fixed optional shared view without changing saved work preferences"
           ]
         }
       ]
@@ -716,11 +650,1138 @@
         {
           "id": "P06-CLIENT-CATALOG-UI-01-07",
           "kind": "negative",
-          "given": "Separate mounted principals and the actual published screens bridge",
-          "when": "Try reserved view impersonation, then enable/navigate the fixed client view and attempt content mutation",
-          "then": "Only the fixed optional view can be shared by its own principal; arbitrary schema, reserved creation, mutation and deletion refuse while saved work preference stays unchanged",
+          "given": "A server-selected registered client component",
+          "when": "Validate its authored schema and attempt owner role or entity props",
+          "then": "Accept the registered leaf with its stable handle and refuse every model-selected data or authority binding",
           "tests": [
-            "client-catalog.test.mjs#client setup is a reserved optional shared screen which preserves saved view choices and principal scope"
+            "client-catalog.test.mjs#client setup is an on-demand registered component with server-owned bindings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-SHARED-SURFACE",
+      "risk": "A contextual composition may inject executable content, leak authority bindings, lose stable handles or report a write before its server acknowledgement.",
+      "scenarios": [
+        {
+          "id": "A01-SHARED-SURFACE.render",
+          "kind": "positive",
+          "given": "A bounded authored composition from the shared server snapshot",
+          "when": "Render the actual Fancy surface and dismiss it",
+          "then": "Render the stable user-scoped Fancy screen with escaped commentary and no fixed navigation; a null composition renders nothing",
+          "tests": [
+            "agent-surface.test.mjs#Fancy renders the controlled authored composition without fixed navigation or executable text"
+          ]
+        },
+        {
+          "id": "A01-SHARED-SURFACE.schema",
+          "kind": "negative",
+          "given": "Untrusted component types, props, IDs or structures",
+          "when": "Validate the composition before Fancy sees it",
+          "then": "Refuse executable types/props, foreign selectors, repeated controls, duplicate IDs, overlong notes and oversized trees; recognized admin components still require server authority",
+          "tests": [
+            "agent-surface.test.mjs#composition validation refuses code selectors repeated controls duplicate IDs and oversized trees"
+          ]
+        },
+        {
+          "id": "A01-SHARED-SURFACE.copy",
+          "kind": "positive",
+          "given": "Caller-owned schema data with authored stable handles",
+          "when": "Accept it then mutate the original object",
+          "then": "Retain the exact accepted text and authored handle without a mutable alias",
+          "tests": [
+            "agent-surface.test.mjs#accepted composition is detached from caller-owned schema and preserves stable handles"
+          ]
+        },
+        {
+          "id": "A01-SHARED-SURFACE.receipt",
+          "kind": "negative",
+          "given": "A private published Human+ tool host bound to one principal and composition",
+          "when": "Call stale/foreign controls, await a valid write receipt, then dispose the host",
+          "then": "Refuse stale or authority-shaped controls without a write; do not acknowledge the valid close before its exact owned server receipt; withdraw disposed tools",
+          "tests": [
+            "agent-surface.test.mjs#published Human+ host awaits the owned server receipt and rejects stale foreign or disposed controls"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-CHAT-CLIENT",
+      "risk": "Malformed streamed state can invent readiness, lose UTF-8 boundaries or keep processing after revoked authority.",
+      "scenarios": [
+        {
+          "id": "A01-CHAT-CLIENT.state",
+          "kind": "negative",
+          "given": "An empty offline state or forged phase/revision/message role",
+          "when": "Parse a conversation response",
+          "then": "Keep empty state free of predefined panels and false provider readiness; refuse malformed fields",
+          "tests": [
+            "agent-chat.test.mjs#an empty conversation has no predefined panel and never claims a provider connection"
+          ]
+        },
+        {
+          "id": "A01-CHAT-CLIENT.stream",
+          "kind": "positive",
+          "given": "A UTF-8 SSE stream split at every byte followed by a revocation frame",
+          "when": "Consume frames through the production parser",
+          "then": "Deliver one exact Unicode state and stop on session revocation",
+          "tests": [
+            "agent-chat.test.mjs#stream parsing survives split UTF-8 and frames and stops after revocation"
+          ]
+        },
+        {
+          "id": "A01-CHAT-CLIENT.composition",
+          "kind": "negative",
+          "given": "An authored server composition or an executable iframe schema",
+          "when": "Parse the shared composition",
+          "then": "Preserve the authored handle and refuse executable UI before rendering",
+          "tests": [
+            "agent-chat.test.mjs#server composition preserves authored handles and rejects executable props"
+          ]
+        },
+        {
+          "id": "A01-CHAT-CLIENT.reconnect",
+          "kind": "recovery",
+          "given": "A disconnected client with a stopped saved worker or an already active owned worker",
+          "when": "Explicitly reconnect using a fresh server snapshot and its current revision",
+          "then": "Keep saved messages; start only offline/unavailable workers with current actor/CSRF/revision, leave active workers intact and do not retry a conflict",
+          "tests": [
+            "agent-chat.test.mjs#reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-PROVIDER-CHOICE-UI",
+      "risk": "UI assumptions may reroute stale state, accept unsafe login links or connect an unsupported provider.",
+      "scenarios": [
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.1",
+          "kind": "positive",
+          "given": "A new account selection has a lower local chat revision than the previous account.",
+          "when": "State is ordered and malformed epochs/IDs/duplicate choices/commands are parsed.",
+          "then": "The new selection wins, old-selection state cannot replace it, the third-provider identity survives, and malformed state is rejected.",
+          "tests": [
+            "agent-chat.test.mjs#provider-neutral state orders switches before per-account chat revisions and rejects malformed choices"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.2",
+          "kind": "positive",
+          "given": "A selected independent provider is in sign-in phase.",
+          "when": "HTTPS challenges with optional provider codes and hostile URL/code variants arrive.",
+          "then": "Provider-neutral HTTPS challenges survive; unsafe schemes, URL credentials, control/overbudget codes and out-of-phase login are rejected.",
+          "tests": [
+            "agent-chat.test.mjs#selected-provider sign-in accepts bounded HTTPS challenges without a vendor-specific URL or code format"
+          ]
+        },
+        {
+          "id": "A01-PROVIDER-CHOICE-UI.3",
+          "kind": "negative",
+          "given": "An owned selected provider reports unavailable support.",
+          "when": "Reconnect reads current state.",
+          "then": "Only one GET occurs; the selected provider is retained and no connect POST or fallback occurs.",
+          "tests": [
+            "agent-chat.test.mjs#an unsupported selected provider is retained without silently starting a different provider"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "K06-BROWSER-GRACEFUL-CLOSE",
+      "risk": "A browser can exit without replying to its close request, while a failed close must not be mistaken for verified cleanup.",
+      "scenarios": [
+        {
+          "id": "K06-BROWSER-GRACEFUL-CLOSE.exit",
+          "kind": "positive",
+          "given": "The fixture owns one browser process and its existing debugger connection",
+          "when": "Browser.close causes that process to exit before replying",
+          "then": "The close request finishes on the owned process exit and removes its temporary listener",
+          "tests": [
+            "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence"
+          ]
+        },
+        {
+          "id": "K06-BROWSER-GRACEFUL-CLOSE.failure",
+          "kind": "negative",
+          "given": "The owned process is already closed or its close command is rejected",
+          "when": "The finite lifecycle helper is invoked",
+          "then": "An already closed process receives no command; a rejected close propagates its error and removes its listener without attesting cleanup",
+          "tests": [
+            "browser-profile.test.mjs#owned browser close tolerates exit without a reply and preserves failed-close evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A01-MODEL-CATALOG",
+      "risk": "Browser model state could contain invented or authority-shaped data",
+      "scenarios": [
+        {
+          "id": "A01-MODEL-CATALOG.frontend",
+          "kind": "positive",
+          "given": "Provider-neutral choices with two advertised models",
+          "when": "The browser parses runtime state",
+          "then": "It preserves the closed provider catalog and rejects duplicate/unknown/control-valued/authority-shaped fields and an offline catalog",
+          "tests": [
+            "agent-chat.test.mjs#model choices come from a closed provider catalog and require a known current model"
+          ]
+        },
+        {
+          "id": "A01-MODEL-CATALOG.refused",
+          "kind": "negative",
+          "given": "A duplicate/unknown model, control-valued name, command/account-shaped extra field or offline model state",
+          "when": "The browser validates the session model catalog",
+          "then": "The entire invalid catalog is refused; no unadvertised model or authority field becomes a UI choice",
+          "tests": [
+            "agent-chat.test.mjs#model choices come from a closed provider catalog and require a known current model"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07-COMPLETE-DRAFTS",
+      "risk": "Composer swap may lose or cross-bind text, paste state, attachments or retry identities.",
+      "scenarios": [
+        {
+          "id": "A07-COMPLETE-DRAFTS.positive",
+          "kind": "positive",
+          "given": "Two accounts, a complete unsent draft, retries and late/stale acknowledgments",
+          "when": "Restore, edit, submit and acknowledge account-scoped state",
+          "then": "Full JSON drafts and retry IDs remain isolated by account; copies do not share mutation; matching acknowledgments retire only their own request and preserve newer typing; unsupported attachments and over-limit messages are refused without data loss.",
+          "tests": [
+            "chat-drafts.test.mjs#complete drafts and attachment references restore under only their original account",
+            "chat-drafts.test.mjs#draft snapshots do not share mutable arrays or data with callers",
+            "chat-drafts.test.mjs#retry identities remain account scoped and stable for the same failed payload",
+            "chat-drafts.test.mjs#acknowledgment retires only its matching request and never clears a newer draft"
+          ]
+        },
+        {
+          "id": "A07-COMPLETE-DRAFTS.negative",
+          "kind": "negative",
+          "given": "Two accounts, a complete unsent draft, retries and late/stale acknowledgments",
+          "when": "Restore, edit, submit and acknowledge account-scoped state",
+          "then": "Full JSON drafts and retry IDs remain isolated by account; copies do not share mutation; matching acknowledgments retire only their own request and preserve newer typing; unsupported attachments and over-limit messages are refused without data loss.",
+          "tests": [
+            "chat-drafts.test.mjs#unsupported attachments and over-limit messages are refused without rewriting drafts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07-SAVED-VIEW-CLIENT",
+      "risk": "Optimistic saved-view success, stale UI overwrite, unscoped persistence or late principal callbacks can mislead the human and agent.",
+      "scenarios": [
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.schema",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A saved snapshot is owned and closed; foreign owners, unsafe components and corrupt history are refused while restricted definitions remain masked",
+          "tests": [
+            "personal-views.test.mjs#saved definitions reject foreign principals unsafe schemas corrupt history and extra authority"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.ack",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "The public tool stays pending with zero activity before authoritative commit; a refusal emits no success activity",
+          "tests": [
+            "personal-views.test.mjs#public Screens bridge waits for acknowledged mutation and emits no false refusal activity"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.failure",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A held or failed POST leaves prior acknowledged data intact with no opening or activity",
+          "tests": [
+            "personal-views.test.mjs#pending and failed saved-view writes keep acknowledged data without reporting success"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.save",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "Same-origin no-store CSRF and exact views identity/revision protect saves; only confirmed owned data opens",
+          "tests": [
+            "personal-views.test.mjs#acknowledged save opens only its confirmed owned definition and scopes its request"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.conflict",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "409 preserves the winning snapshot and blocks further edits until explicit reload",
+          "tests": [
+            "personal-views.test.mjs#a stale saved-view edit becomes a conflict and cannot overwrite the visible snapshot"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.lifetime",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A disposed principal cannot receive or activate a late acknowledgment",
+          "tests": [
+            "personal-views.test.mjs#disposing a principal during a pending save cannot publish or activate a late acknowledgment"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.read",
+          "kind": "negative",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "Read generations refuse older snapshots and clear saved-view authority on a foreign owner response",
+          "tests": [
+            "personal-views.test.mjs#late reads cannot replace a newer collection and malformed owner responses clear authority"
+          ]
+        },
+        {
+          "id": "A07-SAVED-VIEW-CLIENT.ui-order",
+          "kind": "positive",
+          "given": "A controlled saved-view adapter and current principal",
+          "when": "Acknowledged persistence and UI state change",
+          "then": "A confirmed newer UI revision survives an older stream snapshot of the same lease; null or replacement authority and new account selection still win",
+          "tests": [
+            "agent-chat.test.mjs#UI acknowledgments stay monotonic within the same lease while revocation and replacement still win"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07-PALETTE",
+      "risk": "Unvalidated display schemas can embed executable props or stale private record snapshots in personal views.",
+      "scenarios": [
+        {
+          "id": "A07-PALETTE.render",
+          "kind": "positive",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "The public Fancy heading/callout preserve escaped text and inert server-rendered commentary; actual browser formatting is checked separately.",
+          "tests": [
+            "component-palette.test.mjs#fine-grained Fancy heading and callout render inert commentary with stable handles"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.closed",
+          "kind": "negative",
+          "given": "A current owned component composition and the approved public Fancy kit",
+          "when": "The agent composes and saves a fine-grained view",
+          "then": "The browser parser detaches approved ordered columns and rejects embedded records, foreign bindings and executable or malformed props.",
+          "tests": [
+            "component-palette.test.mjs#client-table definitions contain only approved ordered columns and no record or executable bindings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07-FAILURE-STATUS",
+      "risk": "Raw provider errors can leak content, mislabel failure causes or trigger repeated turns during a known account cooldown.",
+      "scenarios": [
+        {
+          "id": "A07-FAILURE-STATUS.client",
+          "kind": "positive",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Account-bound structured failures parse exactly, while legacy absence remains compatible and private/unknown/invalid metadata is rejected.",
+          "tests": [
+            "turn-failure.test.mjs#chat preserves only acknowledged account-bound failure enums and valid reset times"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.client-invalid",
+          "kind": "negative",
+          "given": "A current account-owned ACP conversation and the published structured turn-failure contract",
+          "when": "A turn fails or a subsequent send is attempted",
+          "then": "Unknown categories, private reasons, invalid timestamps and unbound failures are refused before rendering.",
+          "tests": [
+            "turn-failure.test.mjs#chat preserves only acknowledged account-bound failure enums and valid reset times"
+          ]
+        },
+        {
+          "id": "A07-FAILURE-STATUS.notice",
+          "kind": "positive",
+          "given": "A current owned conversation and the structured provider turn-failure contract",
+          "when": "A finite native turn fails and the account or UI changes",
+          "then": "Public Fancy Callout renders the supplied reset, known cooldown ends exactly at that time, unknown causes stay unconfirmed and absent reset is described honestly.",
+          "tests": [
+            "turn-failure.test.mjs#public Fancy failure notice distinguishes known cooldown boundaries from unconfirmed causes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-FORM-CONTROLLER",
+      "risk": "Late acknowledgments, conflicts or replayed activity can lose pending input or misrepresent agent work.",
+      "scenarios": [
+        {
+          "id": "A05-FORM-CONTROLLER.queued",
+          "kind": "positive",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Typing during a held acknowledgment remains visible and the next write uses the accepted revision.",
+          "tests": [
+            "shared-form.test.mjs#held write acknowledgment retains newer typing and serializes the next exact revision"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.conflict",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "A conflict retains unsent input without retry or automatic replacement; explicit reload obtains current shared values.",
+          "tests": [
+            "shared-form.test.mjs#conflict retains local pending values and makes no automatic overwrite or retry"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.close",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Closing clears private values and prevents a late response from restoring them.",
+          "tests": [
+            "shared-form.test.mjs#dispose fences a late response and clears the previous private form scope"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.dto",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Exact values are detached and malformed, oversized or foreign form data is refused.",
+          "tests": [
+            "shared-form.test.mjs#draft parser detaches exact values and refuses unknown fields wrong handles and invalid counters"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.activity",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "Only a new current-lease native receipt is accepted once; private metadata, human origin and initial replay are refused.",
+          "tests": [
+            "shared-form.test.mjs#only closed current-lease native receipts can become new activity and initial replay is ignored"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.clear",
+          "kind": "negative",
+          "given": "A controlled form bound to the current original actor/account/UI lease",
+          "when": "Reads, held writes, new typing, activity receipts or close events race",
+          "then": "A submitted version cannot clear a newer shared draft.",
+          "tests": [
+            "shared-form.test.mjs#clearing a submitted form cannot erase newer shared pending values"
+          ]
+        },
+        {
+          "id": "A05-FORM-CONTROLLER.actor",
+          "kind": "negative",
+          "given": "The browser retains private pending input for the previous authenticated principal",
+          "when": "The server refuses a subsequent write with actor_changed409",
+          "then": "The controller clears its private form scope and fences further writes, rather than retaining input as a draft conflict.",
+          "tests": [
+            "shared-form.test.mjs#a changed authenticated actor clears private values instead of becoming a draft conflict"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-WORKFLOW-CONTROLLER",
+      "risk": "A workflow editor or package upgrade could discard values, overwrite newer edits, inherit another principal or relabel immutable execution history.",
+      "scenarios": [
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.1",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "held graph acknowledgment preserves newer human edits and serializes exact revisions",
+          "then": "Held graph acknowledgment preserves newer human input and subsequent writes use the acknowledged revisions0then1, ending at revision2.",
+          "tests": [
+            "shared-workflow.test.mjs#held graph acknowledgment preserves newer human edits and serializes exact revisions"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.2",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "a native conflict preserves local graph until explicit reload and never overwrites remotely",
+          "then": "Conflict retains the exact local graph, makes no automatic retry and only explicit reload adopts the saved native graph.",
+          "tests": [
+            "shared-workflow.test.mjs#a native conflict preserves local graph until explicit reload and never overwrites remotely"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.3",
+          "kind": "positive",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "editor projection detaches semantic data and drops only documented canvas interaction state",
+          "then": "Persistent semantic graph data is detached; selection/dragging/measurement are transient, while nonfinite config and unsupported parent semantics refuse.",
+          "tests": [
+            "shared-workflow.test.mjs#editor projection detaches semantic data and drops only documented canvas interaction state"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.4",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "actor changes and disposal fence late private graph responses and clear prior scope",
+          "then": "Disposal or actor-change refusal clears private graph state and a late response cannot restore it.",
+          "tests": [
+            "shared-workflow.test.mjs#actor changes and disposal fence late private graph responses and clear prior scope"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.5",
+          "kind": "negative",
+          "given": "The actual current published editor/runtime and original owned workflow authoring context",
+          "when": "wrong principal draft handles and fabricated metadata are refused before rendering",
+          "then": "Closed owned DTO/component parsing refuses a foreign principal, wrong handle, boolean revision and arbitrary metadata/graph injection.",
+          "tests": [
+            "shared-workflow.test.mjs#wrong principal draft handles and fabricated metadata are refused before rendering"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.activity",
+          "kind": "negative",
+          "given": "An activity receipt from an actual native workflow bridge",
+          "when": "A receipt is parsed for the currently visible UI lease",
+          "then": "Only the closed current-lease authoring receipt is admitted; private graph metadata, execution claims, foreign lease and invalid counters refuse.",
+          "tests": [
+            "shared-workflow.test.mjs#workflow activity accepts only current lease value-free authoring receipts"
+          ]
+        },
+        {
+          "id": "A05-WORKFLOW-CONTROLLER.canvas_interaction",
+          "kind": "positive",
+          "given": "The real controlled canvas emits selection, measurement and a position drag while persistence can be pending",
+          "when": "The host acknowledges interaction changes, polls and receives a held graph-save response",
+          "then": "Canvas selection/measurement/drag state stays local and survives its save acknowledgment. Only semantic position changes persist once; polling cannot interrupt the drag.",
+          "tests": [
+            "shared-workflow.test.mjs#controlled canvas retains local interaction state without persisting it or interrupting a drag"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-EXECUTION-CLIENT",
+      "risk": "Lost acknowledgments or component lifecycle could duplicate execution, erase human answers or show forged runtime state.",
+      "scenarios": [
+        {
+          "id": "A05-EXECUTION-CLIENT.1",
+          "kind": "positive",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Dispatch returns server queue acknowledgment",
+          "then": "Exact revisions/seed/request identity and queued state with no invented output",
+          "tests": [
+            "workflow-execution.test.mjs#acknowledged dispatch preserves its immutable version and reports server state only"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.2",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "A run receipt is lost, then changed and identical retries are requested",
+          "then": "Changed retry performs no request; identical retry preserves the original idempotency key/seed",
+          "tests": [
+            "workflow-execution.test.mjs#unconfirmed dispatch retries retain the same request identity and seed"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.3",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Worker is stopped or saved revision differs; later cancel an observed waiting run",
+          "then": "No invalid dispatch and cancellation sends the exact original run/step",
+          "tests": [
+            "workflow-execution.test.mjs#stopped worker or stale draft cannot dispatch and cancellation uses exact observed step"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.4",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Close the controller before its accepted response returns",
+          "then": "Closed state and zero automatic cancellation",
+          "tests": [
+            "workflow-execution.test.mjs#dispose fences a late accepted response without cancelling actual backend work"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.5",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Receive a foreign run or gate with an incorrect step",
+          "then": "Parser refuses both instead of showing trusted evidence",
+          "tests": [
+            "workflow-execution.test.mjs#foreign definition and forged gate versions are refused before showing run evidence"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.6",
+          "kind": "positive",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Await a held human publication response",
+          "then": "Publishing state prevents editing, exact revision is submitted and only publication is acknowledged",
+          "tests": [
+            "workflow-execution.test.mjs#human publication acknowledges its exact saved graph without creating a run"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.7",
+          "kind": "negative",
+          "given": "Controlled shared authoring/execution state and independently supplied server receipts",
+          "when": "Human answer receipt is lost and then changed and retried",
+          "then": "Original gate/input remains, changed retry performs no write and identical retry preserves the recorded request identity",
+          "tests": [
+            "workflow-execution.test.mjs#unconfirmed human answers retain the exact gate and retry identity without borrowing seeded values"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.8",
+          "kind": "negative",
+          "given": "An execution request bound to its original user and selected run",
+          "when": "actor replacement closes execution state instead of retaining the previous human question",
+          "then": "Actor replacement immediately clears the previous snapshot/run/question and closes the controller.",
+          "tests": [
+            "workflow-execution.test.mjs#actor replacement closes execution state instead of retaining the previous human question"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.9",
+          "kind": "negative",
+          "given": "An execution request bound to its original user and selected run",
+          "when": "an inspection receipt for a different run in the same workflow is refused",
+          "then": "A mismatched run identity is refused before publishing any receipt or trusted run state.",
+          "tests": [
+            "workflow-execution.test.mjs#an inspection receipt for a different run in the same workflow is refused"
+          ]
+        },
+        {
+          "id": "A05-EXECUTION-CLIENT.10",
+          "kind": "positive",
+          "given": "A ready human run control while its background status read is held",
+          "when": "The human clicks Cancel and the same observed status read completes",
+          "then": "The click is retained, awaits the read and submits exactly one cancellation with the originally observed run and step.",
+          "tests": [
+            "workflow-execution.test.mjs#a human cancellation waits for an in-flight status read instead of losing the click"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-HUMAN-PERMISSION-CLIENT",
+      "risk": "A late, foreign, stale or ambiguous result could misrepresent the human permission decision.",
+      "scenarios": [
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.1",
+          "kind": "positive",
+          "given": "A controlled human permission client with an original connection and independently supplied server receipts",
+          "when": "human permission change uses observed policy and graph and waits for confirmed receipt",
+          "then": "Only a confirmed matching receipt changes enabled state; pending UI retains the prior state and sends the observed policy and graph revisions.",
+          "tests": [
+            "workflow-permissions.test.mjs#human permission change uses observed policy and graph and waits for confirmed receipt"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.2",
+          "kind": "negative",
+          "given": "A controlled human permission client with an original connection and independently supplied server receipts",
+          "when": "uncertain result requires fresh read and never repeats or invents the grant",
+          "then": "A lost receipt remains uncertain, cannot repeat writes before a read, and a fresh read restores the confirmed server state.",
+          "tests": [
+            "workflow-permissions.test.mjs#uncertain result requires fresh read and never repeats or invents the grant"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.3",
+          "kind": "negative",
+          "given": "A controlled human permission client with an original connection and independently supplied server receipts",
+          "when": "foreign connection extra authority fields and malformed expiry are refused before display",
+          "then": "Foreign connection/draft, extra authority fields, malformed expiry and invalid versions are rejected before display.",
+          "tests": [
+            "workflow-permissions.test.mjs#foreign connection extra authority fields and malformed expiry are refused before display"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.4",
+          "kind": "negative",
+          "given": "A controlled human permission client with an original connection and independently supplied server receipts",
+          "when": "dispose fences pending grant acknowledgment and clears original connection state",
+          "then": "Disposal clears the state and fences a late accepted grant response.",
+          "tests": [
+            "workflow-permissions.test.mjs#dispose fences pending grant acknowledgment and clears original connection state"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.5",
+          "kind": "negative",
+          "given": "A controlled human permission client with an original connection and independently supplied server receipts",
+          "when": "nonadministrator and mismatched graph cannot send an authorization change",
+          "then": "A nonadministrator and a graph revision mismatch send zero authorization writes.",
+          "tests": [
+            "workflow-permissions.test.mjs#nonadministrator and mismatched graph cannot send an authorization change"
+          ]
+        },
+        {
+          "id": "A05-HUMAN-PERMISSION-CLIENT.6",
+          "kind": "positive",
+          "given": "A ready permission component and a held background permission read",
+          "when": "The human clicks authorization before the polling response arrives",
+          "then": "The original human intent waits for the read and sends exactly one confirmed authorization instead of being dropped.",
+          "tests": [
+            "workflow-permissions.test.mjs#human authorization waits for a held background read instead of losing the click"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05-SHARED-RUN-CLIENT",
+      "risk": "Local navigation or stale receipts could show a different run from the shared server state.",
+      "scenarios": [
+        {
+          "id": "A05-SHARED-RUN-CLIENT.0",
+          "kind": "positive",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "polling follows the actual shared selected run and details instead of a private preference",
+          "then": "Polling and a fresh controller restore the exact server-selected run and detail/source state.",
+          "tests": [
+            "workflow-selection.test.mjs#polling follows the actual shared selected run and details instead of a private preference"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.1",
+          "kind": "positive",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "human choice awaits its exact revisioned acknowledgment and then reads the real selected output",
+          "then": "The human command carries observed revision1 and target; no optimistic replacement occurs, then revision2 and the actual selected output are read.",
+          "tests": [
+            "workflow-selection.test.mjs#human choice awaits its exact revisioned acknowledgment and then reads the real selected output"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.2",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "foreign or malformed shared selection is rejected before any private run inspection",
+          "then": "Unknown selected ID, source, malformed details and invalid revision are refused before display.",
+          "tests": [
+            "workflow-selection.test.mjs#foreign or malformed shared selection is rejected before any private run inspection"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.3",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "a stale or ambiguous navigation write requires readback and never retries over a newer agent choice",
+          "then": "Uncertain/conflicting navigation cannot retry before readback and never overwrites the newer agent choice.",
+          "tests": [
+            "workflow-selection.test.mjs#a stale or ambiguous navigation write requires readback and never retries over a newer agent choice"
+          ]
+        },
+        {
+          "id": "A05-SHARED-RUN-CLIENT.4",
+          "kind": "negative",
+          "given": "A controlled client and independent immutable run/selection receipts",
+          "when": "a wrong selection receipt and late disposal cannot replace current run evidence",
+          "then": "Mismatched acknowledgment refuses while keeping prior evidence; disposal fences a late receipt and clears private state.",
+          "tests": [
+            "workflow-selection.test.mjs#a wrong selection receipt and late disposal cannot replace current run evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P04-DURABLE-DRAFT-CLIENT",
+      "risk": "Reload or ambiguous send can lose private draft content, duplicate a turn, or restore another principal/account draft.",
+      "scenarios": [
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.0",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "acknowledged draft and explicit empty draft restore in a fresh controller without sending",
+          "then": "Saved full text and explicit empty survive fresh controller; only two explicit draft writes, zero provider sends.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#acknowledged draft and explicit empty draft restore in a fresh controller without sending"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.1",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "typing during a held read is retained and never written into another account",
+          "then": "Typing during the held initial read remains intact and the subsequent write targets only the original account.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#typing during a held read is retained and never written into another account"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.2",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "a lost save receipt preserves local input and requires explicit readback instead of overwrite",
+          "then": "Lost receipt retains local text, refuses automatic overwrite, and explicit readback restores actual saved text.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#a lost save receipt preserves local input and requires explicit readback instead of overwrite"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.3",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "retry is persisted before return and reuses the same ID after reload",
+          "then": "Prepare persists an exact retry ID before returning; fresh controller reuse produces no second preparation write.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#retry is persisted before return and reuses the same ID after reload"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.4",
+          "kind": "positive",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "actual accepted evidence clears only the submitted snapshot and preserves newer typing",
+          "then": "Actual accepted evidence clears only the submitted snapshot, retaining different newer text.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#actual accepted evidence clears only the submitted snapshot and preserves newer typing"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.5",
+          "kind": "negative",
+          "given": "Original owned synthetic draft/account with exact expected input and current session authority",
+          "when": "foreign restoration and late disposal cannot publish another account draft",
+          "then": "Foreign account response refuses and disposed controller cannot publish late private content.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#foreign restoration and late disposal cannot publish another account draft"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.6",
+          "kind": "negative",
+          "given": "An owned acknowledged draft with actual saved evidence and a delayed or destructive lifecycle operation",
+          "when": "an older acknowledgment preserves edited-and-restored identical draft text",
+          "then": "Edited-and-restored identical text survives an older send acknowledgment; pending ID retires only after actual receipt.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#an older acknowledgment preserves edited-and-restored identical draft text"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.7",
+          "kind": "negative",
+          "given": "An owned acknowledged draft with actual saved evidence and a delayed or destructive lifecycle operation",
+          "when": "a held save serializes newer typing and acknowledgment without stale parallel writes",
+          "then": "Held save serializes newer typing with CAS revisions0then1; saved final draft is Newer, with no parallel stale write.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#a held save serializes newer typing and acknowledgment without stale parallel writes"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.8",
+          "kind": "negative",
+          "given": "An original send and a held real save receipt while the person types newer input",
+          "when": "typing during retry preparation cannot cancel the captured send or clear newer input",
+          "then": "An acknowledged prepared ID is returned for the captured send even while newer draft typing remains unsaved; its original draft snapshot is preserved.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#typing during retry preparation cannot cancel the captured send or clear newer input"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.9",
+          "kind": "negative",
+          "given": "An original send and a held real save receipt while the person types newer input",
+          "when": "preparation captures its original draft before awaiting a held background save",
+          "then": "A send snapshot is captured before a background save completes; later acknowledgment preserves new typing rather than clearing it.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#preparation captures its original draft before awaiting a held background save"
+          ]
+        },
+        {
+          "id": "P04-DURABLE-DRAFT-CLIENT.10",
+          "kind": "negative",
+          "given": "Existing saved views and a held refresh returning a newer current collection revision",
+          "when": "saved view controls cannot submit a stale reorder during an in-flight refresh",
+          "then": "No reorder POST is sent before the in-flight refresh is acknowledged; afterward exactly one POST uses current revision2.",
+          "tests": [
+            "durable-chat-drafts.test.mjs#saved view controls cannot submit a stale reorder during an in-flight refresh"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P06-CONNECTION-SETTINGS-CLIENT",
+      "risk": "A settings component could expose another account, invent provider readiness or command a newer connection from stale controls.",
+      "scenarios": [
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.0",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Owned exact metadata accepts; foreign actor, readiness claims, credentials and home paths refuse.",
+          "tests": [
+            "agent-settings.test.mjs#settings are owned closed metadata and never credentials or readiness"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.1",
+          "kind": "positive",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Read only the same-origin settings endpoint with captured actor/no-store/no redirects/abort; malformed and denied responses refuse.",
+          "tests": [
+            "agent-settings.test.mjs#settings reads are same-origin captured-actor and have a bounded cancellable lifetime"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.2",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Model commands bind exact observed selection/conversation revisions and refuse busy/offline/unsupported choices.",
+          "tests": [
+            "agent-settings.test.mjs#model commands use only acknowledged live choices and exact observed revisions"
+          ]
+        },
+        {
+          "id": "P06-CONNECTION-SETTINGS-CLIENT.3",
+          "kind": "negative",
+          "given": "An original owned account/session and independently stated settings/connection state",
+          "when": "The named read, composition or human control crosses its scoped settings boundary",
+          "then": "Stale rendered settings cannot command a newer account or conversation; exact current settings invoke once.",
+          "tests": [
+            "agent-settings.test.mjs#a stale settings control cannot send a command to a newer selected connection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "common-header-shortcuts",
+      "risk": "Stale header controls must not command another principal/connection or replace a newer panel; direct offline component access must not launch a model.",
+      "scenarios": [
+        {
+          "id": "common-header-1",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "common header choices are finite role hints from current workspace metadata",
+          "then": "common header choices are finite role hints from current workspace metadata. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#common header choices are finite role hints from current workspace metadata"
+          ]
+        },
+        {
+          "id": "common-header-2",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "shortcut metadata is bounded cancellable and never follows redirects or submits chat",
+          "then": "shortcut metadata is bounded cancellable and never follows redirects or submits chat. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#shortcut metadata is bounded cancellable and never follows redirects or submits chat"
+          ]
+        },
+        {
+          "id": "common-header-3",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "offline shortcuts open existing components without a model message lease or saved pin",
+          "then": "offline shortcuts open existing components without a model message lease or saved pin. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#offline shortcuts open existing components without a model message lease or saved pin"
+          ]
+        },
+        {
+          "id": "common-header-4",
+          "kind": "positive",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "live shortcuts use the current shared composition and exact acknowledged revision",
+          "then": "live shortcuts use the current shared composition and exact acknowledged revision. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#live shortcuts use the current shared composition and exact acknowledged revision"
+          ]
+        },
+        {
+          "id": "common-header-5",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "delayed shortcut reads cannot target a changed connection or a disposed user mount",
+          "then": "delayed shortcut reads cannot target a changed connection or a disposed user mount. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#delayed shortcut reads cannot target a changed connection or a disposed user mount"
+          ]
+        },
+        {
+          "id": "common-header-6",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request",
+          "then": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request"
+          ]
+        },
+        {
+          "id": "common-header-7",
+          "kind": "negative",
+          "given": "An original mounted principal, current workspace permission hints and the existing shared UI service.",
+          "when": "foreign or superseded UI acknowledgments are refused without replacing the visible panel",
+          "then": "foreign or superseded UI acknowledgments are refused without replacing the visible panel. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
+          "tests": [
+            "common-views.test.mjs#foreign or superseded UI acknowledgments are refused without replacing the visible panel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "account-metadata",
+      "risk": "Account labels can overwrite newer human input, retarget another account or inadvertently alter connection/credential authority.",
+      "scenarios": [
+        {
+          "id": "account-metadata-1",
+          "kind": "negative",
+          "given": "Closed owned metadata input",
+          "when": "Parse wrong actor/account, extra authority, malformed revisions and labels",
+          "then": "Accept exactly the original closed row; refuse every foreign or invalid shape.",
+          "tests": [
+            "account-metadata.test.mjs#account metadata rejects foreign identities extra authority and invalid revisions"
+          ]
+        },
+        {
+          "id": "account-metadata-2",
+          "kind": "positive",
+          "given": "A captured principal/account/revision and current CSRF bootstrap",
+          "when": "Read and save a display name",
+          "then": "Use only the owned same-origin path, actor, CSRF and expected revision with bounded lifetime; refuse mismatched acknowledgments.",
+          "tests": [
+            "account-metadata.test.mjs#metadata transport binds the owned account actor csrf and exact observed revision"
+          ]
+        },
+        {
+          "id": "account-metadata-3",
+          "kind": "positive",
+          "given": "An original loaded name with a delayed write acknowledgment",
+          "when": "Edit again and attempt another save before completion",
+          "then": "Send exactly one write at the captured revision; accept its exact acknowledgment while retaining the newer unsent local text.",
+          "tests": [
+            "account-metadata.test.mjs#one pending rename preserves edits made before its exact acknowledgment arrives"
+          ]
+        },
+        {
+          "id": "account-metadata-4",
+          "kind": "negative",
+          "given": "A stale label write and another tab newer name",
+          "when": "Reload, review and explicitly keep local text before saving",
+          "then": "Retain local input, block blind retry, show newest readback, require human review and then send only the newly observed revision.",
+          "tests": [
+            "account-metadata.test.mjs#conflict readback keeps local text until explicit review before another save"
+          ]
+        },
+        {
+          "id": "account-metadata-5",
+          "kind": "negative",
+          "given": "A server save with lost response, or malformed/foreign/wrong-revision acknowledgment",
+          "when": "Attempt save and later read back",
+          "then": "Preserve input and old acknowledged metadata, stop automatic retry, and accept current saved state only after explicit readback/review.",
+          "tests": [
+            "account-metadata.test.mjs#lost or malformed save acknowledgments retain input and never automatically retry"
+          ]
+        },
+        {
+          "id": "account-metadata-6",
+          "kind": "negative",
+          "given": "A mounted original principal with delayed read or CSRF bootstrap",
+          "when": "Close that controller before completion",
+          "then": "Publish no late result and send no POST after disposal; state remains closed.",
+          "tests": [
+            "account-metadata.test.mjs#closing a principal during delayed reads or csrf bootstrap cannot publish or send a write"
+          ]
+        },
+        {
+          "id": "account-metadata-7",
+          "kind": "positive",
+          "given": "A clean original name or local input queued while a read is pending",
+          "when": "Explicitly reload a changed saved name",
+          "then": "A clean input adopts the acknowledged saved name; newer local text remains and a changed server value requires explicit conflict review.",
+          "tests": [
+            "account-metadata.test.mjs#explicit reload follows a changed saved name without replacing newer local input"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "model-preference",
+      "risk": "A late or foreign save can fabricate persisted intent or retarget a newer native model/account.",
+      "scenarios": [
+        {
+          "id": "model-preference-1",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "model preference accepts only closed original metadata with paired model values",
+          "then": "model preference accepts only closed original metadata with paired model values; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#model preference accepts only closed original metadata with paired model values"
+          ]
+        },
+        {
+          "id": "model-preference-2",
+          "kind": "positive",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "remember sends only observed context and revision and never a browser model selection",
+          "then": "remember sends only observed context and revision and never a browser model selection; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#remember sends only observed context and revision and never a browser model selection"
+          ]
+        },
+        {
+          "id": "model-preference-3",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "stale model context and a connection changed during csrf bootstrap send zero writes",
+          "then": "stale model context and a connection changed during csrf bootstrap send zero writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#stale model context and a connection changed during csrf bootstrap send zero writes"
+          ]
+        },
+        {
+          "id": "model-preference-4",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "one pending write retains intention and explicit readback review prevents blind retries",
+          "then": "one pending write retains intention and explicit readback review prevents blind retries; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#one pending write retains intention and explicit readback review prevents blind retries"
+          ]
+        },
+        {
+          "id": "model-preference-5",
+          "kind": "negative",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "lost or foreign acknowledgments keep original intent until the human accepts saved readback",
+          "then": "lost or foreign acknowledgments keep original intent until the human accepts saved readback; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#lost or foreign acknowledgments keep original intent until the human accepts saved readback"
+          ]
+        },
+        {
+          "id": "model-preference-6",
+          "kind": "positive",
+          "given": "Original principal/account and separately observed current connection/model context",
+          "when": "provider default is an explicit offline intent and disposal cannot publish or send late writes",
+          "then": "provider default is an explicit offline intent and disposal cannot publish or send late writes; actual saved/current context, request body/write counts and retained intention are asserted independently.",
+          "tests": [
+            "model-preference.test.mjs#provider default is an explicit offline intent and disposal cannot publish or send late writes"
+          ]
+        },
+        {
+          "id": "model-preference-7",
+          "kind": "positive",
+          "given": "Native Chrome independently reproduces TypeError for fetch called with a controller receiver, while an unbound transport succeeds",
+          "when": "Read, remember and clear the original future model using a transport with browser receiver semantics",
+          "then": "Original read reaches ready; exact current model and explicit default are acknowledged by two writes without Illegal invocation",
+          "tests": [
+            "model-preference.test.mjs#browser fetch receiver semantics support reading and saving the original preference"
           ]
         }
       ]

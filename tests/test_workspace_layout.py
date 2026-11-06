@@ -31,11 +31,11 @@ class WorkspaceLayoutTests(TestCase):
         initial = self.state()
         self.assertEqual(set(initial), {'layout_id', 'user_id', 'revision', 'split_basis_points'})
         self.assertEqual(initial['user_id'], str(self.owner.pk))
-        self.assertEqual((initial['revision'], initial['split_basis_points']), (0, 2800))
+        self.assertEqual((initial['revision'], initial['split_basis_points']), (0, 6000))
         self.assertRegex(initial['layout_id'], r'^[0-9a-f-]{36}$')
-        saved = self.save(initial, 3375)
+        saved = self.save(initial, 6800)
         self.assertEqual(saved.status_code, 200)
-        self.assertEqual(saved.json(), initial | {'revision': 1, 'split_basis_points': 3375})
+        self.assertEqual(saved.json(), initial | {'revision': 1, 'split_basis_points': 6800})
         self.client.logout()
         self.assertEqual(self.client.get('/api/workspace/layout/', secure=True).status_code, 401)
         independent = Client()
@@ -48,7 +48,7 @@ class WorkspaceLayoutTests(TestCase):
         self.client.force_login(self.other)
         other = self.state()
         self.assertNotEqual(other['layout_id'], previous['layout_id'])
-        self.assertEqual(other['split_basis_points'], 2800)
+        self.assertEqual(other['split_basis_points'], 6000)
         response = self.save(previous | {'revision': 0}, 4400)
         self.assertEqual(response.status_code, 409)
         self.assertEqual(self.state(), other)
@@ -56,6 +56,18 @@ class WorkspaceLayoutTests(TestCase):
         self.assertEqual(Membership.objects.get(user=self.other).role, 'viewer')
         self.client.force_login(self.owner)
         self.assertEqual(self.state()['split_basis_points'], 3900)
+
+    def test_chat_first_upgrade_changes_only_an_untouched_old_default(self):
+        from django.apps import apps
+        from backend.maipa.workspace.models import WorkspaceLayout
+        from importlib import import_module
+        WorkspaceLayout.objects.create(user=self.owner, installation=self.installation, split_basis_points=2800, revision=0)
+        WorkspaceLayout.objects.create(user=self.other, installation=self.installation, split_basis_points=2800, revision=1)
+        migration = import_module('backend.maipa.workspace.migrations.0006_chat_first_layout')
+        migration.update_untouched_default(apps, None)
+        self.assertEqual(WorkspaceLayout.objects.get(user=self.owner).split_basis_points, 6000)
+        chosen = WorkspaceLayout.objects.get(user=self.other)
+        self.assertEqual((chosen.split_basis_points, chosen.revision), (2800, 1))
 
     def test_revision_conflict_preserves_the_winner_and_requires_reread(self):
         initial = self.state()
@@ -69,7 +81,7 @@ class WorkspaceLayoutTests(TestCase):
 
     def test_invalid_widths_identity_hints_and_revision_types_do_not_write(self):
         initial = self.state()
-        for points in (2199, 4501, True, '3300', 33.3, None):
+        for points in (2199, 7201, True, '3300', 33.3, None):
             self.assertEqual(self.save(initial, points).status_code, 400)
         for changes in ({'expected_revision': True}, {'expected_revision': -1},
                         {'expected_revision': 2_000_000_000}, {'user_id': str(self.other.pk)},

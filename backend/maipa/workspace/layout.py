@@ -36,7 +36,7 @@ def personal_layout(request):
             require(set(value) == {'expected_revision', 'split_basis_points'})
             revision, points = value['expected_revision'], value['split_basis_points']
             require(type(revision) is int and 0 <= revision < 1_999_999_999)
-            require(type(points) is int and 2200 <= points <= 4500)
+            require(type(points) is int and 2200 <= points <= 7200)
             # No client-selected owner. A previous tab's layout identity cannot
             # write a different principal's layout even at a matching revision.
             rows = WorkspaceLayout.objects.filter(user=request.user, installation=member.installation)

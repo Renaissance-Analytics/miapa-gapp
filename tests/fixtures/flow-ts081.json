@@ -1,0 +1,75 @@
+{
+  "$schema": "https://particle.academy/schemas/workflow/v1.json",
+  "version": 1,
+  "metadata": {
+    "name": "Synthetic TS export",
+    "updatedAt": 1793476831409
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "entry",
+        "kind": "manual_trigger",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "label": "entry",
+        "config": {},
+        "inputs": [],
+        "outputs": [
+          {
+            "id": "out"
+          }
+        ]
+      },
+      {
+        "id": "format",
+        "kind": "transform",
+        "position": {
+          "x": 160,
+          "y": 0
+        },
+        "label": "format",
+        "config": {
+          "expression": "Hello {{ in.name }}"
+        }
+      },
+      {
+        "id": "answer",
+        "kind": "output",
+        "position": {
+          "x": 320,
+          "y": 0
+        },
+        "label": "answer",
+        "config": {},
+        "inputs": [
+          {
+            "id": "in"
+          }
+        ],
+        "outputs": []
+      }
+    ],
+    "edges": [
+      {
+        "id": "one",
+        "source": "entry",
+        "target": "format"
+      },
+      {
+        "id": "two",
+        "source": "format",
+        "target": "answer"
+      }
+    ]
+  },
+  "view": {
+    "viewport": {
+      "x": 10,
+      "y": 20,
+      "zoom": 1
+    }
+  }
+}

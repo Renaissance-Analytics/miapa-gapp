@@ -32,3 +32,12 @@ export function readDebuggingPortFile(path, reader = readFileSync) {
     throw error;
   }
 }
+
+/** A browser may exit before acknowledging its own close command. */
+export async function closeBrowserThroughDebugger(command, child, isClosed) {
+  if (isClosed()) return;
+  let onExit;
+  const exited = new Promise(resolve => { onExit = resolve; child.once('exit', onExit); });
+  try { await Promise.race([command('Browser.close'), exited]); }
+  finally { child.off('exit', onExit); }
+}

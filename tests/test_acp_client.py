@@ -5,22 +5,27 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from backend.maipa.acp import AcpClient, AcpError, Scope
+from tests.peer_ready import wait_for_peer
 
 ROOT = Path(__file__).resolve().parents[1]
 PEER = ROOT / "tests/fixtures/acp_peer.py"
 
 
 class AcpClientTests(unittest.TestCase):
-    def run_case(self, body, *, mode="normal", timeout=2, budget=4096):
+    def run_case(self, body, *, mode="normal", timeout=2, budget=4096, provider=None):
         async def run():
             with tempfile.TemporaryDirectory() as directory:
                 owner = Scope("user-1", "account-1")
-                client = AcpClient([sys.executable, str(PEER), mode], owner, Path(directory), timeout=timeout, budget=budget)
+                env = {'MAIPA_ACP_PROFILE': json.dumps({'user_id': owner.user_id, 'account_id': owner.account_id,
+                    'workspace': directory, 'provider': provider})} if provider else None
+                marker = Path(directory) / 'peer-ready'
+                client = AcpClient([sys.executable, str(PEER), mode, str(marker)], owner, Path(directory), env=env, timeout=timeout, budget=budget)
                 await client.start()
                 try:
+                    await wait_for_peer(self, marker)
                     await body(client, owner)
                 finally:
                     await client.close()
@@ -65,6 +70,67 @@ class AcpClientTests(unittest.TestCase):
             self.assertEqual(client.session_details(owner, session)["received"], {"cwd": str(client.workspace), "mcpServers": []})
             self.assertNotIn("acp-local-1", session)
         self.run_case(case)
+
+    def test_native_status_is_closed_and_requires_original_owner_and_session(self):
+        for expected in ('starting', 'ready', 'unavailable'):
+            async def case(client, owner):
+                session = await client.new_session(owner)
+                for foreign in (Scope('user-2', 'account-1'), Scope('user-1', 'account-2')):
+                    with self.assertRaises(PermissionError):
+                        await client.native_status(foreign, session)
+                with self.assertRaises(PermissionError):
+                    await client.native_status(owner, 'acp-local-1')
+                self.assertEqual(await client.native_status(owner, session), expected)
+            with self.subTest(state=expected): self.run_case(case, mode='native-' + expected)
+
+    def test_claude_private_authorization_is_provider_scoped_and_never_a_prompt(self):
+        async def case(client, owner):
+            with self.assertRaises(PermissionError):
+                await client.authorize_subscription(Scope('foreign', owner.account_id), 'SYNTHETIC_CODE')
+            for value in ('', 'a\nsecret', 'a b', 'x'*2049, None):
+                with self.assertRaises(ValueError): await client.authorize_subscription(owner, value)
+            self.assertEqual(await client.authorize_subscription(owner, 'SYNTHETIC_CODE'), {'state': 'sign_in'})
+        self.run_case(case, provider='claude')
+
+    def test_claude_consent_accepts_measured_current_and_legacy_authorization_routes(self):
+        async def case(client, owner):
+            for endpoint in ('https://claude.com/cai/oauth/authorize', 'https://claude.ai/oauth/authorize'):
+                consent = {'state': 'sign_in', 'login': {'url': endpoint+'?state=synthetic', 'accepts_code': True}}
+                with patch.object(client, '_request', AsyncMock(return_value=consent)) as request:
+                    self.assertEqual(await client.subscription_status(owner), consent)
+                    request.assert_awaited_once_with(owner, 'maipa/account/status', {})
+        self.run_case(case, provider='claude')
+
+    def test_claude_consent_refuses_unmeasured_routes_and_foreign_authority(self):
+        async def case(client, owner):
+            for url in ('https://claude.com.attacker.invalid/cai/oauth/authorize',
+                        'https://claude.com/oauth/authorize', 'https://claude.ai/cai/oauth/authorize',
+                        'https://user:secret@claude.com/cai/oauth/authorize',
+                        'https://claude.com:443/cai/oauth/authorize',
+                        'https://claude.com/cai/oauth/authorize#secret',
+                        'http://claude.com/cai/oauth/authorize'):
+                consent = {'state': 'sign_in', 'login': {'url': url, 'accepts_code': True}}
+                with patch.object(client, '_request', AsyncMock(return_value=consent)):
+                    with self.assertRaisesRegex(AcpError, '^Account unavailable$'):
+                        await client.subscription_status(owner)
+            with patch.object(client, '_request', AsyncMock()) as request:
+                with self.assertRaises(PermissionError):
+                    await client.subscription_status(Scope('foreign', owner.account_id))
+                request.assert_not_awaited()
+        self.run_case(case, provider='claude')
+
+    def test_codex_never_accepts_a_claude_private_authorization_code(self):
+        async def case(client, owner):
+            with self.assertRaises(AcpError): await client.authorize_subscription(owner, 'SYNTHETIC_CODE')
+        self.run_case(case, provider='codex')
+
+    def test_native_status_rejects_unknown_or_private_payloads(self):
+        async def case(client, owner):
+            session = await client.new_session(owner)
+            with self.assertRaisesRegex(AcpError, '^Native session unavailable$'):
+                await client.native_status(owner, session)
+        for mode in ('native-extra', 'native-malformed', 'native-array', 'native-unknown'):
+            with self.subTest(mode=mode): self.run_case(case, mode=mode)
 
     def test_bad_frames_fail_pending_requests_without_reflecting_provider_data(self):
         for mode in ("malformed", "oversized", "exit", "duplicate", "bool-id", "unknown-id"):
