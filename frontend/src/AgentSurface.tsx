@@ -16,6 +16,7 @@ import type {WorkflowConnection} from './workflow-permissions.js';
 const Principal = createContext('');
 const ConnectionSettings=createContext<SettingsControls|null>(null);
 const SharedWorkflowEditor = lazy(() => import('./WorkflowEditor.js').then(module => ({default:module.WorkflowEditor})));
+const SharedBookkeeping = lazy(() => import('./Bookkeeping.js').then(module => ({default:module.Bookkeeping})));
 const SharedWorkflowActivity=createContext<WorkflowActivity|undefined>(undefined);
 const WorkflowConnectionContext=createContext<WorkflowConnection|undefined>(undefined);
 const SharedForm = createContext<{ binding?: FormBinding; refreshRevision?: number; activity?: NativeFormActivity }>({});
@@ -36,6 +37,9 @@ registerSchemaComponents({
   'Maipa.ClientCatalog': SharedClientCatalog,
   'Maipa.AdminUsers': () => <AdminUsers userId={useContext(Principal)} />,
   'Maipa.AgentSettings': () => <AgentSettings userId={useContext(Principal)} controls={useContext(ConnectionSettings)} />,
+  'Maipa.Books': ({book_id}) => <Suspense fallback={<span role="status">Loading books…</span>}>
+    <SharedBookkeeping key={`${useContext(Principal)}:${String(book_id??'choose')}`} userId={useContext(Principal)} bookId={typeof book_id==='string'?book_id:undefined}/>
+  </Suspense>,
   'Maipa.Workflow': ({draft_id}) => {
     const userId=useContext(Principal),draftId=String(draft_id);
     return <Suspense fallback={<span role="status">Loading workflow…</span>}>

@@ -28,6 +28,7 @@ from .references import record_session, _binding
 from .ui import UiUnavailable, bind_ui_handler, open_ui_lease, dispatch_ui, _tools
 from .form_tools import FormBroker,public_form_tools,TOOLS as FORM_TOOLS
 from .workflow_tools import WorkflowBroker,public_workflow_tools,TOOLS as WORKFLOW_TOOLS
+from backend.maipa.ledger.tools import LedgerBroker, tool_definitions as ledger_tool_definitions, NAMES as LEDGER_TOOLS
 
 _workers, _lock = {}, threading.RLock()
 NATIVE_START_TIMEOUT = 30
@@ -55,7 +56,12 @@ Present, update and dismiss the shared composition at the exact current revision
 Do not invent navigation pages, financial records, connections, verified facts or completed operations.
 Notes are your commentary, not verified evidence. Existing forms enforce authority and approvals.
 Never request credentials in chat. Do not use filesystem, command, network-fetch or other native tools.
-Only the application's UI tools are authorized here. Explain when a requested capability is unavailable.
+Only the application's registered UI, workflow and bookkeeping tools are authorized here. Explain when a requested capability is unavailable.
+For bookkeeping, call maipa_books_list, then maipa_books_read for the original owned book. Use maipa_books_activity for one account's posted history and running balance. To categorize imported bank rows, read maipa_books_imports and propose one balanced entry per pending row citing it (source kind csv, row id, its date and amount); ask the person when the category is unclear.
+Present Maipa.Books with props book_id before using maipa_journal_propose. The human and you use the same saved journal records and chart.
+Use original account IDs, exact decimal strings and genuine user-provided source references; ask about missing classification or evidence instead of inventing them.
+Read the current book revision before each proposal. A proposal is pending review, never a posted transaction.
+The human may review and post their own entries using the shared component. Never impersonate that confirmation or say an entry posted without reading its actual saved posted state.
 When Client setup is visible, form_list/form_get_values expose its shared pending input.
 Read the form before filling it with form_set_value/form_set_values. A stale write means re-read and review current values.
 Filling is pending input only: client creation and unsupported form submission still require the human's existing controls.
@@ -68,6 +74,11 @@ If execution authority is unavailable, the human administrator can open Agent pe
 Run acceptance means queued, not completed. Inspect maipa_workflow_runs for actual saved node states, outputs and failures before reporting outcomes.
 Read maipa_workflow_runs before flow_cancel so cancellation uses its observed step and original current authority.
 If execution authority or the worker is unavailable, explain that refusal. Never create authority, impersonate a human answer or report publication as execution.
+Account setup: at the start of a conversation call maipa_setup_read. If its step is not complete, you guide the person through setup in this chat.
+For each step, say briefly what it is and why Maipa needs it (use the returned explanation in your own words), then ask its question.
+Interpret natural replies: a greeting or unrelated message is not an answer; answer their question, then ask again. Confirm what you understood when unsure.
+Record only what the person actually told you with maipa_setup_record at the returned setup_id and revision, using exact choice values. Never guess or fill in answers.
+If an answer is rejected, explain why and ask again. When the step is review, summarize the draft and ask the person to press Confirm and save setup in the Account setup panel; you cannot save it.
 '''
 
 
@@ -227,6 +238,7 @@ class _Worker:
         self.preference_revision = None
         self.form_tools, self.form_broker = [], None
         self.workflow_tools, self.workflow_broker = [], None
+        self.ledger_broker = None
         self.workflow_activity=None
         self.ui_activity=None
 
@@ -275,6 +287,7 @@ class _Worker:
                 self.ui_id, self.handler = fresh, handler
                 self.form_broker=FormBroker(actor,str(self.account_id),fresh)
                 self.workflow_broker=WorkflowBroker(actor,str(self.account_id),fresh)
+                self.ledger_broker=LedgerBroker(actor,str(self.account_id),fresh)
                 self.workflow_activity=None
                 self.ui_activity=None
             self.binding = (member.installation_id, member.role, member.installation.access_revision)
@@ -360,6 +373,7 @@ class _Worker:
         self.handler = bind_ui_handler(actor, str(self.account_id), self.ui_id)
         self.form_broker=FormBroker(actor,str(self.account_id),self.ui_id)
         self.workflow_broker=WorkflowBroker(actor,str(self.account_id),self.ui_id)
+        self.ledger_broker=LedgerBroker(actor,str(self.account_id),self.ui_id)
         self.workflow_activity=None
         self.ui_activity=None
         self.publish(ui_id=self.ui_id, phase='ready')
@@ -407,13 +421,17 @@ class _Worker:
     async def handle_ui(self, request):
         await db(self.check)
         if request == {'method':'tools/list','params':{}}:
-            return {'tools':_tools()+self.form_tools+self.workflow_tools}
+            return {'tools':_tools()+self.form_tools+self.workflow_tools+ledger_tool_definitions()}
         if not self.ui_id:
             # Native MCP discovery precedes verified native startup. Only
             # static definitions are available here: no catalog data or UI calls.
             if request == {'method': 'tools/list', 'params': {}}:
                 return {'tools': _tools()}
             raise chat.ChatUnavailable('UI unavailable')
+        if (request.get('method')=='tools/call' and request.get('params',{}).get('name') in LEDGER_TOOLS):
+            result=await db(self.ledger_broker.call,request['params']['name'],request['params']['arguments'])
+            await db(self.publish)
+            return result
         if (request.get('method')=='tools/call' and request.get('params',{}).get('name') in WORKFLOW_TOOLS):
             result=await self.workflow_broker.call(request['params']['name'],request['params']['arguments'])
             def publish_workflow_activity():

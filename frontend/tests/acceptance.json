@@ -310,6 +310,16 @@
           "tests": [
             "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state"
           ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.6",
+          "kind": "positive",
+          "given": "A saved setup at the currency step with recorded earlier answers, plus malformed step lists",
+          "when": "Parse setup state and build the explained step list",
+          "then": "List every step before completion with its recorded answer when finished or its purpose otherwise; accept agent-sourced messages and reject incomplete, invented or oversized steps.",
+          "tests": [
+            "onboarding.test.mjs#setup steps explain every step, show recorded answers and reject malformed step lists"
+          ]
         }
       ]
     },
@@ -1782,6 +1792,82 @@
           "then": "Original read reaches ready; exact current model and explicit default are acknowledged by two writes without Illegal invocation",
           "tests": [
             "model-preference.test.mjs#browser fetch receiver semantics support reading and saving the original preference"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L05-BOOKS",
+      "risk": "Bookkeeping could display foreign or draft balances, falsely accept a changed journal, or post an unreviewed payload.",
+      "scenarios": [
+        {
+          "id": "L05-BOOKS.1",
+          "kind": "negative",
+          "given": "A synthetic owned exact0.30 journal, fixed hashes and explicit authenticated transport responses.",
+          "when": "proposal acknowledgment must match the exact requested journal content",
+          "then": "A changed description in a journal acknowledgment is rejected even with the original operation UUID.",
+          "tests": [
+            "bookkeeping.test.mjs#proposal acknowledgment must match the exact requested journal content"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.2",
+          "kind": "negative",
+          "given": "A synthetic owned exact0.30 journal, fixed hashes and explicit authenticated transport responses.",
+          "when": "ledger snapshots reject stale actors mixed book revisions and foreign account rows",
+          "then": "Original snapshots pass; stale actors, mixed revisions and journal accounts from another book refuse.",
+          "tests": [
+            "bookkeeping.test.mjs#ledger snapshots reject stale actors mixed book revisions and foreign account rows"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.3",
+          "kind": "positive",
+          "given": "A synthetic owned exact0.30 journal, fixed hashes and explicit authenticated transport responses.",
+          "when": "posting sends exact human review hash and rejects unconfirmed or foreign receipts",
+          "then": "Only the exact journal/hash/current revision is posted using CSRF and original actor; foreign actor/hash/revision/state receipts refuse.",
+          "tests": [
+            "bookkeeping.test.mjs#posting sends exact human review hash and rejects unconfirmed or foreign receipts"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.4",
+          "kind": "positive",
+          "given": "A synthetic owned exact0.30 journal, fixed hashes and explicit authenticated transport responses.",
+          "when": "decimal display preserves large and four-decimal amounts without float rounding",
+          "then": "Large decimal and four-place values display exactly without floating rounding; nonfinite and exponent strings refuse.",
+          "tests": [
+            "bookkeeping.test.mjs#decimal display preserves large and four-decimal amounts without float rounding"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.5",
+          "kind": "negative",
+          "given": "A synthetic owned exact0.30 journal, fixed hashes and explicit authenticated transport responses.",
+          "when": "book components accept stable references and reject invented data authority or repeated controls",
+          "then": "Stable book UUID components pass; supplied rows, foreign reference and duplicate control reject.",
+          "tests": [
+            "bookkeeping.test.mjs#book components accept stable references and reject invented data authority or repeated controls"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.6",
+          "kind": "negative",
+          "given": "An account activity reply with a negative running balance, plus foreign, inconsistent or malformed variants",
+          "when": "Read and parse account activity",
+          "then": "Accept only the exact bound book/account reply, display signed balances without float arithmetic, send an actor-bound GET, and reject foreign, inconsistent, negative-zero, short-decimal, extra-field or path-like input before any request.",
+          "tests": [
+            "bookkeeping.test.mjs#account activity keeps exact signed balances and rejects foreign or inconsistent rows"
+          ]
+        },
+        {
+          "id": "L05-BOOKS.7",
+          "kind": "negative",
+          "given": "A statement file, a consistent imported-row reply, and unsafe names, empty or oversized content or inconsistent replies",
+          "when": "Import a statement and parse imported rows",
+          "then": "Send the exact content, filename and observed revision with the actor binding; accept only consistent rows for this book; refuse unsafe, empty or oversized files before any request and refuse foreign or inconsistent replies.",
+          "tests": [
+            "bookkeeping.test.mjs#statement import sends exact bounded content with the observed revision and parses only consistent rows"
           ]
         }
       ]

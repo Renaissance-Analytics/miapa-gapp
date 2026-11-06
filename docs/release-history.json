@@ -1,11 +1,25 @@
 [
   {
+    "id": "development-28",
+    "label": "Development update 28",
+    "cards": [
+      {
+        "title": "Recover connections after a restart",
+        "description": "A server restart now clears stale connection controls while keeping your accounts, saved chat and unfinished requests."
+      },
+      {
+        "title": "Use your existing Claude sign-in",
+        "description": "Claude checks the account already signed in on this machine. Maipa offers sign-in only when it is needed."
+      }
+    ]
+  },
+  {
     "id": "development-27",
     "label": "Development update 27",
     "cards": [
       {
         "title": "Claude sign-in link restored",
-        "description": "Maipa now recognizes Claude’s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
+        "description": "Maipa now recognizes Claude\u00e2\u20ac\u2122s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
       }
     ]
   },
@@ -71,7 +85,7 @@
     "cards": [
       {
         "title": "Choose your agent provider",
-        "description": "The chat now saves your provider choice and keeps each account’s conversation separate. Unsent drafts return when switching between providers in the open app."
+        "description": "The chat now saves your provider choice and keeps each account\u00e2\u20ac\u2122s conversation separate. Unsent drafts return when switching between providers in the open app."
       },
       {
         "title": "Connection support stays explicit",

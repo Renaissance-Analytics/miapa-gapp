@@ -55,6 +55,7 @@ BROWSER_CASES = (
     'intake-facts-and-evidence',
     'intake-history-and-conflicts',
     'client-authority-and-revocation',
+    'own-books-review-post-and-trial-balance',
     'logout-and-viewer-denial',
     'intake-user-isolation',
     'layout-user-isolation-and-login',

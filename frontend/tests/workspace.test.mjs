@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Workspace } from "../.test-build/App.js";
+import { AppearanceChoices, Workspace } from "../.test-build/App.js";
 import { readSession, themeStorageKey } from "../.test-build/api.js";
 
 test("session reads only the same-origin authenticated session with no-store", async () => {
@@ -43,9 +43,16 @@ test("workspace starts with chat space and no empty work panel or fixed navigati
 
 test("workspace exposes System, Light and Dark choices without fake finance or provider controls", () => {
   const html = renderToStaticMarkup(React.createElement(Workspace, { session: { state: "anonymous" }, refresh: () => {} }));
-  for (const name of ["System", "Light", "Dark"]) assert.match(html, new RegExp(`>${name}<`));
+  // The account menu is a closed Fancy popover until opened; its trigger is always present.
   assert.match(html, /aria-label="Account and appearance"/);
   assert.doesNotMatch(html, /\$[\d,]+|<textarea|Send message|Connected to (Claude|Codex)/);
+  const chosen = [];
+  const choices = renderToStaticMarkup(React.createElement(AppearanceChoices, { preference: "dark", disabled: false, choose: value => chosen.push(value) }));
+  for (const name of ["System", "Light", "Dark"]) assert.match(choices, new RegExp(`>${name}<`));
+  assert.match(choices, /aria-label="Appearance"/);
+  assert.equal((choices.match(/aria-pressed="true"/g) || []).length, 1);
+  assert.match(choices, /id="maipa-theme-dark"[^>]*aria-pressed="true"|aria-pressed="true"[^>]*id="maipa-theme-dark"/);
+  assert.doesNotMatch(choices, /\$[\d,]+|<textarea|Connected to (Claude|Codex)/);
 });
 
 test("failed session checks show recovery without leaking response details or showing data", () => {

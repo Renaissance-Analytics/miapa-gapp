@@ -70,6 +70,7 @@ def _components(role):
         ('Maipa.ClientFacts', 'Owned client facts and evidence; no props. Server-scoped services load the data.'),
         ('Maipa.ClientCatalog', 'Owned client/entity metadata controls; no props. Writes require current service authority.'),
         ('Maipa.AgentSettings', 'Owned account/profile metadata and human controls for the actual provider connection/model; no props, secrets or model authorization. Model choices apply only to the live connection.'),
+        ('Maipa.Books', 'Bookkeeping chart, exact journal entry/review and actual posted trial balance. Props: book_id, an owned book UUID returned by maipa_books_list. Omit props for human book setup/selection. Pending proposals do not post; only the human confirmation control posts the reviewed exact entry.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':
@@ -112,6 +113,12 @@ def validate_schema(value, role):
                 raise ValueError('Invalid note')
             if item['type'] == 'Maipa.Callout' and item['props']['tone'] not in ('info', 'attention', 'neutral'):
                 raise ValueError('Invalid commentary tone')
+        elif item['type'] == 'Maipa.Books' and 'props' in item:
+            _object(item, ('id', 'type', 'props')); _object(item['props'], ('book_id',))
+            identity = item['props']['book_id']
+            if type(identity) is not str or str(UUID(identity)) != identity or item['type'] in controls:
+                raise ValueError('Invalid book reference')
+            controls.add(item['type'])
         elif item['type'] == 'Maipa.Workflow':
             _object(item,('id','type','props'));_object(item['props'],('draft_id',))
             identity=item['props']['draft_id']
@@ -200,7 +207,48 @@ def _tools():
     ):
         definitions.append({'name': name, 'description': description, 'inputSchema': {
             'type':'object','properties':properties,'required':required,'additionalProperties':False}})
+    setup_identity = {'type': 'string', 'format': 'uuid'}
+    for name, description, properties, required in (
+        ('maipa_setup_read', 'Read this person’s account setup: current step, its question and plain-language explanation, '
+         'all steps on their path, answers recorded so far, and valid choices. Read it before discussing or recording setup.', {}, []),
+        ('maipa_setup_record', 'Record an answer the person actually gave you in conversation for the current setup step '
+         '(action reply), restart the unsaved draft (reset, answer "") or reopen deferred client setup (resume, answer ""), '
+         'only when they ask. Use exact choice values. Never invent or assume an answer. It cannot confirm or save the reviewed setup; '
+         'only the person’s Confirm and save setup button does that.',
+         {'setup_id': setup_identity, 'expected_revision': revision,
+          'action': {'type': 'string', 'enum': ['reply', 'reset', 'resume']},
+          'answer': {'type': 'string', 'maxLength': 128}}, ['setup_id', 'expected_revision', 'action', 'answer']),
+    ):
+        definitions.append({'name': name, 'description': description, 'inputSchema': {
+            'type': 'object', 'properties': properties, 'required': required, 'additionalProperties': False}})
     return definitions
+
+
+SETUP_TOOLS = ('maipa_setup_read', 'maipa_setup_record')
+
+
+def _dispatch_setup(actor, account_id, identity, name, arguments):
+    from backend.maipa.intake import services
+    from backend.maipa.intake.schema import InvalidFact
+    from backend.maipa.workspace import onboarding
+    _lookup(actor, account_id, identity)
+    if name == 'maipa_setup_read':
+        _object(arguments, ())
+        return onboarding.agent_read(actor)
+    _object(arguments, ('setup_id', 'expected_revision', 'action', 'answer'))
+    try:
+        return {'recorded': True, 'setup': onboarding.agent_record(actor, arguments['setup_id'], arguments['expected_revision'],
+                                                                    arguments['action'], arguments['answer'])}
+    except onboarding.HumanConfirmationRequired:
+        return {'recorded': False, 'reason': 'This step is the person’s own confirmation. Ask them to review the summary and press '
+                'Confirm and save setup in the Account setup panel.', 'setup': onboarding.agent_read(actor)}
+    except InvalidFact:
+        return {'recorded': False, 'reason': 'That answer is not valid for this step. Explain the step and ask again.',
+                'setup': onboarding.agent_read(actor)}
+    except services.RevisionConflict:
+        raise UiConflict('Setup changed; read it again before recording') from None
+    except services.ScopeDenied:
+        raise UiUnavailable('Setup change not allowed for this role') from None
 
 
 def _dispatch_views(actor, account_id, identity, name, arguments):
@@ -264,6 +312,8 @@ def dispatch_ui(actor, account_id, identity, request):
         raise ValueError('Unsupported UI method')
     _object(params, ('name', 'arguments'))
     name, arguments = params['name'], params['arguments']
+    if name in SETUP_TOOLS:
+        return _dispatch_setup(actor, account_id, identity, name, arguments)
     if name in ('maipa_views_list','maipa_views_save','maipa_views_change','maipa_views_open'):
         return _dispatch_views(actor, account_id, identity, name, arguments)
     if name == 'maipa_ui_catalog':

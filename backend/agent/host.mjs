@@ -14,9 +14,11 @@ if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
 export function claudeUiTools(enabled) {
   return enabled ? [...['catalog', 'present', 'update', 'dismiss'].map(operation => `mcp__maipa_ui__maipa_ui_${operation}`),
     ...['list', 'save', 'change', 'open'].map(operation => `mcp__maipa_ui__maipa_views_${operation}`),
+    ...['read', 'record'].map(operation => `mcp__maipa_ui__maipa_setup_${operation}`),
     ...['list', 'describe', 'get_value', 'get_values', 'set_value', 'set_values', 'focus', 'submit'].map(operation => `mcp__maipa_ui__form_${operation}`),
     ...['get_state','list_nodes','get_node','list_edges','get_node_schema','add_node','update_node','delete_node','connect','disconnect','run','cancel'].map(operation=>`mcp__maipa_ui__flow_${operation}`),
-    ...['list','create','publish','runs','select_run'].map(operation=>`mcp__maipa_ui__maipa_workflow_${operation}`)] : [];
+    ...['list','create','publish','runs','select_run'].map(operation=>`mcp__maipa_ui__maipa_workflow_${operation}`),
+    ...['maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_journal_propose'].map(name=>`mcp__maipa_ui__${name}`)] : [];
 }
 
 export function validateProfile(value) {

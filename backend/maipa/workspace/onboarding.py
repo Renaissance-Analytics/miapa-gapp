@@ -1,4 +1,9 @@
-"""A durable, deterministic setup conversation; no model or provider impersonation."""
+"""Durable account setup state.
+
+The connected in-app agent guides this setup through scoped tools; people can also
+answer each step directly. Nothing here pretends to be a model, and only a human
+confirmation saves the reviewed setup into client records.
+"""
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
@@ -20,6 +25,34 @@ PROMPTS = {
     'review': 'Review your setup below. Confirm to save it, or restart this draft to make changes.',
     'complete': 'Your confirmed account setup is saved. Your client facts are available in the work area.',
 }
+
+
+# What each step is for, shown beside the question so nobody has to guess.
+EXPLANATIONS = {
+    'display_name': ('Your name', 'How Maipa addresses you. It is saved to your own user profile only; it is not a client or business name.'),
+    'workspace': ('Choose a client', 'Maipa keeps each client’s books separate. Start a new client, pick an entity you already set up, or skip this for now and finish later.'),
+    'engagement_name': ('Engagement', 'An engagement is the work you do for a client, for example “Acme 2026 bookkeeping”. It groups that client’s entities, facts and workpapers.'),
+    'entity_name': ('Entity', 'The business or person whose books these are, for example “Acme LLC”. Records and facts are kept separately for each entity.'),
+    'currency': ('Currency', 'The three-letter code of the currency the books are kept in, for example USD. Every amount for this entity uses it.'),
+    'reporting_basis': ('Reporting basis', 'Cash basis records income and expenses when money moves; accrual records them when earned or owed. Choose “not sure yet” if you do not know.'),
+    'effective_from': ('Applies from', 'The date from which the currency and reporting basis are true. Maipa keeps dated history, so a later change never overwrites an earlier fact.'),
+    'review': ('Review and confirm', 'Nothing has been saved to client records yet. Check the summary, then confirm to save it or restart to change it.'),
+    'complete': ('Done', 'Your setup is saved. Client facts record this confirmed setup as their source.'),
+}
+AGENT_SETUP_STEPS = ('display_name', 'workspace', 'engagement_name', 'entity_name', 'currency', 'reporting_basis', 'effective_from')
+
+
+def path(row, editor):
+    """The steps this person will actually pass through, given their answers so far."""
+    steps = ['display_name']
+    if editor:
+        steps.append('workspace')
+        choice = row.draft.get('workspace')
+        if choice != 'later':
+            if choice in (None, 'new'):
+                steps += ['engagement_name', 'entity_name']
+            steps += ['currency', 'reporting_basis', 'effective_from']
+    return steps + ['review', 'complete']
 
 
 def current(user):
@@ -46,10 +79,13 @@ def snapshot(user, row):
     return {'setup_id': str(row.identity), 'revision': row.revision, 'step': row.step, 'draft': row.draft, 'messages': row.messages,
             'choices': choices, 'entity_id': str(row.entity_id) if row.entity_id else None,
             'deferred': row.deferred, 'provider_ready': False,
-            'can_edit': member.role in ('administrator', 'preparer')}
+            'can_edit': member.role in ('administrator', 'preparer'),
+            'question': PROMPTS[row.step], 'explanation': EXPLANATIONS[row.step][1],
+            'steps': [{'id': key, 'title': EXPLANATIONS[key][0], 'explanation': EXPLANATIONS[key][1]}
+                      for key in path(row, member.role in ('administrator', 'preparer'))]}
 
 
-def _advance(user, row, answer):
+def _advance(user, row, answer, source='user'):
     draft, step = dict(row.draft), row.step
     label = answer
     if step == 'display_name':
@@ -117,12 +153,12 @@ def _advance(user, row, answer):
     else:
         require(False)
     row.draft, row.step = draft, step
-    row.messages = row.messages + [{'role': 'user', 'text': label}, {'role': 'guide', 'text': PROMPTS[step]}]
+    row.messages = row.messages + [{'role': source, 'text': label}, {'role': 'guide', 'text': PROMPTS[step]}]
     require(len(row.messages) <= 19)
 
 
 @transaction.atomic
-def respond(user, value, setup_id):
+def respond(user, value, setup_id, source='user'):
     fields(value, ('expected_revision', 'action', 'answer'))
     revision, action, answer = value['expected_revision'], value['action'], value['answer']
     require(type(revision) is int and 0 <= revision < 1_999_999_999)
@@ -146,7 +182,24 @@ def respond(user, value, setup_id):
         row.messages = row.messages[:3]
         row.messages[-1] = {'role': 'guide', 'text': PROMPTS['workspace']}
     else:
-        _advance(user, row, answer)
+        _advance(user, row, answer, source)
     row.revision = revision + 1
     row.save(update_fields=['revision', 'step', 'draft', 'messages', 'entity', 'deferred'])
     return row
+
+
+class HumanConfirmationRequired(Exception):
+    """The reviewed setup is saved only by the person's own confirmation control."""
+
+
+def agent_read(user):
+    return snapshot(user, current(user))
+
+
+def agent_record(user, setup_id, expected_revision, action, answer):
+    """Record an answer the person gave in conversation. Never confirms the save."""
+    row = current(user)
+    if action == 'reply' and row.step not in AGENT_SETUP_STEPS:
+        raise HumanConfirmationRequired()
+    return snapshot(user, respond(user, {'expected_revision': expected_revision, 'action': action, 'answer': answer},
+                                  setup_id, source='agent'))

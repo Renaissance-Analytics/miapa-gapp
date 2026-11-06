@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "0461baad80afe33f81b3fe03359b3a1207cabc5cc436fbac5c408089f6730111",
+    "tools/browser.mjs": "940ccaf830872f9143473e2276ae2ab6bdff04d7c1d60d721dabfa44da9bc166",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "8b2422cd7f3cb0a62c3cfdbfb15b76862c9c3aeefcefc491f6af38fcfade835f"
+    "tests/fixtures/agent_chat_peer.py": "dbf28d75f97ddafbbf3b50e836dc53022771ccd8dce3db7b128db673228f7760"
   },
   "cases": [
     {
@@ -205,6 +205,11 @@
       "expected": "Actual pointer opens scoped authority provisioned only by the isolated trusted operator fixture. The UI and actual Django summary preserve its exact500.0000USD limit and unavailable execution. Missing CSRF denies withdrawal; native reason entry and pointer revocation persist an inactive grant, revocation time and incremented policy version without relogin. Facts remain unchanged. Native selection of a different entity shows honest absent authority and no reference from the first entity."
     },
     {
+      "id": "own-books-review-post-and-trial-balance",
+      "kind": "positive",
+      "expected": "Real header/component creates owned business books, prepares42.17 office debit/checking credit through native controls, confirms pending totals remain zero, posts the exact visible hash, reloads and verifies persistent42.1700 trial balances. Original unsent chat draft survives dismissal."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -325,5 +330,9 @@
   "durable_draft_review": "Keep all42prior scenarios and budgets. New reloads verify full draft/file metadata, unsupported byte refusal, same failed-send retry identity and no auto resubmission. Existing acknowledged-send edited/restored text assertions stay intact.",
   "current_turn_acknowledgment_review": "Async prepared draft persistence means the previous ready turn is not the clicked send. Capture each actual closed send request ID; retain the original15s until budget while requiring that exact latest user/complete assistant and rendered conversation revision. Pin controls additionally acknowledge the actual native collection revision before reordering. No assertion/deadline/case is weakened or removed. Require the selected native result to be completed in the actual UI before asserting saved output text; the backend completing and an earlier running UI with the same ID are different observations. Existing output assertion, IDs and time budgets are retained.",
   "agent_settings_review": "Adds one44th case and finite peer component selector only; all43prior case IDs, assertions and operation/aggregate deadlines remain. Actual session/set_model changes feed the same controlled state in chat/settings; no fake model state or production adapter. Current user/profile read-only metadata reveals no credentials/home/private handles. No auth/model execution tool is added.",
-  "future_model_review": "Synthetic prepare now provisions original ProviderProfile metadata matching production prepare; no real home or credentials. Production API derives current model from exact session/worker token and checks original profile. Two additional explicit disconnect/reconnect cycles exercise new actual peer sessions without fabricated Ready. Original120second windows/420second parent and all46prior cases unchanged. Reviewed new-case fixture correction: require the actual existing offline chat label Connect your agent to begin, with the same native worker-release/disabled check. No application or original-case/assertion/deadline change. First run source change is retained; complete frozen-source CI repeats."
+  "future_model_review": "Synthetic prepare now provisions original ProviderProfile metadata matching production prepare; no real home or credentials. Production API derives current model from exact session/worker token and checks original profile. Two additional explicit disconnect/reconnect cycles exercise new actual peer sessions without fabricated Ready. Original120second windows/420second parent and all46prior cases unchanged. Reviewed new-case fixture correction: require the actual existing offline chat label Connect your agent to begin, with the same native worker-release/disabled check. No application or original-case/assertion/deadline change. First run source change is retained; complete frozen-source CI repeats.",
+  "account_activity_review": "The finite peer exact startup catalog adds the read-only maipa_books_activity tool. No browser action, assertion, deadline or case changed.",
+  "account_popover_review": "The hand-built details account menu stayed open over the work panel and blocked Reload books. It is now the published Fancy Popover, which closes on outside click and Escape. Browser helpers read the stable data-open handle and openAccountMenu reopens the menu, retrying while the shell settles after reload, before reading theme controls that mount only while open. All case actions, assertions, deadlines and cleanup are otherwise unchanged.",
+  "statement_import_review": "The finite peer exact startup catalog adds the read-only maipa_books_imports tool. No browser action, assertion, deadline or case changed.",
+  "agent_guided_setup_review": "Account setup is now explained steps, not a scripted chat. The browser flow keeps every original native action, assertion, deadline and case; only the submit label (Send answer -> Save answer) and the transcript selector (Account setup conversation -> Account setup steps, which shows recorded answers) follow the new markup. The finite peer exact startup catalog adds maipa_setup_read and maipa_setup_record. No real-model onboarding acceptance is claimed."
 }

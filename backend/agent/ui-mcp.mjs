@@ -183,7 +183,8 @@ async function main() {
           'form_set_value','form_set_values','form_focus','form_submit',
           'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
           'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect','flow_run','flow_cancel',
-          'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs','maipa_workflow_select_run'].includes(request.params.name)) {
+          'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','maipa_workflow_runs','maipa_workflow_select_run',
+          'maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_journal_propose'].includes(request.params.name)) {
           // Public Fancy tools already return MCP results. Preserve refusals;
           // wrapping an error DTO in isError:false would invent success.
           if (!record(result) || Object.keys(result).some(key=>!['content','structuredContent','isError'].includes(key))

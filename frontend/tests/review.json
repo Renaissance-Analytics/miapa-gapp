@@ -4,7 +4,7 @@
     {
       "scenario": "K05-CLIENT-IDENTITY.valid",
       "test": "workspace.test.mjs#session reads only the same-origin authenticated session with no-store",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "ad80559a2002109a43fce4c1131d78f23c5d91dfd91419e0fa6928b0751da865",
       "expected_observation": "Use same-origin credentials and no-store; retain only the string principal ID, never the CSRF token",
       "decision": "aligned",
@@ -14,7 +14,7 @@
     {
       "scenario": "K05-CLIENT-IDENTITY.refuse",
       "test": "workspace.test.mjs#anonymous sessions stay signed out",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
       "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
       "decision": "aligned",
@@ -24,7 +24,7 @@
     {
       "scenario": "K05-CLIENT-IDENTITY.refuse",
       "test": "workspace.test.mjs#malformed identity, server failures and network errors never claim authentication",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "a35307e2f61f55c8332968d3e1eed2f3445d6cd1c8172e70253235ccc71f06ff",
       "expected_observation": "401 stays anonymous; every invalid or failed response stays unavailable without leaking server details",
       "decision": "aligned",
@@ -34,7 +34,7 @@
     {
       "scenario": "K05-APP-SHELL.structure",
       "test": "workspace.test.mjs#workspace starts with chat space and no empty work panel or fixed navigation",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
       "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
@@ -44,7 +44,7 @@
     {
       "scenario": "K05-APP-SHELL.structure",
       "test": "workspace.test.mjs#workspace exposes System, Light and Dark choices without fake finance or provider controls",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
       "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
@@ -54,7 +54,7 @@
     {
       "scenario": "K05-APP-SHELL.structure",
       "test": "workspace.test.mjs#theme storage is separate for each authenticated user and the signed-out workspace",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "7f02d1f85e3ddde45db0b7a0da6210ea60152ffd9c18da5976b8cd39150f165b",
       "expected_observation": "Render one conversation/access surface with no empty work panel, splitter or fixed navigation; keep compact appearance controls and separate principal preference keys",
       "decision": "aligned",
@@ -64,7 +64,7 @@
     {
       "scenario": "K05-APP-SHELL.recovery",
       "test": "workspace.test.mjs#failed session checks show recovery without leaking response details or showing data",
-      "source_sha256": "0a1566ecbfa53c5b6e0d3904383dc930c58a40d4d9c0020d710fe14adb7cd69c",
+      "source_sha256": "d3e982177d95a8b31abbf83fa8572f2a0166f0c6d4c4375bdd337eaa88fad8e4",
       "scenario_sha256": "6e6cb0dbdbbfd25271c4be777167c5594e8747bd577f7e1b467a7f317b65bc19",
       "expected_observation": "Show Workspace unavailable and a recovery action with no private diagnostic/token content",
       "decision": "aligned",
@@ -105,40 +105,40 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
+      "source_sha256": "7bead188f6b3a506f12f8ac97290bcf5aff0b0e12977b3de0145dfba8069300b",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
+      "source_sha256": "7bead188f6b3a506f12f8ac97290bcf5aff0b0e12977b3de0145dfba8069300b",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
+      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
+      "source_sha256": "7bead188f6b3a506f12f8ac97290bcf5aff0b0e12977b3de0145dfba8069300b",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "28dca2de3f4ad7e1009eb4d170f5014b25d4ef6cb250103784cfd7eb4fe8b799",
+      "source_sha256": "7bead188f6b3a506f12f8ac97290bcf5aff0b0e12977b3de0145dfba8069300b",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
-      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic.",
+      "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
@@ -194,7 +194,7 @@
     {
       "scenario": "P01-LOGIN-UI.valid",
       "test": "auth.test.mjs#sign-in sends bounded same-origin credentials with the server CSRF token and retains no secrets",
-      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "source_sha256": "62bd202a4653a212093ede6531da0e77d8752cb9fb566b9b069ecfecd2b319fd",
       "scenario_sha256": "fdd10cce34527ad4051a7abdae68b9c969db3345807ade0e224f96082544a022",
       "expected_observation": "Use same-origin no-store nonredirecting CSRF-protected requests, keep credentials out of retained state, and verify logout acknowledgement.",
       "decision": "aligned",
@@ -204,7 +204,7 @@
     {
       "scenario": "P01-LOGIN-UI.valid",
       "test": "auth.test.mjs#sign-out requires CSRF POST and a verified backend response",
-      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "source_sha256": "62bd202a4653a212093ede6531da0e77d8752cb9fb566b9b069ecfecd2b319fd",
       "scenario_sha256": "fdd10cce34527ad4051a7abdae68b9c969db3345807ade0e224f96082544a022",
       "expected_observation": "Use same-origin no-store nonredirecting CSRF-protected requests, keep credentials out of retained state, and verify logout acknowledgement.",
       "decision": "aligned",
@@ -214,7 +214,7 @@
     {
       "scenario": "P01-LOGIN-UI.controls",
       "test": "auth.test.mjs#anonymous workspace has a labelled password form and authenticated workspace has sign-out",
-      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "source_sha256": "62bd202a4653a212093ede6531da0e77d8752cb9fb566b9b069ecfecd2b319fd",
       "scenario_sha256": "9b25dad499834b96483ba158ef2b46ca2640a1d353ff7798ef524a0154f2a18b",
       "expected_observation": "Expose a labelled username/password form with native autocomplete semantics only while signed out, and Sign out only while authenticated.",
       "decision": "aligned",
@@ -224,7 +224,7 @@
     {
       "scenario": "P01-LOGIN-UI.failure",
       "test": "auth.test.mjs#sign-in errors never expose raw diagnostics and failed CSRF bootstrap sends no password",
-      "source_sha256": "e38fe0703c038b3eac4cacde3008beff953afd5323656033896931451a812c54",
+      "source_sha256": "62bd202a4653a212093ede6531da0e77d8752cb9fb566b9b069ecfecd2b319fd",
       "scenario_sha256": "9d0e988aa620133b9758fd634beaca2df95e1beaf655f010d0bd7aab0daa9ec6",
       "expected_observation": "Return only fixed safe failure states; never send a password after invalid CSRF bootstrap or reflect raw server diagnostics.",
       "decision": "aligned",
@@ -284,7 +284,7 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.1",
       "test": "onboarding.test.mjs#first-run adapter and form distinguish local administrator creation from account setup",
-      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
       "scenario_sha256": "3dcf11bedc9a35ddfb99f3f3a8427b321df947de4f57840b57f4ca73ead25b44",
       "expected_observation": "Show exactly username, new password and confirmation fields, explain the following setup conversation, distinguish true/false setup, and show no setup-code or file-discovery instructions or invented provider connection.",
       "decision": "aligned",
@@ -294,7 +294,7 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.2",
       "test": "onboarding.test.mjs#administrator creation uses CSRF and bounded same-origin requests without retaining credentials",
-      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
       "scenario_sha256": "b2bf5b5c9caefda933fe0e46276f792f6005260fd1aba583d2f61c58b0811f9c",
       "expected_observation": "Send only username, password and confirmation in bounded same-origin CSRF requests and retain only the created result.",
       "decision": "aligned",
@@ -304,7 +304,7 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.3",
       "test": "onboarding.test.mjs#invalid setup and failed bootstrap cannot claim success or disclose server diagnostics",
-      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
       "scenario_sha256": "e08c78752e9f1e015a2eda2aacbfec9b7faf6396acd13de0b14dbddbfd6b88af",
       "expected_observation": "Reject malformed input without network, map invalid/closed/unavailable states including CSRF denial, and expose no raw diagnostics or obsolete invalid-code result.",
       "decision": "aligned",
@@ -314,7 +314,7 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.4",
       "test": "onboarding.test.mjs#chat adapter sends only revision action and answer and renders an escaped explicit review",
-      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
       "scenario_sha256": "925327f28ca381f4b6f3d387aac51be5b748c27174ac72f87e95eba9ad7480fb",
       "expected_observation": "Send exact revision/action/answer with CSRF and display explicit unknown/date/escaped names.",
       "decision": "aligned",
@@ -324,7 +324,7 @@
     {
       "scenario": "LOCAL-ONBOARDING-UI.5",
       "test": "onboarding.test.mjs#chat errors and malformed or falsely connected responses never become accepted setup state",
-      "source_sha256": "12ea01e76175a81237be606272844ec6af55d336ca156d0f7daec57998f26c32",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
       "scenario_sha256": "0c37e9fccbb3231057f2e5da57ae01d570a94b3d2e3d80814db9eac1390ab5c9",
       "expected_observation": "Return only fixed denied/conflict/unavailable/invalid states and reject fake provider readiness or role fields.",
       "decision": "aligned",
@@ -464,7 +464,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.1",
       "test": "preferences.test.mjs#personal preference reads are bounded same-origin and reject foreign or unsupported state",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "bc8058b358ec45a3a84bef77c119092a6bfaca1d68a294ee2e34ca1fbfb86d20",
       "expected_observation": "Use bounded same-origin no-store requests and reject foreign identities, unsupported fields/choices, oversized data and wrong media types.",
       "decision": "aligned",
@@ -474,7 +474,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.2",
       "test": "preferences.test.mjs#preference writes send exact choices identity revision and fresh CSRF and verify the acknowledgement",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "9d0803373170e06ca6e43d065ca07a2b30881c3d88589f6f233f644ff215b102",
       "expected_observation": "Use fresh CSRF and exact safe fields; accept only an acknowledgement with the same owner/identity, next revision and exact requested choices.",
       "decision": "aligned",
@@ -484,7 +484,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.3",
       "test": "preferences.test.mjs#invalid preference fields and unsafe HTTP outcomes never become accepted settings",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "0b7aed83b03dfe6125a21fc61bf8e1b29c16b81f931311d2facdca3cc98279dc",
       "expected_observation": "Send no invalid request and expose only fixed unavailable/conflict results without inventing success.",
       "decision": "aligned",
@@ -494,7 +494,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.4",
       "test": "preferences.test.mjs#an unknown preference save pauses writes until an explicit authoritative reload",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "203e575374032d48aba01850255e8386dcced6d72b28be17ef290704b39d248e",
       "expected_observation": "Pause additional writes and reconcile authoritative state through a deliberate reload; expose no raw diagnostics.",
       "decision": "aligned",
@@ -504,7 +504,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.5",
       "test": "preferences.test.mjs#late preference loads and disposed identities cannot publish into another principal",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "e710569c212780b5b192b9b7750c89a75d9adf6f82a69aba4d1d3614b69c80f6",
       "expected_observation": "Keep the newest live principal state and reject foreign snapshots; disposed callbacks never publish.",
       "decision": "aligned",
@@ -514,7 +514,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.6",
       "test": "preferences.test.mjs#pending preference writes lock further mutations and stale acknowledgements cannot overwrite a reload",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "c4057ee73073657a48bc55b0759ccaa82676324edc5b360f10b9e0847e294020",
       "expected_observation": "Issue one write only and ignore the stale acknowledgement after reload.",
       "decision": "aligned",
@@ -524,7 +524,7 @@
     {
       "scenario": "P05-PREFERENCES-UI.8",
       "test": "preferences.test.mjs#authenticated workspace exposes loading and recovery state before allowing preference edits",
-      "source_sha256": "17023c289fcea479f748435c7d856c359e9aaae8d512ea49ffd2b5cf52f1dcd4",
+      "source_sha256": "c07eef3af75af47aa92340d5b98f5d1cf3defd8e7e64d9be626efa6ccac3f9b6",
       "scenario_sha256": "fbb8842257f8de80e5350460b39d7afb302e9e0c57b93d30c03a11b1a0cb3963",
       "expected_observation": "Expose loading through controlled state, disable appearance edits, retain the actual chat composer and render no fixed guide or redundant loading banner",
       "decision": "aligned",
@@ -1475,70 +1475,70 @@
       "scenario": "common-header-1",
       "test": "common-views.test.mjs#common header choices are finite role hints from current workspace metadata",
       "scenario_sha256": "23b18705ef126a018833f1e5c7f3b24f605688d549f2a9b3d2c03eda1f3ad570",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "common header choices are finite role hints from current workspace metadata. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-2",
       "test": "common-views.test.mjs#shortcut metadata is bounded cancellable and never follows redirects or submits chat",
       "scenario_sha256": "28d8a9cddf72d036d5cb0bc6ee916d8679829351930bef74393bac1848cbaa7b",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "shortcut metadata is bounded cancellable and never follows redirects or submits chat. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-3",
       "test": "common-views.test.mjs#offline shortcuts open existing components without a model message lease or saved pin",
       "scenario_sha256": "d5c5e4d87893e3095857f4a4ef9753b6d389d8e0c23fc1c9045a972e8658446e",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "offline shortcuts open existing components without a model message lease or saved pin. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-4",
       "test": "common-views.test.mjs#live shortcuts use the current shared composition and exact acknowledged revision",
       "scenario_sha256": "7e3b169718bfd9f30e7ff40f3cc0cc430ac18b9c38efc962ef849b4525cd6c09",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "live shortcuts use the current shared composition and exact acknowledged revision. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-5",
       "test": "common-views.test.mjs#delayed shortcut reads cannot target a changed connection or a disposed user mount",
       "scenario_sha256": "8fb851b318bc3b36095277567de43224226694758c761f72b3af887cf0c687e9",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "delayed shortcut reads cannot target a changed connection or a disposed user mount. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-6",
       "test": "common-views.test.mjs#role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request",
       "scenario_sha256": "24424f0a9d28c615244eab5572f8b765be7fc51a3d3a746a70837e0a5f2ac8d3",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "role denial and overlapping shortcut clicks create no unauthorized or duplicate UI request. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
       "scenario": "common-header-7",
       "test": "common-views.test.mjs#foreign or superseded UI acknowledgments are refused without replacing the visible panel",
       "scenario_sha256": "6a2b899fd1b12f2306b5838d0e61616877b925da0fc1b989de3052800f8c215f",
-      "source_sha256": "8490e785cceb9f1e5799b39f7a4d6125adea87deccc0411f3ed625ebcd7a441f",
+      "source_sha256": "d54a984c07d66bdff278baea09e92e709108080a39f671b1c8557055690a466d",
       "expected_observation": "foreign or superseded UI acknowledgments are refused without replacing the visible panel. No provider command, business write, saved-view creation or fabricated UI acknowledgment occurs.",
       "decision": "aligned",
-      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains.",
+      "reason": "Independent callback/request counts and original state verify role/lifetime/revision behavior; metadata is only a display hint, current server authority remains. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
       "reviewer": "Maipa expected-outcome review; no external reviewer claimed"
     },
     {
@@ -1680,6 +1680,86 @@
       "decision": "aligned",
       "reason": "Real native Chrome probe independently proves fetch receiver contract; injected transport rejects a foreign receiver and accepts either unbound/global receiver. Assert ready and actual two persisted writes; no implementation source or fake-success status. Existing six outcome/context/ambiguity/disposal cases unchanged.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.1",
+      "test": "bookkeeping.test.mjs#proposal acknowledgment must match the exact requested journal content",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "8787ec7ba8cfe725c5748e238f3864d836685aaacb48053404df3e054e2097a1",
+      "expected_observation": "A changed description in a journal acknowledgment is rejected even with the original operation UUID.",
+      "decision": "aligned",
+      "reason": "A changed description in a journal acknowledgment is rejected even with the original operation UUID. Transport body, current context and independent known amounts are asserted; this does not claim React or native provider acceptance.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.2",
+      "test": "bookkeeping.test.mjs#ledger snapshots reject stale actors mixed book revisions and foreign account rows",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "42cc614e41704d348cf71345cad1ce3b5809109732c70b41146ed2fe11981823",
+      "expected_observation": "Original snapshots pass; stale actors, mixed revisions and journal accounts from another book refuse.",
+      "decision": "aligned",
+      "reason": "Original snapshots pass; stale actors, mixed revisions and journal accounts from another book refuse. Transport body, current context and independent known amounts are asserted; this does not claim React or native provider acceptance.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.3",
+      "test": "bookkeeping.test.mjs#posting sends exact human review hash and rejects unconfirmed or foreign receipts",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "03b995dafc495a33c910599e9c43746c460a5405ea43f9c3dc5857e4606c3e92",
+      "expected_observation": "Only the exact journal/hash/current revision is posted using CSRF and original actor; foreign actor/hash/revision/state receipts refuse.",
+      "decision": "aligned",
+      "reason": "Only the exact journal/hash/current revision is posted using CSRF and original actor; foreign actor/hash/revision/state receipts refuse. Transport body, current context and independent known amounts are asserted; this does not claim React or native provider acceptance.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.4",
+      "test": "bookkeeping.test.mjs#decimal display preserves large and four-decimal amounts without float rounding",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "dc58d970b1393a417db1fa9b19ad7b223f86f210e34bfa9ab2979501d2974872",
+      "expected_observation": "Large decimal and four-place values display exactly without floating rounding; nonfinite and exponent strings refuse.",
+      "decision": "aligned",
+      "reason": "Large decimal and four-place values display exactly without floating rounding; nonfinite and exponent strings refuse. Transport body, current context and independent known amounts are asserted; this does not claim React or native provider acceptance.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.5",
+      "test": "bookkeeping.test.mjs#book components accept stable references and reject invented data authority or repeated controls",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "c7f594ef8459c8010b73dda57a636cc2636241e8ce4414892b2d7ea6b2d2b481",
+      "expected_observation": "Stable book UUID components pass; supplied rows, foreign reference and duplicate control reject.",
+      "decision": "aligned",
+      "reason": "Stable book UUID components pass; supplied rows, foreign reference and duplicate control reject. Transport body, current context and independent known amounts are asserted; this does not claim React or native provider acceptance.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.6",
+      "test": "bookkeeping.test.mjs#account activity keeps exact signed balances and rejects foreign or inconsistent rows",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "97cd2e16422b511b57ad354b88f348c55cddcde8458cfee381d7a476042ca206",
+      "expected_observation": "Accept only the exact bound book/account reply, display signed balances without float arithmetic, send an actor-bound GET, and reject foreign, inconsistent, negative-zero, short-decimal, extra-field or path-like input before any request.",
+      "decision": "aligned",
+      "reason": "Asserts the exact parsed value, −1,234,567.89 and 0.30 displays, seven rejected variants, the exact GET URL/method/actor header and no request for a path-like account ID.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.7",
+      "test": "bookkeeping.test.mjs#statement import sends exact bounded content with the observed revision and parses only consistent rows",
+      "source_sha256": "1c90069c2a9641f82e05b25a80b4a4de3df09fd56df8fa89d82db7ffe5537e24",
+      "scenario_sha256": "1302688bfbd965854abba7eaa8d4ae17759f9edbf810adcb1e2354623b36b024",
+      "expected_observation": "Send the exact content, filename and observed revision with the actor binding; accept only consistent rows for this book; refuse unsafe, empty or oversized files before any request and refuse foreign or inconsistent replies.",
+      "decision": "aligned",
+      "reason": "Asserts the exact parsed rows, seven rejected row variants, the exact POST body/URL/actor header, four refused files with no extra request, and rejection of a foreign-book acknowledgment.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING-UI.6",
+      "test": "onboarding.test.mjs#setup steps explain every step, show recorded answers and reject malformed step lists",
+      "source_sha256": "d7bd7509f51c2446597d9645b83b39d4dad16d21debd3410358419682f6f16f8",
+      "scenario_sha256": "252ea925e2d3a1e08ea10fdb9eeeb07cfdaf74f7890cd6259b9da65974124a2e",
+      "expected_observation": "List every step before completion with its recorded answer when finished or its purpose otherwise; accept agent-sourced messages and reject incomplete, invented or oversized steps.",
+      "decision": "aligned",
+      "reason": "Asserts the exact eight step ids, recorded answers (Morgan, New client, escaped-source entity, Unknown for now, date) and purposes for current/upcoming steps, three malformed step lists become unavailable, and an agent message is accepted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

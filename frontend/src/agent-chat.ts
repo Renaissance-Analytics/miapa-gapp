@@ -51,6 +51,11 @@ export function compositionSchema(input: unknown): ScreenSchema {
         || (callout && !['info', 'attention', 'neutral'].includes(String(v.props.tone)))) return fail();
       return { id: v.id, type: String(v.type), props: { text: v.props.text, ...(callout ? { tone: v.props.tone } : {}) } };
     }
+    if (v.type === 'Maipa.Books' && v.props !== undefined) {
+      if (!object(v.props) || Object.keys(v.props).length !== 1 || typeof v.props.book_id !== 'string'
+        || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || controls.has(v.type)) return fail();
+      controls.add(v.type); return {id:v.id,type:v.type,props:{book_id:v.props.book_id}};
+    }
     if (v.type === 'Maipa.Workflow') {
       if (!object(v.props) || Object.keys(v.props).length !== 1 || typeof v.props.draft_id !== 'string'
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.draft_id) || controls.has(v.type)) return fail();
@@ -64,7 +69,7 @@ export function compositionSchema(input: unknown): ScreenSchema {
       controls.add(v.type);
       return { id: v.id, type: v.type, props: { columns: [...v.props.columns] } };
     }
-    if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers', 'Maipa.AgentSettings'].includes(v.type)
+    if (typeof v.type !== 'string' || !['Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AdminUsers', 'Maipa.AgentSettings', 'Maipa.Books'].includes(v.type)
       || v.props !== undefined || controls.has(v.type)) return fail();
     controls.add(v.type);
     return { id: v.id, type: v.type };

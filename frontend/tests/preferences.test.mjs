@@ -3,7 +3,7 @@ import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { PreferencesController, readPreferences, savePreferences } from '../.test-build/preferences.js';
-import { Workspace } from '../.test-build/App.js';
+import { AppearanceChoices, Workspace, appearanceLocked } from '../.test-build/App.js';
 
 const snapshot = { preferences_id: '61525eda-df14-4e4b-a369-4f8c20dc95ed', user_id: '1', revision: 0, theme: 'system', active_view: 'client-facts' };
 const choice = { theme: 'dark', active_view: 'workspace-guide' };
@@ -125,7 +125,14 @@ test('authenticated workspace exposes loading and recovery state before allowing
   assert.match(html, /data-preferences-state="loading"/);
   assert.match(html, /aria-label="Message Maipa"/);
   assert.doesNotMatch(html, /Workspace guide|work-view-controls|Loading your appearance and view/);
-  const dark = html.match(/<button\b[^>]*id="maipa-theme-dark"[^>]*>/)?.[0];
+  assert.match(html, /aria-label="Account and appearance"/);
+  // Theme controls mount inside the account popover; the shared rule locks them until preferences load.
+  assert.equal(appearanceLocked({ state: 'authenticated', userId: '1' }, 'loading'), true);
+  assert.equal(appearanceLocked({ state: 'authenticated', userId: '1' }, 'conflict'), true);
+  assert.equal(appearanceLocked({ state: 'authenticated', userId: '1' }, 'ready'), false);
+  assert.equal(appearanceLocked({ state: 'anonymous' }, 'loading'), false);
+  const locked = renderToStaticMarkup(React.createElement(AppearanceChoices, { preference: 'system', disabled: true, choose() {} }));
+  const dark = locked.match(/<button\b[^>]*id="maipa-theme-dark"[^>]*>/)?.[0];
   assert.ok(dark);
   assert.match(dark, /\bdisabled=""/);
   assert.doesNotMatch(html, /Connected to (Claude|Codex)|provider_ready.*true/);

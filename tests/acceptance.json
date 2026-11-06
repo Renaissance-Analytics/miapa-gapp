@@ -1119,6 +1119,26 @@
           "tests": [
             "tests.test_onboarding.AccountOnboardingTests.test_chat_writes_require_authentication_csrf_and_strict_bounded_json"
           ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.14",
+          "kind": "positive",
+          "given": "A connected agent session for a preparer with a fresh account setup",
+          "when": "The agent reads setup and records answers the person gave in conversation",
+          "then": "Return the current step with a plain-language explanation and every step on the person's path; record agent answers as agent-sourced and narrow the path when client setup is deferred.",
+          "tests": [
+            "tests.test_agent_onboarding.AgentGuidedSetupTests.test_agent_reads_explained_steps_and_records_conversation_answers_as_its_own"
+          ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING.15",
+          "kind": "negative",
+          "given": "An agent-guided draft with invalid, stale, confirming or field-injected tool calls",
+          "when": "The agent tries to record them",
+          "then": "Refuse invalid and confirm answers without advancing, raise conflict for stale revisions and refuse injected fields; never create engagements, facts or profile names without the person's confirmation.",
+          "tests": [
+            "tests.test_agent_onboarding.AgentGuidedSetupTests.test_agent_cannot_confirm_save_and_invalid_or_stale_answers_change_nothing"
+          ]
         }
       ]
     },
@@ -2104,7 +2124,7 @@
           "id": "P05-PREFERENCES.8",
           "kind": "negative",
           "given": "A damaged preference row bound outside the current installation",
-          "when": "GET and POST that user\u2019s preferences",
+          "when": "GET and POST that user’s preferences",
           "then": "Fail closed without adopting/rebinding the row; after explicit test repair the exact original snapshot remains.",
           "tests": [
             "tests.test_workspace_preferences.WorkspacePreferencesTests.test_mismatched_install_binding_is_denied_without_rebinding"
@@ -6180,6 +6200,368 @@
           "then": "Refuse before erasing preference/column/migration; restore test schema in finally and retain exact original row",
           "tests": [
             "tests.test_model_preferences.ModelPreferenceMigrationTests.test_downgrade_refuses_before_erasing_original_model_preference"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L01-NATIVE",
+      "risk": "No native books, exact financial records, durable source evidence or entity isolation exists for bookkeeping. Drafts might be mistaken for posted balances.",
+      "scenarios": [
+        {
+          "id": "L01-NATIVE.1",
+          "kind": "positive",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "create books has persisted entity currency period and chart without transactions",
+          "then": "Book reread preserves entity/USD/2026 and all five account categories at revision zero, with no journal or lines.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_create_books_has_persisted_entity_currency_period_and_chart_without_transactions"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.2",
+          "kind": "positive",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "exact decimal lines persist as draft with source and no posted balance",
+          "then": "Persisted 0.10 plus 0.20 equals 0.3000 on both sides; source/evidence survive, pending count is one and posted totals remain zero.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_exact_decimal_lines_persist_as_draft_with_source_and_no_posted_balance"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.3",
+          "kind": "positive",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "repeated exact request returns same record without another event or revision",
+          "then": "Retry returns the identical journal; book revision stays one with one journal, three lines and one audit event.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_repeated_exact_request_returns_same_record_without_another_event_or_revision"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.4",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "reused operation with different payload and duplicate source are refused",
+          "then": "Changed payload on the original key and a new key for the same source both refuse without another journal, line or event.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_reused_operation_with_different_payload_and_duplicate_source_are_refused"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.5",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "invalid amounts and line sides cannot create partial journals",
+          "then": "Noncanonical/float/boolean/negative/nonfinite/excess precision values and zero or two-sided lines refuse with zero journals/lines/events and revision zero.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_invalid_amounts_and_line_sides_cannot_create_partial_journals"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.6",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "unbalanced and excess total journals are atomic refusals",
+          "then": "A 0.31 credit against 0.30 debits and excessive monetary totals both refuse, leaving zero journals/lines/events.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_unbalanced_and_excess_total_journals_are_atomic_refusals"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.7",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "sibling entity accounts cannot be used even by same owner",
+          "then": "An account from another owned entity cannot enter this book; no journal, line or event exists.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_sibling_entity_accounts_cannot_be_used_even_by_same_owner"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.8",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "foreign administrator cannot read or write another owners books",
+          "then": "A different administrator/superuser cannot read or write private books or initialize them; no accounting records are created.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_foreign_administrator_cannot_read_or_write_another_owners_books"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.9",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "current membership role and user enablement are required for every mutation",
+          "then": "Reviewer/viewer, disabled membership and a freshly disabled user cannot propose journals, despite the stale original user object; no records are written.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_current_membership_role_and_user_enablement_are_required_for_every_mutation"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.10",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "stale revision and actor or currency hints cannot mutate books",
+          "then": "Account creation advances only its event; stale journal revision and actor/currency/posted-state hints refuse, leaving zero journals/lines and one event.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_stale_revision_and_actor_or_currency_hints_cannot_mutate_books"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.11",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "entry date must be real canonical and in book period",
+          "then": "Impossible dates, either adjacent out-of-period date, noncanonical text and a Python date object refuse with zero journal/line/event writes.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_entry_date_must_be_real_canonical_and_in_book_period"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.12",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "existing book currency and period cannot be silently reinitialized",
+          "then": "Exact repeated setup is unchanged; changing currency or either period boundary refuses and the original book rereads identically.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_existing_book_currency_and_period_cannot_be_silently_reinitialized"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.13",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "duplicate account code and invalid category do not advance revision",
+          "then": "A duplicate account code, unknown category and empty code refuse; original book revision and event count remain zero.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_duplicate_account_code_and_invalid_category_do_not_advance_revision"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.14",
+          "kind": "negative",
+          "given": "An isolated installation with an original owner, a different administrator and two separate business entities.",
+          "when": "saved journal lines and source history cannot be changed or deleted",
+          "then": "Saved journal, line and event save/delete calls refuse; the exact original journal still reads back.",
+          "tests": [
+            "tests.test_native_ledger.NativeLedgerTests.test_saved_journal_lines_and_source_history_cannot_be_changed_or_deleted"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.15",
+          "kind": "positive",
+          "given": "Posted and pending journals touching one owned debit-normal account, posted out of date order",
+          "when": "Read that account activity",
+          "then": "List posted lines by date then sequence with exact running balances and source references; list pending lines apart; final balance equals the trial balance.",
+          "tests": [
+            "tests.test_account_activity.AccountActivityTests.test_posted_lines_run_in_date_then_sequence_order_with_exact_balances_and_pending_apart"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.16",
+          "kind": "positive",
+          "given": "A posted capital contribution to a credit-normal equity account",
+          "when": "Read that account activity",
+          "then": "Report the credit normal side and a positive 125.5000 balance on it.",
+          "tests": [
+            "tests.test_account_activity.AccountActivityTests.test_credit_normal_account_balance_is_positive_on_its_normal_side"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.17",
+          "kind": "negative",
+          "given": "A foreign administrator, a sibling book account, an unknown account and a malformed identifier",
+          "when": "Read account activity",
+          "then": "Refuse every request with a ledger error and disclose no rows.",
+          "tests": [
+            "tests.test_account_activity.AccountActivityTests.test_foreign_unknown_and_sibling_book_accounts_are_not_readable"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.18",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a write method and a foreign session",
+          "when": "Request account activity over HTTP",
+          "then": "Return the exact service result to the bound owner only; refuse unbound (409), writes (405) and foreign readers (404).",
+          "tests": [
+            "tests.test_account_activity.AccountActivityTests.test_http_activity_is_owner_bound_read_only_and_matches_the_service"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.19",
+          "kind": "positive",
+          "given": "A three-row CSV statement with a quoted comma, a reference and signed amounts",
+          "when": "Import it into owned books",
+          "then": "Save each row exactly (date, description, four-decimal signed amount, reference) as pending under one import with its file hash; create no journal.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_statement_rows_are_saved_exactly_with_file_identity_and_listed_as_pending"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.20",
+          "kind": "positive",
+          "given": "An already imported statement file",
+          "when": "Import the same bytes again under another name",
+          "then": "Return the original import unchanged with created false and add no rows.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_reimporting_the_same_file_returns_the_original_import_without_new_rows"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.21",
+          "kind": "negative",
+          "given": "Files with an invalid date, five decimals, zero, out-of-period date or blank description, plus bad headers, empty files and extra columns",
+          "when": "Import them",
+          "then": "Refuse the whole file naming the first bad row, and refuse malformed files, leaving revision and rows unchanged.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_one_bad_row_rejects_the_whole_file_with_its_row_number"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.22",
+          "kind": "negative",
+          "given": "An imported rent row of -900",
+          "when": "Propose journals citing it with a wrong amount, wrong date, then correctly, then again",
+          "then": "Refuse amount and date mismatches, accept the exact entry and mark the row proposed with its journal, then refuse a second entry for the same row.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_journal_citing_an_imported_row_must_match_its_date_and_amount_and_marks_it_proposed"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.23",
+          "kind": "negative",
+          "given": "A sibling book row, an unknown ID, a malformed reference and a foreign administrator",
+          "when": "Cite them in a journal, or import or list rows as the foreign user",
+          "then": "Refuse every request.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_unknown_foreign_or_sibling_book_rows_cannot_be_cited_or_imported_into"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.24",
+          "kind": "negative",
+          "given": "Over 1000 rows, over 512 KiB, a path-like filename, a stale revision or an injected actor field",
+          "when": "Import a statement",
+          "then": "Refuse each request and save no rows.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_size_row_and_field_limits_and_stale_revision_are_refused"
+          ]
+        },
+        {
+          "id": "L01-NATIVE.25",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a repeated upload and a foreign session",
+          "when": "Import and list statement rows over HTTP",
+          "then": "Bind to the owner only: 409 without the actor header, 201 then 200 with the same import, the service row list, and 404 for another user.",
+          "tests": [
+            "tests.test_source_import.SourceImportTests.test_http_import_is_human_bound_idempotent_and_reads_back_rows"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "L03-OWNER",
+      "risk": "The agent could self-approve or a stale/foreign human could post changed entries; confirmed posting might double book or fail to reach reports.",
+      "scenarios": [
+        {
+          "id": "L03-OWNER.1",
+          "kind": "positive",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "owner human confirmation posts exact entry and durable trial balance",
+          "then": "Exact owner confirmation returns original journal/hash/actor; 42.1700 office debit and checking credit persist, pending becomes zero and propose/post audit actions remain.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_owner_human_confirmation_posts_exact_entry_and_durable_trial_balance"
+          ]
+        },
+        {
+          "id": "L03-OWNER.2",
+          "kind": "positive",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "exact post retry returns original receipt without posting again",
+          "then": "An exact repeated HTTP confirmation returns the identical receipt; revision and audit count stay two.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_exact_post_retry_returns_original_receipt_without_posting_again"
+          ]
+        },
+        {
+          "id": "L03-OWNER.3",
+          "kind": "negative",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "different hash stale revision missing confirm and actor hints cannot post",
+          "then": "Wrong hash, stale revision, false confirmation and actor/authorization hints cannot post; draft and revision one persist.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_different_hash_stale_revision_missing_confirm_and_actor_hints_cannot_post"
+          ]
+        },
+        {
+          "id": "L03-OWNER.4",
+          "kind": "negative",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "missing csrf revoked role and foreign owner refuse posting",
+          "then": "No CSRF, revoked current role and a different owner refuse posting; one draft and its sole proposal audit remain.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_missing_csrf_revoked_role_and_foreign_owner_refuse_posting"
+          ]
+        },
+        {
+          "id": "L03-OWNER.5",
+          "kind": "negative",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "tampered persisted lines are not confirmed using the old proposal hash",
+          "then": "Changing persisted debit lines prevents an old proposal hash from authorizing posting; state and revision remain draft/one.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_tampered_persisted_lines_are_not_confirmed_using_the_old_proposal_hash"
+          ]
+        },
+        {
+          "id": "L03-OWNER.6",
+          "kind": "positive",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "http reads are original actor bound and do not expose foreign books",
+          "then": "Actor-bound private HTTP reads expose the original draft and no-store; a stale actor header receives409.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_http_reads_are_original_actor_bound_and_do_not_expose_foreign_books"
+          ]
+        },
+        {
+          "id": "L03-OWNER.7",
+          "kind": "negative",
+          "given": "The human5258 chose own-book review/posting; an isolated owned42.17 draft and original logged-in session exist.",
+          "when": "agent ledger tools have proposal and read but no confirmation or posting tool",
+          "then": "The closed native tool catalog has only list/read/propose and supplies no confirm/post or actor-authority field.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_ledger_tools_have_proposal_and_read_but_no_confirmation_or_posting_tool"
+          ]
+        },
+        {
+          "id": "L03-OWNER.8",
+          "kind": "positive",
+          "given": "A real original session/UI lease and isolated private installation bind the book broker.",
+          "when": "real original session agent reads and proposes but cannot post",
+          "then": "The actual original session broker reads the pending count, saves a second draft and refuses a posting tool; two drafts and zero posted journals persist.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_real_original_session_agent_reads_and_proposes_but_cannot_post"
+          ]
+        },
+        {
+          "id": "L03-OWNER.9",
+          "kind": "negative",
+          "given": "A real original session/UI lease and isolated private installation bind the book broker.",
+          "when": "dismissed component and revoked original session authority prevent agent mutation",
+          "then": "Dismissing the exact shared book surface and disabling original membership prevent further agent mutation/read; one draft and revision one remain.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_dismissed_component_and_revoked_original_session_authority_prevent_agent_mutation"
+          ]
+        },
+        {
+          "id": "L03-OWNER.10",
+          "kind": "negative",
+          "given": "An imported bank-fee row and the real original-session agent",
+          "when": "The agent reads imported rows, proposes a cited entry and tries to import a file",
+          "then": "Allow the read and a draft cited proposal that marks the row proposed; refuse an import tool; post nothing.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_reads_imported_rows_and_proposes_a_cited_entry_but_cannot_import"
           ]
         }
       ]
