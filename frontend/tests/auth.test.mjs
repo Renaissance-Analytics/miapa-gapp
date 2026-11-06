@@ -4,6 +4,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as api from "../.test-build/api.js";
 import { Workspace } from "../.test-build/App.js";
+import { SignOutButton } from "../.test-build/Authentication.js";
 
 const token = "a".repeat(64);
 
@@ -63,6 +64,8 @@ test("anonymous workspace has a labelled password form and authenticated workspa
   assert.match(signedOut, /autoComplete="current-password"/);
   assert.match(signedOut, /aria-label="Sign in to Maipa"/);
   const signedIn = renderToStaticMarkup(React.createElement(Workspace, { session: { state: "authenticated", userId: "42" }, refresh() {} }));
-  assert.match(signedIn, />Sign out</);
+  assert.match(signedIn, /aria-label="Account and appearance"/);
+  // Sign out lives in the account popover, which mounts only when opened in a browser.
+  assert.match(renderToStaticMarkup(React.createElement(SignOutButton, { refresh() {} })), />Sign out</);
   assert.doesNotMatch(signedIn, /type="password"/);
 });

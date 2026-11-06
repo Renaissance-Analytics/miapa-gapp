@@ -1,0 +1,16 @@
+{
+  "test_create_books_has_persisted_entity_currency_period_and_chart_without_transactions": ["positive", "Book reread preserves entity/USD/2026 and all five account categories at revision zero, with no journal or lines."],
+  "test_exact_decimal_lines_persist_as_draft_with_source_and_no_posted_balance": ["positive", "Persisted 0.10 plus 0.20 equals 0.3000 on both sides; source/evidence survive, pending count is one and posted totals remain zero."],
+  "test_repeated_exact_request_returns_same_record_without_another_event_or_revision": ["positive", "Retry returns the identical journal; book revision stays one with one journal, three lines and one audit event."],
+  "test_reused_operation_with_different_payload_and_duplicate_source_are_refused": ["negative", "Changed payload on the original key and a new key for the same source both refuse without another journal, line or event."],
+  "test_invalid_amounts_and_line_sides_cannot_create_partial_journals": ["negative", "Noncanonical/float/boolean/negative/nonfinite/excess precision values and zero or two-sided lines refuse with zero journals/lines/events and revision zero."],
+  "test_unbalanced_and_excess_total_journals_are_atomic_refusals": ["negative", "A 0.31 credit against 0.30 debits and excessive monetary totals both refuse, leaving zero journals/lines/events."],
+  "test_sibling_entity_accounts_cannot_be_used_even_by_same_owner": ["negative", "An account from another owned entity cannot enter this book; no journal, line or event exists."],
+  "test_foreign_administrator_cannot_read_or_write_another_owners_books": ["negative", "A different administrator/superuser cannot read or write private books or initialize them; no accounting records are created."],
+  "test_current_membership_role_and_user_enablement_are_required_for_every_mutation": ["negative", "Reviewer/viewer, disabled membership and a freshly disabled user cannot propose journals, despite the stale original user object; no records are written."],
+  "test_stale_revision_and_actor_or_currency_hints_cannot_mutate_books": ["negative", "Account creation advances only its event; stale journal revision and actor/currency/posted-state hints refuse, leaving zero journals/lines and one event."],
+  "test_entry_date_must_be_real_canonical_and_in_book_period": ["negative", "Impossible dates, either adjacent out-of-period date, noncanonical text and a Python date object refuse with zero journal/line/event writes."],
+  "test_existing_book_currency_and_period_cannot_be_silently_reinitialized": ["negative", "Exact repeated setup is unchanged; changing currency or either period boundary refuses and the original book rereads identically."],
+  "test_duplicate_account_code_and_invalid_category_do_not_advance_revision": ["negative", "A duplicate account code, unknown category and empty code refuse; original book revision and event count remain zero."],
+  "test_saved_journal_lines_and_source_history_cannot_be_changed_or_deleted": ["negative", "Saved journal, line and event save/delete calls refuse; the exact original journal still reads back."]
+}

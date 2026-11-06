@@ -31,7 +31,8 @@ INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "django.
                   "backend.maipa.intake.apps.IntakeConfig",
                   "backend.maipa.policies.apps.PoliciesConfig",
                   "backend.maipa.agent_accounts.apps.AgentAccountsConfig",
-                  "backend.maipa.workflows.apps.WorkflowsConfig"]
+                  "backend.maipa.workflows.apps.WorkflowsConfig",
+                  "backend.maipa.ledger.apps.LedgerConfig"]
 MIDDLEWARE = [
     "backend.maipa.middleware.ApiCachePolicyMiddleware",
     "django.middleware.security.SecurityMiddleware",

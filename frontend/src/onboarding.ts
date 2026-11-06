@@ -5,9 +5,13 @@ export type SetupStep = typeof steps[number];
 export type OnboardingState = {
   setup_id: string;
   revision: number; step: SetupStep; draft: Record<string, string | number | null>;
-  messages: { role: 'guide' | 'user'; text: string }[];
+  messages: { role: 'guide' | 'user' | 'agent'; text: string }[];
   choices: { value: string; label: string }[]; entity_id: string | null;
   deferred: boolean; provider_ready: false; can_edit: boolean;
+  /** The current step's question and what it is for. */
+  question: string; explanation: string;
+  /** Every step on this person's path, each with a plain-language purpose. */
+  steps: { id: SetupStep; title: string; explanation: string }[];
 };
 export type SetupResult = { state: 'ready'; value: OnboardingState } | { state: 'unavailable' | 'conflict' | 'denied' | 'invalid' };
 const options = (): RequestInit => ({ credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(10_000) });
@@ -41,7 +45,9 @@ function parse(value: unknown): OnboardingState {
   if (!object(value) || !uuid(value.setup_id) || !Number.isSafeInteger(value.revision) || Number(value.revision) < 0 || Number(value.revision) >= 2_000_000_000 ||
       !steps.includes(value.step as SetupStep) || !object(value.draft) || !Array.isArray(value.messages) || value.messages.length > 19 ||
       !Array.isArray(value.choices) || value.choices.length > 10002 || typeof value.deferred !== 'boolean' ||
-      value.provider_ready !== false || typeof value.can_edit !== 'boolean' || (value.entity_id !== null && !uuid(value.entity_id))) throw Error('Invalid setup');
+      value.provider_ready !== false || typeof value.can_edit !== 'boolean' || (value.entity_id !== null && !uuid(value.entity_id)) ||
+      typeof value.question !== 'string' || value.question.length > 512 || typeof value.explanation !== 'string' || value.explanation.length > 512 ||
+      !Array.isArray(value.steps) || value.steps.length > steps.length) throw Error('Invalid setup');
   const allowed = ['display_name', 'workspace', 'engagement_name', 'entity_name', 'currency', 'reporting_basis', 'effective_from', 'entity_id', 'entity_revision'];
   const draft: OnboardingState['draft'] = {};
   for (const [key, item] of Object.entries(value.draft)) {
@@ -49,14 +55,20 @@ function parse(value: unknown): OnboardingState {
     draft[key] = item as string | number | null;
   }
   const messages = value.messages.map(item => {
-    if (!object(item) || (item.role !== 'guide' && item.role !== 'user') || typeof item.text !== 'string' || item.text.length > 512) throw Error('Invalid message');
+    if (!object(item) || !['guide', 'user', 'agent'].includes(item.role as string) || typeof item.text !== 'string' || item.text.length > 512) throw Error('Invalid message');
     return { role: item.role, text: item.text } as OnboardingState['messages'][number];
   });
   const choices = value.choices.map(item => {
     if (!object(item) || typeof item.value !== 'string' || item.value.length > 128 || typeof item.label !== 'string' || item.label.length > 300) throw Error('Invalid choice');
     return { value: item.value, label: item.label };
   });
-  return { setup_id: value.setup_id, revision: Number(value.revision), step: value.step as SetupStep, draft, messages, choices, entity_id: value.entity_id as string | null,
+  const path = value.steps.map(item => {
+    if (!object(item) || !steps.includes(item.id as SetupStep) || typeof item.title !== 'string' || item.title.length > 80 ||
+        typeof item.explanation !== 'string' || item.explanation.length > 512) throw Error('Invalid step');
+    return { id: item.id as SetupStep, title: item.title, explanation: item.explanation };
+  });
+  if (!path.some(item => item.id === value.step)) throw Error('Invalid step');
+  return { question: value.question, explanation: value.explanation, steps: path, setup_id: value.setup_id, revision: Number(value.revision), step: value.step as SetupStep, draft, messages, choices, entity_id: value.entity_id as string | null,
     deferred: value.deferred, provider_ready: false, can_edit: value.can_edit };
 }
 

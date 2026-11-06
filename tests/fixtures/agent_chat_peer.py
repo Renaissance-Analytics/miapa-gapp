@@ -76,10 +76,12 @@ for line in sys.stdin:
             raise RuntimeError('Pre-session tool discovery unavailable')
         if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
                 'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
+                'maipa_setup_read', 'maipa_setup_record',
                 'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
                 'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
                 'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
-                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','flow_run','flow_cancel','maipa_workflow_runs','maipa_workflow_select_run'}:
+                'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish','flow_run','flow_cancel','maipa_workflow_runs','maipa_workflow_select_run',
+                'maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_journal_propose'}:
             raise RuntimeError('Unexpected startup tool catalog')
         send({'id': 'premature-call', 'method': 'maipa/ui', 'params': {
             'method': 'tools/call', 'params': {'name': 'maipa_ui_catalog', 'arguments': {}}}})

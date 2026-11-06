@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 45 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 48 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -95,7 +95,7 @@ async function evaluate(expression) {
 }
 async function checkHeaderViewport(){
   await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
-  const geometry=await evaluate("[...document.querySelectorAll('.header-shortcuts button,.app-header .build-updates button,.app-header .account-menu>summary')].map(b=>{const r=b.getBoundingClientRect();return {label:b.getAttribute('aria-label')||b.textContent,left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth};})");
+  const geometry=await evaluate("[...document.querySelectorAll('.header-shortcuts button,.app-header .build-updates button,.app-header .account-menu button[aria-label=\"Account and appearance\"]')].map(b=>{const r=b.getBoundingClientRect();return {label:b.getAttribute('aria-label')||b.textContent,left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth};})");
   writeFileSync('artifacts/ci/header-geometry.json',JSON.stringify(geometry));
   assert.ok(geometry.every(r=>r.left>=0&&r.right<=r.width&&r.top>=0&&r.bottom<=54),'Common header controls fit: '+JSON.stringify(geometry));
 }
@@ -164,9 +164,18 @@ function command(method, params = {}) {
     socket.send(JSON.stringify({ id, method, params }));
   });
 }
+async function openAccountMenu() {
+  // The account menu is a published Fancy Popover: its theme controls mount only while open.
+  // The shell can re-render while the session settles after a reload; reopen until the controls are mounted.
+  await until(async () => {
+    if (await evaluate("!!document.getElementById('maipa-theme-dark')")) return true;
+    if (!await evaluate("document.querySelector('.account-menu')?.dataset.open==='true'")) await click('Account and appearance');
+    return false;
+  }, 'account menu open');
+}
 async function click(label) {
   if (['Dark', 'Light', 'System', 'Sign out'].includes(label)
-      && !await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
+      && !await evaluate("document.querySelector('.account-menu')?.dataset.open==='true'")) await click('Account and appearance');
   if (label === 'Account setup' && await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Account setup')?.getAttribute('aria-expanded')==='true'")) return;
   const point = await until(() => evaluate(`(() => { const b = [...document.querySelectorAll('button, summary')].find(b => (b.getAttribute('aria-label') || b.textContent.trim()) === ${JSON.stringify(label)}); if (!b || b.disabled || b.closest('[inert]')) return null; b.scrollIntoView({block:'center'}); const r=b.getBoundingClientRect(); const x=r.x+r.width/2,y=r.y+r.height/2; const hit=document.elementFromPoint(x,y); return r.width && r.height && hit && b.contains(hit) ? {x,y} : null; })()`), `Visible enabled button ${label}`);
   assert.ok(point, `Visible button ${label}`);
@@ -371,6 +380,7 @@ try {
     assert.equal(preferences.user_id, fixture.user_id);
     assert.equal(preferences.theme, 'dark');
     assert.equal(preferences.active_view, 'workspace-guide');
+    await openAccountMenu();
     await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'fresh-profile appearance and conversation restored');
     assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), '#111714');
     record('preferences-fresh-browser-restore');
@@ -421,7 +431,7 @@ try {
     checkpoint = 'setup_display_name';
     await atStep('display_name');
     await fill('maipa-setup-answer', 'Synthetic onboarding owner');
-    await click('Send answer');
+    await click('Save answer');
     checkpoint = 'setup_workspace';
     await atStep('workspace');
     checkpoint = 'setup_resume';
@@ -429,20 +439,20 @@ try {
     await until(() => evaluate("!![...document.querySelectorAll('button, summary')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
     await click('Account setup');
     await atStep('workspace');
-    assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup conversation\"]').innerText.includes('Synthetic onboarding owner')"));
+    assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup steps\"]').innerText.includes('Synthetic onboarding owner')"));
     checkpoint = 'setup_engagement';
-    await select('maipa-setup-answer', 'new'); await click('Send answer'); await atStep('engagement_name');
+    await select('maipa-setup-answer', 'new'); await click('Save answer'); await atStep('engagement_name');
     checkpoint = 'setup_entity';
-    await fill('maipa-setup-answer', 'Synthetic onboarding engagement'); await click('Send answer'); await atStep('entity_name');
+    await fill('maipa-setup-answer', 'Synthetic onboarding engagement'); await click('Save answer'); await atStep('entity_name');
     checkpoint = 'setup_currency';
-    await fill('maipa-setup-answer', 'Synthetic onboarding entity'); await click('Send answer'); await atStep('currency');
+    await fill('maipa-setup-answer', 'Synthetic onboarding entity'); await click('Save answer'); await atStep('currency');
     checkpoint = 'setup_reporting_basis';
-    await fill('maipa-setup-answer', 'USD'); await click('Send answer'); await atStep('reporting_basis');
+    await fill('maipa-setup-answer', 'USD'); await click('Save answer'); await atStep('reporting_basis');
     checkpoint = 'setup_effective_from';
-    await select('maipa-setup-answer', 'unknown'); await click('Send answer'); await atStep('effective_from');
+    await select('maipa-setup-answer', 'unknown'); await click('Save answer'); await atStep('effective_from');
     assert.match(await evaluate("document.getElementById('maipa-setup-answer').value"), /^\d{4}-\d{2}-\d{2}$/);
     checkpoint = 'setup_review';
-    await click('Send answer'); await atStep('review');
+    await click('Save answer'); await atStep('review');
     assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup review\"]').innerText.includes('Unknown for now')"));
     const before = await evaluate("(async()=>({setup:await(await fetch('/api/onboarding/')).json(),clients:await(await fetch('/api/intake/engagements/')).json()}))()");
     assert.deepEqual(before.clients.engagements, []);
@@ -653,6 +663,7 @@ try {
   await until(() => evaluate("document.querySelector('.appearance button[aria-pressed=true]')?.textContent === 'Dark'"), "dark preference");
   assert.equal(await evaluate("getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim()"), "#111714");
   await command("Page.reload");
+  await openAccountMenu();
   await until(() => evaluate("document.querySelector('.appearance button[aria-pressed=true]')?.textContent === 'Dark'"), "persisted theme");
   record("theme-and-reload");
   phase = "login";
@@ -766,7 +777,7 @@ try {
   assert.ok(JSON.stringify(checks.body).includes("transport_verified"));
   record("csrf-and-real-zero-provider-transport");
   phase='work_views';
-  await until(()=>evaluate("document.querySelectorAll('.header-shortcuts button').length===2"),'preparer common header shortcuts');
+  await until(()=>evaluate("document.querySelectorAll('.header-shortcuts button').length===3"),'preparer common header shortcuts');
   assert.equal(await evaluate("!!document.querySelector('.header-shortcuts [aria-label=\"User management\"]')"),false);
   await until(()=>evaluate("document.querySelector('.chat-controls')?.dataset.draftState==='ready'"),'header draft ready');
   await typeChat('Unsent header navigation draft Ω');
@@ -792,6 +803,8 @@ try {
   assert.deepEqual(headerAfter,headerBefore);
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   record('common-header-shortcuts');
+
+
 
   await requestComponent('Open client facts', 'Maipa.ClientFacts');
   phase = "keyboard_divider";
@@ -973,7 +986,7 @@ try {
   await command('Fetch.continueRequest', { requestId: pausedComposerSends[2].requestId });
   await command('Fetch.disable'); await waitForAgent('Maipa.Note');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"), 'Keep my edited and restored draft', 'a newer edit restored to identical text survives acknowledgment');
-  if (await evaluate("document.querySelector('.account-menu')?.open")) await click('Account and appearance');
+  if (await evaluate("document.querySelector('.account-menu')?.dataset.open==='true'")) await click('Account and appearance');
   await typeChat('Present a note with a delayed update'); await click('Send');
   await until(() => evaluate("document.querySelector('.agent-commentary p')?.textContent==='Synthetic shared note'"), 'agent first presentation');
   await evaluate("window.maipaDraftNode=document.querySelector('#maipa-chat-message');window.maipaConversationNode=document.querySelector('.conversation');true");
@@ -1272,6 +1285,7 @@ try {
   await click('Dark'); await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();
   await command('Page.reload'); await preferencesReady();
+  await openAccountMenu();
   await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.agent-commentary')"), 'saved preferences after reload');
   const winner = await evaluate("(async()=>{const p=await(await fetch('/api/workspace/preferences/')).json();const s=await(await fetch('/api/session/csrf/')).json();const r=await fetch('/api/workspace/preferences/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':s.csrf_token,'X-Maipa-Preferences':p.preferences_id},body:JSON.stringify({expected_revision:p.revision,theme:'light',active_view:'workspace-guide'})});return {status:r.status,body:await r.json()};})()");
   assert.equal(winner.status, 200);
@@ -1280,6 +1294,7 @@ try {
   assert.equal(await evaluate("document.getElementById('maipa-theme-dark').disabled"), true);
   assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), winner.body);
   await click('Reload saved preferences'); await preferencesReady();
+  await openAccountMenu();
   await until(() => evaluate("document.getElementById('maipa-theme-light')?.getAttribute('aria-pressed') === 'true'"), 'authoritative theme restored');
   await click('Dark'); await preferencesReady();
   await requestComponent('Open client facts', 'Maipa.ClientFacts'); await preferencesReady();
@@ -1398,6 +1413,40 @@ try {
   await until(() => evaluate("document.querySelector('.authority-panel')?.textContent.includes('No financial or workflow authority is recorded')"), 'honest absent authority');
   assert.equal(await evaluate("document.querySelector('.authority-panel').textContent.includes('synthetic-browser-authority')"), false);
   record('client-authority-and-revocation');
+  phase='work_views';
+  const beforeBookDraft=await evaluate("document.getElementById('maipa-chat-message').value");
+  await typeChat('Unsent bookkeeping follow-up Ω');
+  await click('Bookkeeping');
+  await until(()=>evaluate("!!document.getElementById('books-entity')"),'own business books setup');
+  const booksCatalog=await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()");
+  assert.ok(booksCatalog.entities.length>0);assert.equal(booksCatalog.books.length,0);
+  await select('books-entity',booksCatalog.entities[0].id);
+  await click('Create books');
+  await until(()=>evaluate("!!document.getElementById('journal-description')&&!document.querySelector('.bookkeeping')?.getAttribute('aria-busy')?.includes('true')"),'saved own book and starter chart');
+  const bookId=await evaluate("document.querySelector('.bookkeeping').dataset.bookId");
+  const readBooks=()=>evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  const initialBook=await readBooks();assert.equal(initialBook.book.currency,'USD');assert.equal(initialBook.book.journals.length,0);
+  await fill('journal-description','Synthetic office purchase42.17');
+  await fill('journal-reference','synthetic-bookkeeping-browser-receipt');
+  await select('journal-account-0',initialBook.book.accounts.find(a=>a.code==='6200').id);
+  await select('journal-account-1',initialBook.book.accounts.find(a=>a.code==='1000').id);
+  await fill('journal-debit-0','42.17');await fill('journal-credit-1','42.17');
+  await click('Save for review');
+  await until(()=>evaluate("!!document.querySelector('[data-review-journal]')&&document.querySelector('[aria-label=\"Journal entries\"]')?.textContent.includes('Pending review')"),'persisted pending journal review');
+  const pendingBook=await readBooks();assert.equal(pendingBook.report.pending_count,1);assert.equal(pendingBook.report.trial_debit,'0.0000');
+  assert.equal(await evaluate("document.querySelector('[data-review-hash]').dataset.reviewHash"),pendingBook.book.journals[0].payload_hash);
+  await click('Post reviewed entry');
+  await until(()=>evaluate("document.querySelector('[data-trial-totals]')?.textContent.includes('42.17')&&!document.querySelector('.bookkeeping')?.getAttribute('aria-busy')?.includes('true')"),'confirmed posted trial balance');
+  await click('Reload books');
+  await until(()=>evaluate("!document.querySelector('.bookkeeping')?.getAttribute('aria-busy')?.includes('true')"),'persisted bookkeeping reload');
+  const postedBook=await readBooks();assert.equal(postedBook.book.journals[0].state,'posted');assert.equal(postedBook.report.pending_count,0);
+  assert.equal(postedBook.report.trial_debit,'42.1700');assert.equal(postedBook.report.trial_credit,'42.1700');
+  assert.equal(postedBook.report.accounts.find(a=>a.code==='6200').balance_debit,'42.1700');
+  assert.equal(postedBook.report.accounts.find(a=>a.code==='1000').balance_credit,'42.1700');
+  await click('Close contextual panel');
+  assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Unsent bookkeeping follow-up Ω');
+  record('own-books-review-post-and-trial-balance');
+  await typeChat(beforeBookDraft);
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();
   const ownerPreferences = await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()");
@@ -1480,6 +1529,7 @@ try {
   record('layout-user-isolation-and-login');
   await preferencesReady();
   assert.deepEqual(await evaluate("(async()=> (await fetch('/api/workspace/preferences/')).json())()"), ownerPreferences);
+  await openAccountMenu();
   await until(() => evaluate("document.getElementById('maipa-theme-dark')?.getAttribute('aria-pressed') === 'true' && !!document.querySelector('.chat-only')"), 'owner preferences restored after other account');
   assert.equal(await evaluate("document.querySelector('.chat-status [role=status]')?.textContent"),'Provider usage limit reached');
   record('preferences-user-isolation');

@@ -1,9 +1,10 @@
 import type {ChatState,Composition} from './agent-chat.js';
 import {viewUiRequest} from './personal-views.js';
 
-export type CommonViewKey='agent-settings'|'clients'|'users';
+export type CommonViewKey='agent-settings'|'clients'|'users'|'books';
 export interface CommonView {key:CommonViewKey;title:string;icon:string;composition:NonNullable<Composition['composition']>}
 const definitions:CommonView[]=[
+ {key:'books',title:'Bookkeeping',icon:'book-open',composition:{title:'Bookkeeping',schema:{id:'common-books',type:'Maipa.Books'}}},
  {key:'agent-settings',title:'Agent settings',icon:'settings',composition:{title:'Agent settings',schema:{id:'common-agent-settings',type:'Maipa.AgentSettings'}}},
  {key:'clients',title:'Clients',icon:'contact',composition:{title:'Clients',schema:{id:'common-clients',type:'Maipa.ClientCatalog'}}},
  {key:'users',title:'User management',icon:'users',composition:{title:'User management',schema:{id:'common-users',type:'Maipa.AdminUsers'}}},

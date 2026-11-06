@@ -10,8 +10,8 @@ const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {
 
 test('common header choices are finite role hints from current workspace metadata',async()=>{
  const signal=new AbortController().signal;
- assert.deepEqual((await readCommonViews('1',signal,request('administrator'))).map(v=>v.key),['agent-settings','clients','users']);
- assert.deepEqual((await readCommonViews('1',signal,request())).map(v=>v.key),['agent-settings','clients']);
+ assert.deepEqual((await readCommonViews('1',signal,request('administrator'))).map(v=>v.key),['books','agent-settings','clients','users']);
+ assert.deepEqual((await readCommonViews('1',signal,request())).map(v=>v.key),['books','agent-settings','clients']);
  for(const role of ['viewer','reviewer'])assert.deepEqual(await readCommonViews('1',signal,request(role)),[]);
  for(const body of [{...metadata(),role:'owner'}, {...metadata(),script:'unsafe'}, {...metadata(),permissions:['workspace.read']}, {...metadata(),installation_id:'foreign'}])await assert.rejects(()=>readCommonViews('1',signal,async()=>Response.json(body)));
 });

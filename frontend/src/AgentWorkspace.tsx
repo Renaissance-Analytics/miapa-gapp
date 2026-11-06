@@ -21,6 +21,8 @@ import { FormActivityCursor, type NativeFormActivity } from './shared-form.js';
 import type {WorkflowActivity} from './shared-workflow.js';
 import {applySettingsCommand} from './agent-settings.js';
 
+const GUIDED_SETUP_REQUEST = 'Please walk me through my account setup, explaining each step.';
+
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
 
@@ -222,7 +224,11 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
       <section className="conversation" data-pane="agent" aria-label="Conversation" inert={narrow && !!ui && focusPanel}>
         <div className="conversation-body">
           {!state.messages.length && <div className="conversation-welcome"><span className="eyebrow">Your AI accountant</span>
-            <h2>What would you like to work on?</h2><p>Ask Maipa. The tools and records you need will open alongside our conversation.</p></div>}
+            <h2>{setup ? 'Let’s set up your account' : 'What would you like to work on?'}</h2>
+            <p>{setup ? state.connection.available && ['ready', 'thinking'].includes(state.phase)
+              ? 'Maipa is your connected AI agent. Send a message (or use “Ask Maipa to guide me”) and it will explain each setup step and record your answers. You confirm the final save.'
+              : 'Connect an agent provider below so Maipa can guide you through setup in this conversation. Until then, you can answer each setup step in the panel yourself.'
+              : 'Ask Maipa. The tools and records you need will open alongside our conversation.'}</p></div>}
           {!!state.messages.length && <VirtualList className="chat-transcript" height="100%" items={state.messages}
             followTail={follow} onFollowChange={setFollow} onUnseenChange={setUnseen} estimateRowHeight={100} overscan={8}
             role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text"
@@ -234,6 +240,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
             </article></div>} />}
           {!follow && <Button size="sm" variant="ghost" onClick={() => setFollow(true)}>Back to latest{unseen ? ` (${unseen} new)` : ''}</Button>}
           {setup && <div className="chat-setup-panel"><AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
+            syncKey={state.revision} onAskAgent={() => setDraft(GUIDED_SETUP_REQUEST)}
             onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} /></div>}
           {state.phase === 'sign_in' && <div className="provider-signin" role="region" aria-label={`Connect ${providerLabel}`}>
             <h3>Connect {providerLabel}</h3><p>This login belongs to your Maipa account.</p>
@@ -289,6 +296,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
                 aboveInput={<ChatDrawer tabs={[{ id: 'requests', label: 'Requests', number: null }, { id: 'connection', label: 'Connection', number: null }]}
                   className="maipa-chat-drawer" activeTabId={drawerTab} onTabChange={tab => { setDrawerTab(tab); setDrawerOpen(true); }} open={drawerOpen} onToggle={setDrawerOpen} minBodyHeight={drawerTab==='connection'?0:52}>
                   {drawerTab === 'requests' ? <div className="chat-quick-requests">
+                    <Button size="sm" variant="ghost" onClick={() => setDraft(GUIDED_SETUP_REQUEST)}>Guide my account setup</Button>
                     <Button size="sm" variant="ghost" onClick={() => setDraft('Open my saved client facts')}>Review client facts</Button>
                     <Button size="sm" variant="ghost" onClick={() => setDraft('Present a note')}>Ask for a note</Button>
                   </div> : <div className="chat-connection-details"><Text size="sm">{providerLabel} · {phaseLabels[state.phase]}{state.models?.currentModelId ? ` · ${state.models.availableModels.find(model => model.modelId === state.models!.currentModelId)?.name ?? state.models.currentModelId}` : ''}</Text>

@@ -20,8 +20,16 @@ from .agent_accounts.draft_views import drafts as chat_drafts
 from .agent_accounts.settings_view import settings as agent_settings
 from .agent_accounts.metadata import metadata as agent_metadata
 from .agent_accounts.model_preferences import model_preference
+from .ledger import views as books
 
 urlpatterns = [
+    path('api/books/', books.books, name='books'),
+    path('api/books/<uuid:book_id>/', books.book, name='book'),
+    path('api/books/<uuid:book_id>/accounts/', books.accounts, name='book-accounts'),
+    path('api/books/<uuid:book_id>/accounts/<uuid:account_id>/activity/', books.account_activity, name='book-account-activity'),
+    path('api/books/<uuid:book_id>/imports/', books.imports, name='book-imports'),
+    path('api/books/<uuid:book_id>/journals/', books.journals, name='book-journals'),
+    path('api/books/<uuid:book_id>/journals/<uuid:journal_id>/post/', books.post_journal, name='book-post'),
     path('api/agent/accounts/<uuid:account_id>/metadata/', agent_metadata, name='agent-account-metadata'),
     path('api/agent/accounts/<uuid:account_id>/model-preference/', model_preference, name='agent-model-preference'),
     path("api/agent/settings/",agent_settings,name="agent-settings"),

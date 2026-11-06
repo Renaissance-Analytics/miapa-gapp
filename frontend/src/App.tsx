@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, initTheme, useTheme } from '@particle-academy/react-fancy';
+import { Button, Popover, initTheme, useTheme } from '@particle-academy/react-fancy';
 import { readSession, themeStorageKey, type SessionState } from './api.js';
 import { BuildUpdates } from './BuildUpdates.js';
 import { updatesStorageKey } from './updates.js';
@@ -9,6 +9,20 @@ import { AgentWorkspace } from './AgentWorkspace.js';
 import { LayoutController, type LayoutState } from './layout.js';
 import { PreferencesController, initialPreferences } from './preferences.js';
 
+type ThemeChoice = 'system' | 'light' | 'dark';
+/** Signed-in theme edits wait for saved preferences; signed-out choices are local only. */
+export function appearanceLocked(session: SessionState, preferencesPhase: string) {
+  return session.state === 'authenticated' && preferencesPhase !== 'ready';
+}
+/** The account menu's appearance choices; the menu itself is a Fancy Popover. */
+export function AppearanceChoices({ preference, disabled, choose }: { preference: string; disabled: boolean; choose: (value: ThemeChoice) => void }) {
+  return <div className="appearance" role="group" aria-label="Appearance">
+    {(['system', 'light', 'dark'] as const).map(value => <Button key={value} size="sm" variant="ghost" id={`maipa-theme-${value}`}
+      disabled={disabled} aria-pressed={preference === value} onClick={() => choose(value)}>
+      {value === 'system' ? 'System' : value === 'light' ? 'Light' : 'Dark'}</Button>)}
+  </div>;
+}
+
 export function Workspace({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const identity = session.state === 'authenticated' ? `user.${session.userId}` : session.state;
   return <WorkspaceSession key={identity} session={session} refresh={refresh} />;
@@ -17,6 +31,7 @@ export function Workspace({ session, refresh }: { session: SessionState; refresh
 function WorkspaceSession({ session, refresh }: { session: SessionState; refresh: () => void }) {
   const theme = useTheme();
   const [headerHost,setHeaderHost]=useState<HTMLDivElement|null>(null);
+  const [accountOpen,setAccountOpen]=useState(false);
   const [layout, setLayout] = useState<LayoutState>({ phase: session.state === 'authenticated' ? 'loading' : 'ready', split: 60 });
   const layoutController = useRef<LayoutController | null>(null);
   const [preferences, setPreferences] = useState(initialPreferences);
@@ -43,17 +58,20 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
       <div className="shell-controls">
         {session.state==='authenticated'&&<div className="header-shortcut-host" ref={setHeaderHost}/>}
         <BuildUpdates key={updatesStorageKey(session)} session={session} />
-        <details className="account-menu"><summary aria-label="Account and appearance">Account</summary><div className="account-popover">
-          <div className="appearance" role="group" aria-label="Appearance">
-            {(['system', 'light', 'dark'] as const).map(value => <Button key={value} size="sm" variant="ghost" id={`maipa-theme-${value}`}
-              disabled={session.state === 'authenticated' && preferences.phase !== 'ready'} aria-pressed={theme.preference === value}
-              onClick={() => {
-                if (session.state === 'authenticated') void preferencesController.current?.save({ theme: value });
-                else theme.setPreference(value);
-              }}>{value === 'system' ? 'System' : value === 'light' ? 'Light' : 'Dark'}</Button>)}
-          </div>
-          {session.state === 'authenticated' && <SignOutButton refresh={refresh} />}
-        </div></details>
+        {/* Published Fancy popover: closes on outside click and Escape, so it never hides the work panel. */}
+        <div className="account-menu" data-open={accountOpen}>
+          <Popover open={accountOpen} onOpenChange={setAccountOpen} placement="bottom-end">
+            <Popover.Trigger><Button size="sm" variant="ghost" aria-label="Account and appearance">Account</Button></Popover.Trigger>
+            <Popover.Content className="account-popover">
+              <AppearanceChoices preference={theme.preference} disabled={appearanceLocked(session, preferences.phase)}
+                choose={value => {
+                  if (session.state === 'authenticated') void preferencesController.current?.save({ theme: value });
+                  else theme.setPreference(value);
+                }} />
+              {session.state === 'authenticated' && <SignOutButton refresh={refresh} />}
+            </Popover.Content>
+          </Popover>
+        </div>
       </div>
     </header>
     {session.state === 'authenticated' ? <>

@@ -3185,70 +3185,70 @@
       "scenario": "A01-UI-AUTHORITY.lifecycle",
       "test": "tests.test_ui_composition.UiCompositionTests.test_empty_session_catalog_and_revisioned_present_update_dismiss",
       "scenario_sha256": "1e96c39b925bbc4a1439996dde5f66ccafbbd935e9e7fb31c5a95c5a4a6521dc",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "The session begins empty and exact controlled content progresses through revisions zero to three without a private provider handle",
       "decision": "aligned",
-      "reason": "Exact empty state, registered component types, all returned schemas/revisions and absent private-handle sentinel are asserted. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. P06 adds exactly AgentSettings to the explicit catalog; all previous entries, no-private-handle, current-revision, update and dismissal assertions remain.",
+      "reason": "Exact empty state, registered component types, all returned schemas/revisions and absent private-handle sentinel are asserted. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. P06 adds exactly AgentSettings to the explicit catalog; all previous entries, no-private-handle, current-revision, update and dismissal assertions remain. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.schema",
       "test": "tests.test_ui_composition.UiCompositionTests.test_invalid_schema_and_stale_updates_cannot_change_controlled_state",
       "scenario_sha256": "b6dade595ea24538a46f0e658ae5c4f85ed01365e220de0ca3a9ec9408f6749a",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Every invalid operation refuses with fixed safe text and leaves the previously accepted state unchanged",
       "decision": "aligned",
-      "reason": "Invalid schema/operation/actor vectors assert refusal and exact unchanged state; tool discovery is an exact finite list. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Invalid schema/operation/actor vectors assert refusal and exact unchanged state; tool discovery is an exact finite list. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.schema",
       "test": "tests.test_ui_composition.UiCompositionTests.test_tools_are_closed_and_bound_arguments_cannot_choose_principal_or_actions",
       "scenario_sha256": "b6dade595ea24538a46f0e658ae5c4f85ed01365e220de0ca3a9ec9408f6749a",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Every invalid operation refuses with fixed safe text and leaves the previously accepted state unchanged",
       "decision": "aligned",
-      "reason": "Invalid schema/operation/actor vectors assert refusal and exact unchanged state; tool discovery is an exact finite list. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Invalid schema/operation/actor vectors assert refusal and exact unchanged state; tool discovery is an exact finite list. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.authority",
       "test": "tests.test_ui_composition.UiCompositionTests.test_foreign_owner_and_revoked_session_cannot_read_or_dispatch",
       "scenario_sha256": "0866a21002730667aa639b15f4bab5e7c10ad493cde2de339ac359edab23ef08",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Fresh server checks refuse foreign ownership, revocation, membership/account changes and changed installation access revision",
       "decision": "aligned",
-      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.authority",
       "test": "tests.test_ui_composition.UiCompositionTests.test_account_membership_and_access_revision_are_rechecked_per_call",
       "scenario_sha256": "0866a21002730667aa639b15f4bab5e7c10ad493cde2de339ac359edab23ef08",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Fresh server checks refuse foreign ownership, revocation, membership/account changes and changed installation access revision",
       "decision": "aligned",
-      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.authority",
       "test": "tests.test_ui_composition.UiCompositionTests.test_privileged_components_require_current_original_administrator_authority",
       "scenario_sha256": "0866a21002730667aa639b15f4bab5e7c10ad493cde2de339ac359edab23ef08",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Fresh server checks refuse foreign ownership, revocation, membership/account changes and changed installation access revision",
       "decision": "aligned",
-      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Real database mutations invalidate old leases; admin components require an independently issued lease under current administrator authority. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
       "scenario": "A01-UI-AUTHORITY.http",
       "test": "tests.test_ui_composition.UiCompositionTests.test_http_requires_session_current_actor_and_csrf_then_shares_controlled_revision",
       "scenario_sha256": "f3a93018e02bf00a7239790a2a7b27ba3f20c470c3bd381126aee8c379ca4a6f",
-      "source_sha256": "c6dbba1f90f778901946027f7b527a96817bfc60cfce04871a7b428ac500eebf",
+      "source_sha256": "b4281aadb2ec344b905d4130497c182e0e5071c066c27667c4dfacbd6b7154ae",
       "expected_observation": "Authenticated exact-origin CSRF writes and reads share state; anonymous, stale-actor, CSRF-less and foreign-owner requests fail",
       "decision": "aligned",
-      "reason": "Enforced CSRF and actual session middleware assert exact 401/409/403/404 boundaries, no-store and matching POST/GET payloads. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical.",
+      "reason": "Enforced CSRF and actual session middleware assert exact 401/409/403/404 boundaries, no-store and matching POST/GET payloads. Re-reviewed exact new-version/catalog literal delta: only expected actual runtime0.30.1 or the newly authorized Workflow component is added; all original operations/assertions/negative cases remain identical. Exact finite catalog now includes only the additional Maipa.Books component; prior schema/authority denials remain.",
       "reviewer": "Maipa independent acceptance-to-test review; no external reviewer claimed"
     },
     {
@@ -5025,11 +5025,11 @@
       "scenario": "A05-SHARED-FORM.native-policy",
       "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_claude_policy_allows_exact_shared_tools_and_no_native_or_foreign_capabilities",
       "scenario_sha256": "55bf3808ac17b491fa42442995246cd482db1af674035cd282a554ee7a6b85af",
-      "source_sha256": "0e8831055b367ba57e269e588da17c082cfc71582d400dbef2d3c49662937db7",
+      "source_sha256": "2fde18e1dda8ad653e84e3e5c966b3332f00156d97125fcf5b16e552d6da0c8e",
       "expected_observation": "Exactly32 explicit Maipa UI/form/workflow tools are permitted, including scoped execution controls; no wildcard, native or foreign tool is allowed and disabled returns empty.",
       "decision": "aligned",
       "reviewer": "Maipa independent native permission acceptance review; no external reviewer claimed",
-      "reason": "Real Claude confirmed local dont-ask denial of newly advertised run/triage tools. Exact expected32-tool policy assertion failed before changing the consumer host; only the three scoped tool names are added. NativeTools:none and no-wildcard/disabled/copy-isolation assertions remain. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain."
+      "reason": "Real Claude confirmed local dont-ask denial of newly advertised run/triage tools. Exact expected32-tool policy assertion failed before changing the consumer host; only the three scoped tool names are added. NativeTools:none and no-wildcard/disabled/copy-isolation assertions remain. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain. Exact finite permission list extends33 to36 with books_list/books_read/journal_propose only. Native/wildcard/foreign tool denials and all existing names remain."
     },
     {
       "scenario": "A04-DURABLE.versions",
@@ -6164,12 +6164,12 @@
     {
       "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.catalog",
       "test": "tests.test_shared_form_policy.SharedFormPolicyTests.test_native_permission_policy_matches_every_published_workflow_tool",
-      "source_sha256": "0e8831055b367ba57e269e588da17c082cfc71582d400dbef2d3c49662937db7",
+      "source_sha256": "2fde18e1dda8ad653e84e3e5c966b3332f00156d97125fcf5b16e552d6da0c8e",
       "scenario_sha256": "c2b0bab6d0c7bc6f2de2c4bde01f49731318587a8f4c5a5cdef30bf272085a54",
       "expected_observation": "Every advertised workflow tool has exactly its scoped native permission; the three execution names are explicitly required.",
       "decision": "aligned",
       "reviewer": "Maipa independent actual-provider/native transport review; no external reviewer claimed",
-      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain."
+      "reason": "Independent local-pipe/permission assertions observed red before consumer fixes; no vendor CLI or provider response is simulated in this transport probe. Actual-model denial is retained separately. No permission bypass or package patch. Exact finite allowlist adds only maipa_workflow_select_run (33tools); parity and no-native/no-wildcard assertions remain. Exact finite permission list extends33 to36 with books_list/books_read/journal_propose only. Native/wildcard/foreign tool denials and all existing names remain."
     },
     {
       "scenario": "A05-NATIVE-EXECUTION-TRANSPORT.relay",
@@ -6720,6 +6720,376 @@
       "decision": "aligned",
       "reason": "Exact original scope, persistence/side-effect counts, actual finite ACP negotiation/ack and guarded migration outcomes are asserted independently. Held native I/O wraps the real RPC rather than fabricating success; no sleeps used to assume the critical race. No actual-provider claim from the finite peer. The fixture shares the existing finite peer setup, with its own cleanup method to avoid lexical super() from a different TestCase. Original worker stop/join/no-survivor assertions remain.",
       "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.1",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_create_books_has_persisted_entity_currency_period_and_chart_without_transactions",
+      "scenario_sha256": "d4429480da49c68af6aa168f1a27483e8100efdbef714458fe22d9c4fb1078c9",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Book reread preserves entity/USD/2026 and all five account categories at revision zero, with no journal or lines.",
+      "decision": "aligned",
+      "reason": "Book reread preserves entity/USD/2026 and all five account categories at revision zero, with no journal or lines. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.2",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_exact_decimal_lines_persist_as_draft_with_source_and_no_posted_balance",
+      "scenario_sha256": "b43071fca3d683f2948349f00cbe6ccac4bd55c80f835d996588791916fc6f8f",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Persisted 0.10 plus 0.20 equals 0.3000 on both sides; source/evidence survive, pending count is one and posted totals remain zero.",
+      "decision": "aligned",
+      "reason": "Persisted 0.10 plus 0.20 equals 0.3000 on both sides; source/evidence survive, pending count is one and posted totals remain zero. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.3",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_repeated_exact_request_returns_same_record_without_another_event_or_revision",
+      "scenario_sha256": "41214f639c37e3a0396e6c712490738e3f5e6f2a5895056e364ac74f59c416a2",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Retry returns the identical journal; book revision stays one with one journal, three lines and one audit event.",
+      "decision": "aligned",
+      "reason": "Retry returns the identical journal; book revision stays one with one journal, three lines and one audit event. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.4",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_reused_operation_with_different_payload_and_duplicate_source_are_refused",
+      "scenario_sha256": "b1c45659c2eae563f34ad16bba850e932f7d41357df197dc9b8a8005f01c21ec",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Changed payload on the original key and a new key for the same source both refuse without another journal, line or event.",
+      "decision": "aligned",
+      "reason": "Changed payload on the original key and a new key for the same source both refuse without another journal, line or event. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.5",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_invalid_amounts_and_line_sides_cannot_create_partial_journals",
+      "scenario_sha256": "61a609086f210901b8bc783b7400e83f5051742757a4c5751ca693c25d607154",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Noncanonical/float/boolean/negative/nonfinite/excess precision values and zero or two-sided lines refuse with zero journals/lines/events and revision zero.",
+      "decision": "aligned",
+      "reason": "Noncanonical/float/boolean/negative/nonfinite/excess precision values and zero or two-sided lines refuse with zero journals/lines/events and revision zero. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.6",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_unbalanced_and_excess_total_journals_are_atomic_refusals",
+      "scenario_sha256": "6979be7b82ad194bdb554121c663de8c715b5085f12309bff08d303ab2f36422",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "A 0.31 credit against 0.30 debits and excessive monetary totals both refuse, leaving zero journals/lines/events.",
+      "decision": "aligned",
+      "reason": "A 0.31 credit against 0.30 debits and excessive monetary totals both refuse, leaving zero journals/lines/events. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.7",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_sibling_entity_accounts_cannot_be_used_even_by_same_owner",
+      "scenario_sha256": "f489e2f0f31248a47c7ef0cd3b9cc661420fb252684836cda2fba6d8e4e565f4",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "An account from another owned entity cannot enter this book; no journal, line or event exists.",
+      "decision": "aligned",
+      "reason": "An account from another owned entity cannot enter this book; no journal, line or event exists. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.8",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_foreign_administrator_cannot_read_or_write_another_owners_books",
+      "scenario_sha256": "b85c0598386ec68840f969a6e77afff6bc2d18093405092f7516ad2096b8d256",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "A different administrator/superuser cannot read or write private books or initialize them; no accounting records are created.",
+      "decision": "aligned",
+      "reason": "A different administrator/superuser cannot read or write private books or initialize them; no accounting records are created. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.9",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_current_membership_role_and_user_enablement_are_required_for_every_mutation",
+      "scenario_sha256": "6bf1aeb7511da13a3c57b4d0c20bc81a67e1794848dd4c2a985f7d77451c29a2",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Reviewer/viewer, disabled membership and a freshly disabled user cannot propose journals, despite the stale original user object; no records are written.",
+      "decision": "aligned",
+      "reason": "Reviewer/viewer, disabled membership and a freshly disabled user cannot propose journals, despite the stale original user object; no records are written. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.10",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_stale_revision_and_actor_or_currency_hints_cannot_mutate_books",
+      "scenario_sha256": "c492b46bb11f174ea5825e34b7673e2a39aa6777716b562e81fc2a9179e4f43e",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Account creation advances only its event; stale journal revision and actor/currency/posted-state hints refuse, leaving zero journals/lines and one event.",
+      "decision": "aligned",
+      "reason": "Account creation advances only its event; stale journal revision and actor/currency/posted-state hints refuse, leaving zero journals/lines and one event. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.11",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_entry_date_must_be_real_canonical_and_in_book_period",
+      "scenario_sha256": "dd98c415329cdae6e690cfb37d059ce66a6d6a93c188cd271c1d1fddaa65fa43",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Impossible dates, either adjacent out-of-period date, noncanonical text and a Python date object refuse with zero journal/line/event writes.",
+      "decision": "aligned",
+      "reason": "Impossible dates, either adjacent out-of-period date, noncanonical text and a Python date object refuse with zero journal/line/event writes. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.12",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_existing_book_currency_and_period_cannot_be_silently_reinitialized",
+      "scenario_sha256": "bf54c68c0b9d092651440018fcf9b1e50ecf30f4537ab2f10cf4f7b5d0599f84",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Exact repeated setup is unchanged; changing currency or either period boundary refuses and the original book rereads identically.",
+      "decision": "aligned",
+      "reason": "Exact repeated setup is unchanged; changing currency or either period boundary refuses and the original book rereads identically. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.13",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_duplicate_account_code_and_invalid_category_do_not_advance_revision",
+      "scenario_sha256": "7a2c5c8b9347ec902f3efe6d223e6190b638e0ecbe4755a58858c33fa4fe1cb0",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "A duplicate account code, unknown category and empty code refuse; original book revision and event count remain zero.",
+      "decision": "aligned",
+      "reason": "A duplicate account code, unknown category and empty code refuse; original book revision and event count remain zero. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.14",
+      "test": "tests.test_native_ledger.NativeLedgerTests.test_saved_journal_lines_and_source_history_cannot_be_changed_or_deleted",
+      "scenario_sha256": "6d30c970fa9baa2779c20499811021d402ee5f977185cc184fce6b9bf655baef",
+      "source_sha256": "c5df1eff4bd11dbd779e35712160cd1e1b2b6b44a9116f07ca3ebac822a995d6",
+      "expected_observation": "Saved journal, line and event save/delete calls refuse; the exact original journal still reads back.",
+      "decision": "aligned",
+      "reason": "Saved journal, line and event save/delete calls refuse; the exact original journal still reads back. The assertions read persisted records and independent explicit known totals; refusal cases also assert unchanged accounting/event counts.",
+      "reviewer": "Maipa semantic acceptance review; independent expected outcomes, no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.1",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_owner_human_confirmation_posts_exact_entry_and_durable_trial_balance",
+      "scenario_sha256": "0fd3cf87c102eefe534b67e6b5e9c297a89ac171f4c63cac97e9b06bf859291c",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Exact owner confirmation returns original journal/hash/actor; 42.1700 office debit and checking credit persist, pending becomes zero and propose/post audit actions remain.",
+      "decision": "aligned",
+      "reason": "Exact owner confirmation returns original journal/hash/actor; 42.1700 office debit and checking credit persist, pending becomes zero and propose/post audit actions remain. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.2",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_exact_post_retry_returns_original_receipt_without_posting_again",
+      "scenario_sha256": "5f0461aad65a0b54250ee406bc3f9edf6d32c9f1d2759d3f593aa89534d63621",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "An exact repeated HTTP confirmation returns the identical receipt; revision and audit count stay two.",
+      "decision": "aligned",
+      "reason": "An exact repeated HTTP confirmation returns the identical receipt; revision and audit count stay two. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.3",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_different_hash_stale_revision_missing_confirm_and_actor_hints_cannot_post",
+      "scenario_sha256": "52d195a793f908103b23bafe7a993f6dedb7dd1cc5c8bc98cfca74fd9117b9a5",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Wrong hash, stale revision, false confirmation and actor/authorization hints cannot post; draft and revision one persist.",
+      "decision": "aligned",
+      "reason": "Wrong hash, stale revision, false confirmation and actor/authorization hints cannot post; draft and revision one persist. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.4",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_missing_csrf_revoked_role_and_foreign_owner_refuse_posting",
+      "scenario_sha256": "4e3a449c9edd8eec3fa64e244ee077289a1871b86ebd4e63fa3f44b5c4a97c1a",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "No CSRF, revoked current role and a different owner refuse posting; one draft and its sole proposal audit remain.",
+      "decision": "aligned",
+      "reason": "No CSRF, revoked current role and a different owner refuse posting; one draft and its sole proposal audit remain. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.5",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_tampered_persisted_lines_are_not_confirmed_using_the_old_proposal_hash",
+      "scenario_sha256": "e6389189d288bdf1e19c8c9e75b332d53a4ee6a36eff098706562a906f340b10",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Changing persisted debit lines prevents an old proposal hash from authorizing posting; state and revision remain draft/one.",
+      "decision": "aligned",
+      "reason": "Changing persisted debit lines prevents an old proposal hash from authorizing posting; state and revision remain draft/one. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.6",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_http_reads_are_original_actor_bound_and_do_not_expose_foreign_books",
+      "scenario_sha256": "77508694ec49f9302d0580c12f7139ca1b6afe17857f38d2a43ca830ff358e18",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Actor-bound private HTTP reads expose the original draft and no-store; a stale actor header receives409.",
+      "decision": "aligned",
+      "reason": "Actor-bound private HTTP reads expose the original draft and no-store; a stale actor header receives409. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.7",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_ledger_tools_have_proposal_and_read_but_no_confirmation_or_posting_tool",
+      "scenario_sha256": "e0073bcc46a2830321d89aa0f0ad0cda7dccf0ce9c2de872b7988d247275fc9e",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "The closed native tool catalog has only list/read/propose and supplies no confirm/post or actor-authority field.",
+      "decision": "aligned",
+      "reason": "The closed native tool catalog has only list/read/propose and supplies no confirm/post or actor-authority field. These fixtures assert actual HTTP/database state, not a fabricated approval flag. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.8",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_real_original_session_agent_reads_and_proposes_but_cannot_post",
+      "scenario_sha256": "3d21336e5b2efd6b8d069340b64f2810267e2cec6a4823698b177f53a9044dae",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "The actual original session broker reads the pending count, saves a second draft and refuses a posting tool; two drafts and zero posted journals persist.",
+      "decision": "aligned",
+      "reason": "The actual original session broker reads the pending count, saves a second draft and refuses a posting tool; two drafts and zero posted journals persist. Real application session and UI leases are used without substituting authorization. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.9",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_dismissed_component_and_revoked_original_session_authority_prevent_agent_mutation",
+      "scenario_sha256": "0293129046b942489bf8ecea615ea92c8a71544fceee1fa380911258366eec07",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Dismissing the exact shared book surface and disabling original membership prevent further agent mutation/read; one draft and revision one remain.",
+      "decision": "aligned",
+      "reason": "Dismissing the exact shared book surface and disabling original membership prevent further agent mutation/read; one draft and revision one remain. Real application session and UI leases are used without substituting authorization. Two actual-session broker cases added; original seven posting/HTTP assertions retained.",
+      "reviewer": "Maipa semantic acceptance review; no outside reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.15",
+      "test": "tests.test_account_activity.AccountActivityTests.test_posted_lines_run_in_date_then_sequence_order_with_exact_balances_and_pending_apart",
+      "scenario_sha256": "b667061c80480edc162e67b1de661dee4c42d1b79145bfcdc544f12e4b6f397d",
+      "source_sha256": "d1d806819e5973a397968be911f7031e7ffff3a36af276328557da6da51f85dd",
+      "expected_observation": "List posted lines by date then sequence with exact running balances and source references; list pending lines apart; final balance equals the trial balance.",
+      "decision": "aligned",
+      "reason": "Asserts the exact ordered (journal, date, debit, credit, balance) tuples 0.3000 then 0.1000, the source reference, totals, the single pending row and equality with the trial-balance debit balance.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.16",
+      "test": "tests.test_account_activity.AccountActivityTests.test_credit_normal_account_balance_is_positive_on_its_normal_side",
+      "scenario_sha256": "5334ba4a0121b39e2d75fb37e6ece150afe04eee76fcc4fc309228ea1389fcfe",
+      "source_sha256": "d1d806819e5973a397968be911f7031e7ffff3a36af276328557da6da51f85dd",
+      "expected_observation": "Report the credit normal side and a positive 125.5000 balance on it.",
+      "decision": "aligned",
+      "reason": "Asserts normal_side credit and balance 125.5000 for both the line and the account.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.17",
+      "test": "tests.test_account_activity.AccountActivityTests.test_foreign_unknown_and_sibling_book_accounts_are_not_readable",
+      "scenario_sha256": "73215b2f74379b44c51f556395a757eb444c0db9bbfbe733ca5ece4a84b820f7",
+      "source_sha256": "d1d806819e5973a397968be911f7031e7ffff3a36af276328557da6da51f85dd",
+      "expected_observation": "Refuse every request with a ledger error and disclose no rows.",
+      "decision": "aligned",
+      "reason": "Asserts LedgerError for each of the four foreign/sibling/unknown/malformed cases.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.18",
+      "test": "tests.test_account_activity.AccountActivityTests.test_http_activity_is_owner_bound_read_only_and_matches_the_service",
+      "scenario_sha256": "c45cb4dbecfb847ba996b1689ce055bfa45a467419e23be4b33cbbdbc80d237f",
+      "source_sha256": "d1d806819e5973a397968be911f7031e7ffff3a36af276328557da6da51f85dd",
+      "expected_observation": "Return the exact service result to the bound owner only; refuse unbound (409), writes (405) and foreign readers (404).",
+      "decision": "aligned",
+      "reason": "Asserts 409 without the actor header, 200 equal to the service value with balance -9.9900, 405 for POST and 404 for another user.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.19",
+      "test": "tests.test_source_import.SourceImportTests.test_statement_rows_are_saved_exactly_with_file_identity_and_listed_as_pending",
+      "scenario_sha256": "12502ff795c71dc7bf1fdac8856abaf13ff43c6a0b17a6e5732bd53b7630990b",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Save each row exactly (date, description, four-decimal signed amount, reference) as pending under one import with its file hash; create no journal.",
+      "decision": "aligned",
+      "reason": "Asserts filename, row_count 3, created, a 64-hex sha256, the exact six-field tuple for all three rows, one import_id and an empty journal list.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.20",
+      "test": "tests.test_source_import.SourceImportTests.test_reimporting_the_same_file_returns_the_original_import_without_new_rows",
+      "scenario_sha256": "0a55db1ee17910329baf8b528921e73f932a9f7274a05a431d74ae4ed42a48e3",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Return the original import unchanged with created false and add no rows.",
+      "decision": "aligned",
+      "reason": "Asserts the same id, created false, the original filename and still exactly three rows.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.21",
+      "test": "tests.test_source_import.SourceImportTests.test_one_bad_row_rejects_the_whole_file_with_its_row_number",
+      "scenario_sha256": "22e0ae36ae4edad0343d0197aca225441178275139e0462f50f0962e38f1c875",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Refuse the whole file naming the first bad row, and refuse malformed files, leaving revision and rows unchanged.",
+      "decision": "aligned",
+      "reason": "Asserts the exact import_row_N_invalid code for five files, LedgerError for four malformed files, and an unchanged revision with no rows.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.22",
+      "test": "tests.test_source_import.SourceImportTests.test_journal_citing_an_imported_row_must_match_its_date_and_amount_and_marks_it_proposed",
+      "scenario_sha256": "cf0c4bee88722194a743b4624d53a77d256755710497d431ffeed9529286feee",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Refuse amount and date mismatches, accept the exact entry and mark the row proposed with its journal, then refuse a second entry for the same row.",
+      "decision": "aligned",
+      "reason": "Asserts import_amount_mismatch, import_date_mismatch, the csv source on the saved entry, status proposed with journal id, row 1 still pending, then ledger_source_exists.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.23",
+      "test": "tests.test_source_import.SourceImportTests.test_unknown_foreign_or_sibling_book_rows_cannot_be_cited_or_imported_into",
+      "scenario_sha256": "06d74ca00c0b26575cf65ad93d8930b0381d5c9d8e0128674b33359966dfd594",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Refuse every request.",
+      "decision": "aligned",
+      "reason": "Asserts LedgerError for three bad citations and for foreign import and listing.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.24",
+      "test": "tests.test_source_import.SourceImportTests.test_size_row_and_field_limits_and_stale_revision_are_refused",
+      "scenario_sha256": "487690f14c8928511a69515fccedc3e20ccf45fc71b4e4549b72ccad91b742a8",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Refuse each request and save no rows.",
+      "decision": "aligned",
+      "reason": "Asserts LedgerError for all five requests and an empty row list.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L01-NATIVE.25",
+      "test": "tests.test_source_import.SourceImportTests.test_http_import_is_human_bound_idempotent_and_reads_back_rows",
+      "scenario_sha256": "6f353e723db6d4c935eea524c6a7ac5d94b114e7672884f23f4b377ba368db10",
+      "source_sha256": "51fe07f4064ebfa6f7505f1515e93e69f7cb5178c0f80a2b5d926564670fb5c0",
+      "expected_observation": "Bind to the owner only: 409 without the actor header, 201 then 200 with the same import, the service row list, and 404 for another user.",
+      "decision": "aligned",
+      "reason": "Asserts 409, 201 with row_count 3, 200 with the same id and created false, equality with source_rows, and 404 for the foreign reader.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L03-OWNER.10",
+      "test": "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_reads_imported_rows_and_proposes_a_cited_entry_but_cannot_import",
+      "scenario_sha256": "5a968d2c56965016e5071196e589716c2aa84cfd2e9c8f058063461b99bad1b2",
+      "source_sha256": "6601b14fbaafa6592fe419e146362874a42be6f9c75b9f860453ced451e50164",
+      "expected_observation": "Allow the read and a draft cited proposal that marks the row proposed; refuse an import tool; post nothing.",
+      "decision": "aligned",
+      "reason": "Asserts the pending -12.5000 row, a draft response, status proposed, isError for maipa_books_import and zero posted journals.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.14",
+      "test": "tests.test_agent_onboarding.AgentGuidedSetupTests.test_agent_reads_explained_steps_and_records_conversation_answers_as_its_own",
+      "scenario_sha256": "47d766ca41d484a96e92f5d34e9e5fd7e4e45f82312890767b86e4bf4dca0868",
+      "source_sha256": "2558c7933e1152de743def3fce0c823f7e9c1a32d358ff8e1a77d0a15faa0d15",
+      "expected_observation": "Return the current step with a plain-language explanation and every step on the person's path; record agent answers as agent-sourced and narrow the path when client setup is deferred.",
+      "decision": "aligned",
+      "reason": "Asserts display_name step, its 'not a client or business name' explanation, the exact nine-step path with titles/explanations, agent-sourced message role, and the narrowed four-step path after 'later'.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "LOCAL-ONBOARDING.15",
+      "test": "tests.test_agent_onboarding.AgentGuidedSetupTests.test_agent_cannot_confirm_save_and_invalid_or_stale_answers_change_nothing",
+      "scenario_sha256": "038bef831cfdd7df4809b72499c9465a69f1d7e1518f4283ee555a8f96f0f27d",
+      "source_sha256": "2558c7933e1152de743def3fce0c823f7e9c1a32d358ff8e1a77d0a15faa0d15",
+      "expected_observation": "Refuse invalid and confirm answers without advancing, raise conflict for stale revisions and refuse injected fields; never create engagements, facts or profile names without the person's confirmation.",
+      "decision": "aligned",
+      "reason": "Asserts invalid currency and confirm return recorded False at the same step, stale revision raises UiConflict, injected fields raise UiUnavailable, and zero engagements/facts and an empty profile name remain.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

@@ -1,5 +1,43 @@
 [
   {
+    "id": "development-48",
+    "label": "Development update 48",
+    "cards": [
+      {
+        "title": "Maipa guides your account setup",
+        "description": "Once an agent provider is connected, Maipa — your real AI agent — walks you through account setup in the conversation. It explains each step, understands ordinary replies such as a greeting, and records only the answers you actually give."
+      },
+      {
+        "title": "Every setup step explains itself",
+        "description": "The Account setup panel lists each step with what it is for, shows the answers recorded so far, and lets you answer any step yourself. Nothing reaches client records until you press Confirm and save setup; Maipa cannot confirm it for you."
+      },
+      {
+        "title": "Start keeping your books",
+        "description": "Open Bookkeeping in the header to create business books, use the account chart and prepare source-linked journal entries. Split an entry across accounts and review its exact amounts."
+      },
+      {
+        "title": "Import a bank statement",
+        "description": "Upload a CSV statement in Bookkeeping. Each row is saved exactly as a pending transaction linked to its file; a bad row stops the whole import, and importing the same file again changes nothing. Ask Maipa to categorize the rows, then review and post each entry yourself."
+      },
+      {
+        "title": "Let Maipa prepare entries",
+        "description": "Your connected agent can read your own books and prepare balanced entries in the shared Bookkeeping component. Prepared entries stay pending until you review and post them."
+      },
+      {
+        "title": "See your posted trial balance",
+        "description": "Post the exact reviewed entry with your own account. Reopen the saved journal and see its actual debit and credit balances; pending entries stay separate."
+      },
+      {
+        "title": "Follow one account",
+        "description": "In the trial balance, choose View activity to see an account’s posted entries in date order with a running balance and source reference. Entries awaiting your review are listed separately and are not counted."
+      },
+      {
+        "title": "Account menu closes when you click away",
+        "description": "The Account menu now closes when you click elsewhere or press Escape, so it no longer covers the controls in your work panel."
+      }
+    ]
+  },
+  {
     "id": "development-47",
     "label": "Development update 47",
     "cards": [
@@ -65,7 +103,7 @@
       },
       {
         "title": "Choose an acknowledged model",
-        "description": "Use the provider’s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
+        "description": "Use the providerâ€™s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
       }
     ]
   },
@@ -223,7 +261,7 @@
     "cards": [
       {
         "title": "Keep drafts edited during a send",
-        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancy’s published draft-revision fix."
+        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancyâ€™s published draft-revision fix."
       }
     ]
   },
@@ -237,7 +275,7 @@
       },
       {
         "title": "Read conversations at your pace",
-        "description": "Fancy’s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
+        "description": "Fancyâ€™s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
       }
     ]
   },
@@ -247,7 +285,7 @@
     "cards": [
       {
         "title": "Fancy content and composer controls",
-        "description": "Agent replies, setup guidance and shared notes use Fancy’s content renderer. The message input uses Fancy’s multiline component while keeping drafts and confirmed sends."
+        "description": "Agent replies, setup guidance and shared notes use Fancyâ€™s content renderer. The message input uses Fancyâ€™s multiline component while keeping drafts and confirmed sends."
       },
       {
         "title": "Consistent connection controls",
@@ -262,20 +300,6 @@
       {
         "title": "Choose your agent model",
         "description": "Choose from models offered by your connected provider. A confirmed change keeps your conversation, draft and shared panel in place."
-      }
-    ]
-  },
-  {
-    "id": "development-28",
-    "label": "Development update 28",
-    "cards": [
-      {
-        "title": "Recover connections after a restart",
-        "description": "A server restart now clears stale connection controls while keeping your accounts, saved chat and unfinished requests."
-      },
-      {
-        "title": "Use your existing Claude sign-in",
-        "description": "Claude checks the account already signed in on this machine. Maipa offers sign-in only when it is needed."
       }
     ]
   }

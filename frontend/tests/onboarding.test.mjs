@@ -3,14 +3,17 @@ import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { FirstRunForm } from '../.test-build/FirstRun.js';
-import { SetupReview } from '../.test-build/AccountSetupChat.js';
+import { SetupReview, setupStepItems } from '../.test-build/AccountSetupChat.js';
 import { readFirstRun, createAdmin, readOnboarding, answerOnboarding } from '../.test-build/onboarding.js';
 
 const token = 'c'.repeat(64);
 const fixture = { setup_id: '12345678-1234-4234-8234-123456789012', revision: 7, step: 'review', draft: { display_name: 'Morgan', workspace: 'new', entity_name: '<unsafe entity>',
   engagement_name: 'Synthetic work', currency: 'USD', reporting_basis: null, effective_from: '2026-10-01' },
   messages: [{ role: 'guide', text: 'Review before saving.' }], choices: [], entity_id: null,
-  deferred: false, provider_ready: false, can_edit: true };
+  deferred: false, provider_ready: false, can_edit: true,
+  question: 'Review your setup below.', explanation: 'Nothing has been saved to client records yet.',
+  steps: ['display_name', 'workspace', 'engagement_name', 'entity_name', 'currency', 'reporting_basis', 'effective_from', 'review', 'complete']
+    .map(id => ({ id, title: `Title ${id}`, explanation: `Why ${id}` })) };
 
 test('first-run adapter and form distinguish local administrator creation from account setup', async () => {
   assert.equal(await readFirstRun(async () => new Response(JSON.stringify({ setup_required: true }))), true);
@@ -85,4 +88,17 @@ test('chat errors and malformed or falsely connected responses never become acce
     assert.deepEqual(await readOnboarding(async () => new Response(JSON.stringify(value))), { state: 'unavailable' });
   }
   assert.deepEqual(await answerOnboarding(fixture.setup_id, -1, 'confirm'), { state: 'invalid' });
+});
+
+test('setup steps explain every step, show recorded answers and reject malformed step lists', async () => {
+  const value = (await readOnboarding(async () => new Response(JSON.stringify({ ...fixture, step: 'currency' })))).value;
+  const items = setupStepItems(value);
+  assert.deepEqual(items.map(item => item.id), ['display_name', 'workspace', 'engagement_name', 'entity_name', 'currency', 'reporting_basis', 'effective_from', 'review']);
+  assert.deepEqual(items.map(item => item.description), ['Morgan', 'New client', 'Synthetic work', '<unsafe entity>', 'Why currency',
+    'Unknown for now', '2026-10-01', 'Why review']);
+  for (const steps of [[{ id: 'display_name', title: 'Name', explanation: 'Why' }], [{ id: 'invented', title: 'x', explanation: 'y' }],
+    [...fixture.steps.slice(0, 7), { id: 'review', title: 'x'.repeat(81), explanation: 'y' }]]) {
+    assert.deepEqual(await readOnboarding(async () => new Response(JSON.stringify({ ...fixture, steps }))), { state: 'unavailable' });
+  }
+  assert.deepEqual(await readOnboarding(async () => new Response(JSON.stringify({ ...fixture, messages: [{ role: 'agent', text: 'Morgan' }] }))).then(r => r.state), 'ready');
 });
