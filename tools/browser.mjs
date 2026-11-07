@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 48 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 49 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1443,6 +1443,24 @@ try {
   assert.equal(postedBook.report.trial_debit,'42.1700');assert.equal(postedBook.report.trial_credit,'42.1700');
   assert.equal(postedBook.report.accounts.find(a=>a.code==='6200').balance_debit,'42.1700');
   assert.equal(postedBook.report.accounts.find(a=>a.code==='1000').balance_credit,'42.1700');
+  // Statement import through the published Fancy FileUpload: exact rows, idempotent re-import, no entries created.
+  const statementFile=join(profile,'synthetic-statement.csv');
+  writeFileSync(statementFile,'date,description,amount,reference\n'+postedBook.book.period_start.slice(0,4)+'-03-01,Synthetic client payment,1250.5,dep-1\n'+postedBook.book.period_start.slice(0,4)+'-03-03,"Synthetic rent, March",-900,chk-1001\n');
+  const chooseStatement=async()=>{const doc=await command('DOM.getDocument',{depth:0});const input=await command('DOM.querySelector',{nodeId:doc.root.nodeId,selector:'[aria-label="Import bank statement"] input[type=file]'});assert.ok(input.nodeId,'statement file input');await command('DOM.setFileInputFiles',{nodeId:input.nodeId,files:[statementFile]});};
+  const journalsBeforeImport=postedBook.book.journals.length;
+  await chooseStatement();
+  await click('Import statement');
+  await until(()=>evaluate("document.querySelector('[aria-label=\"Import bank statement\"]')?.dataset.importRows==='2'&&!document.querySelector('.bookkeeping')?.getAttribute('aria-busy')?.includes('true')"),'imported statement rows shown');
+  const importedRows=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/imports/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  assert.deepEqual(importedRows.rows.map(r=>[r.description,r.amount,r.reference,r.status]),[['Synthetic client payment','1250.5000','dep-1','pending'],['Synthetic rent, March','-900.0000','chk-1001','pending']]);
+  assert.equal(await evaluate("document.querySelector('[data-import-pending]')?.dataset.importPending"),'2');
+  await chooseStatement();
+  await click('Import statement');
+  await until(()=>evaluate("document.querySelector('.bookkeeping [role=status]')?.textContent.includes('already imported')"),'repeat import changes nothing');
+  const afterRepeat=await readBooks();
+  assert.equal(afterRepeat.book.journals.length,journalsBeforeImport);
+  assert.equal(await evaluate("document.querySelectorAll('[data-source-row]').length"),2);
+  record('own-books-statement-import');
   await click('Close contextual panel');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Unsent bookkeeping follow-up Ω');
   record('own-books-review-post-and-trial-balance');
