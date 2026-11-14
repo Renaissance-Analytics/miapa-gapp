@@ -291,6 +291,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
             <div className="chat-composer" aria-label="Message Maipa"><Field label="Message Maipa" labelHidden htmlFor="maipa-chat-message">
               <PromptInput inputId="maipa-chat-message" name="message" placeholder="Ask Maipa…" draft={draft} onDraftChange={changeDraft}
                 budgetTokens={0} meter="hidden" maxHeight={160} attachButton="icon" sendButton="icon"
+                labels={{ sendAriaLabel: 'Send' }}
                 sendDisabled={busy || !!error || draftPhase==='conflict' || draftPhase==='loading' || draftPhase==='closed' || !state.connection.available || running || cooldown}
                 onSubmit={submit} onSubmitError={problem => setSendError(typeof problem === 'string' ? problem : 'The message was not sent. Your draft has been kept.')}
                 aboveInput={<ChatDrawer tabs={[{ id: 'requests', label: 'Requests', number: null }, { id: 'connection', label: 'Connection', number: null }]}
