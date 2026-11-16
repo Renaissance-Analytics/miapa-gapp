@@ -2,6 +2,7 @@ import asyncio
 from contextlib import ExitStack
 import json
 from pathlib import Path
+import platform
 import shutil
 import tempfile
 import unittest
@@ -20,6 +21,10 @@ class AcpHostTests(unittest.TestCase):
                 base = Path(directory)
                 for name in ("workspace", "home", "supervisor"):
                     (base / name).mkdir()
+                # The trusted launcher stages the published prebuilt supervisor before the host starts.
+                architecture = 'arm64' if platform.machine().lower() in ('arm64', 'aarch64') else 'x64'
+                shutil.copy2(ROOT / f'backend/agent/node_modules/@particle-academy/prism-acp/native/win32-{architecture}/prism-acp-supervisor.exe',
+                             base / 'supervisor' / f'prism-acp-supervisor-{architecture}.exe')
                 profile = {"provider": "codex", "user_id": "user-1", "account_id": "account-1",
                     "workspace": str((base / "workspace").resolve()), "home": str(base / "home"), "supervisor_directory": str(base / "supervisor")}
                 if host_mode: profile['execution_mode'] = 'host'
@@ -83,7 +88,7 @@ class AcpHostTests(unittest.TestCase):
         async def case(client, owner):
             result = await client.initialize(owner)
             self.assertEqual(result["protocolVersion"], 1)
-            self.assertEqual(result["agentInfo"]["version"], "0.33.1")
+            self.assertEqual(result["agentInfo"]["version"], "0.41.2")
             self.assertEqual(result["authMethods"], [])
             self.assertEqual(await client.shutdown(owner), {"verified": True, "survivors": 0, "sessions": 0})
         self.run_host(case, real_entry=True)

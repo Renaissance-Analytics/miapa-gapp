@@ -1,6 +1,6 @@
 # Account-scoped turn failure status
 
-The public Prism0.33.1 failed `session/prompt` error exposes
+The public Prism0.41.2 failed `session/prompt` error exposes
 `error.data["particle.academy/turn_failure"]` directly, not inside `_meta`.
 Maipa accepts this metadata only on a correlated prompt refusal. It retains
 only `rate_limit`, `overloaded`, `auth`, `billing` or `other` and an optional

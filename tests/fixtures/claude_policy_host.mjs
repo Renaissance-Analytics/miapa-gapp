@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { ClaudeDriver, prepareProcessTree } from './node_modules/@particle-academy/prism-acp/dist/index.js';
 import { serveProfile } from './host.mjs';
 const profile = JSON.parse(process.env.MAIPA_ACP_PROFILE);
-await prepareProcessTree({ directory: profile.supervisor_directory });
+await prepareProcessTree({ executable: profile.supervisor_directory + `/prism-acp-supervisor-${process.arch}.exe` });
 const host = serveProfile(profile, { input: process.stdin, output: process.stdout,
   constructors: { claude(options, events) {
     assert.equal(options.binary, profile.provider_binary);
