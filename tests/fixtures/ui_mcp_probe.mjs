@@ -7,7 +7,7 @@ const profile = JSON.parse(process.env.MAIPA_ACP_PROFILE);
 // A fresh isolated worker must use its explicitly prepared read-only supervisor.
 // Make the unrelated default cache unavailable, even on a warm development host.
 process.env.LOCALAPPDATA = dirname(process.execPath);
-await prepareProcessTree({ directory: profile.supervisor_directory });
+await prepareProcessTree({ executable: profile.supervisor_directory + `/prism-acp-supervisor-${process.arch}.exe` });
 const mode = process.argv[2];
 const calls = [], verdicts = [];
 const relay = await createUiRelay(async request => {

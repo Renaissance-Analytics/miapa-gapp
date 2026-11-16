@@ -20,7 +20,7 @@ requires a newly authorized UI lease; the old lease remains invalid.
 
 Connection setup selects a registered provider for the current Maipa user and
 lets its native CLI use the existing machine subscription. This supersedes
-new-login-first onboarding. Published Prism0.33.1 supports this host-mode path;
+new-login-first onboarding. Published Prism0.41.2 supports this host-mode path;
 Maipa does not read or copy provider tokens/auth files. The Maipa account and
 its application data/tools remain bound to the authenticated application user.
 General provider discovery and multiple external-account identity negotiation
@@ -81,7 +81,7 @@ Current acceptance boundary: the deterministic ACP peer is registered only by
 the dedicated test fixture. It exercises the real consumer, authenticated HTTP,
 streaming and UI services. It is not a production fallback or evidence of a real
 model turn. Actual native device consent and clean stop are separately verified.
-The published Prism ACP0.33.1 policy fixes Codex native sessions to CLI0.163.0,
+The published Prism ACP0.41.2 policy fixes Codex native sessions to CLI0.163.0,
 gpt-5.3-codex and `nativeTools: 'none'`. Only fresh sessions and the supplied
 Maipa UI MCP server are admitted. The published driver refuses unsupported
 CLI/model/configuration, resume and announced unsupported reroutes. Its three

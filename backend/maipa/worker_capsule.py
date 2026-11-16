@@ -124,7 +124,12 @@ class WorkerCapsule:
                         if target.stat().st_size != expected['size'] or hashlib.file_digest(copied, 'sha256').hexdigest() != expected['sha256']:
                             raise SandboxUnavailable('Provider runtime unavailable')
             entry = (self.code / "node_modules/@particle-academy/prism-acp/dist/index.js").as_uri()
-            script = "import {prepareProcessTree} from " + json.dumps(entry) + "; await prepareProcessTree({directory:process.argv[1]});"
+            # Published Prism ships its prebuilt supervisor in the package. Copy this machine's image into the
+            # read-only supervisor directory and have Prism verify that exact copy.
+            script = ("import {prepareProcessTree,supervisorPath} from " + json.dumps(entry) + ";"
+                      "import {copyFileSync} from 'node:fs';import {join} from 'node:path';"
+                      "const target=join(process.argv[1],`prism-acp-supervisor-${process.arch}.exe`);"
+                      "copyFileSync(supervisorPath(process.arch),target);await prepareProcessTree({executable:target});")
             allowed = {"PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA"}
             environment = {key: value for key, value in os.environ.items() if key.upper() in allowed}
             subprocess.run([str(self.node), "--input-type=module", "-e", script, str(self.supervisor)],
