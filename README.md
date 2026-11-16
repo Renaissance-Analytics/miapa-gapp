@@ -88,8 +88,8 @@ Serving requires a private random `MAIPA_SECRET_KEY` of at least 50 characters.
 Do not put it in tracked files. Configure exact `MAIPA_ALLOWED_HOSTS` names;
 wildcards are rejected. `MAIPA_LOCAL_DEV=1` explicitly allows local HTTP cookie
 settings and defaults the host list to loopback names. `DEBUG` remains false.
-When that explicit local mode also allows `maipa.gen`, CSRF trusts exactly
-`https://maipa.gen` for Genie's HTTPS-to-loopback proxy. It does not trust wildcard
+When that explicit local mode also allows `maipa.gen` or `miapa.gen`, CSRF trusts exactly
+those allowed `https://` origins for Genie's HTTPS-to-loopback proxy. It does not trust wildcard
 origins or forwarded-protocol headers. Production origin/TLS policy remains K01.
 
 Installation data lives outside application source, under `%LOCALAPPDATA%/Maipa/data`
@@ -100,7 +100,7 @@ SQLite uses the Python standard library; production listener, TLS/proxy and full
 MVP recovery acceptance remain open. Test settings
 use only an in-memory database and a fixed test key; never serve with them.
 
-The Genie-managed development site is **https://maipa.gen/**. Its explicit local
+The Genie-managed development site is **https://miapa.gen/** (formerly `maipa.gen`). Its explicit local
 entrypoint is `.venv/Scripts/python.exe backend/devserver.py {port}`. It creates a
 private random development key in the protected install directory without printing it,
 migrates local SQLite and serves the trusted built frontend beside the API.

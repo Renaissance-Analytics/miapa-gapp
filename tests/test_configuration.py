@@ -68,3 +68,14 @@ class ConfigurationTests(unittest.TestCase):
             result = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4} | changes)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["csrf_origins"], [])
+
+    def test_genie_local_mode_also_trusts_the_miapa_spelling_and_nothing_else(self):
+        result = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4,
+                                     "MAIPA_ALLOWED_HOSTS": "maipa.gen,miapa.gen,evil.gen,127.0.0.1", "MAIPA_LOCAL_DEV": "1"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["csrf_origins"], ["https://maipa.gen", "https://miapa.gen"])
+        only = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4,
+                                   "MAIPA_ALLOWED_HOSTS": "miapa.gen", "MAIPA_LOCAL_DEV": "1"})
+        self.assertEqual(json.loads(only.stdout)["csrf_origins"], ["https://miapa.gen"])
+        production = self.load_settings({"MAIPA_SECRET_KEY": "synthetic-not-a-real-key-" * 4, "MAIPA_ALLOWED_HOSTS": "miapa.gen"})
+        self.assertEqual(json.loads(production.stdout)["csrf_origins"], [])

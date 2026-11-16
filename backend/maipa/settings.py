@@ -62,7 +62,9 @@ CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax"
 # Genie terminates HTTPS before the explicit local loopback server. Trust only
 # this application's exact public origin; never trust arbitrary proxy headers.
-CSRF_TRUSTED_ORIGINS = ["https://maipa.gen"] if LOCAL_DEV and "maipa.gen" in ALLOWED_HOSTS else []
+# Genie serves the local site at one of these exact names; nothing else is trusted.
+GENIE_HOSTS = ("maipa.gen", "miapa.gen")
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in GENIE_HOSTS if LOCAL_DEV and host in ALLOWED_HOSTS]
 CSRF_FAILURE_VIEW = "backend.maipa.api.csrf_failure"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"

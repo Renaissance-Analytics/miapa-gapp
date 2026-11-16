@@ -679,6 +679,16 @@
           "tests": [
             "tests.test_configuration.ConfigurationTests.test_genie_origin_trust_is_absent_for_production_or_other_local_hosts"
           ]
+        },
+        {
+          "id": "P01-PROXY.miapa",
+          "kind": "negative",
+          "given": "Local mode allowing maipa.gen, miapa.gen and another .gen host; local mode allowing only miapa.gen; production allowing miapa.gen",
+          "when": "Load settings",
+          "then": "Trust exactly the allowed Genie origins https://maipa.gen and https://miapa.gen, never another host, and none in production.",
+          "tests": [
+            "tests.test_configuration.ConfigurationTests.test_genie_local_mode_also_trusts_the_miapa_spelling_and_nothing_else"
+          ]
         }
       ]
     },

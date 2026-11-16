@@ -35,7 +35,7 @@ def main():
     except (OSError, ValueError, UnicodeError, RecursionError):
         parser.error("Private installation unavailable; check local storage or offline legacy adoption")
     os.environ["MAIPA_LOCAL_DEV"] = "1"
-    os.environ.setdefault("MAIPA_ALLOWED_HOSTS", "maipa.gen,localhost,127.0.0.1,[::1]")
+    os.environ.setdefault("MAIPA_ALLOWED_HOSTS", "maipa.gen,miapa.gen,localhost,127.0.0.1,[::1]")
     os.environ["DJANGO_SETTINGS_MODULE"] = "backend.maipa.settings"
     from django.core.management import execute_from_command_line
     try:
