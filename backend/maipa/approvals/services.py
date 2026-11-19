@@ -77,6 +77,12 @@ def _check_reverse(user, payload):
     require(not ledger.closed(book, ledger.day(payload['date'])), 'ledger_period_closed')
 
 
+def _check_cash(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.cash_change(book, payload['account_id'], payload['cash'])
+
+
 def _check_opening(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -117,6 +123,9 @@ OPERATIONS = {
     'account.create': (('book_id', 'code', 'name', 'category'), _check_book,
         lambda user, p: ledger.create_account(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                               **{k: p[k] for k in ('code', 'name', 'category')}})),
+    'account.cash': (('book_id', 'account_id', 'cash'), _check_cash,
+        lambda user, p: ledger.set_account_cash(user, p['book_id'], p['account_id'],
+                                                {'expected_revision': _revision(p['book_id']), 'cash': p['cash']})),
     'statement.import': (('book_id', 'filename', 'content'), _check_book,
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                                 'filename': p['filename'], 'content': p['content']})),
@@ -159,6 +168,10 @@ def _detail(row):
             return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
                     'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
                     'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
+        if row.operation == 'account.cash':
+            from backend.maipa.ledger.models import Account
+            account = Account.objects.select_related('book__entity').get(pk=row.payload['account_id'], book_id=row.payload['book_id'])
+            return {'books': account.book.entity.name, 'account': f'{account.code} {account.name}', 'cash': account.cash}
         if row.operation == 'opening.balance':
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             facts = {'books': book.entity.name, 'currency': book.currency}

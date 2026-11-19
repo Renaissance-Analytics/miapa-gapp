@@ -7005,6 +7005,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B01-CASH",
+      "risk": "Bank and cash accounts are guessed, marked on the wrong kind of account or changed without approval.",
+      "scenarios": [
+        {
+          "id": "B01-CASH.1",
+          "kind": "positive",
+          "given": "New books with the starter chart and one added asset account",
+          "when": "Read the books and the trial balance",
+          "then": "Only 1000 Checking is marked bank or cash; all twelve starter accounts and the trial balance report the flag; a newly added account is unmarked.",
+          "tests": [
+            "tests.test_cash_accounts.CashAccountTests.test_new_books_mark_only_checking_and_every_account_reports_its_flag"
+          ]
+        },
+        {
+          "id": "B01-CASH.2",
+          "kind": "positive",
+          "given": "A request to mark the Equipment asset account as bank or cash",
+          "when": "Approve it, approve it again, then approve a request to unmark it",
+          "then": "The request alone changes nothing; approval marks the account, advances the revision once and records an account.cash event; a repeated approval changes nothing more; unmarking restores the original flags and the integrity check passes.",
+          "tests": [
+            "tests.test_cash_accounts.CashAccountTests.test_approved_request_marks_and_unmarks_an_asset_account_with_a_recorded_event"
+          ]
+        },
+        {
+          "id": "B01-CASH.3",
+          "kind": "negative",
+          "given": "Liability, income and equity accounts, an unchanged flag, non-boolean values, a foreign, unknown or malformed account, an extra field and a user without access",
+          "when": "Request the mark",
+          "then": "Every one is refused; no request is recorded and the flags are unchanged.",
+          "tests": [
+            "tests.test_cash_accounts.CashAccountTests.test_non_asset_unknown_foreign_unchanged_and_malformed_requests_are_refused_and_not_recorded"
+          ]
+        },
+        {
+          "id": "B01-CASH.4",
+          "kind": "negative",
+          "given": "Two pending requests for the same mark",
+          "when": "Approve one then the other",
+          "then": "The second fails with the unchanged code and the revision does not advance again.",
+          "tests": [
+            "tests.test_cash_accounts.CashAccountTests.test_a_stale_request_fails_without_changing_the_account"
+          ]
+        },
+        {
+          "id": "B01-CASH.5",
+          "kind": "negative",
+          "given": "Existing books without any mark, one of them with its 1000 account renamed",
+          "when": "Run the migration step for existing books",
+          "then": "Only the unrenamed starter Checking account is marked; the renamed account stays unmarked.",
+          "tests": [
+            "tests.test_cash_accounts.CashAccountTests.test_existing_books_get_only_an_unrenamed_starter_checking_account_marked"
+          ]
+        }
+      ]
     }
   ]
 }

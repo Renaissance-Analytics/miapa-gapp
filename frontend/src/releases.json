@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-60",
+    "label": "Development update 60",
+    "cards": [
+      {
+        "title": "Mark your bank and cash accounts",
+        "description": "Your books now know which accounts are bank accounts or cash on hand. Checking is marked for you; ask Maipa to mark a savings or cash account and approve it in one click. No amounts change."
+      }
+    ]
+  },
+  {
     "id": "development-59",
     "label": "Development update 59",
     "cards": [
@@ -246,24 +256,6 @@
       {
         "title": "Keep failures separate from repairs",
         "description": "Run history keeps the failed version and its actual result. A repaired publication runs as a new immutable version; selecting history clearly identifies an older run."
-      }
-    ]
-  },
-  {
-    "id": "development-40",
-    "label": "Development update 40",
-    "cards": [
-      {
-        "title": "Authorize your agent in the app",
-        "description": "Open Agent permissions in a client workflow. An administrator can allow their current connection to run, inspect, resume and cancel workflows for that client for up to an hour."
-      },
-      {
-        "title": "Revoke execution when needed",
-        "description": "Revoke the connection permission from the same component. Subsequent agent actions and worker nodes check current access; reauthorizing cannot revive a run whose original grant was revoked."
-      },
-      {
-        "title": "Choose a client by name",
-        "description": "Maipa can discover your available client entities when creating a workflow. Human approvals and answers continue to require you."
       }
     ]
   }

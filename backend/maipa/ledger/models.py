@@ -33,10 +33,13 @@ class Account(models.Model):
     code = models.CharField(max_length=16)
     name = models.CharField(max_length=128)
     category = models.CharField(max_length=9)
+    # A bank account or cash on hand. Only the person's approval changes it.
+    cash = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('book', 'code'), name='ledger_account_code'),
-                       models.CheckConstraint(condition=models.Q(category__in=CATEGORIES), name='ledger_account_category')]
+                       models.CheckConstraint(condition=models.Q(category__in=CATEGORIES), name='ledger_account_category'),
+                       models.CheckConstraint(condition=models.Q(cash=False) | models.Q(category='asset'), name='ledger_account_cash_asset')]
 
 
 class AppendOnly(models.Model):

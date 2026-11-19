@@ -1,5 +1,23 @@
 [
   {
+    "id": "development-40",
+    "label": "Development update 40",
+    "cards": [
+      {
+        "title": "Authorize your agent in the app",
+        "description": "Open Agent permissions in a client workflow. An administrator can allow their current connection to run, inspect, resume and cancel workflows for that client for up to an hour."
+      },
+      {
+        "title": "Revoke execution when needed",
+        "description": "Revoke the connection permission from the same component. Subsequent agent actions and worker nodes check current access; reauthorizing cannot revive a run whose original grant was revoked."
+      },
+      {
+        "title": "Choose a client by name",
+        "description": "Maipa can discover your available client entities when creating a workflow. Human approvals and answers continue to require you."
+      }
+    ]
+  },
+  {
     "id": "development-39",
     "label": "Development update 39",
     "cards": [

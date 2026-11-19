@@ -239,6 +239,7 @@ def _tools():
     definitions.append({'name': 'maipa_action_request', 'description':
         'Ask the person to approve one exact change to their records; you do the bookkeeping work this way. Operations and payloads: '
         'books.create {entity_id,currency,period_start,period_end}; account.create {book_id,code,name,category}; '
+        'account.cash {book_id,account_id,cash} to mark (true) or unmark (false) an ASSET account as a bank account or cash on hand; maipa_books_read shows each account\'s cash flag; '
         'statement.import {book_id,filename,content} (CSV text with columns date,description,amount[,reference]); '
         'journal.post {book_id,journal_id,payload_hash} for a draft entry you proposed; '
         'journal.reverse {book_id,journal_id,date} to undo a POSTED entry by posting its exact opposite on that date (each entry reverses once; the original is kept); '
@@ -249,7 +250,7 @@ def _tools():
         'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
         'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
-            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'statement.import', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':

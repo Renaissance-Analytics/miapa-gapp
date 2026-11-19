@@ -1,6 +1,6 @@
 import {csrfToken} from './api.js';
 
-export interface LedgerAccount {id:string;code:string;name:string;category:string}
+export interface LedgerAccount {id:string;code:string;name:string;category:string;cash?:boolean}
 export interface LedgerLine {account_id:string;debit:string;credit:string}
 export interface Journal {id:string;book_id:string;sequence:number;operation_id:string;payload_hash:string;state:'draft'|'posted';date:string;description:string;source:{kind:string;reference:string};evidence:string[];debit:string;credit:string;lines:LedgerLine[]}
 export interface LedgerBook {id:string;entity_id:string;currency:string;period_start:string;period_end:string;closed_through:string|null;revision:number;accounts:LedgerAccount[];journals:Journal[];has_more_journals:boolean}
@@ -30,7 +30,7 @@ const day=(v:unknown):v is string=>typeof v==='string'&&/^[0-9]{4}-[0-9]{2}-[0-9
 const currency=(v:unknown):v is string=>typeof v==='string'&&/^[A-Z]{3}$/.test(v);
 const hash=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
 const unavailable=()=>Error('We could not confirm the current books. Your input is kept. Reload and review before trying again.');
-function account(v:unknown):v is LedgerAccount{return object(v)&&uuid(v.id)&&string(v.code,16)&&string(v.name,128)&&['asset','liability','equity','income','expense'].includes(String(v.category));}
+function account(v:unknown):v is LedgerAccount{return object(v)&&uuid(v.id)&&string(v.code,16)&&string(v.name,128)&&['asset','liability','equity','income','expense'].includes(String(v.category))&&(v.cash===undefined||(typeof v.cash==='boolean'&&(!v.cash||v.category==='asset')));}
 function journal(v:unknown):v is Journal{return object(v)&&uuid(v.id)&&uuid(v.book_id)&&integer(v.sequence)&&uuid(v.operation_id)&&hash(v.payload_hash)&&['draft','posted'].includes(String(v.state))&&day(v.date)&&string(v.description)&&object(v.source)&&string(v.source.kind,8)&&string(v.source.reference,256)&&Array.isArray(v.evidence)&&v.evidence.length>0&&v.evidence.length<=20&&v.evidence.every(x=>string(x,256))&&amount(v.debit)&&v.debit===v.credit&&Array.isArray(v.lines)&&v.lines.length>=2&&v.lines.length<=100&&v.lines.every(l=>object(l)&&uuid(l.account_id)&&amount(l.debit)&&amount(l.credit));}
 export function parseLedgerBook(v:unknown):LedgerBook{
  if(!object(v)||!exact(v,['id','entity_id','currency','period_start','period_end','closed_through','revision','accounts','journals','has_more_journals'])||(v.closed_through!==null&&!day(v.closed_through))||!uuid(v.id)||!uuid(v.entity_id)||!currency(v.currency)||!day(v.period_start)||!day(v.period_end)||!integer(v.revision)||!Array.isArray(v.accounts)||v.accounts.length>1000||!v.accounts.every(account)||new Set(v.accounts.map(a=>a.id)).size!==v.accounts.length||!Array.isArray(v.journals)||v.journals.length>100||!v.journals.every(j=>journal(j)&&j.book_id===v.id&&j.lines.every(l=>(v.accounts as LedgerAccount[]).some(a=>a.id===l.account_id)))||typeof v.has_more_journals!=='boolean')throw unavailable();

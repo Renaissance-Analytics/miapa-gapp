@@ -111,3 +111,15 @@ test('financial statements are accepted only for this book and range and only wh
   assert.equal(calls[0].options.headers['X-Maipa-Agent-Actor'], '1');
   await assert.rejects(() => readFinancialReport('1', id(1), 'March', '2026-03-31', new AbortController().signal, async () => Response.json(report)));
 });
+
+test('accounts may carry a bank-or-cash flag only as a boolean and only on asset accounts', () => {
+  const flagged = structuredClone(fixture());
+  const asset = flagged.book.accounts.findIndex(a => a.category === 'asset'), other = flagged.book.accounts.findIndex(a => a.category !== 'asset');
+  flagged.book.accounts[asset].cash = true; flagged.book.accounts[other].cash = false;
+  flagged.report.accounts.find(a => a.id === flagged.book.accounts[asset].id).cash = true;
+  assert.equal(parseLedgerSnapshot(flagged, '1', book.id).book.accounts[asset].cash, true);
+  for (const change of [a => { a[asset].cash = 'yes'; }, a => { a[asset].cash = 1; }, a => { a[other].cash = true; }]) {
+    const bad = structuredClone(flagged); change(bad.book.accounts);
+    assert.throws(() => parseLedgerSnapshot(bad, '1', book.id));
+  }
+});

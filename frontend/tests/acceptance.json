@@ -1919,6 +1919,16 @@
           "tests": [
             "bookkeeping.test.mjs#financial statements are accepted only for this book and range and only when they balance"
           ]
+        },
+        {
+          "id": "L05-BOOKS.cash-flag",
+          "kind": "negative",
+          "given": "A ledger snapshot whose asset account is marked bank or cash, and ones with a non-boolean mark or a mark on a non-asset account",
+          "when": "Parse the snapshot",
+          "then": "Accept the boolean mark on the asset account; refuse a non-boolean mark and a mark on any other category.",
+          "tests": [
+            "bookkeeping.test.mjs#accounts may carry a bank-or-cash flag only as a boolean and only on asset accounts"
+          ]
         }
       ]
     },
@@ -2024,6 +2034,16 @@
           "then": "Show every line and the totals; state the supplied totals and that the difference goes to opening balance equity, or that nothing does; say plainly when approving will fail.",
           "tests": [
             "approvals.test.mjs#an opening balance card shows every line, the totals and what goes to opening balance equity"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.11",
+          "kind": "positive",
+          "given": "Pending requests to mark and to unmark a bank or cash account, and one whose account is gone",
+          "when": "Build their cards",
+          "then": "Name the account and books, say whether it will or will no longer count as a bank account or cash on hand and that no amounts change; say plainly when approving will fail.",
+          "tests": [
+            "approvals.test.mjs#a bank or cash account card names the account and says no amounts change"
           ]
         }
       ]
