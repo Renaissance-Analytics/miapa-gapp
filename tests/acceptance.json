@@ -6575,6 +6575,112 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A03-APPROVALS",
+      "risk": "An agent changes financial records without the person's exact approval, or an approval executes something other than what was reviewed.",
+      "scenarios": [
+        {
+          "id": "A03-APPROVALS.1",
+          "kind": "positive",
+          "given": "An agent request to create books for an owned entity",
+          "when": "Record it, then the person approves",
+          "then": "Recording changes nothing and lists it as pending; approval creates exactly those books as the person and clears the pending list.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_request_changes_nothing_and_approval_executes_exactly_the_requested_books"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.2",
+          "kind": "positive",
+          "given": "An already approved request",
+          "when": "Approve it again",
+          "then": "Return the original outcome without executing twice.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_repeated_approval_returns_the_original_result_without_executing_again"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.3",
+          "kind": "negative",
+          "given": "A pending request",
+          "when": "Reject it, then try to approve",
+          "then": "Rejection changes nothing and a later approval is refused.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_rejection_changes_nothing_and_cannot_be_approved_afterwards"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.4",
+          "kind": "negative",
+          "given": "A wrong hash, another user, a viewer, an injected actor field or an unknown decision",
+          "when": "Decide the request",
+          "then": "Refuse every attempt; the request stays pending, nothing is created and other users cannot see it.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_wrong_hash_foreign_user_viewer_and_extra_fields_cannot_decide"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.5",
+          "kind": "negative",
+          "given": "Unknown operations, missing or extra payload fields, foreign targets and a viewer requester",
+          "when": "Record a request",
+          "then": "Refuse them all and store nothing.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_unknown_operations_malformed_payloads_and_foreign_targets_are_not_recorded"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.6",
+          "kind": "negative",
+          "given": "A draft entry requested for posting, and another whose stored hash later changes",
+          "when": "Approve both",
+          "then": "Show server-read entry lines on the request; post the exact first entry into the trial balance; the changed one fails with a reason and stays a draft.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_approved_post_posts_the_exact_entry_and_a_changed_target_fails_without_posting"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.7",
+          "kind": "positive",
+          "given": "Requests to import a statement and add an account",
+          "when": "Approve them",
+          "then": "Never echo the statement content, only its size and hash; approval imports the rows and adds the account at the current book state.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_approved_statement_import_and_account_creation_use_current_book_state"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.8",
+          "kind": "negative",
+          "given": "Two batched posting requests, one with a changed target, and a foreign user",
+          "when": "Decide the batch",
+          "then": "Each request reports its own outcome (approved, failed); the foreign user is refused.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_batch_decision_executes_each_request_and_reports_individual_outcomes"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.9",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a GET to the decide route and a foreign session",
+          "when": "List and decide over HTTP",
+          "then": "List only the owner's requests; refuse GET decisions (405) and unbound requests (409); a bound POST approves and executes once.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalTests.test_http_lists_and_decides_only_for_the_bound_owner_and_never_from_get"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.10",
+          "kind": "negative",
+          "given": "The real original-session agent tool path",
+          "when": "Request a change, read status, and try to decide",
+          "then": "The agent can request and read; unsupported operations are refused with a reason; no decide or approve tool exists and nothing changes.",
+          "tests": [
+            "tests.test_agent_approvals.AgentApprovalToolTests.test_agent_can_request_and_read_but_has_no_tool_to_decide"
+          ]
+        }
+      ]
     }
   ]
 }

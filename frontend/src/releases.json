@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-49",
+    "label": "Development update 49",
+    "cards": [
+      {
+        "title": "Maipa does the bookkeeping",
+        "description": "Ask Maipa to create books, add accounts, import a statement you paste, or post the entries it prepared. It now does the work itself instead of sending you to a form."
+      },
+      {
+        "title": "You approve every change in one click",
+        "description": "Each change Maipa wants to make appears in the conversation as an approval card showing exactly what will change, including the entry lines. Approve or reject one card, or approve a related batch together. Nothing changes until you approve, and Maipa cannot approve for you."
+      }
+    ]
+  },
+  {
     "id": "development-48",
     "label": "Development update 48",
     "cards": [
@@ -290,16 +304,6 @@
       {
         "title": "Consistent connection controls",
         "description": "When a connection changes, model choices and sign-in controls stay with the current conversation."
-      }
-    ]
-  },
-  {
-    "id": "development-29",
-    "label": "Development update 29",
-    "cards": [
-      {
-        "title": "Choose your agent model",
-        "description": "Choose from models offered by your connected provider. A confirmed change keeps your conversation, draft and shared panel in place."
       }
     ]
   }

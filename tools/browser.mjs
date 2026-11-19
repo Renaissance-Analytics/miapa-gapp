@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 49 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 50 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1464,6 +1464,15 @@ try {
   await click('Close contextual panel');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Unsent bookkeeping follow-up Ω');
   record('own-books-review-post-and-trial-balance');
+  // The agent asks for a record change; nothing changes until the human approves the exact card.
+  await chooseAgent();
+  await typeChat('Request a new account');await click('Send');
+  await until(()=>evaluate("document.querySelector('[data-approvals-pending]')?.dataset.approvalsPending==='1'&&!!document.querySelector('[data-chat-proposal]')"),'agent approval request shown');
+  assert.equal((await readBooks()).book.accounts.some(a=>a.code==='6300'),false);
+  await click('Approve');
+  await until(async()=>(await readBooks()).book.accounts.some(a=>a.code==='6300'),'approved account created');
+  await until(()=>evaluate("!document.querySelector('[data-chat-proposal]')"),'approval card cleared');
+  record('agent-request-human-approval');
   await typeChat(beforeBookDraft);
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-29",
+    "label": "Development update 29",
+    "cards": [
+      {
+        "title": "Choose your agent model",
+        "description": "Choose from models offered by your connected provider. A confirmed change keeps your conversation, draft and shared panel in place."
+      }
+    ]
+  },
+  {
     "id": "development-28",
     "label": "Development update 28",
     "cards": [
@@ -19,7 +29,7 @@
     "cards": [
       {
         "title": "Claude sign-in link restored",
-        "description": "Maipa now recognizes Claude\u00e2\u20ac\u2122s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
+        "description": "Maipa now recognizes Claudeâ€™s current sign-in address and shows its private account connection controls. Live model verification is still in progress."
       }
     ]
   },
@@ -85,7 +95,7 @@
     "cards": [
       {
         "title": "Choose your agent provider",
-        "description": "The chat now saves your provider choice and keeps each account\u00e2\u20ac\u2122s conversation separate. Unsent drafts return when switching between providers in the open app."
+        "description": "The chat now saves your provider choice and keeps each accountâ€™s conversation separate. Unsent drafts return when switching between providers in the open app."
       },
       {
         "title": "Connection support stays explicit",
