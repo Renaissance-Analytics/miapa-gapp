@@ -6,6 +6,7 @@ const labels: Record<string, string> = { display_name: 'Your name', engagement_n
   currency: 'Currency', reporting_basis: 'Reporting basis', effective_from: 'Applies from', workspace: 'Client setup' };
 
 function shown(key: string, item: string | number | null) {
+  if (key === 'reporting_basis' && typeof item === 'string') return item.charAt(0).toUpperCase() + item.slice(1);
   return item === null ? 'Unknown for now' : key === 'workspace' ? item === 'new' ? 'New client' : item === 'later' ? 'Do this later' : 'Existing client' : String(item);
 }
 
@@ -20,7 +21,8 @@ function recorded(value: OnboardingState, step: SetupStep): string | null {
 /** Every remaining step with its purpose; finished steps show the answer already recorded. */
 export function setupStepItems(value: OnboardingState) {
   return value.steps.filter(item => item.id !== 'complete').map(item => ({ id: item.id, title: item.title,
-    description: (item.id !== value.step && recorded(value, item.id)) || item.explanation }));
+    description: (item.id !== value.step && recorded(value, item.id))
+      || (value.step === 'complete' && item.id === 'review' ? 'You confirmed this setup and it is saved.' : item.explanation) }));
 }
 
 export function SetupReview({ value }: { value: OnboardingState }) {

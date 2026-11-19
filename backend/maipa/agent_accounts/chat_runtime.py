@@ -514,12 +514,15 @@ class _Worker:
         changed = False
         for update in self.client.drain_updates(self.lease.scope, session):
             if update.get('sessionUpdate') != 'agent_message_chunk':
-                continue  # Never send raw diagnostics, reasoning, paths or tool arguments to chat.
+                self.reply_gap = True  # Tool use or reasoning happened; never send its raw content to chat.
+                continue
             content = update.get('content')
             if type(content) is dict and content.get('type') == 'text' and type(content.get('text')) is str:
                 if len(response['text']) + len(content['text']) > 65536:
                     raise chat.ChatUnavailable('Reply budget exceeded')
-                response['text'] += content['text']; changed = True
+                gap, self.reply_gap = getattr(self, 'reply_gap', False), False
+                separator = '\n\n' if gap and response['text'] and not response['text'].endswith('\n') and not content['text'].startswith('\n') else ''
+                response['text'] += separator + content['text']; changed = True
         return changed
 
     async def conversation(self):

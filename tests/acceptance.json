@@ -6741,6 +6741,32 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P04-REPLY-TEXT",
+      "risk": "Reply text runs together across tool use, or tool content leaks into the chat.",
+      "scenarios": [
+        {
+          "id": "P04-REPLY-TEXT.1",
+          "kind": "negative",
+          "given": "Text, then a tool update carrying private text, then more text",
+          "when": "Collect reply chunks",
+          "then": "Start the later text as a new paragraph, never include the tool content, and add no fields to the stored message.",
+          "tests": [
+            "tests.test_reply_chunks.ReplyChunkTests.test_text_after_tool_use_starts_a_new_paragraph_and_tool_content_is_never_shown"
+          ]
+        },
+        {
+          "id": "P04-REPLY-TEXT.2",
+          "kind": "positive",
+          "given": "Tool use before any text, consecutive text chunks, and text that already starts with a blank line",
+          "when": "Collect reply chunks",
+          "then": "Add no separator at the start, between plain chunks, or where the text already begins a new paragraph.",
+          "tests": [
+            "tests.test_reply_chunks.ReplyChunkTests.test_no_separator_is_added_at_the_start_or_between_plain_text_chunks"
+          ]
+        }
+      ]
     }
   ]
 }

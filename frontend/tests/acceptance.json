@@ -320,6 +320,16 @@
           "tests": [
             "onboarding.test.mjs#setup steps explain every step, show recorded answers and reject malformed step lists"
           ]
+        },
+        {
+          "id": "LOCAL-ONBOARDING-UI.7",
+          "kind": "positive",
+          "given": "A completed setup with a cash basis, and a setup still at review",
+          "when": "Build the explained step list",
+          "then": "A completed setup says it was confirmed and saved and shows Cash; a setup still at review keeps the review explanation.",
+          "tests": [
+            "onboarding.test.mjs#a saved setup says it is saved and shows a readable reporting basis"
+          ]
         }
       ]
     },
