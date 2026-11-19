@@ -216,6 +216,15 @@ for line in sys.stdin:
                 else:
                     callback('maipa_action_request', {'operation': 'period.close', 'summary': 'Close through ' + posted['date'],
                         'payload': {'book_id': book['id'], 'through': posted['date']}})
+            elif 'show the ledger views' in text:
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                book = json.loads(callback('maipa_books_read', {'book_id': books['books'][0]['id']})['content'][0]['text'])['book']
+                checking = next(a['id'] for a in book['accounts'] if a['code'] == '1000')
+                callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present', {'revision': revision, 'title': 'Ledger views',
+                    'schema': {'id': 'ledger-views', 'type': 'Maipa.Stack', 'children': [
+                        {'id': 'ledger-chart', 'type': 'Maipa.Accounts', 'props': {'book_id': book['id']}},
+                        {'id': 'ledger-entries', 'type': 'Maipa.Journal', 'props': {'book_id': book['id'], 'show': 'posted'}},
+                        {'id': 'ledger-checking', 'type': 'Maipa.AccountActivity', 'props': {'book_id': book['id'], 'account_id': checking}}]}})
             elif 'request a new account' in text:
                 books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
                 callback('maipa_action_request', {'operation': 'account.create', 'summary': 'Add account 6300 Synthetic rent',

@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "86e75d1fc16dd955e534b6f97d890e49dba823ca39caf8cd5fa6ef6779d50093",
+    "tools/browser.mjs": "91ac3d57664f3267a30454bb8a5e44e6656caf3ea3a61ab1efb0c74d5b43d47a",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "983e76583d0da4213b570d1e859f7f37b5ccfcca5226ecb068677f3af63f0865"
+    "tests/fixtures/agent_chat_peer.py": "80938e7f7aa2d50687c63643d20754806d8181bc5d22e265684d5575256db7b3"
   },
   "cases": [
     {
@@ -230,6 +230,11 @@
       "expected": "A CSV chosen through the real composer file input is uploaded and named to the agent; the finite peer reads it and requests its import, and after one Approve the real API shows its two rows pending. The peer then requests reversing the posted purchase (after approval one posted reversal exists and the trial balance is zero) and closing the books through that date (after approval closed_through equals it). After every decision the exact outcome note reaches the agent and it completes a reply."
     },
     {
+      "id": "agent-composed-ledger-views",
+      "kind": "positive",
+      "expected": "The finite peer composes Maipa.Accounts, Maipa.Journal (posted) and Maipa.AccountActivity for the owned book through the real UI tool. The three views load from the real APIs: the account count, posted entry count, and the checking account code, row count and balance equal the owner-bound API values, and the approved 6300 account is listed. The agent then dismisses the view and the panel is gone."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -363,5 +368,6 @@
   "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed.",
   "financial_statements_browser_review": "One added case between the unchanged statement-import and own-books cases. It reads the real owner-bound report API and compares it with the rendered section. No prior action, assertion or deadline changed; progress maximum 50 -> 51.",
   "agent_flows_browser_review": "One added case after the unchanged approval case. The finite peer gains handlers that call the real maipa_attachment_read, maipa_books_read and maipa_action_request tools for statement.import by attachment, journal.reverse and period.close; the human approves each with a native click. Outcomes are read from the real owner-bound APIs. No prior action, assertion or deadline changed; progress maximum 51 -> 52.",
-  "ledger_integrity_review": "The finite peer exact startup catalog adds the read-only maipa_books_verify tool. No browser action, assertion or deadline changed."
+  "ledger_integrity_review": "The finite peer exact startup catalog adds the read-only maipa_books_verify tool. No browser action, assertion or deadline changed.",
+  "ledger_views_review": "One added case after the unchanged attach/reverse/close case. The finite peer gains one handler that presents three read-only ledger components. No prior action, assertion or deadline changed; progress maximum 52 -> 53."
 }

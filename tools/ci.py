@@ -60,6 +60,7 @@ BROWSER_CASES = (
     'own-books-review-post-and-trial-balance',
     'agent-request-human-approval',
     'agent-attach-reverse-and-close',
+    'agent-composed-ledger-views',
     'logout-and-viewer-denial',
     'intake-user-isolation',
     'layout-user-isolation-and-login',

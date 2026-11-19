@@ -105,7 +105,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "4f56fb1d68095b9212368d3f409f70e7734f1b37fdd727038e8204966797d558",
+      "source_sha256": "d725df55c41fff759a95c6f82f9e96977168b8088e5f81b55c0e93abfd480aad",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -115,17 +115,17 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "4f56fb1d68095b9212368d3f409f70e7734f1b37fdd727038e8204966797d558",
+      "source_sha256": "d725df55c41fff759a95c6f82f9e96977168b8088e5f81b55c0e93abfd480aad",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
-      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained. Release56 adds the period-comparison card; every earlier card check remains at its shifted position, group36 is archived unchanged, 20 active and 40 distinct ids. Release57 adds the books integrity card; every earlier card check remains at its shifted position, group37 is archived unchanged, 20 active and 41 distinct ids. Release58 adds the opening balances card; every earlier card check remains at its shifted position, group38 is archived unchanged, 20 active and 42 distinct ids.",
+      "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained. Release56 adds the period-comparison card; every earlier card check remains at its shifted position, group36 is archived unchanged, 20 active and 40 distinct ids. Release57 adds the books integrity card; every earlier card check remains at its shifted position, group37 is archived unchanged, 20 active and 41 distinct ids. Release58 adds the opening balances card; every earlier card check remains at its shifted position, group38 is archived unchanged, 20 active and 42 distinct ids. Release59 adds the ledger views card; every earlier card check remains at its shifted position, group39 is archived unchanged, 20 active and 43 distinct ids.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     },
     {
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "4f56fb1d68095b9212368d3f409f70e7734f1b37fdd727038e8204966797d558",
+      "source_sha256": "d725df55c41fff759a95c6f82f9e96977168b8088e5f81b55c0e93abfd480aad",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -135,7 +135,7 @@
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "4f56fb1d68095b9212368d3f409f70e7734f1b37fdd727038e8204966797d558",
+      "source_sha256": "d725df55c41fff759a95c6f82f9e96977168b8088e5f81b55c0e93abfd480aad",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -924,7 +924,7 @@
     {
       "scenario": "A07-PALETTE.render",
       "test": "component-palette.test.mjs#fine-grained Fancy heading and callout render inert commentary with stable handles",
-      "source_sha256": "df1efa961cde847e8b32ce4e223cf677722c78a1c1d37a286162d70116310bf3",
+      "source_sha256": "0835f3a89bd1b96b0623b9f3d4b9bb2fb7090eff68796292784500225b0dded8",
       "scenario_sha256": "f1bedef6e688093b7357f9feb91dd3d54d845ac20dedbbaef6cb4e3d1932b43a",
       "expected_observation": "The public Fancy heading/callout preserve escaped text and inert server-rendered commentary; actual browser formatting is checked separately.",
       "decision": "aligned",
@@ -934,7 +934,7 @@
     {
       "scenario": "A07-PALETTE.closed",
       "test": "component-palette.test.mjs#client-table definitions contain only approved ordered columns and no record or executable bindings",
-      "source_sha256": "df1efa961cde847e8b32ce4e223cf677722c78a1c1d37a286162d70116310bf3",
+      "source_sha256": "0835f3a89bd1b96b0623b9f3d4b9bb2fb7090eff68796292784500225b0dded8",
       "scenario_sha256": "f65d8411277eb05c5bbfac8f1cfc421f930624e7e07447912857165d8587d212",
       "expected_observation": "The browser parser detaches approved ordered columns and rejects embedded records, foreign bindings and executable or malformed props.",
       "decision": "aligned",
@@ -1890,6 +1890,26 @@
       "decision": "aligned",
       "reason": "Asserts the exact parsed report, five rejected variants, the exact URL and actor header, and rejection of a malformed date.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A07-PALETTE.ledger-definitions",
+      "test": "component-palette.test.mjs#ledger view definitions hold only exact book and account references, never rows or balances",
+      "source_sha256": "0835f3a89bd1b96b0623b9f3d4b9bb2fb7090eff68796292784500225b0dded8",
+      "scenario_sha256": "382e66484e19942c60cdab29d5c87de0a3674529af033ed29c929bb3b3a34f3a",
+      "expected_observation": "Only the exact definitions are accepted unchanged and render three loading views; every other definition is refused and no supplied figure is shown.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Reviewed against the test body: exact accepted and refused definitions and exact rendered figures asserted as described."
+    },
+    {
+      "scenario": "A07-PALETTE.ledger-figures",
+      "test": "component-palette.test.mjs#ledger views show exactly the server figures: balances, entry lines by account name, and running balances",
+      "source_sha256": "0835f3a89bd1b96b0623b9f3d4b9bb2fb7090eff68796292784500225b0dded8",
+      "scenario_sha256": "9aa489703fa88e4dad79051f35b4b1fff1b0172e06f569550646332f252976b4",
+      "expected_observation": "Show the exact balances and totals, entry lines by account name with markup inert, the filtered entry counts, the running and negative balances, and what is pending and not included.",
+      "decision": "aligned",
+      "reviewer": "Maipa independent expected-outcome review; no external reviewer claimed",
+      "reason": "Reviewed against the test body: exact accepted and refused definitions and exact rendered figures asserted as described."
     }
   ]
 }
