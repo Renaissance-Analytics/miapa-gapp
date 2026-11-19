@@ -997,6 +997,26 @@
           "tests": [
             "component-palette.test.mjs#client-table definitions contain only approved ordered columns and no record or executable bindings"
           ]
+        },
+        {
+          "id": "A07-PALETTE.ledger-definitions",
+          "kind": "negative",
+          "given": "Ledger view definitions with exact book and account references, and ones with missing, malformed or upper-case ids, supplied rows or balances, an unknown filter or a repeated view",
+          "when": "Validate and render them",
+          "then": "Only the exact definitions are accepted unchanged and render three loading views; every other definition is refused and no supplied figure is shown.",
+          "tests": [
+            "component-palette.test.mjs#ledger view definitions hold only exact book and account references, never rows or balances"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.ledger-figures",
+          "kind": "positive",
+          "given": "A server snapshot with two accounts, one posted and one pending entry, and an account history with a running balance",
+          "when": "Render the chart, journal (all, posted, pending) and activity tables",
+          "then": "Show the exact balances and totals, entry lines by account name with markup inert, the filtered entry counts, the running and negative balances, and what is pending and not included.",
+          "tests": [
+            "component-palette.test.mjs#ledger views show exactly the server figures: balances, entry lines by account name, and running balances"
+          ]
         }
       ]
     },

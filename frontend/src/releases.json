@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-59",
+    "label": "Development update 59",
+    "cards": [
+      {
+        "title": "Maipa can show your accounts and entries",
+        "description": "Ask Maipa to show your chart of accounts, your journal entries or the history of one account. It opens them beside the chat, read straight from your books, so the figures are always the real ones."
+      }
+    ]
+  },
+  {
     "id": "development-58",
     "label": "Development update 58",
     "cards": [
@@ -254,24 +264,6 @@
       {
         "title": "Choose a client by name",
         "description": "Maipa can discover your available client entities when creating a workflow. Human approvals and answers continue to require you."
-      }
-    ]
-  },
-  {
-    "id": "development-39",
-    "label": "Development update 39",
-    "cards": [
-      {
-        "title": "Run your shared workflow",
-        "description": "Publish the saved graph, provide run input, and start it with the local workflow worker. Saved runs show their actual status, node results and outputs."
-      },
-      {
-        "title": "Answer a workflow question",
-        "description": "Approval and input requests appear beside the graph. Your recorded answer resumes the same run; you can cancel a waiting run."
-      },
-      {
-        "title": "Keep execution tied to access",
-        "description": "Maipa can request and inspect runs when its current connection already has the required workflow authority. Unavailable workers, stale graphs and revoked access refuse the operation."
       }
     ]
   }

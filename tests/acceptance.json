@@ -2946,6 +2946,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_http_requires_session_current_actor_and_csrf_then_shares_controlled_revision"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.ledger-views",
+          "kind": "negative",
+          "given": "Ledger view schemas with exact book and account references, and ones with missing or malformed ids, supplied rows, balances or actors, an unknown filter, no props or a repeated view",
+          "when": "Present or update the composition",
+          "then": "The exact schema is saved unchanged; every other schema is refused and the saved composition does not change.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_ledger_views_accept_only_exact_book_and_account_references"
+          ]
         }
       ]
     },

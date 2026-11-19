@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 52 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 53 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1522,6 +1522,19 @@ try {
   const closedBook=await readBooks();
   assert.equal(closedBook.book.closed_through,reversedBook.book.journals.find(j=>j.source.kind==='manual').date);
   record('agent-attach-reverse-and-close');
+  // The agent composes read-only ledger views; every figure shown is the real books' own.
+  await typeChat('Show the ledger views');await click('Send');
+  await until(()=>evaluate("['Chart of accounts','Journal entries','Account activity'].every(l=>document.querySelector('section[aria-label=\"'+l+'\"] [data-book-revision]'))"),'agent ledger views loaded');
+  const viewBook=await readBooks();
+  const viewActivity=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/accounts/'+${JSON.stringify(viewBook.book.accounts.find(a=>a.code==='1000').id)}+'/activity/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  const shownViews=await evaluate("(()=>{const d=s=>document.querySelector(s).dataset;return {accounts:d('[data-account-count]').accountCount,journals:d('[data-journal-count]').journalCount,filter:d('[data-journal-count]').journalFilter,code:d('[data-activity-balance]').accountCode,balance:d('[data-activity-balance]').activityBalance,rows:d('[data-activity-rows]').activityRows,rent:!!document.querySelector('section[aria-label=\"Chart of accounts\"] [data-account-code=\"6300\"]')};})()");
+  assert.deepEqual(shownViews,{accounts:String(viewBook.book.accounts.length),journals:String(viewBook.book.journals.filter(j=>j.state==='posted').length),filter:'posted',code:'1000',balance:viewActivity.balance,rows:String(viewActivity.posted.length),rent:true});
+  assert.equal(viewActivity.posted.length>=2,true);
+  await agentIdle('agent idle after ledger views');
+  await typeChat('Dismiss this view');await click('Send');
+  await until(()=>evaluate("!document.querySelector('section[aria-label=\"Chart of accounts\"]')"),'agent ledger views dismissed');
+  await agentIdle('agent idle after dismissing ledger views');
+  record('agent-composed-ledger-views');
   await typeChat(beforeBookDraft);
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();

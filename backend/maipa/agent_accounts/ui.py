@@ -60,6 +60,9 @@ def _lookup(actor, account_id, identity):
     return saved
 
 
+LEDGER_VIEWS = {'Maipa.Accounts': ('book_id',), 'Maipa.Journal': ('book_id', 'show'), 'Maipa.AccountActivity': ('book_id', 'account_id')}
+
+
 def _components(role):
     items = [
         ('Maipa.Stack', 'A vertical group of one to sixteen registered components.'),
@@ -71,6 +74,9 @@ def _components(role):
         ('Maipa.ClientCatalog', 'Owned client/entity metadata controls; no props. Writes require current service authority.'),
         ('Maipa.AgentSettings', 'Owned account/profile metadata and human controls for the actual provider connection/model; no props, secrets or model authorization. Model choices apply only to the live connection.'),
         ('Maipa.Books', 'Bookkeeping chart, exact journal entry/review and actual posted trial balance. Props: book_id, an owned book UUID returned by maipa_books_list. Omit props for human book setup/selection. Pending proposals do not post; only the human confirmation control posts the reviewed exact entry.'),
+        ('Maipa.Accounts', 'Read-only chart of accounts with current posted balances, loaded from the scoped books service. Props: book_id. No rows or balances are supplied.'),
+        ('Maipa.Journal', 'Read-only journal entries with their lines by account, loaded from the scoped books service. Props: book_id and show (all, posted or pending).'),
+        ('Maipa.AccountActivity', 'Read-only posted entries and running balance for one account, loaded from the scoped books service. Props: book_id and account_id from maipa_books_read.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':
@@ -118,6 +124,15 @@ def validate_schema(value, role):
             identity = item['props']['book_id']
             if type(identity) is not str or str(UUID(identity)) != identity or item['type'] in controls:
                 raise ValueError('Invalid book reference')
+            controls.add(item['type'])
+        elif item['type'] in LEDGER_VIEWS:
+            _object(item, ('id', 'type', 'props')); _object(item['props'], LEDGER_VIEWS[item['type']])
+            for key in ('book_id', 'account_id'):
+                identity = item['props'].get(key, item['props']['book_id'])
+                if type(identity) is not str or str(UUID(identity)) != identity:
+                    raise ValueError('Invalid ledger reference')
+            if item['props'].get('show', 'all') not in ('all', 'posted', 'pending') or item['type'] in controls:
+                raise ValueError('Invalid ledger view')
             controls.add(item['type'])
         elif item['type'] == 'Maipa.Workflow':
             _object(item,('id','type','props'));_object(item['props'],('draft_id',))
