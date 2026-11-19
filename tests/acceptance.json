@@ -7645,6 +7645,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B03-RECORD",
+      "risk": "A reconciliation is recorded while a difference remains, balances are invented, or a recorded reconciliation silently stops being true.",
+      "scenarios": [
+        {
+          "id": "B03-RECORD.1",
+          "kind": "positive",
+          "given": "A two-line Checking statement imported without balances, netting 350.50",
+          "when": "Request and approve adding opening 1,000.00 and closing 1,350.50, then approve again",
+          "then": "The request shows the figures and changes nothing; approval stores both balances with one recorded event and the statement becomes reconcilable; a repeated approval changes nothing.",
+          "tests": [
+            "tests.test_reconciliation_record.ReconciliationRecordTests.test_approved_balances_are_added_to_a_statement_whose_rows_add_up_between_them"
+          ]
+        },
+        {
+          "id": "B03-RECORD.2",
+          "kind": "negative",
+          "given": "Balances that do not add up, malformed or over-precise balances, an unknown statement, a user without access, an extra field, and two requests for the same statement",
+          "when": "Request and approve",
+          "then": "Each bad request is refused with its exact code and none is recorded; the second approval and any later request fail as already set; the stored balances are the first ones.",
+          "tests": [
+            "tests.test_reconciliation_record.ReconciliationRecordTests.test_balances_that_do_not_add_up_are_malformed_or_would_replace_stated_ones_are_refused"
+          ]
+        },
+        {
+          "id": "B03-RECORD.3",
+          "kind": "positive",
+          "given": "A statement with balances whose two lines are both posted, agreeing with the books at 1,350.50",
+          "when": "Request and approve recording the reconciliation, approve again, then request again",
+          "then": "The request shows bank and books 1350.5000 with no difference and records nothing; approval stores one reconciliation with its exact figures and one event; the statement list and the report show it as unchanged; a repeat changes nothing and a new request is refused as already recorded.",
+          "tests": [
+            "tests.test_reconciliation_record.ReconciliationRecordTests.test_an_agreeing_reconciliation_is_recorded_once_with_its_exact_figures"
+          ]
+        },
+        {
+          "id": "B03-RECORD.4",
+          "kind": "negative",
+          "given": "A statement without balances; one whose bank figures are 100.00 below the books; a user without access, an unknown statement and an extra field",
+          "when": "Request recording the reconciliation",
+          "then": "Refused as balances required, as a difference, or as invalid; nothing is recorded and the statement shows no reconciliation.",
+          "tests": [
+            "tests.test_reconciliation_record.ReconciliationRecordTests.test_a_reconciliation_with_a_difference_or_without_balances_cannot_be_recorded"
+          ]
+        },
+        {
+          "id": "B03-RECORD.5",
+          "kind": "negative",
+          "given": "Two pending requests to record the same reconciliation, then the rent entry is reversed",
+          "when": "Approve one, then the other; read the statement list and the report after the reversal",
+          "then": "The second approval fails as already recorded; after the reversal the recorded reconciliation reports its figures as changed, while the live report shows the rent line as unrecorded.",
+          "tests": [
+            "tests.test_reconciliation_record.ReconciliationRecordTests.test_a_recorded_reconciliation_reports_when_later_changes_alter_its_figures"
+          ]
+        }
+      ]
     }
   ]
 }

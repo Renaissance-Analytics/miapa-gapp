@@ -268,3 +268,24 @@ test('a statement account card names the statement, its lines and the account, a
   assert.match(approvalContent({ ...tie, detail: null }), /can no longer be found\. Approving will fail/);
   assert.equal(approvalMessage(tie).proposal.title, 'Tie a statement to its bank account');
 });
+
+test('balance and reconciliation cards show the exact figures and say when approving will fail', () => {
+  const balances = { ...single, operation: 'statement.balances', summary: 'Add the March balances', payload: { book_id: id(2), import_id: id(3), opening_balance: '1000', closing_balance: '1350.5' },
+    detail: { books: 'Sample Co LLC', currency: 'USD', statement: 'march.csv', account: '1000 Checking', row_count: 2, net: '350.5000', opening_balance: '1000.0000', closing_balance: '1350.5000', current: true } };
+  const record = { ...single, operation: 'reconciliation.record', summary: 'Record the March reconciliation', payload: { book_id: id(2), import_id: id(3) },
+    detail: { books: 'Sample Co LLC', currency: 'USD', statement: 'march.csv', account: '1000 Checking', as_of: '2026-03-05', closing_balance: '1350.5000', book_balance: '1360.5000',
+      unrecorded_total: '-10.0000', outstanding_total: '0.0000', difference: '0.0000', reconciled: true } };
+  assert.deepEqual(parseApprovalList({ actor_id: '1', pending: [balances, { ...record, id: id(7) }], recent: [] }, '1').pending.map(p => p.operation), ['statement.balances', 'reconciliation.record']);
+  const first = approvalContent(balances);
+  assert.match(first, /march\.csv · 1000 Checking · Sample Co LLC books/);
+  assert.match(first, /Opening balance 1000\.0000 \+ 2 lines 350\.5000 = closing balance 1350\.5000 \(USD\)\. These are recorded as the balances printed on the statement\. No entries or amounts change\./);
+  assert.match(approvalContent({ ...balances, detail: { ...balances.detail, row_count: 1, account: null, current: false } }), /no bank account yet.*\+ 1 line .*already has balances\. Approving will fail/s);
+  const second = approvalContent(record);
+  assert.match(second, /march\.csv · 1000 Checking · as of 2026-03-05/);
+  assert.match(second, /\| Bank closing balance \| 1350\.5000 \|/); assert.match(second, /\| Books balance \| 1360\.5000 \|/);
+  assert.match(second, /\| Statement lines not yet posted \| -10\.0000 \|/); assert.match(second, /\| Difference \| 0\.0000 \|/);
+  assert.match(second, /agrees with the books\. Approving records that you reviewed it\. No entries or amounts change\./);
+  assert.match(approvalContent({ ...record, detail: { ...record.detail, difference: '-49.0000', reconciled: false } }), /no longer agrees with the books\. Approving will fail/);
+  for (const item of [balances, record]) assert.match(approvalContent({ ...item, detail: null }), /can no longer be found\. Approving will fail/);
+  assert.deepEqual([approvalMessage(balances).proposal.title, approvalMessage(record).proposal.title], ["Add a statement's balances", 'Record a bank reconciliation']);
+});

@@ -129,7 +129,7 @@ class BankReconciliationTests(TestCase):
         loose = self.statement('date,description,amount\n2026-05-01,Loose line,5\n', 'loose.csv', account_id=None, opening_balance=None, closing_balance=None)
         listed = {item['filename']: item for item in ledger.statements(self.user, self.book['id'])['statements']}
         self.assertEqual(listed['march.csv'], {'id': full['id'], 'filename': 'march.csv', 'account_id': self.accounts['1000'], 'account': '1000 Checking',
-            'opening_balance': '1000.0000', 'closing_balance': '1340.5000', 'first_date': '2026-03-02', 'last_date': '2026-03-31', 'row_count': 3, 'can_reconcile': True})
+            'opening_balance': '1000.0000', 'closing_balance': '1340.5000', 'first_date': '2026-03-02', 'last_date': '2026-03-31', 'row_count': 3, 'can_reconcile': True, 'reconciliation': None})
         self.assertEqual((listed['april.csv']['can_reconcile'], listed['april.csv']['closing_balance'], listed['april.csv']['id']), (False, None, bare['id']))
         self.assertEqual((listed['loose.csv']['can_reconcile'], listed['loose.csv']['account'], listed['loose.csv']['id']), (False, None, loose['id']))
 

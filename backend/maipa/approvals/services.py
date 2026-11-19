@@ -109,6 +109,18 @@ def _check_statement_account(user, payload):
     ledger.statement_account_check(book, payload['import_id'], payload['account_id'])
 
 
+def _check_balances(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.balances_check(book, payload['import_id'], payload['opening_balance'], payload['closing_balance'])
+
+
+def _check_record(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.record_check(book, payload['import_id'])
+
+
 def _check_opening(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -159,6 +171,12 @@ OPERATIONS = {
     'statement.account': (('book_id', 'import_id', 'account_id'), _check_statement_account,
         lambda user, p: ledger.set_statement_account(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                                      'import_id': p['import_id'], 'account_id': p['account_id']})),
+    'statement.balances': (('book_id', 'import_id', 'opening_balance', 'closing_balance'), _check_balances,
+        lambda user, p: ledger.set_statement_balances(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+            'import_id': p['import_id'], 'opening_balance': p['opening_balance'], 'closing_balance': p['closing_balance']})),
+    'reconciliation.record': (('book_id', 'import_id'), _check_record,
+        lambda user, p: ledger.record_reconciliation(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                                     'import_id': p['import_id']})),
     'statement.match': (('book_id', 'row_id', 'journal_id'), _check_match,
         lambda user, p: ledger.match_row(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                          'row_id': p['row_id'], 'journal_id': p['journal_id']})),
@@ -218,6 +236,22 @@ def _detail(row):
                         'amount': ledger.money(item.amount_units)}
             return {'books': book.entity.name, 'currency': book.currency, 'account': f'{bank.code} {bank.name}' if bank else None,
                     'row': shown(line), 'of': shown(original)}
+        if row.operation in ('statement.balances', 'reconciliation.record'):
+            from backend.maipa.ledger.models import SourceImport
+            statement = SourceImport.objects.select_related('book__entity', 'account').get(pk=row.payload['import_id'], book_id=row.payload['book_id'])
+            book, account = statement.book, statement.account
+            facts = {'books': book.entity.name, 'currency': book.currency, 'statement': statement.filename,
+                     'account': f'{account.code} {account.name}' if account else None}
+            if row.operation == 'statement.balances':
+                net = sum(statement.rows.values_list('amount_units', flat=True))
+                return {**facts, 'row_count': statement.row_count, 'net': ledger.money(net),
+                        'opening_balance': ledger.money(ledger.balance_units(row.payload['opening_balance'])),
+                        'closing_balance': ledger.money(ledger.balance_units(row.payload['closing_balance'])),
+                        'current': statement.closing_units is None}
+            report = ledger._report(book, statement)
+            return {**facts, 'as_of': report['statement']['as_of'], 'closing_balance': report['statement']['closing_balance'],
+                    'book_balance': report['book_balance'], 'unrecorded_total': report['unrecorded_total'],
+                    'outstanding_total': report['outstanding_total'], 'difference': report['difference'], 'reconciled': report['reconciled']}
         if row.operation == 'statement.account':
             from backend.maipa.ledger.models import Account, SourceImport
             statement = SourceImport.objects.select_related('book__entity').get(pk=row.payload['import_id'], book_id=row.payload['book_id'])

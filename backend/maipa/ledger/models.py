@@ -134,6 +134,21 @@ class SourceImport(AppendOnly):
         constraints = [models.UniqueConstraint(fields=('book', 'sha256'), name='ledger_import_file_once')]
 
 
+class Reconciliation(AppendOnly):
+    """A statement the person reviewed and recorded as agreeing with the books, with the figures as they then stood."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    statement = models.OneToOneField('SourceImport', related_name='reconciliation', on_delete=models.PROTECT)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT)
+    as_of = models.DateField()
+    closing_units = models.BigIntegerField()
+    book_units = models.BigIntegerField()
+    unrecorded_units = models.BigIntegerField()
+    outstanding_units = models.BigIntegerField()
+    figures_hash = models.CharField(max_length=64)
+    recorded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
 class SourceRowMatch(AppendOnly):
     """A statement line settled without an entry of its own: by an entry another line already produced (the second
     side of a transfer), or as a repeat of a line from an overlapping statement."""
