@@ -225,3 +225,19 @@ test('a PDF statement is sent as bytes up to its own limit and its refusals say 
   assert.match(workbookProblem('import_document_invalid'), /could not read that PDF/);
   assert.match(workbookProblem('unknown'), /could not read that file/);
 });
+
+test('a match card shows the statement line, the entry and its lines, and says nothing is booked twice', () => {
+  const match = { ...single, operation: 'statement.match', summary: 'Match the savings line to the transfer', payload: { book_id: id(2), row_id: id(3), journal_id: id(4) },
+    detail: { books: 'Sample Co LLC', currency: 'USD', row: { date: '2026-03-03', description: 'Transfer from checking', amount: '500.0000', account: '1010 Savings' },
+      entry: { sequence: 7, date: '2026-03-02', description: 'Transfer to savings', state: 'draft' },
+      lines: [{ account: '1010 Savings', debit: '500.0000', credit: '0.0000' }, { account: '1000 Checking', debit: '0.0000', credit: '500.0000' }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [match], recent: [] }, '1').pending[0].operation, 'statement.match');
+  const content = approvalContent(match);
+  assert.match(content, /Statement line: 2026-03-03 · Transfer from checking · 500\.0000 USD on 1010 Savings/);
+  assert.match(content, /Entry #7 dated 2026-03-02 · Transfer to savings · awaiting your review/);
+  assert.match(content, /\| 1000 Checking \| 0\.0000 \| 500\.0000 \|/);
+  assert.match(content, /already records the movement, so the line is settled without a second entry\. No amounts change\./);
+  assert.match(approvalContent({ ...match, detail: { ...match.detail, entry: { ...match.detail.entry, state: 'posted' } } }), /Transfer to savings · posted/);
+  assert.match(approvalContent({ ...match, detail: null }), /can no longer be found\. Approving will fail/);
+  assert.equal(approvalMessage(match).proposal.title, 'Match a statement line to an entry');
+});

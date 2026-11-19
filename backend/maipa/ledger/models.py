@@ -134,6 +134,15 @@ class SourceImport(AppendOnly):
         constraints = [models.UniqueConstraint(fields=('book', 'sha256'), name='ledger_import_file_once')]
 
 
+class SourceRowMatch(AppendOnly):
+    """A statement line settled by an entry that another line already produced, such as the second side of a transfer."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    row = models.OneToOneField('SourceRow', related_name='match', on_delete=models.PROTECT)
+    journal = models.ForeignKey(Journal, related_name='matches', on_delete=models.PROTECT)
+    matched_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
 class SourceRow(AppendOnly):
     """One statement line exactly as imported; journals cite it by ID."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
