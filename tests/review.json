@@ -7970,6 +7970,46 @@
       "decision": "aligned",
       "reason": "Exact row states, refusal codes, candidates, balances and report totals asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-STATEMENT-ACCOUNT.1",
+      "test": "tests.test_statement_account.StatementAccountTests.test_approved_request_ties_the_statement_and_its_lines_to_the_bank_account",
+      "scenario_sha256": "9fd3a58313731c74682b0f3f652598a3c011b1afc68da456dcce99c8b7caaf3a",
+      "source_sha256": "e53653c99b160a17d67687bc7729a0c9e83e816535bbcbfc8438a8fbc0d9b8bd",
+      "expected_observation": "The request shows the statement, its two lines and the account and changes nothing; approval ties the statement so every line reports Checking, with one recorded event; a repeated approval changes nothing; the integrity check passes.",
+      "decision": "aligned",
+      "reason": "Found when a reversed line on an untied statement could not be re-settled. Exact refusal codes, row states, events and record counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-STATEMENT-ACCOUNT.2",
+      "test": "tests.test_statement_account.StatementAccountTests.test_a_statement_whose_entries_do_not_move_that_account_or_that_is_already_tied_is_refused",
+      "scenario_sha256": "ba5d263d19e4fcbbd77ad6aa38420cd26c2ec0fef018b1244615e2bc4e249fb6",
+      "source_sha256": "e53653c99b160a17d67687bc7729a0c9e83e816535bbcbfc8438a8fbc0d9b8bd",
+      "expected_observation": "Each is refused with its exact code; no request is recorded and the statement stays untied.",
+      "decision": "aligned",
+      "reason": "Found when a reversed line on an untied statement could not be re-settled. Exact refusal codes, row states, events and record counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-STATEMENT-ACCOUNT.3",
+      "test": "tests.test_statement_account.StatementAccountTests.test_a_tied_statement_cannot_be_tied_again_and_a_stale_request_fails",
+      "scenario_sha256": "ff9f8200628567a036fab7ed274911787931bdc2dedf6f3792379017e6b20657",
+      "source_sha256": "e53653c99b160a17d67687bc7729a0c9e83e816535bbcbfc8438a8fbc0d9b8bd",
+      "expected_observation": "The second approval fails as already set and a new request is refused as already set.",
+      "decision": "aligned",
+      "reason": "Found when a reversed line on an untied statement could not be re-settled. Exact refusal codes, row states, events and record counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-STATEMENT-ACCOUNT.4",
+      "test": "tests.test_statement_account.StatementAccountTests.test_tying_the_statement_lets_a_line_whose_entry_was_reversed_be_matched_to_a_corrected_entry",
+      "scenario_sha256": "e29c4b1f743b39b8bc35b0d3bcdde37c811575c4f9efdf4b29b297d082b983de",
+      "source_sha256": "e53653c99b160a17d67687bc7729a0c9e83e816535bbcbfc8438a8fbc0d9b8bd",
+      "expected_observation": "The match is refused while the statement has no account; the reversed entry does not block tying; afterwards the match is approved, the line is posted by match and the integrity check passes.",
+      "decision": "aligned",
+      "reason": "Found when a reversed line on an untied statement could not be re-settled. Exact refusal codes, row states, events and record counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

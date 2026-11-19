@@ -103,6 +103,12 @@ def _check_duplicate(user, payload):
     ledger.duplicate_check(book, payload['row_id'], payload['of_row_id'])
 
 
+def _check_statement_account(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.statement_account_check(book, payload['import_id'], payload['account_id'])
+
+
 def _check_opening(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -150,6 +156,9 @@ OPERATIONS = {
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
             'filename': p['filename'], 'content': p['content'],
             **{key: p[key] for key in ('account_id', 'opening_balance', 'closing_balance') if key in p}})),
+    'statement.account': (('book_id', 'import_id', 'account_id'), _check_statement_account,
+        lambda user, p: ledger.set_statement_account(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                                     'import_id': p['import_id'], 'account_id': p['account_id']})),
     'statement.match': (('book_id', 'row_id', 'journal_id'), _check_match,
         lambda user, p: ledger.match_row(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                          'row_id': p['row_id'], 'journal_id': p['journal_id']})),
@@ -209,6 +218,12 @@ def _detail(row):
                         'amount': ledger.money(item.amount_units)}
             return {'books': book.entity.name, 'currency': book.currency, 'account': f'{bank.code} {bank.name}' if bank else None,
                     'row': shown(line), 'of': shown(original)}
+        if row.operation == 'statement.account':
+            from backend.maipa.ledger.models import Account, SourceImport
+            statement = SourceImport.objects.select_related('book__entity').get(pk=row.payload['import_id'], book_id=row.payload['book_id'])
+            account = Account.objects.get(pk=row.payload['account_id'], book_id=row.payload['book_id'])
+            return {'books': statement.book.entity.name, 'statement': statement.filename, 'row_count': statement.row_count,
+                    'account': f'{account.code} {account.name}', 'current': statement.account_id is None}
         if row.operation == 'statement.match':
             from backend.maipa.ledger.models import Journal, SourceRow
             line = SourceRow.objects.select_related('source_import__account', 'source_import__book__entity').get(

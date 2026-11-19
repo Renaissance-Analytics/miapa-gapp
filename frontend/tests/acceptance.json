@@ -2175,6 +2175,16 @@
           "tests": [
             "approvals.test.mjs#a duplicate card shows both lines side by side and how to refuse a false duplicate"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.19",
+          "kind": "positive",
+          "given": "A pending request to tie a two-line statement to Checking, the same for a one-line statement already tied, and one whose records are gone",
+          "when": "Build their cards",
+          "then": "Name the statement, its line count, the books and the account, say existing entries agree and nothing changes; warn when it is already tied or cannot be found.",
+          "tests": [
+            "approvals.test.mjs#a statement account card names the statement, its lines and the account, and warns when it is stale"
+          ]
         }
       ]
     }

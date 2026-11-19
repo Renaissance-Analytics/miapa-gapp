@@ -371,7 +371,10 @@ def statement_rows(book, value):
 
 def import_account(book, account_id):
     """The marked bank or cash account of this book that a statement names. Read-only."""
-    account = book.accounts.filter(pk=identity(account_id)).first()
+    try:
+        account = book.accounts.filter(pk=identity(account_id)).first()
+    except (LedgerError, ValueError):
+        account = None
     require(account is not None and account.cash, 'import_account_invalid')
     return account
 
@@ -404,6 +407,38 @@ def import_statement(user, book_id, value):
 
 
 MATCH_DAYS = 10
+
+
+def statement_account_check(book, import_id, account_id):
+    """A statement not yet tied to a bank account, and the account its existing entries already agree with. Read-only."""
+    try:
+        statement = book.imports.filter(pk=identity(import_id)).first()
+    except (LedgerError, ValueError):
+        statement = None
+    require(statement is not None, 'import_not_found')
+    require(statement.account_id is None, 'import_account_already_set')
+    account = import_account(book, account_id)
+    settled = _settled(book)
+    for row in statement.rows.all():
+        journal = settled.get(str(row.pk), (None, None))[0]
+        # Every entry that still settles one of its lines must already move this account by the line amount.
+        require(journal is None or _moves(list(journal.lines.all()), account.pk, row.amount_units), 'import_account_mismatch')
+    return statement, account
+
+
+@guarded
+@transaction.atomic
+def set_statement_account(user, book_id, value):
+    """Tie an earlier statement to its bank or cash account. No entries or amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'import_id', 'account_id'))
+    statement, account = statement_account_check(book, value['import_id'], value['account_id'])
+    advance(book, value['expected_revision'])
+    require(SourceImport.objects.filter(pk=statement.pk, account__isnull=True).update(account=account) == 1, 'import_account_already_set')
+    statement.account = account
+    event(book, user, 'statement.account', statement.pk, digest({'import': str(statement.pk), 'account': str(account.pk)}))
+    return import_value(statement, False)
 
 
 def _moves(lines, account_id, amount_units):
