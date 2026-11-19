@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-42",
+    "label": "Development update 42",
+    "cards": [
+      {
+        "title": "Keep your unsent message",
+        "description": "Your saved draft now returns after reload for the same account, including pasted text and file names. Saving a draft never sends it."
+      },
+      {
+        "title": "Retry without another copy",
+        "description": "A prepared send keeps its original retry identity across reload. Confirmed sends clear only their matching draft; newer typing is kept. File contents still need supported delivery."
+      }
+    ]
+  },
+  {
     "id": "development-41",
     "label": "Development update 41",
     "cards": [

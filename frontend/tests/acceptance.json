@@ -2075,6 +2075,26 @@
           "tests": [
             "approvals.test.mjs#a statement import card names the bank account the statement is from when one is given"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.13",
+          "kind": "negative",
+          "given": "An Excel statement of eight bytes, acknowledgments naming another file, another size or extra fields, empty and oversized files, and server refusals by code",
+          "when": "Send the workbook",
+          "then": "Send the exact bytes as base64 for this actor; accept only the matching acknowledgment; never send empty or oversized files; turn each refusal code into a plain instruction naming the row or the problem.",
+          "tests": [
+            "approvals.test.mjs#an Excel statement is sent as its exact bytes and a refusal says what to fix"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.workbook",
+          "kind": "negative",
+          "given": "A picked .xlsx statement, and .xls, .xlsm and .ods files, an oversized workbook, a pick whose bytes cannot be read and a path-like name",
+          "when": "Check whether the message can be sent",
+          "then": "The .xlsx statement can be sent alongside a CSV; every other pick is refused with the CSV-or-Excel instruction.",
+          "tests": [
+            "chat-drafts.test.mjs#a picked Excel statement can be sent as bytes; other spreadsheet formats and unreadable picks cannot"
+          ]
         }
       ]
     }

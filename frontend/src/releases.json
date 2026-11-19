@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-62",
+    "label": "Development update 62",
+    "cards": [
+      {
+        "title": "Attach an Excel statement",
+        "description": "You can now attach a bank statement saved as an Excel file (.xlsx) in the chat, not only a CSV. It needs one sheet with the headings date, description and amount. Maipa keeps your original file and tells you exactly which row to fix if something is wrong."
+      }
+    ]
+  },
+  {
     "id": "development-61",
     "label": "Development update 61",
     "cards": [
@@ -238,20 +248,6 @@
       {
         "title": "Choose an acknowledged model",
         "description": "Use the providerâ€™s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
-      }
-    ]
-  },
-  {
-    "id": "development-42",
-    "label": "Development update 42",
-    "cards": [
-      {
-        "title": "Keep your unsent message",
-        "description": "Your saved draft now returns after reload for the same account, including pasted text and file names. Saving a draft never sends it."
-      },
-      {
-        "title": "Retry without another copy",
-        "description": "A prepared send keeps its original retry identity across reload. Confirmed sends clear only their matching draft; newer typing is kept. File contents still need supported delivery."
       }
     ]
   }

@@ -1,4 +1,6 @@
-"""Text files the person attaches in chat. Owned, bounded and private; the agent reads them only by ID."""
+"""Files the person attaches in chat. Owned, bounded and private; the agent reads them only by ID."""
+import base64
+import binascii
 import hashlib
 import re
 import uuid
@@ -50,17 +52,34 @@ def _row(user, identity):
 
 @transaction.atomic
 def store(user, value):
-    """Human upload only. Plain text up to 512 KiB with a simple file name."""
+    """Human upload only. Plain text, or an Excel statement workbook as base64, up to 512 KiB with a simple file name."""
     _writer(user)
-    require(type(value) is dict and set(value) == {'name', 'content'})
-    name, content = value['name'], value['content']
+    require(type(value) is dict and set(value) in ({'name', 'content'}, {'name', 'content_base64'}))
+    name = value['name']
     require(type(name) is str and 0 < len(name) <= 128 and name == name.strip() and name not in ('.', '..')
             and re.fullmatch(r'[^/\\:*?"<>|\x00-\x1f\x7f]+', name) is not None)
-    require(type(content) is str and content.strip() != '' and not any(ord(c) < 32 and c not in '\n\r\t' for c in content))
-    raw = content.encode('utf-8')
-    require(len(raw) <= MAX_BYTES, 'attachment_too_large')
+    original = None
+    if 'content_base64' in value:
+        # An Excel workbook: kept exactly, and converted once to the rows the importer checks.
+        require(name.lower().endswith('.xlsx') and type(value['content_base64']) is str and value['content_base64'] != '')
+        try:
+            raw = base64.b64decode(value['content_base64'], validate=True)
+        except (binascii.Error, ValueError):
+            raise AttachmentError('invalid_attachment') from None
+        require(0 < len(raw) <= MAX_BYTES, 'attachment_too_large')
+        from backend.maipa.ledger import services as ledger, spreadsheet
+        try:
+            content = spreadsheet.statement_csv(raw)
+        except ledger.LedgerError as problem:
+            raise AttachmentError(problem.code) from None
+        original = raw
+    else:
+        content = value['content']
+        require(type(content) is str and content.strip() != '' and not any(ord(c) < 32 and c not in '\n\r\t' for c in content))
+        raw = content.encode('utf-8')
+        require(len(raw) <= MAX_BYTES, 'attachment_too_large')
     require(ChatAttachment.objects.filter(user=user).count() < MAX_FILES, 'attachment_limit')
-    row = ChatAttachment.objects.create(user=user, name=name, content=content, size=len(raw),
+    row = ChatAttachment.objects.create(user=user, name=name, content=content, original=original, size=len(raw),
                                         sha256=hashlib.sha256(raw).hexdigest(), lines=len(content.splitlines()))
     return _value(row)
 
@@ -73,7 +92,8 @@ def listing(user):
 def read(user, identity):
     """What the agent sees: identity plus a bounded preview."""
     row = _row(user, identity)
-    return {**_value(row), 'preview': row.content[:PREVIEW], 'truncated': len(row.content) > PREVIEW}
+    return {**_value(row), 'preview': row.content[:PREVIEW], 'truncated': len(row.content) > PREVIEW,
+            'converted_from': 'xlsx' if row.original is not None else None}
 
 
 def content(user, identity):

@@ -28,11 +28,15 @@ class ActionRequest(models.Model):
 
 
 class ChatAttachment(models.Model):
-    """A text file the person attached in chat, kept privately for the agent to read by ID."""
+    """A file the person attached in chat, kept privately for the agent to read by ID.
+
+    A text file is kept as content. A workbook is kept exactly in original, with its converted rows as content.
+    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     name = models.CharField(max_length=128)
     content = models.TextField()
+    original = models.BinaryField(null=True, blank=True)
     size = models.PositiveIntegerField()
     sha256 = models.CharField(max_length=64)
     lines = models.PositiveIntegerField()
