@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-73",
+    "label": "Development update 73",
+    "cards": [
+      {
+        "title": "What's new no longer covers the chat",
+        "description": "These update cards now sit in their own strip under the header instead of floating over the page, so they no longer hide the Connect button, the message box or the Account menu. Dismiss them and the strip disappears."
+      }
+    ]
+  },
+  {
     "id": "development-72",
     "label": "Development update 72",
     "cards": [
@@ -198,16 +208,6 @@
       {
         "title": "Close a finished month",
         "description": "Ask Maipa to close your books through a date. After you approve, nothing can be added, posted or reversed on or before that date, so finished months stay as they are. Maipa can ask to reopen them if you need to, again with your approval. Bookkeeping shows the current close date."
-      }
-    ]
-  },
-  {
-    "id": "development-53",
-    "label": "Development update 53",
-    "cards": [
-      {
-        "title": "Clearer setup and replies",
-        "description": "A finished account setup now says it is saved, the reporting basis reads as Cash or Accrual, and Maipa's replies start a new paragraph after it uses a tool instead of running sentences together."
       }
     ]
   }

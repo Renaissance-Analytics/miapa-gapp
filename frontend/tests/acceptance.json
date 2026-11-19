@@ -108,6 +108,16 @@
           "tests": [
             "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update"
           ]
+        },
+        {
+          "id": "K05-UPDATE-SURFACE.in-flow",
+          "kind": "negative",
+          "given": "The header update controls and the release cards strip for an anonymous and for a still-loading session",
+          "when": "Render them",
+          "then": "The header controls contain no release cards; the strip is one empty in-flow element before cards load and for an unresolved session; rendering opens nothing.",
+          "tests": [
+            "updates.test.mjs#release cards are a separate in-flow strip opened from the header button, and render nothing before they load"
+          ]
         }
       ]
     },

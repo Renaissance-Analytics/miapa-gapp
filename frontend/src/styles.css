@@ -95,6 +95,10 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .build-updates { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .build-version { font: 10px ui-monospace, monospace; }
 .build-updates button { color: var(--ink); }
+/* Release cards sit in the page flow; empty, the strip takes no space. */
+.release-notes { display: flex; justify-content: flex-end; flex-shrink: 0; }
+.release-notes:not(:empty) { padding: 8px 18px 0; }
+.release-notes > * { width: min(420px, 100%); }
 .update-notice { position: fixed; z-index: 1000; top: 96px; right: 20px; width: min(360px, calc(100vw - 32px)); padding: 18px; border: 1px solid var(--control-border); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 8px 30px #00000024; }
 .update-notice p { color: var(--muted); line-height: 1.7; margin-block: 8px 14px; }
 .update-notice > div { display: flex; gap: 8px; justify-content: flex-end; }
