@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-67",
+    "label": "Development update 67",
+    "cards": [
+      {
+        "title": "Overlapping statements are not booked twice",
+        "description": "If two statements of the same account overlap, the repeated lines are no longer booked a second time. Maipa asks you to approve marking each repeat, showing both lines side by side. Two identical lines on one statement stay two transactions."
+      }
+    ]
+  },
+  {
     "id": "development-66",
     "label": "Development update 66",
     "cards": [
@@ -222,20 +232,6 @@
       {
         "title": "Account menu closes when you click away",
         "description": "The Account menu now closes when you click elsewhere or press Escape, so it no longer covers the controls in your work panel."
-      }
-    ]
-  },
-  {
-    "id": "development-47",
-    "label": "Development update 47",
-    "cards": [
-      {
-        "title": "Remember a model for future connections",
-        "description": "In Agent settings, remember the model your connected provider has confirmed. Your current conversation and unsent message stay in place. The saved choice applies the next time you connect."
-      },
-      {
-        "title": "Choose the provider default again",
-        "description": "Clear a saved model without changing your active connection. If a provider cannot confirm your saved choice, it is kept so you can review it or choose the default before reconnecting."
       }
     ]
   }

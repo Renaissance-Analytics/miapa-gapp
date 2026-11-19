@@ -418,6 +418,52 @@ def _settled(book):
     return cited
 
 
+def _duplicates(book):
+    """Each line marked as a repeat, with the line it repeats."""
+    return {str(match.row_id): str(match.duplicate_of_id)
+            for match in SourceRowMatch.objects.filter(duplicate_of__isnull=False, row__source_import__book=book)}
+
+
+def _row(book, row_id):
+    try:
+        row = SourceRow.objects.filter(pk=identity(row_id), source_import__book=book).select_related('source_import').first()
+    except (LedgerError, ValueError):
+        row = None
+    require(row is not None, 'import_row_not_found')
+    return row
+
+
+def duplicate_check(book, row_id, of_row_id):
+    """A pending line and the line of another statement of the same bank account that it repeats. Read-only."""
+    row, original = _row(book, row_id), _row(book, of_row_id)
+    require(row.pk != original.pk, 'duplicate_mismatch')
+    repeats = _duplicates(book)
+    require(str(row.pk) not in _settled(book) and str(row.pk) not in repeats, 'match_row_not_pending')
+    bank = row.source_import.account_id
+    require(bank is not None, 'match_account_required')
+    require(original.source_import.account_id == bank and original.date == row.date and original.amount_units == row.amount_units,
+            'duplicate_mismatch')
+    require(original.source_import_id != row.source_import_id, 'duplicate_same_statement')
+    # The original must itself be a real line, and one original answers for one repeat per statement.
+    require(str(original.pk) not in repeats and not SourceRowMatch.objects.filter(
+        duplicate_of=original, row__source_import=row.source_import).exists(), 'duplicate_mismatch')
+    return row, original
+
+
+@guarded
+@transaction.atomic
+def mark_duplicate(user, book_id, value):
+    """Settle a line as a repeat of another statement's line. No entry is made and no amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'row_id', 'of_row_id'))
+    row, original = duplicate_check(book, value['row_id'], value['of_row_id'])
+    advance(book, value['expected_revision'])
+    SourceRowMatch.objects.create(row=row, duplicate_of=original, matched_by=user)
+    event(book, user, 'statement.duplicate', row.pk, digest({'row': str(row.pk), 'of': str(original.pk)}))
+    return {'row_id': str(row.pk), 'of_row_id': str(original.pk), 'revision': book.revision}
+
+
 def _taken(book, journal):
     """Bank accounts of this entry already accounted for by a statement line."""
     taken = set()
@@ -442,7 +488,7 @@ def match_check(book, row_id, journal_id):
     except (LedgerError, ValueError):
         journal = None
     require(journal is not None and journal.source_kind != 'reversal', 'ledger_not_found')
-    require(str(row.pk) not in _settled(book), 'match_row_not_pending')
+    require(str(row.pk) not in _settled(book) and str(row.pk) not in _duplicates(book), 'match_row_not_pending')
     bank = row.source_import.account_id
     require(bank is not None, 'match_account_required')
     require(_moves(list(journal.lines.all()), bank, row.amount_units), 'import_account_mismatch')
@@ -471,10 +517,25 @@ def match_row(user, book_id, value):
 def match_candidates(user, book_id):
     """Pending lines that look like one movement seen twice: opposite lines of two bank accounts, or a line an entry already records."""
     _, book = owned(user, book_id)
-    settled = _settled(book)
-    pending = [row for row in SourceRow.objects.filter(source_import__book=book, source_import__account__isnull=False)
-               .select_related('source_import').order_by('date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]
-               if str(row.pk) not in settled]
+    settled, repeats = _settled(book), _duplicates(book)
+    banked = [row for row in SourceRow.objects.filter(source_import__book=book, source_import__account__isnull=False)
+              .select_related('source_import').order_by('date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]
+              if str(row.pk) not in repeats]
+    pending = [row for row in banked if str(row.pk) not in settled]
+    # A line repeats an earlier statement's line of the same account, date, amount and wording; each original answers once per statement.
+    duplicates, answered = [], {(str(m.duplicate_of_id), m.row.source_import_id) for m in SourceRowMatch.objects.filter(
+        duplicate_of__isnull=False, row__source_import__book=book).select_related('row')}
+    for row in pending:
+        original = next((other for other in banked if other.source_import_id != row.source_import_id
+                         and other.source_import.created_at < row.source_import.created_at
+                         and other.source_import.account_id == row.source_import.account_id and other.date == row.date
+                         and other.amount_units == row.amount_units and other.description.casefold() == row.description.casefold()
+                         and (str(other.pk), row.source_import_id) not in answered), None)
+        if original is not None:
+            answered.add((str(original.pk), row.source_import_id))
+            duplicates.append({'row_id': str(row.pk), 'of_row_id': str(original.pk)})
+    repeated = {item['row_id'] for item in duplicates}
+    pending = [row for row in pending if str(row.pk) not in repeated]
     transfers, used = [], set()
     for out in (row for row in pending if row.amount_units < 0):
         best = min((row for row in pending if row.pk not in used and row.amount_units == -out.amount_units
@@ -497,7 +558,8 @@ def match_candidates(user, book_id):
             if bank not in taken and abs((row.date - journal.date).days) <= MATCH_DAYS and _moves(lines, bank, row.amount_units):
                 entries.append({'row_id': str(row.pk), 'journal_id': str(journal.pk), 'days_apart': abs((row.date - journal.date).days)})
                 break
-    return {'book_id': str(book.pk), 'revision': book.revision, 'transfers': transfers[:200], 'entries': entries[:200]}
+    return {'book_id': str(book.pk), 'revision': book.revision, 'transfers': transfers[:200], 'entries': entries[:200],
+            'duplicates': duplicates[:200]}
 
 
 @guarded
@@ -505,7 +567,7 @@ def match_candidates(user, book_id):
 def source_rows(user, book_id):
     """Imported statement rows, oldest first, each pending or settled by its own entry or by a match to another entry."""
     _, book = owned(user, book_id)
-    settled = _settled(book)
+    settled, repeats = _settled(book), _duplicates(book)
     rows = []
     for row in SourceRow.objects.filter(source_import__book=book).select_related('source_import').order_by(
             'date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]:
@@ -514,8 +576,10 @@ def source_rows(user, book_id):
                      'row_number': row.row_number, 'date': row.date.isoformat(), 'description': row.description,
                      'amount': money(row.amount_units), 'reference': row.reference,
                      'account_id': str(row.source_import.account_id) if row.source_import.account_id else None,
-                     'status': 'pending' if journal is None else 'posted' if journal.state == 'posted' else 'proposed',
-                     'journal_id': None if journal is None else str(journal.pk), 'via': via})
+                     'status': ('duplicate' if str(row.pk) in repeats else 'pending' if journal is None
+                                else 'posted' if journal.state == 'posted' else 'proposed'),
+                     'journal_id': None if journal is None else str(journal.pk),
+                     'via': 'duplicate' if str(row.pk) in repeats else via, 'duplicate_of': repeats.get(str(row.pk))})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
 
 def _statements(book, accounts, start, end):
@@ -694,6 +758,13 @@ def verify_book(user, book_id):
         bank = match.row.source_import.account_id
         if bank is None or match.row.source_import.book_id != book.pk or not _moves(lines[match.journal_id], bank, match.row.amount_units):
             found('row_match_invalid', match.journal)
+    for match in SourceRowMatch.objects.filter(duplicate_of__isnull=False, row__source_import__book=book).select_related(
+            'row__source_import', 'duplicate_of__source_import'):
+        row, original = match.row, match.duplicate_of
+        if (row.source_import.account_id is None or original.source_import.account_id != row.source_import.account_id
+                or original.source_import.book_id != book.pk or original.source_import_id == row.source_import_id
+                or original.date != row.date or original.amount_units != row.amount_units):
+            found('row_match_invalid')
     revisions = sorted(LedgerEvent.objects.filter(book=book).values_list('revision', flat=True))
     if revisions != list(range(1, book.revision + 1)):
         found('event_history_incomplete')

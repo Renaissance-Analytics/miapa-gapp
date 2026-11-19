@@ -135,12 +135,18 @@ class SourceImport(AppendOnly):
 
 
 class SourceRowMatch(AppendOnly):
-    """A statement line settled by an entry that another line already produced, such as the second side of a transfer."""
+    """A statement line settled without an entry of its own: by an entry another line already produced (the second
+    side of a transfer), or as a repeat of a line from an overlapping statement."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     row = models.OneToOneField('SourceRow', related_name='match', on_delete=models.PROTECT)
-    journal = models.ForeignKey(Journal, related_name='matches', on_delete=models.PROTECT)
+    journal = models.ForeignKey(Journal, null=True, blank=True, related_name='matches', on_delete=models.PROTECT)
+    duplicate_of = models.ForeignKey('SourceRow', null=True, blank=True, related_name='duplicates', on_delete=models.PROTECT)
     matched_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(journal__isnull=False, duplicate_of__isnull=True)
+                                              | models.Q(journal__isnull=True, duplicate_of__isnull=False), name='ledger_row_match_one_kind')]
 
 
 class SourceRow(AppendOnly):

@@ -7421,6 +7421,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B02-DUPLICATES",
+      "risk": "Lines repeated by overlapping statements are booked twice, or two real transactions are merged as one.",
+      "scenarios": [
+        {
+          "id": "B02-DUPLICATES.1",
+          "kind": "positive",
+          "given": "Two overlapping checking statements: a payment repeated with other capitals, one of two identical fees repeated, and a new line",
+          "when": "List the candidates",
+          "then": "Each repeated line is paired with exactly one earlier line; the second identical fee and the new line are not offered; no transfer or entry candidates.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_candidates_pair_each_repeated_line_with_one_earlier_line_and_leave_new_lines_alone"
+          ]
+        },
+        {
+          "id": "B02-DUPLICATES.2",
+          "kind": "positive",
+          "given": "A repeated payment line and its original on the earlier statement",
+          "when": "Request and approve the duplicate mark, then try to book the line and approve again",
+          "then": "The request shows both lines and changes nothing; approval marks the line as a duplicate naming the original with one recorded event and no entry; the line can no longer get an entry or appear as a candidate; the integrity check passes; a repeated approval changes nothing.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_approved_duplicate_settles_the_line_without_an_entry_and_keeps_it_out_of_further_work"
+          ]
+        },
+        {
+          "id": "B02-DUPLICATES.3",
+          "kind": "negative",
+          "given": "Lines differing in date or amount, two lines of one statement, the same figures on another bank account, a line without a bank account, a line against itself, unknown ids, a user without access and an extra field",
+          "when": "Request the duplicate mark",
+          "then": "Each is refused with its exact code; no request and no mark is recorded.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_lines_that_are_not_the_same_movement_are_refused_and_nothing_is_recorded"
+          ]
+        },
+        {
+          "id": "B02-DUPLICATES.4",
+          "kind": "negative",
+          "given": "Two pending requests for one repeat, the original proposed as a duplicate of its own duplicate, and a line that already has an entry",
+          "when": "Approve one then the other; request the others",
+          "then": "The second approval fails as no longer pending; the chained mark and the line with an entry are refused; one mark exists.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_a_duplicate_cannot_be_repeated_chained_or_used_once_the_line_has_an_entry"
+          ]
+        },
+        {
+          "id": "B02-DUPLICATES.5",
+          "kind": "negative",
+          "given": "A recorded duplicate mark redirected in the database to a line of another date and amount",
+          "when": "Run the integrity check",
+          "then": "The check passes before and reports an invalid row match afterwards.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_the_integrity_check_finds_a_duplicate_mark_that_no_longer_fits"
+          ]
+        },
+        {
+          "id": "B02-DUPLICATES.6",
+          "kind": "positive",
+          "given": "The agent imports tool on books with two overlapping statements",
+          "when": "Read it",
+          "then": "It lists the same two duplicate candidates as the service and every row reports no duplicate mark yet.",
+          "tests": [
+            "tests.test_duplicate_lines.DuplicateLineTests.test_the_agent_imports_tool_lists_duplicate_candidates"
+          ]
+        }
+      ]
     }
   ]
 }
