@@ -177,3 +177,14 @@ test('an Excel statement is sent as its exact bytes and a refusal says what to f
   await uploadWorkbook('1', 'big.xlsx', large, signal, fetcher({ ...saved, name: 'big.xlsx', size: large.length }));
   assert.equal(JSON.parse(calls.at(-1).options.body).content_base64.length, Math.ceil(large.length / 3) * 4);
 });
+
+test('a long summary is shown whole up to the server limit, with markup characters made inert', () => {
+  const long = 'Record opening balances: ' + 'Dr 1500 Equipment 1,200.00; '.repeat(13) + 'the 900.00 difference is credited to 3900 Opening balance equity.';
+  assert.equal(long.length > 400 && long.length <= 500, true);
+  const content = approvalContent({ ...single, summary: long });
+  assert.equal(content.split('\n')[0], long);
+  assert.match(content, /credited to 3900 Opening balance equity\.$/m);
+  assert.equal(approvalContent({ ...single, summary: 'x'.repeat(600) }).split('\n')[0].length, 500);
+  assert.equal(approvalContent({ ...single, summary: 'Pay <b>*now*</b> | [link]' }).split('\n')[0], 'Pay  b  now  /b     link ');
+  assert.equal(approvalContent({ ...single, detail: { entity: 'E'.repeat(300) } }).split('\n')[2].startsWith('E'.repeat(200) + ' ·'), true);
+});

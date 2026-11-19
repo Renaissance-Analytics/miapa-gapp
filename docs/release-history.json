@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-43",
+    "label": "Development update 43",
+    "cards": [
+      {
+        "title": "Open your agent settings",
+        "description": "Ask Maipa to show settings for your supported provider and owned accounts. Private app profile assignment is shown separately from actual connection status."
+      },
+      {
+        "title": "Choose an acknowledged model",
+        "description": "Use the providerâ€™s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
+      }
+    ]
+  },
+  {
     "id": "development-42",
     "label": "Development update 42",
     "cards": [

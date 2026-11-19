@@ -2095,6 +2095,16 @@
           "tests": [
             "chat-drafts.test.mjs#a picked Excel statement can be sent as bytes; other spreadsheet formats and unreadable picks cannot"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.14",
+          "kind": "negative",
+          "given": "Summaries of about 450 and of 600 characters, a summary containing markup characters, and a 300-character fact from the server",
+          "when": "Build the card",
+          "then": "Show the 450-character summary whole; cut only at the 500-character server limit; replace markup characters with spaces; keep other facts at their 200-character bound.",
+          "tests": [
+            "approvals.test.mjs#a long summary is shown whole up to the server limit, with markup characters made inert"
+          ]
         }
       ]
     }
