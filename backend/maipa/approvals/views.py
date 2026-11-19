@@ -5,7 +5,7 @@ from django.db import DatabaseError
 from django.http import JsonResponse
 
 from backend.maipa.api import error, method_not_allowed
-from backend.maipa.intake.views import body
+from backend.maipa.intake.views import STATEMENT_BODY_BYTES, body
 from backend.maipa.workspace.policy import authorize
 from . import services
 
@@ -34,7 +34,7 @@ def attachments(request):
     from . import attachments as files
     if request.method != 'POST':
         return method_not_allowed('POST')
-    value, denied = body(request)
+    value, denied = body(request, STATEMENT_BODY_BYTES)
     if denied is not None:
         return denied
     try:

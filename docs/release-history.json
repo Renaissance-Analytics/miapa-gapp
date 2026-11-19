@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-44",
+    "label": "Development update 44",
+    "cards": [
+      {
+        "title": "Open common views from the header",
+        "description": "Use the header icons for Agent settings, Clients and, for administrators, User management. They open the existing components directly, even before connecting your agent."
+      },
+      {
+        "title": "Keep your place in the conversation",
+        "description": "Open and close a common view while keeping your unsent message. When connected, the shortcut opens the same contextual panel shared with Maipa."
+      }
+    ]
+  },
+  {
     "id": "development-43",
     "label": "Development update 43",
     "cards": [

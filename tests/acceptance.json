@@ -7213,6 +7213,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B01-UPLOAD-SIZE",
+      "risk": "A statement within the documented size is refused, or the larger request limit leaks to other endpoints.",
+      "scenarios": [
+        {
+          "id": "B01-UPLOAD-SIZE.1",
+          "kind": "negative",
+          "given": "A CSV attachment of about 500 KB, one of 524,289 characters and a request body over 1 MB",
+          "when": "Upload each over HTTP",
+          "then": "201 with the exact size and 1,001 lines; 400 attachment too large; 413 request too large; exactly one attachment stored.",
+          "tests": [
+            "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_csv_attachment_near_the_documented_limit_is_stored_and_one_over_it_is_refused"
+          ]
+        },
+        {
+          "id": "B01-UPLOAD-SIZE.2",
+          "kind": "positive",
+          "given": "A 1,000-row workbook of several hundred kilobytes that does not compress away",
+          "when": "Upload it over HTTP",
+          "then": "201 with the exact size and 1,001 lines; the stored original equals the uploaded bytes.",
+          "tests": [
+            "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_workbook_attachment_of_several_hundred_kilobytes_is_stored"
+          ]
+        },
+        {
+          "id": "B01-UPLOAD-SIZE.3",
+          "kind": "negative",
+          "given": "A 1,000-row statement of about 500 KB and a request body over 1 MB",
+          "when": "Import through the books endpoint",
+          "then": "201 with 1,000 rows saved; then 413 request too large.",
+          "tests": [
+            "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_statement_near_the_documented_limit_imports_through_the_books_endpoint"
+          ]
+        },
+        {
+          "id": "B01-UPLOAD-SIZE.4",
+          "kind": "negative",
+          "given": "A 70 KB request to add an account and one to decide an approval",
+          "when": "Post them",
+          "then": "Both are refused with 413: only the two statement endpoints accept large bodies.",
+          "tests": [
+            "tests.test_statement_upload_size.StatementUploadSizeTests.test_other_endpoints_keep_the_small_request_limit"
+          ]
+        },
+        {
+          "id": "B01-UPLOAD-SIZE.5",
+          "kind": "positive",
+          "given": "A stored statement of about 500 KB referenced by an import request",
+          "when": "Request and approve the import",
+          "then": "The request binds the exact size and hash; approval saves all 1,000 rows.",
+          "tests": [
+            "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_large_attached_statement_is_imported_whole_by_an_approved_request"
+          ]
+        }
+      ]
     }
   ]
 }
