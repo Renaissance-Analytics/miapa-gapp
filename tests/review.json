@@ -7440,6 +7440,56 @@
       "decision": "aligned",
       "reason": "Independent hand-computed known answers, exact finding codes, refusals and status codes asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L04-OPENING.1",
+      "test": "tests.test_opening_balances.OpeningBalanceTests.test_approved_opening_posts_one_balanced_entry_at_period_start_with_the_difference_in_opening_equity",
+      "scenario_sha256": "3ed3c5d920e7931411d2592808c3ea88919e82d0529c80c106a9c24f131a1fd5",
+      "source_sha256": "d84b8135134ec2c38d50901a6d94610efbb775c0c5b1ac90f6c5330b4eab5fe1",
+      "expected_observation": "The request alone posts nothing and shows every line with 5500.2500 to opening balance equity; approval posts one balanced opening entry dated the first day (assets 6200.5000 equal liabilities plus equity, no income); the integrity check passes; a repeated approval posts nothing more.",
+      "decision": "aligned",
+      "reason": "Independent hand-computed known answers, exact refusal codes and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L04-OPENING.2",
+      "test": "tests.test_opening_balances.OpeningBalanceTests.test_totals_that_do_not_reconcile_and_malformed_balances_are_refused_and_not_recorded",
+      "scenario_sha256": "fd4defb5b1cb8a5710a9330b86d998351d22341289f73889dfaf841ebf01174d",
+      "source_sha256": "d84b8135134ec2c38d50901a6d94610efbb775c0c5b1ac90f6c5330b4eab5fe1",
+      "expected_observation": "Every one is refused; no request and no entry is recorded.",
+      "decision": "aligned",
+      "reason": "Independent hand-computed known answers, exact refusal codes and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L04-OPENING.3",
+      "test": "tests.test_opening_balances.OpeningBalanceTests.test_a_second_opening_is_refused_until_the_first_is_reversed_and_balanced_figures_need_no_offset",
+      "scenario_sha256": "cfea10e9a2b40df8664f71e3bc77d9b9fef93dac1ec21a362d4cb3b00f9d1976",
+      "source_sha256": "d84b8135134ec2c38d50901a6d94610efbb775c0c5b1ac90f6c5330b4eab5fe1",
+      "expected_observation": "The second is refused as already existing; after the reversal a corrected opening is accepted with no offset line, posts as opening-2, the trial balance is 300.0000 on each side and the integrity check passes.",
+      "decision": "aligned",
+      "reason": "Independent hand-computed known answers, exact refusal codes and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L04-OPENING.4",
+      "test": "tests.test_opening_balances.OpeningBalanceTests.test_a_stale_request_fails_without_posting_and_a_closed_first_day_refuses_new_openings",
+      "scenario_sha256": "d2d318b9758a2fff715739f9244c4a93ae0f7e0c32b44586cd42429585561f05",
+      "source_sha256": "d84b8135134ec2c38d50901a6d94610efbb775c0c5b1ac90f6c5330b4eab5fe1",
+      "expected_observation": "The second approval fails with the opening-exists code and posts nothing; a request into the closed first day is refused as period closed.",
+      "decision": "aligned",
+      "reason": "Independent hand-computed known answers, exact refusal codes and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L04-OPENING.5",
+      "test": "tests.test_opening_balances.OpeningBalanceTests.test_ordinary_entries_cannot_claim_to_be_an_opening_entry",
+      "scenario_sha256": "36c87dac91caa55c8fbc708214e64e2190ebffe45d91ef90299cd3a264aee386",
+      "source_sha256": "d84b8135134ec2c38d50901a6d94610efbb775c0c5b1ac90f6c5330b4eab5fe1",
+      "expected_observation": "It is refused and nothing is saved.",
+      "decision": "aligned",
+      "reason": "Independent hand-computed known answers, exact refusal codes and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

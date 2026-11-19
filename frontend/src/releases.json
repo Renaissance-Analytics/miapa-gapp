@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-58",
+    "label": "Development update 58",
+    "cards": [
+      {
+        "title": "Start your books with opening balances",
+        "description": "Tell Maipa what you already had on the first day of your books, such as your bank balance, equipment and amounts owed. It prepares one opening entry for you to approve, checks your figures against the totals from your records, and shows exactly what goes to opening balance equity."
+      }
+    ]
+  },
+  {
     "id": "development-57",
     "label": "Development update 57",
     "cards": [
@@ -262,24 +272,6 @@
       {
         "title": "Keep execution tied to access",
         "description": "Maipa can request and inspect runs when its current connection already has the required workflow authority. Unavailable workers, stale graphs and revoked access refuse the operation."
-      }
-    ]
-  },
-  {
-    "id": "development-38",
-    "label": "Development update 38",
-    "cards": [
-      {
-        "title": "Build a workflow together",
-        "description": "Ask Maipa to create a workflow draft. The shared Fancy editor shows its nodes and connections, and you can move nodes or edit their settings."
-      },
-      {
-        "title": "Keep shared changes saved",
-        "description": "Your edits and Maipa edits use the same saved draft. Conflicts keep your unsaved graph for review, and reloading restores saved work."
-      },
-      {
-        "title": "Save a workflow version",
-        "description": "Ask Maipa to publish the current draft as a saved version. Publishing saves the definition without starting a run."
       }
     ]
   }

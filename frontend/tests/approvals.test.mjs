@@ -114,3 +114,22 @@ test('period cards say exactly what closing or reopening does', () => {
   assert.match(approvalContent({ ...reopen, payload: { book_id: id(2), through: '2026-02-28' } }), /Move the close of Sample Co LLC books back to 2026-02-28 \(currently 2026-03-31\)\./);
   assert.equal(parseApprovalList({ actor_id: '1', pending: [close, { ...reopen, id: id(7) }], recent: [] }, '1').pending.length, 2);
 });
+
+test('an opening balance card shows every line, the totals and what goes to opening balance equity', () => {
+  const opening = { ...single, operation: 'opening.balance', summary: 'Record opening balances',
+    payload: { book_id: id(2), balances: [{ account_id: id(3), debit: '5000', credit: '0' }, { account_id: id(4), debit: '0', credit: '700.25' }], control: { debit: '5000', credit: '700.25' } },
+    detail: { books: 'Sample Co LLC', currency: 'USD', date: '2026-01-01', current: true, total_debit: '5000.0000', total_credit: '5000.0000',
+      control_debit: '5000.0000', control_credit: '700.2500',
+      lines: [{ account: '1000 Checking', debit: '5000.0000', credit: '0.0000', offset: false }, { account: '2000 Accounts payable', debit: '0.0000', credit: '700.2500', offset: false },
+        { account: '3900 Opening balance equity', debit: '0.0000', credit: '4299.7500', offset: true }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [opening], recent: [] }, '1').pending[0].operation, 'opening.balance');
+  const content = approvalContent(opening);
+  assert.match(content, /Sample Co LLC books · starting 2026-01-01 · USD/);
+  assert.match(content, /\| 3900 Opening balance equity \| 0\.0000 \| 4299\.7500 \|/);
+  assert.match(content, /\| \*\*Total\*\* \| 5000\.0000 \| 5000\.0000 \|/);
+  assert.match(content, /Your figures total 5000\.0000 in debits and 700\.2500 in credits\. The difference goes to 3900 Opening balance equity so the entry balances\./);
+  assert.equal(approvalMessage(opening).proposal.title, 'Record opening balances');
+  const balanced = { ...opening, detail: { ...opening.detail, control_credit: '5000.0000', lines: opening.detail.lines.slice(0, 2) } };
+  assert.match(approvalContent(balanced), /They balance, so nothing goes to opening balance equity\./);
+  assert.match(approvalContent({ ...opening, detail: { books: 'Sample Co LLC', currency: 'USD', current: false } }), /can no longer be recorded as asked\. Approving will fail/);
+});

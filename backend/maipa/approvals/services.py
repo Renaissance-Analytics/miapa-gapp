@@ -77,6 +77,12 @@ def _check_reverse(user, payload):
     require(not ledger.closed(book, ledger.day(payload['date'])), 'ledger_period_closed')
 
 
+def _check_opening(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.opening_entry(book, {'balances': payload['balances'], 'control': payload['control']})
+
+
 def _check_period(action):
     def check(user, payload):
         _, book = ledger.owned(user, payload['book_id'], True)
@@ -120,6 +126,9 @@ OPERATIONS = {
     'journal.reverse': (('book_id', 'journal_id', 'date'), _check_reverse,
         lambda user, p: ledger.reverse_journal(user, p['book_id'], p['journal_id'],
                                                {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
+    'opening.balance': (('book_id', 'balances', 'control'), _check_opening,
+        lambda user, p: ledger.post_opening(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                            'balances': p['balances'], 'control': p['control']})),
     'period.close': (('book_id', 'through'), _check_period('close'), _run_period('close')),
     'period.reopen': (('book_id', 'through'), _check_period('reopen'), _run_period('reopen')),
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
@@ -150,6 +159,16 @@ def _detail(row):
             return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
                     'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
                     'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
+        if row.operation == 'opening.balance':
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            facts = {'books': book.entity.name, 'currency': book.currency}
+            try:
+                built = ledger.opening_entry(book, {'balances': row.payload['balances'], 'control': row.payload['control']})
+            except ledger.LedgerError:
+                return {**facts, 'current': False}
+            return {**facts, 'date': built['date'], 'current': True, 'total_debit': built['total_debit'], 'total_credit': built['total_credit'],
+                    'control_debit': built['control_debit'], 'control_credit': built['control_credit'],
+                    'lines': [{key: line[key] for key in ('account', 'debit', 'credit', 'offset')} for line in built['lines']]}
         if row.operation in ('period.close', 'period.reopen'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             return {'books': book.entity.name, 'closed_through': book.closed_through.isoformat() if book.closed_through else None}

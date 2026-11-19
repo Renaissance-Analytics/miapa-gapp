@@ -6939,6 +6939,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "L04-OPENING",
+      "risk": "Starting balances are invented, do not balance, do not match the source totals or are recorded twice.",
+      "scenarios": [
+        {
+          "id": "L04-OPENING.1",
+          "kind": "positive",
+          "given": "New books and supplied balances of 5000 and 1200.5 in assets and 700.25 owed, with matching control totals",
+          "when": "Request the opening balances and approve once, then approve again",
+          "then": "The request alone posts nothing and shows every line with 5500.2500 to opening balance equity; approval posts one balanced opening entry dated the first day (assets 6200.5000 equal liabilities plus equity, no income); the integrity check passes; a repeated approval posts nothing more.",
+          "tests": [
+            "tests.test_opening_balances.OpeningBalanceTests.test_approved_opening_posts_one_balanced_entry_at_period_start_with_the_difference_in_opening_equity"
+          ]
+        },
+        {
+          "id": "L04-OPENING.2",
+          "kind": "negative",
+          "given": "Control totals that do not match the figures, missing or extra control fields, no balances, a repeated account, the opening equity account itself, two-sided, zero, negative or over-precise amounts, a foreign or unknown account, an extra field and a user without access",
+          "when": "Request opening balances",
+          "then": "Every one is refused; no request and no entry is recorded.",
+          "tests": [
+            "tests.test_opening_balances.OpeningBalanceTests.test_totals_that_do_not_reconcile_and_malformed_balances_are_refused_and_not_recorded"
+          ]
+        },
+        {
+          "id": "L04-OPENING.3",
+          "kind": "positive",
+          "given": "Books with an approved opening entry",
+          "when": "Request a second opening, then reverse the first and request balanced figures",
+          "then": "The second is refused as already existing; after the reversal a corrected opening is accepted with no offset line, posts as opening-2, the trial balance is 300.0000 on each side and the integrity check passes.",
+          "tests": [
+            "tests.test_opening_balances.OpeningBalanceTests.test_a_second_opening_is_refused_until_the_first_is_reversed_and_balanced_figures_need_no_offset"
+          ]
+        },
+        {
+          "id": "L04-OPENING.4",
+          "kind": "negative",
+          "given": "Two pending opening requests, and later books closed through the first month",
+          "when": "Approve one then the other; then request an opening after the close",
+          "then": "The second approval fails with the opening-exists code and posts nothing; a request into the closed first day is refused as period closed.",
+          "tests": [
+            "tests.test_opening_balances.OpeningBalanceTests.test_a_stale_request_fails_without_posting_and_a_closed_first_day_refuses_new_openings"
+          ]
+        },
+        {
+          "id": "L04-OPENING.5",
+          "kind": "negative",
+          "given": "An ordinary proposed entry that names itself an opening entry",
+          "when": "Propose it",
+          "then": "It is refused and nothing is saved.",
+          "tests": [
+            "tests.test_opening_balances.OpeningBalanceTests.test_ordinary_entries_cannot_claim_to_be_an_opening_entry"
+          ]
+        }
+      ]
     }
   ]
 }
