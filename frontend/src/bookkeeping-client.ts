@@ -10,9 +10,9 @@ export interface BookCatalog {actor_id:string;entities:{id:string;name:string;cl
 export interface LedgerSnapshot {actor_id:string;book:LedgerBook;report:LedgerReport}
 export interface ActivityRow {journal_id:string;sequence:number;date:string;description:string;source:{kind:string;reference:string};debit:string;credit:string}
 export interface AccountActivity {book_id:string;currency:string;revision:number;account:LedgerAccount;normal_side:'debit'|'credit';posted:(ActivityRow&{balance:string})[];pending:ActivityRow[];posted_debit:string;posted_credit:string;balance:string}
-export interface SourceRow {id:string;import_id:string;import_filename:string;row_number:number;date:string;description:string;amount:string;reference:string;status:'pending'|'proposed'|'posted';journal_id:string|null}
+export interface SourceRow {id:string;import_id:string;import_filename:string;row_number:number;date:string;description:string;amount:string;reference:string;account_id:string|null;status:'pending'|'proposed'|'posted';journal_id:string|null}
 export interface SourceRows {book_id:string;currency:string;revision:number;rows:SourceRow[]}
-export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;created:boolean;created_at:string}
+export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;account_id:string|null;created:boolean;created_at:string}
 /** Largest statement accepted by the server, in UTF-8 bytes. */
 export const MAX_STATEMENT_BYTES=524_288;
 export interface ReportRow extends LedgerAccount {amount:string}
@@ -51,7 +51,7 @@ export function parseAccountActivity(v:unknown,bookId:string,accountId:string):A
 /** Display only: preserve decimal digits; no Number/parseFloat arithmetic. */
 export function displayMoney(value:string){if(!amount(value))throw unavailable();const [whole,fraction]=value.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+'.'+fraction.replace(/0+$/,'').padEnd(2,'0');}
 function sourceRow(v:unknown,bookId:string):v is SourceRow{
- if(!object(v)||!exact(v,['id','import_id','import_filename','row_number','date','description','amount','reference','status','journal_id'])||!uuid(v.id)||!uuid(v.import_id)||!string(v.import_filename,128)||!integer(v.row_number)||v.row_number<1||!day(v.date)||!string(v.description)||!signed(v.amount)||v.amount==='0.0000'||typeof v.reference!=='string'||v.reference.length>128||!['pending','proposed','posted'].includes(String(v.status)))return false;
+ if(!object(v)||!exact(v,['id','import_id','import_filename','row_number','date','description','amount','reference','account_id','status','journal_id'])||(v.account_id!==null&&!uuid(v.account_id))||!uuid(v.id)||!uuid(v.import_id)||!string(v.import_filename,128)||!integer(v.row_number)||v.row_number<1||!day(v.date)||!string(v.description)||!signed(v.amount)||v.amount==='0.0000'||typeof v.reference!=='string'||v.reference.length>128||!['pending','proposed','posted'].includes(String(v.status)))return false;
  return v.status==='pending'?v.journal_id===null:uuid(v.journal_id);
 }
 export function parseSourceRows(v:unknown,bookId:string):SourceRows{
@@ -86,10 +86,12 @@ export async function readBooks(user:string,signal:AbortSignal,fetcher:typeof fe
 export async function readLedger(user:string,id:string,signal:AbortSignal,fetcher:typeof fetch=fetch){if(!uuid(id))throw unavailable();return parseLedgerSnapshot(await request(user,`/api/books/${id}/`,signal,undefined,fetcher),user,id);}
 export async function readAccountActivity(user:string,bookId:string,accountId:string,signal:AbortSignal,fetcher:typeof fetch=fetch){if(!uuid(bookId)||!uuid(accountId))throw unavailable();return parseAccountActivity(await request(user,`/api/books/${bookId}/accounts/${accountId}/activity/`,signal,undefined,fetcher),bookId,accountId);}
 export async function readSourceRows(user:string,bookId:string,signal:AbortSignal,fetcher:typeof fetch=fetch){if(!uuid(bookId))throw unavailable();return parseSourceRows(await request(user,`/api/books/${bookId}/imports/`,signal,undefined,fetcher),bookId);}
-export async function importStatement(user:string,b:LedgerBook,filename:string,content:string,signal:AbortSignal,fetcher:typeof fetch=fetch){
+/** accountId names the marked bank or cash account the statement is from; omit it for a file that is not a bank statement. */
+export async function importStatement(user:string,b:LedgerBook,filename:string,content:string,signal:AbortSignal,fetcher:typeof fetch=fetch,accountId?:string){
  if(!string(filename,128)||/[\\/:*?"<>|]/.test(filename)||new TextEncoder().encode(content).length>MAX_STATEMENT_BYTES||!content)throw Error('Choose a CSV statement up to 512 KB with a simple file name.');
- const v=await request(user,`/api/books/${b.id}/imports/`,signal,{expected_revision:b.revision,filename,content},fetcher);
- if(!object(v)||!exact(v,['id','book_id','filename','sha256','row_count','created','created_at'])||!uuid(v.id)||v.book_id!==b.id||!string(v.filename,128)||!hash(v.sha256)||!integer(v.row_count)||v.row_count<1||typeof v.created!=='boolean'||typeof v.created_at!=='string')throw unavailable();
+ if(accountId!==undefined&&!b.accounts.some(a=>a.id===accountId&&a.cash===true))throw Error('Choose one of your bank or cash accounts for this statement.');
+ const v=await request(user,`/api/books/${b.id}/imports/`,signal,{expected_revision:b.revision,filename,content,...(accountId?{account_id:accountId}:{})},fetcher);
+ if(!object(v)||!exact(v,['id','book_id','filename','sha256','row_count','account_id','created','created_at'])||v.account_id!==(accountId??null)||!uuid(v.id)||v.book_id!==b.id||!string(v.filename,128)||!hash(v.sha256)||!integer(v.row_count)||v.row_count<1||typeof v.created!=='boolean'||typeof v.created_at!=='string')throw unavailable();
  return v as unknown as StatementImport;
 }
 export async function readFinancialReport(user:string,bookId:string,from:string,to:string,signal:AbortSignal,fetcher:typeof fetch=fetch){

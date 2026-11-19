@@ -13,9 +13,12 @@ export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
  const [date,setDate]=useState(new Date().toISOString().slice(0,10)),[description,setDescription]=useState(''),[reference,setReference]=useState('');
  const [lines,setLines]=useState<LedgerLine[]>([{account_id:'',debit:'',credit:'0'},{account_id:'',debit:'0',credit:''}]);
  const operation=useRef<string|undefined>(undefined);const current=useRef({userId,chosen});current.current={userId,chosen};
- const [statement,setStatement]=useState<File[]>([]);const [sources,setSources]=useState<SourceRows>();
+ const [statement,setStatement]=useState<File[]>([]);const [statementAccount,setStatementAccount]=useState<string>();const [sources,setSources]=useState<SourceRows>();
  const [activityAccount,setActivityAccount]=useState('');const [activity,setActivity]=useState<AccountActivity>();const [activityError,setActivityError]=useState('');
  const b=snapshot?.actor_id===userId&&snapshot.book.id===chosen?snapshot.book:undefined;
+ // A statement belongs to one of the marked bank or cash accounts; the only one is preselected.
+ const bankAccounts=b?b.accounts.filter(a=>a.cash===true):[];
+ const chosenBank=statementAccount&&(statementAccount==='none'||bankAccounts.some(a=>a.id===statementAccount))?statementAccount:bankAccounts.length===1?bankAccounts[0].id:'none';
  const report=b?snapshot?.report:undefined;
  async function load(id=chosen){
   const attempt=++generation.current,signal=life.current.signal;
@@ -110,16 +113,18 @@ export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
     <div><Button size="sm" variant="ghost" disabled={busy||lines.length>=100} onClick={()=>{operation.current=undefined;setLines(old=>[...old,{account_id:'',debit:'',credit:'0'}]);}}>Add split line</Button>{' '}
      <Button type="submit" disabled={busy}>Save for review</Button></div>
    </Form>
-   <section aria-label="Import bank statement" className="bookkeeping-review" data-import-rows={shownSources?.rows.length??0}>
+   <section aria-label="Import bank statement" data-import-account={chosenBank} className="bookkeeping-review" data-import-rows={shownSources?.rows.length??0}>
     <Heading as="h4" size="sm">Import a bank statement</Heading>
     <p>Upload a CSV with the columns date, description and amount (money in positive, money out negative), plus an optional reference. Every row must be valid or nothing is imported, and importing the same file again changes nothing. Imported rows are not entries yet: ask Maipa to categorize them, then review and post each entry yourself.</p>
+    {bankAccounts.length>0&&<Select id="statement-account" label="Bank account this statement is from" value={chosenBank} onValueChange={setStatementAccount}
+     list={[...bankAccounts.map(a=>({value:a.id,label:`${a.code} · ${a.name}`})),{value:'none',label:'Not a bank statement'}]} disabled={busy}/>}
     <FileUpload value={statement} onChange={files=>setStatement(files.slice(-1))} accept=".csv,text/csv" maxFiles={1} maxSize={MAX_STATEMENT_BYTES} disabled={busy}>
      <FileUpload.Dropzone browseLabel="Choose CSV statement">Drop a CSV statement here</FileUpload.Dropzone>
      <FileUpload.List/>
     </FileUpload>
     <div><Button disabled={busy||!statement.length} onClick={()=>void act(async()=>{
      const file=statement[0];if(!file)return;
-     const saved=await importStatement(userId,b,file.name,await file.text(),life.current.signal);
+     const saved=await importStatement(userId,b,file.name,await file.text(),life.current.signal,fetch,chosenBank==='none'?undefined:chosenBank);
      setStatement([]);setStatus(saved.created?`Imported ${saved.row_count} rows from ${saved.filename}. Ask Maipa to categorize them.`:`${saved.filename} was already imported. Nothing changed.`);
     })}>Import statement</Button></div>
     {shownSources&&!!shownSources.rows.length&&<>

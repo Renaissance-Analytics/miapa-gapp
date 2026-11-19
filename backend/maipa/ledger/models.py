@@ -122,6 +122,8 @@ class SourceImport(AppendOnly):
     sha256 = models.CharField(max_length=64)
     filename = models.CharField(max_length=128)
     row_count = models.PositiveIntegerField()
+    # The bank or cash account this statement belongs to, when the importer named one.
+    account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.PROTECT)
     imported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now)
 

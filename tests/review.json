@@ -7550,6 +7550,86 @@
       "decision": "aligned",
       "reason": "Exact flags, revisions, event, refusal codes and record counts asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.1",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_an_import_records_its_bank_account_and_every_row_reports_it",
+      "scenario_sha256": "6c2e532cfc9344a401de03f530dc47711b6ee31f1e5f4ae76a9ef7cec08535eb",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "The import and each of its rows report the Checking account; the repeat changes nothing and reports the same account; the unnamed import and its rows report none.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.2",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_only_a_marked_bank_or_cash_account_of_the_same_book_can_be_named",
+      "scenario_sha256": "df0278d8ffa9c7616c77587b978c9a6838e96fabf4a16ca1e6f2efbc470163ba",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "Every one is refused, the first three as an invalid import account; no import, row or revision is recorded.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.3",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_entries_for_bank_rows_must_move_that_bank_account_by_the_exact_amount_on_the_right_side",
+      "scenario_sha256": "051a36670c8399e1a855beea4d879c08a83e9b3a0c732f22bbc3892851ade353",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "Every wrong entry is refused and nothing is saved; a deposit debiting Checking by the exact amount (credits split) and a payment crediting it are accepted and mark their rows proposed.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.4",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_rows_of_an_import_without_a_bank_account_keep_the_amount_rule_only",
+      "scenario_sha256": "7d37fec9a2daa4069a2d7eb54212289694d4197b8f547f3121de732cf3ba40e0",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "It is accepted under the amount rule alone.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.5",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_approved_import_request_carries_the_named_bank_account_and_shows_it_for_review",
+      "scenario_sha256": "802eeb9ae8afa4f06cb070d1f438cf2d347b364f8b130cec45a4dcf83e1619ed",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "The request shows the named account for review and imports nothing; approval imports the rows tied to that account; a request without one shows none.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.6",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_import_requests_naming_an_unmarked_foreign_or_malformed_account_are_refused_and_not_recorded",
+      "scenario_sha256": "521e299940eaa2c1b26f6728add8e532d7f24dcb5f94b1be1f67a07f23bd88e9",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "Every one is refused; no request and no import is recorded.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.7",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_an_attached_statement_resolves_with_its_bank_account_and_refuses_other_extras",
+      "scenario_sha256": "b20a67206586f510a68242f5f704a2d6e1a7da7957257856a9f7e5a98bc3ee45",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "The exact file content is bound together with the named account, or without one; the unknown field is refused.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-IMPORT-ACCOUNT.8",
+      "test": "tests.test_import_bank_account.ImportBankAccountTests.test_http_import_passes_the_bank_account_and_rows_report_it",
+      "scenario_sha256": "768ebc5f746c7df0fdeb303539f13b4d62887c13cdc54db4e69efa0c01ceeede",
+      "source_sha256": "dee15bbb90be6d4aa197466354f7d762e88c4f17b21da036fd1d2d1303544077",
+      "expected_observation": "400 with the invalid import account code and nothing saved; then 201 naming Checking, and every listed row reports it.",
+      "decision": "aligned",
+      "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

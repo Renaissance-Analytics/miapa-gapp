@@ -7061,6 +7061,92 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B01-IMPORT-ACCOUNT",
+      "risk": "Statement rows are booked against the wrong account or in the wrong direction, or a statement is tied to an account that is not a bank account.",
+      "scenarios": [
+        {
+          "id": "B01-IMPORT-ACCOUNT.1",
+          "kind": "positive",
+          "given": "A statement imported naming the marked Checking account, the same file again, and another file without an account",
+          "when": "Import them and read the rows",
+          "then": "The import and each of its rows report the Checking account; the repeat changes nothing and reports the same account; the unnamed import and its rows report none.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_an_import_records_its_bank_account_and_every_row_reports_it"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.2",
+          "kind": "negative",
+          "given": "An unmarked asset account, a liability account, an account of another book, an unknown, malformed, null or numeric account",
+          "when": "Import a statement naming it",
+          "then": "Every one is refused, the first three as an invalid import account; no import, row or revision is recorded.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_only_a_marked_bank_or_cash_account_of_the_same_book_can_be_named"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.3",
+          "kind": "negative",
+          "given": "Rows of a statement tied to Checking: 1250.5000 in and 900.0000 out",
+          "when": "Propose entries that skip the bank account, reverse its side, move only part of the amount or use both sides; then the correct entries",
+          "then": "Every wrong entry is refused and nothing is saved; a deposit debiting Checking by the exact amount (credits split) and a payment crediting it are accepted and mark their rows proposed.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_entries_for_bank_rows_must_move_that_bank_account_by_the_exact_amount_on_the_right_side"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.4",
+          "kind": "positive",
+          "given": "Rows of a statement imported without a bank account",
+          "when": "Propose an entry that does not touch a bank account",
+          "then": "It is accepted under the amount rule alone.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_rows_of_an_import_without_a_bank_account_keep_the_amount_rule_only"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.5",
+          "kind": "positive",
+          "given": "Import requests with and without a named bank account",
+          "when": "Request and approve",
+          "then": "The request shows the named account for review and imports nothing; approval imports the rows tied to that account; a request without one shows none.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_approved_import_request_carries_the_named_bank_account_and_shows_it_for_review"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.6",
+          "kind": "negative",
+          "given": "Import requests naming an unmarked, unknown, malformed or null account, or carrying an extra field",
+          "when": "Request the import",
+          "then": "Every one is refused; no request and no import is recorded.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_import_requests_naming_an_unmarked_foreign_or_malformed_account_are_refused_and_not_recorded"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.7",
+          "kind": "negative",
+          "given": "An attached statement referenced with a bank account, without one, and with an unknown extra field",
+          "when": "Resolve the request payload",
+          "then": "The exact file content is bound together with the named account, or without one; the unknown field is refused.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_an_attached_statement_resolves_with_its_bank_account_and_refuses_other_extras"
+          ]
+        },
+        {
+          "id": "B01-IMPORT-ACCOUNT.8",
+          "kind": "negative",
+          "given": "A bound owner posting a statement with an unmarked account and then with the marked Checking account",
+          "when": "Import over HTTP and list the rows",
+          "then": "400 with the invalid import account code and nothing saved; then 201 naming Checking, and every listed row reports it.",
+          "tests": [
+            "tests.test_import_bank_account.ImportBankAccountTests.test_http_import_passes_the_bank_account_and_rows_report_it"
+          ]
+        }
+      ]
     }
   ]
 }

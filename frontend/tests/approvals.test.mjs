@@ -143,3 +143,12 @@ test('a bank or cash account card names the account and says no amounts change',
   assert.match(approvalContent({ ...mark, detail: null }), /can no longer be found\. Approving will fail/);
   assert.equal(approvalMessage(mark).proposal.title, 'Mark a bank or cash account');
 });
+
+test('a statement import card names the bank account the statement is from when one is given', () => {
+  const load = { ...single, operation: 'statement.import', summary: 'Import the March statement',
+    payload: { book_id: id(2), filename: 'march.csv', account_id: id(3), content_bytes: 120, content_sha256: 'c'.repeat(64), content_preview: 'date,description,amount' },
+    detail: { books: 'Sample Co LLC', currency: 'USD', account: '1000 Checking' } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [load], recent: [] }, '1').pending[0].operation, 'statement.import');
+  assert.match(approvalContent(load), /march\.csv · 120 bytes into Sample Co LLC books, as a statement of 1000 Checking\. Rows become pending transactions; no entries are posted\./);
+  assert.match(approvalContent({ ...load, detail: { ...load.detail, account: null } }), /120 bytes into Sample Co LLC books\. Rows become pending/);
+});

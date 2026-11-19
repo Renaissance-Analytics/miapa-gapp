@@ -245,10 +245,17 @@ def propose_journal(user, book_id, value, _kind=None):
             row_id = identity(reference)
         except (LedgerError, ValueError):
             raise LedgerError('import_row_not_found') from None
-        row = SourceRow.objects.filter(pk=row_id, source_import__book=book).first()
+        row = SourceRow.objects.filter(pk=row_id, source_import__book=book).select_related('source_import').first()
         require(row is not None, 'import_row_not_found')
         require(row.date == dated, 'import_date_mismatch')
         require(abs(row.amount_units) == debit, 'import_amount_mismatch')
+        bank = row.source_import.account_id
+        if bank is not None:
+            # Money in debits the statement's bank account; money out credits it; never both.
+            moved_in = sum(left for account, _, left, _ in lines if account.pk == bank)
+            moved_out = sum(right for account, _, _, right in lines if account.pk == bank)
+            require((moved_in, moved_out) == ((row.amount_units, 0) if row.amount_units > 0 else (0, -row.amount_units)),
+                    'import_account_mismatch')
     require(not book.journals.filter(source_kind=value['source']['kind'], source_reference=reference).exists(),
             'ledger_source_exists')
     payload = {'book_id': str(book.pk), 'entity_id': str(book.entity_id), 'currency': book.currency,
@@ -331,7 +338,15 @@ def parse_statement(book, content):
 
 def import_value(row, created):
     return {'id': str(row.pk), 'book_id': str(row.book_id), 'filename': row.filename, 'sha256': row.sha256,
-            'row_count': row.row_count, 'created': created, 'created_at': row.created_at.isoformat()}
+            'row_count': row.row_count, 'account_id': str(row.account_id) if row.account_id else None,
+            'created': created, 'created_at': row.created_at.isoformat()}
+
+
+def import_account(book, account_id):
+    """The marked bank or cash account of this book that a statement names. Read-only."""
+    account = book.accounts.filter(pk=identity(account_id)).first()
+    require(account is not None and account.cash, 'import_account_invalid')
+    return account
 
 
 @guarded
@@ -339,7 +354,9 @@ def import_value(row, created):
 def import_statement(user, book_id, value):
     """Save a CSV statement's rows as pending source records; no journal is created."""
     user, book = owned(user, book_id, True)
-    fields(value, ('expected_revision', 'filename', 'content'))
+    require(type(value) is dict)
+    fields(value, ('expected_revision', 'filename', 'content', *(('account_id',) if 'account_id' in value else ())))
+    account = import_account(book, value['account_id']) if 'account_id' in value else None
     filename = text(value['filename'], 128)
     require(re.fullmatch(r'[^/\\:*?"<>|]+', filename) is not None and filename not in ('.', '..'), 'import_file_invalid')
     require(type(value['content']) is str, 'import_file_invalid')
@@ -349,7 +366,7 @@ def import_statement(user, book_id, value):
         return import_value(existing, False)
     rows = parse_statement(book, value['content'])
     advance(book, value['expected_revision'])
-    saved = SourceImport.objects.create(book=book, sha256=sha, filename=filename, row_count=len(rows), imported_by=user)
+    saved = SourceImport.objects.create(book=book, sha256=sha, filename=filename, row_count=len(rows), account=account, imported_by=user)
     for row in rows:
         row.source_import = saved
     SourceRow.objects.bulk_create(rows)
@@ -370,6 +387,7 @@ def source_rows(user, book_id):
         rows.append({'id': str(row.pk), 'import_id': str(row.source_import_id), 'import_filename': row.source_import.filename,
                      'row_number': row.row_number, 'date': row.date.isoformat(), 'description': row.description,
                      'amount': money(row.amount_units), 'reference': row.reference,
+                     'account_id': str(row.source_import.account_id) if row.source_import.account_id else None,
                      'status': 'pending' if journal is None else 'posted' if journal.state == 'posted' else 'proposed',
                      'journal_id': None if journal is None else str(journal.pk)})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
