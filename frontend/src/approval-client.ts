@@ -46,6 +46,19 @@ async function call(user: string, path: string, signal: AbortSignal, body: unkno
 export async function readApprovals(user: string, signal: AbortSignal, fetcher: typeof fetch = fetch) {
   return parseApprovalList(await call(user, '/api/approvals/', signal, undefined, fetcher), user);
 }
+export interface SavedAttachment { id: string; name: string; size: number; sha256: string; lines: number; created_at: string }
+/** Upload one attached text file for the agent. The acknowledgment must be this exact file name and size. */
+export async function uploadAttachment(user: string, name: string, content: string, signal: AbortSignal, fetcher: typeof fetch = fetch): Promise<SavedAttachment> {
+  if (!/^[0-9]+$/.test(user) || signal.aborted) throw unavailable();
+  const response = await fetcher('/api/agent/attachments/', { method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+    headers: { 'X-Maipa-Agent-Actor': user, 'Content-Type': 'application/json', 'X-CSRFToken': await csrfToken(fetcher) },
+    signal: AbortSignal.any([signal, AbortSignal.timeout(20000)]), body: JSON.stringify({ name, content }) });
+  if (response.status !== 201) throw Error('Maipa could not receive that file. Your message and file were kept; check that it is a CSV text file and try again.');
+  const v: unknown = await response.json();
+  if (!object(v) || !exact(v, ['id', 'name', 'size', 'sha256', 'lines', 'created_at']) || !uuid(v.id) || v.name !== name || !hash(v.sha256)
+      || v.size !== new TextEncoder().encode(content).length || !Number.isSafeInteger(v.lines)) throw unavailable();
+  return v as unknown as SavedAttachment;
+}
 /** Decide one request. The acknowledgment must be this request, decided, with the reviewed hash. */
 export async function decideApproval(user: string, item: ApprovalRequest, decision: 'approve' | 'reject', signal: AbortSignal, fetcher: typeof fetch = fetch) {
   if (item.state !== 'pending') throw unavailable();

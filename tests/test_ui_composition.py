@@ -135,7 +135,7 @@ class UiCompositionTests(TestCase):
         self.assertEqual([item['name'] for item in listed['tools']],
                          ['maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
                           'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
-                          'maipa_setup_read', 'maipa_setup_record', 'maipa_action_request', 'maipa_action_list'])
+                          'maipa_setup_read', 'maipa_setup_record', 'maipa_action_request', 'maipa_attachment_read', 'maipa_action_list'])
         for value in (
             {'method': 'terminal/create', 'params': {}},
             {'method': 'tools/list', 'params': {'actor': str(self.other.pk)}},

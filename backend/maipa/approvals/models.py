@@ -25,3 +25,18 @@ class ActionRequest(models.Model):
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(state__in=STATES), name='approval_request_state')]
         indexes = [models.Index(fields=('user', 'state', 'created_at'), name='approval_user_state')]
+
+
+class ChatAttachment(models.Model):
+    """A text file the person attached in chat, kept privately for the agent to read by ID."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    name = models.CharField(max_length=128)
+    content = models.TextField()
+    size = models.PositiveIntegerField()
+    sha256 = models.CharField(max_length=64)
+    lines = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [models.Index(fields=('user', 'created_at'), name='attachment_user_created')]

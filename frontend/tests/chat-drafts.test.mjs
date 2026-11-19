@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ChatDrafts, emptyDraft, sendProblem } from '../.test-build/chat-drafts.js';
+import { ChatDrafts, attachmentNote, emptyDraft, sendProblem, sendableAttachment } from '../.test-build/chat-drafts.js';
 
 test('complete drafts and attachment references restore under only their original account', () => {
   const drafts = new ChatDrafts();
@@ -33,4 +33,16 @@ test('unsupported attachments and over-limit messages are refused without rewrit
   assert.match(sendProblem('a'.repeat(8001), []), /8,000/);
   assert.match(sendProblem('   ', []), /Write/);
   assert.equal(sendProblem('a'.repeat(8000), []), null); assert.equal(sendProblem('Valid Ω', []), null);
+});
+
+test('only picked CSV files within the size limit can be sent, and the note names each stored file', () => {
+  const file = { text: async () => 'date,description,amount' };
+  const csv = { id: 'a', name: 'march.csv', bytes: 100, file };
+  assert.equal(sendProblem('Import this', [csv]), null);
+  assert.equal(sendableAttachment(csv), true);
+  for (const bad of [{ ...csv, name: 'notes.txt' }, { ...csv, bytes: 524289 }, { ...csv, bytes: 0 }, { ...csv, file: undefined },
+    { ...csv, name: '../march.csv' }, { id: 'file' }, null])
+    assert.match(sendProblem('Import this', [bad]), /Remove them/);
+  assert.match(sendProblem('Import this', [csv, csv, csv, csv]), /at most 3/);
+  assert.equal(attachmentNote([{ id: 'ID1', name: 'march.csv', size: 177, lines: 4 }]), '[Attached file: march.csv — attachment_id ID1, 177 bytes, 4 lines]');
 });

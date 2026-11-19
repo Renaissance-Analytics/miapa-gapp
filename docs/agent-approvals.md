@@ -44,3 +44,13 @@ short preview.
   them. Viewers can neither request nor decide.
 - Targets are checked against the person's current authority when requested and
   again when executed.
+
+## Files attached in chat
+
+A CSV file (up to 512 KiB, at most three per message) attached in the composer
+is uploaded to `POST /api/agent/attachments/` under the person's session before
+the message is sent, and the message names each stored file by `attachment_id`.
+The agent reads a bounded preview with `maipa_attachment_read`, and may request
+`statement.import` with `{book_id, attachment_id}`; the server binds that exact
+file's name and content into the request before the person approves it. Files
+are private to their owner. Other file types are refused before sending.

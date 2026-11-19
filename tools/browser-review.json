@@ -6,7 +6,7 @@
     "tools/browser.mjs": "a29664a95f966aa099f79b875e7f4318b64d05ce3c5195b5adbd82714b272fed",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "7a7e45a9ae7c122fe152e6fa8804f83cac478bb2dab7fcb06e0e8b66cb18f112"
+    "tests/fixtures/agent_chat_peer.py": "bcca55835c154971a3877c2b02258a37a2a265a7c59ec70968188718bf79784b"
   },
   "cases": [
     {
@@ -347,5 +347,6 @@
   "agent_guided_setup_review": "Account setup is now explained steps, not a scripted chat. The browser flow keeps every original native action, assertion, deadline and case; only the submit label (Send answer -> Save answer) and the transcript selector (Account setup conversation -> Account setup steps, which shows recorded answers) follow the new markup. The finite peer exact startup catalog adds maipa_setup_read and maipa_setup_record. No real-model onboarding acceptance is claimed.",
   "statement_import_browser_review": "One added real-browser case after the posted trial-balance assertions and before the existing own-books record. It uses DOM.setFileInputFiles on the published FileUpload input, as the existing attachment case does, and reads results through the real owner-bound API. All prior case actions, assertions, deadlines and cleanup are unchanged; the progress maximum rises from 48 to 49.",
   "agent_approval_review": "One added case after the unchanged own-books cases. The finite peer exact startup catalog adds maipa_action_request and maipa_action_list and one prompt handler that requests account.create through the real tool. The human approves with a native click on the published ChatMessage proposal card; outcomes are read from the real API. No prior action, assertion or deadline changed; progress maximum 49 -> 50.",
-  "agent_approval_continue_review": "The existing approval case additionally waits for the real chat API to show the decision note as the last user message and a completed assistant reply. The finite peer answers that note without changing UI. No other action, assertion or deadline changed."
+  "agent_approval_continue_review": "The existing approval case additionally waits for the real chat API to show the decision note as the last user message and a completed assistant reply. The finite peer answers that note without changing UI. No other action, assertion or deadline changed.",
+  "chat_attachment_review": "The finite peer exact startup catalog adds the read-only maipa_attachment_read tool. No browser action, assertion or deadline changed: the existing unsupported .txt attachment case still requires the explicit \"Remove them\" refusal because only CSV files are deliverable."
 }

@@ -24,6 +24,7 @@ from .ledger import views as books
 from .approvals import views as approvals
 
 urlpatterns = [
+    path('api/agent/attachments/', approvals.attachments, name='agent-attachments'),
     path('api/approvals/', approvals.requests, name='approvals'),
     path('api/approvals/<uuid:request_id>/decide/', approvals.decide, name='approval-decide'),
     path('api/approvals/batch/<uuid:batch_id>/decide/', approvals.decide_batch, name='approval-batch-decide'),

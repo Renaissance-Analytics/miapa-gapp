@@ -76,7 +76,7 @@ for line in sys.stdin:
             raise RuntimeError('Pre-session tool discovery unavailable')
         if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
                 'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
-                'maipa_setup_read', 'maipa_setup_record', 'maipa_action_request', 'maipa_action_list',
+                'maipa_setup_read', 'maipa_setup_record', 'maipa_action_request', 'maipa_action_list', 'maipa_attachment_read',
                 'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
                 'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
                 'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',

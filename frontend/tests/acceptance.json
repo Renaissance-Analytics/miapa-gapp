@@ -1925,6 +1925,26 @@
           "tests": [
             "approvals.test.mjs#the note sent after a decision states exact outcomes and is empty when nothing was decided"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.6",
+          "kind": "negative",
+          "given": "A picked CSV within limits and text, oversized, empty, restored, path-like or malformed attachments",
+          "when": "Check a message before sending",
+          "then": "Allow only up to three picked CSV files within 512 KB; refuse the rest with a remove-them message; the note names each stored file exactly.",
+          "tests": [
+            "chat-drafts.test.mjs#only picked CSV files within the size limit can be sent, and the note names each stored file"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.7",
+          "kind": "negative",
+          "given": "A file upload and exact, mismatched, content-echoing or refused acknowledgments",
+          "when": "Upload an attached file",
+          "then": "Send the name and content with the actor binding; accept only the acknowledgment for that exact name and size; reject the others.",
+          "tests": [
+            "approvals.test.mjs#an attached file is uploaded for this actor and only its exact acknowledgment is accepted"
+          ]
         }
       ]
     }

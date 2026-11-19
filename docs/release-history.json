@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-31",
+    "label": "Development update 31",
+    "cards": [
+      {
+        "title": "A complete Fancy chat composer",
+        "description": "Chat now uses Fancy PromptInput and its contextual request drawer. Drafts stay editable during sends and survive failed confirmations and provider changes."
+      },
+      {
+        "title": "Read conversations at your pace",
+        "description": "Fancyâ€™s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
+      }
+    ]
+  },
+  {
     "id": "development-30",
     "label": "Development update 30",
     "cards": [
