@@ -6,6 +6,7 @@ import { Button, ChatDrawer, ContentRenderer, Field, Icon, Input, PromptInput, R
   type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { Approvals } from './Approvals.js';
+import { decisionMessage, type ApprovalRequest } from './approval-client.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
@@ -184,6 +185,23 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
     } catch (e) { setError(e instanceof Error ? e.message : 'Conversation unavailable'); }
     finally { setBusy(false); }
   }
+  /** After the person decides, tell the connected agent the real outcomes so it carries on. Never touches the unsent draft. */
+  const decisionNotes = useRef<ApprovalRequest[]>([]);
+  const [decisionTick, setDecisionTick] = useState(0);
+  function continueAfterDecision(done: ApprovalRequest[]) { decisionNotes.current = [...decisionNotes.current, ...done]; setDecisionTick(tick => tick + 1); }
+  // Decisions made while a reply is still streaming wait here until the agent is idle.
+  useEffect(() => {
+    const selected = current.current.connection;
+    if (!decisionNotes.current.length || busy || error || state.phase !== 'ready' || !selected.available || !selected.account_id
+        || failureCooldown(current.current.failure, Date.now())) return;
+    const text = decisionMessage(decisionNotes.current);
+    decisionNotes.current = [];
+    if (!text) return;
+    void chatRequest(userId, { action: 'send', revision: current.current.revision, selection_revision: selected.revision,
+      request_id: crypto.randomUUID(), text })
+      .then(next => { if (alive.current) { setState(previous => newerChat(previous, next)); setFollow(true); } })
+      .catch(() => { /* The decision already stands; the person can simply tell Maipa to continue. */ });
+  }, [decisionTick, state.phase, state.revision, busy, error]);
   async function submit(text: string, attachments: PromptAttachment[]): Promise<SubmitResult> {
     const problem = sendProblem(text, attachments);
     if (problem) return { ok: false, error: problem };
@@ -240,7 +258,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
               {message.state === 'interrupted' && <small>Interrupted · partial reply retained</small>}
             </article></div>} />}
           {!follow && <Button size="sm" variant="ghost" onClick={() => setFollow(true)}>Back to latest{unseen ? ` (${unseen} new)` : ''}</Button>}
-          <Approvals userId={userId} syncKey={state.revision} />
+          <Approvals userId={userId} syncKey={state.revision} onDecided={continueAfterDecision} />
           {setup && <div className="chat-setup-panel"><AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
             syncKey={state.revision} onAskAgent={() => setDraft(GUIDED_SETUP_REQUEST)}
             onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} /></div>}

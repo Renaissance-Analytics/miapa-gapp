@@ -7,7 +7,7 @@ const FAILURES: Record<string, string> = { ledger_review_conflict: 'The entry ch
   ledger_account_exists: 'That account code already exists.', setup_review_conflict: 'Your setup changed after Maipa asked.' };
 
 /** What Maipa wants to change, as approval cards. Nothing here runs until the person decides. */
-export function Approvals({ userId, syncKey = 0 }: { userId: string; syncKey?: number }) {
+export function Approvals({ userId, syncKey = 0, onDecided }: { userId: string; syncKey?: number; onDecided?: (done: ApprovalRequest[]) => void }) {
   const [list, setList] = useState<ApprovalList>();
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [status, setStatus] = useState('');
   const life = useRef(new AbortController()), pending = useRef(false);
@@ -27,6 +27,7 @@ export function Approvals({ userId, syncKey = 0 }: { userId: string; syncKey?: n
     const signal = life.current.signal;
     try {
       const done = await run(signal);
+      onDecided?.(done);
       const failed = done.filter(r => r.state === 'failed'), approved = done.filter(r => r.state === 'approved').length, rejected = done.filter(r => r.state === 'rejected').length;
       setStatus([approved && `${approved} approved and done`, rejected && `${rejected} rejected; nothing changed`,
         failed.length && `${failed.length} could not be done: ${failed.map(r => FAILURES[r.error ?? ''] ?? 'the records no longer match the request').join(' ')}`].filter(Boolean).join('. ') + '.');

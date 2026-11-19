@@ -18,7 +18,9 @@ every change is an **action request** that the person approves or rejects.
    atomically, and records the result. If the target changed, the request ends
    as `failed` with a reason and nothing is half-done. A repeated approval
    returns the original outcome without running again.
-6. The agent reads real outcomes with `maipa_action_list`. Pending is not done.
+6. The app then sends a short note on the person's behalf stating the exact outcomes
+   (held until the agent's current reply finishes), so the agent carries on.
+   The agent can also read outcomes with `maipa_action_list`. Pending is not done.
 
 ## Operations
 

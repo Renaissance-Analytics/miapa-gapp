@@ -90,6 +90,14 @@ export function approvalMessage(item: ApprovalRequest): ChatMessageData {
       state: item.state === 'pending' ? 'pending' : item.state === 'approved' ? 'accepted' : item.state === 'rejected' ? 'rejected' : 'withdrawn',
       acceptLabel: 'Approve', rejectLabel: 'Reject' } };
 }
+/** The note sent to the agent, on the person's behalf, after they decide: exact outcomes so it can carry on. */
+export function decisionMessage(done: ApprovalRequest[]): string {
+  const say = (state: string, label: string) => { const items = done.filter(r => r.state === state);
+    return items.length ? `${label}: ${items.map(r => cell(r.summary)).join('; ')}.` : ''; };
+  const parts = [say('approved', 'I approved and Maipa completed'), say('rejected', 'I rejected (nothing changed)'),
+    say('failed', 'I approved but these could not be done and need to be prepared again')].filter(Boolean);
+  return parts.length ? `${parts.join(' ')} Please continue with what is left.`.slice(0, 4000) : '';
+}
 /** Pending requests grouped so related ones can be approved together, oldest first. */
 export function approvalGroups(pending: ApprovalRequest[]): ApprovalRequest[][] {
   const groups = new Map<string, ApprovalRequest[]>();

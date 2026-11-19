@@ -1472,6 +1472,8 @@ try {
   await click('Approve');
   await until(async()=>(await readBooks()).book.accounts.some(a=>a.code==='6300'),'approved account created');
   await until(()=>evaluate("!document.querySelector('[data-chat-proposal]')"),'approval card cleared');
+  // The decision is reported to the agent on the person's behalf and it replies, without touching the draft.
+  await until(()=>evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();const m=c.messages;return c.phase==='ready'&&m.length>1&&m[m.length-1].role==='assistant'&&m[m.length-1].state==='complete'&&m[m.length-2].role==='user'&&m[m.length-2].text.startsWith('I approved and Maipa completed: Add account 6300 Synthetic rent.');})()`),'agent told of the approval and replied');
   record('agent-request-human-approval');
   await typeChat(beforeBookDraft);
   await preferencesReady();

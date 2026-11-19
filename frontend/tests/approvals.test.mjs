@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ChatMessage } from '@particle-academy/react-fancy';
-import { approvalContent, approvalGroups, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals } from '../.test-build/approval-client.js';
+import { approvalContent, approvalGroups, decisionMessage, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals } from '../.test-build/approval-client.js';
 
 const id = n => `12345678-1234-4234-8234-${String(n).padStart(12, '0')}`;
 const post = { id: id(1), operation: 'journal.post', summary: 'Post office purchase 42.17', payload: { book_id: id(2), journal_id: id(3), payload_hash: 'a'.repeat(64) },
@@ -69,4 +69,12 @@ test('cards group batches, show server-read entry lines and render through the F
   assert.match(html, />Reject</);
   const decided = renderToStaticMarkup(React.createElement(ChatMessage, { message: approvalMessage({ ...post, state: 'approved' }) }));
   assert.doesNotMatch(decided, />Approve</);
+});
+
+test('the note sent after a decision states exact outcomes and is empty when nothing was decided', () => {
+  const text = decisionMessage([{ ...post, state: 'approved' }, { ...second, state: 'failed', summary: 'Post rent <b>900</b>' }, { ...single, state: 'rejected' }]);
+  assert.equal(text, 'I approved and Maipa completed: Post office purchase 42.17. I rejected (nothing changed): Create USD books. '
+    + 'I approved but these could not be done and need to be prepared again: Post rent  b 900 /b . Please continue with what is left.');
+  assert.equal(decisionMessage([]), '');
+  assert.equal(decisionMessage([post]), '');
 });
