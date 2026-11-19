@@ -59,6 +59,7 @@ BROWSER_CASES = (
     'own-books-financial-statements',
     'own-books-review-post-and-trial-balance',
     'agent-request-human-approval',
+    'agent-attach-reverse-and-close',
     'logout-and-viewer-denial',
     'intake-user-isolation',
     'layout-user-isolation-and-login',

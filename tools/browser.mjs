@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 51 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 52 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1488,6 +1488,40 @@ try {
   // The decision is reported to the agent on the person's behalf and it replies, without touching the draft.
   await until(()=>evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const c=await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();const m=c.messages;return c.phase==='ready'&&m.length>1&&m[m.length-1].role==='assistant'&&m[m.length-1].state==='complete'&&m[m.length-2].role==='user'&&m[m.length-2].text.startsWith('I approved and Maipa completed: Add account 6300 Synthetic rent.');})()`),'agent told of the approval and replied');
   record('agent-request-human-approval');
+  // The agent does the bookkeeping from a file attached in chat, then reverses an entry and closes the period, each by one approval.
+  const chatState=()=>evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  const agentIdle=label=>until(async()=>{const c=await chatState();const m=c.messages;return c.phase==='ready'&&m[m.length-1].role==='assistant'&&m[m.length-1].state==='complete';},label);
+  const approveNext=async(title,label)=>{
+    await until(()=>evaluate(`document.querySelector('[data-approvals-pending]')?.dataset.approvalsPending==='1'&&document.querySelector('[data-chat-proposal]')?.textContent.includes(${JSON.stringify(title)})`),label+' requested');
+    await click('Approve');
+    await until(()=>evaluate("!document.querySelector('[data-chat-proposal]')"),label+' card cleared');
+    await until(async()=>{const m=(await chatState()).messages;return m.some(x=>x.role==='user'&&x.text.startsWith('I approved and Maipa completed: '+label));},label+' outcome sent');
+    await agentIdle(label+' agent replied');
+  };
+  const importedBefore=(await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/imports/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`)).rows.length;
+  const chatStatement=join(profile,'synthetic-chat-statement.csv');
+  const bookYear=postedBook.book.period_start.slice(0,4);
+  writeFileSync(chatStatement,'date,description,amount\n'+bookYear+'-05-02,Synthetic chat deposit,300\n'+bookYear+'-05-04,Synthetic chat fee,-7.5\n');
+  await agentIdle('agent idle before attachment');
+  const chatDoc=await command('DOM.getDocument',{depth:0});
+  const chatInput=await command('DOM.querySelector',{nodeId:chatDoc.root.nodeId,selector:'.chat-composer input[type=file]'});
+  await command('DOM.setFileInputFiles',{nodeId:chatInput.nodeId,files:[chatStatement]});
+  await until(()=>evaluate("!!document.querySelector('[data-react-fancy-prompt-input-attachment]')"),'attached statement chip');
+  await typeChat('Import this statement');await click('Send');
+  await approveNext('Import a bank statement','Import synthetic-chat-statement.csv');
+  const importedAfter=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/imports/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  assert.equal(importedAfter.rows.length,importedBefore+2);
+  assert.deepEqual(importedAfter.rows.filter(r=>r.import_filename==='synthetic-chat-statement.csv').map(r=>[r.description,r.amount,r.status]),[['Synthetic chat deposit','300.0000','pending'],['Synthetic chat fee','-7.5000','pending']]);
+  await typeChat('Reverse the office purchase');await click('Send');
+  await approveNext('Reverse a posted entry','Reverse the office purchase');
+  const reversedBook=await readBooks();
+  assert.equal(reversedBook.book.journals.filter(j=>j.state==='posted'&&j.source.kind==='reversal').length,1);
+  assert.equal(reversedBook.report.trial_debit,'0.0000');assert.equal(reversedBook.report.posted_debit,'84.3400');
+  await typeChat('Close the books now');await click('Send');
+  await approveNext('Close the books','Close through '+reversedBook.book.journals.find(j=>j.source.kind==='manual').date);
+  const closedBook=await readBooks();
+  assert.equal(closedBook.book.closed_through,reversedBook.book.journals.find(j=>j.source.kind==='manual').date);
+  record('agent-attach-reverse-and-close');
   await typeChat(beforeBookDraft);
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();

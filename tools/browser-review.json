@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "ff62bc2e9b0481e3326efac32caa592d70bc24c3ec7c60a7bb3f7fc8f0efa2a6",
+    "tools/browser.mjs": "86e75d1fc16dd955e534b6f97d890e49dba823ca39caf8cd5fa6ef6779d50093",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "bb8376f8fa052f59ee50c595812445f003327b214d062188830ec81880d8adf4"
+    "tests/fixtures/agent_chat_peer.py": "a926f4d707a02e5ff1fa39528bbaf308f2f5da39d4e928b4fc4af74d574735ad"
   },
   "cases": [
     {
@@ -225,6 +225,11 @@
       "expected": "The finite peer asks, through the real maipa_action_request tool, to add account 6300. The chat shows one Fancy approval card and the books are unchanged; after the human clicks Approve the real owner-bound API shows account 6300 and the card clears. The app then sends the exact decision note on the person's behalf and the peer completes a reply turn."
     },
     {
+      "id": "agent-attach-reverse-and-close",
+      "kind": "positive",
+      "expected": "A CSV chosen through the real composer file input is uploaded and named to the agent; the finite peer reads it and requests its import, and after one Approve the real API shows its two rows pending. The peer then requests reversing the posted purchase (after approval one posted reversal exists and the trial balance is zero) and closing the books through that date (after approval closed_through equals it). After every decision the exact outcome note reaches the agent and it completes a reply."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -356,5 +361,6 @@
   "chat_attachment_review": "The finite peer exact startup catalog adds the read-only maipa_attachment_read tool. No browser action, assertion or deadline changed: the existing unsupported .txt attachment case still requires the explicit \"Remove them\" refusal because only CSV files are deliverable.",
   "setup_open_race_review": "Intermittent setup_chat/setup_resume \"saved setup prompt\" timeouts: the app auto-opens Account setup when saved setup loads, and the helper checked aria-expanded then clicked, so a click landing just after the auto-open closed the panel. openAccountSetup now requires the panel to end up expanded, clicking again if not, under the same 150x100ms until budget. No assertion, case or deadline changed.",
   "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed.",
-  "financial_statements_browser_review": "One added case between the unchanged statement-import and own-books cases. It reads the real owner-bound report API and compares it with the rendered section. No prior action, assertion or deadline changed; progress maximum 50 -> 51."
+  "financial_statements_browser_review": "One added case between the unchanged statement-import and own-books cases. It reads the real owner-bound report API and compares it with the rendered section. No prior action, assertion or deadline changed; progress maximum 50 -> 51.",
+  "agent_flows_browser_review": "One added case after the unchanged approval case. The finite peer gains handlers that call the real maipa_attachment_read, maipa_books_read and maipa_action_request tools for statement.import by attachment, journal.reverse and period.close; the human approves each with a native click. Outcomes are read from the real owner-bound APIs. No prior action, assertion or deadline changed; progress maximum 51 -> 52."
 }
