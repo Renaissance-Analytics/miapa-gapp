@@ -146,6 +146,22 @@ class BookkeepingPostingTests(TestCase):
         self.assertTrue(refused['isError'])
         self.assertEqual((Journal.objects.filter(state='posted').count(), Journal.objects.count()), (0, 2))
 
+    def test_agent_report_tool_compares_two_periods_exactly_as_the_service_and_refuses_half_a_comparison(self):
+        from backend.maipa.ledger.tools import tool_definitions
+        schema = next(t for t in tool_definitions() if t['name'] == 'maipa_books_report')['inputSchema']
+        self.assertEqual((sorted(schema['required']), sorted(schema['properties']), schema['additionalProperties']),
+                         (['book_id', 'from', 'to'], ['book_id', 'compare_from', 'compare_to', 'from', 'to'], False))
+        broker, _, _ = self.broker()
+        start, end = self.book['period_start'], self.book['period_end']
+        ranges = {'from': start, 'to': end, 'compare_from': start, 'compare_to': start}
+        answer = broker.call('maipa_books_report', {'book_id': self.book['id'], **ranges})
+        self.assertFalse(answer.get('isError', False))
+        self.assertEqual(json.loads(answer['content'][0]['text']), services.financial_report(self.user, self.book['id'], ranges))
+        self.assertIn('comparison', json.loads(answer['content'][0]['text']))
+        plain = broker.call('maipa_books_report', {'book_id': self.book['id'], 'from': start, 'to': end})
+        self.assertNotIn('comparison', json.loads(plain['content'][0]['text']))
+        self.assertTrue(broker.call('maipa_books_report', {'book_id': self.book['id'], 'from': start, 'to': end, 'compare_from': start})['isError'])
+
     def test_dismissed_component_and_revoked_original_session_authority_prevent_agent_mutation(self):
         broker, account, lease = self.broker()
         self.assertFalse(broker.call('maipa_books_read', {'book_id': self.book['id']}).get('isError', False))

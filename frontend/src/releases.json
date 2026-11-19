@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-56",
+    "label": "Development update 56",
+    "cards": [
+      {
+        "title": "Compare two periods",
+        "description": "Ask Maipa how one period compares with another, for example March against February. It reads both periods from your posted entries and reports the exact change in income, expenses, profit and balances."
+      }
+    ]
+  },
+  {
     "id": "development-55",
     "label": "Development update 55",
     "cards": [
@@ -274,20 +284,6 @@
       {
         "title": "Keep control of shared edits",
         "description": "Conflicting edits keep your unsent input for review. A brief notice marks confirmed Maipa edits, and reloading restores saved input without replaying that notice."
-      }
-    ]
-  },
-  {
-    "id": "development-36",
-    "label": "Development update 36",
-    "cards": [
-      {
-        "title": "Understand a failed reply",
-        "description": "Chat can show the provider-reported failure category and reset time in Connection details. Unconfirmed causes stay unconfirmed, and raw provider error text stays private."
-      },
-      {
-        "title": "Keep your draft during a usage limit",
-        "description": "A reported future reset pauses new sends for that account. Your draft remains editable, status survives login, and no reply is retried automatically."
       }
     ]
   }
