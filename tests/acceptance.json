@@ -7487,6 +7487,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B02-RESETTLE",
+      "risk": "A statement line stays settled by an entry that was reversed, or a processor payout cannot be recorded without splitting or misstating it.",
+      "scenarios": [
+        {
+          "id": "B02-RESETTLE.1",
+          "kind": "negative",
+          "given": "A rent line booked to the wrong expense account, posted and then reversed",
+          "when": "Read the line, try to cite it again or match it to the reversed entry, then post a corrected manual entry and match the line to it",
+          "then": "The line is pending again; citing it again and matching the reversed entry are refused with their exact codes; the corrected entry is offered as a candidate, the match is approved, the line is posted by match, the wrong account nets to zero and the integrity check passes.",
+          "tests": [
+            "tests.test_resettle_and_clearing.ResettleAndClearingTests.test_a_line_whose_own_entry_was_reversed_is_pending_again_and_is_settled_by_matching_a_corrected_entry"
+          ]
+        },
+        {
+          "id": "B02-RESETTLE.2",
+          "kind": "negative",
+          "given": "A posted transfer entry settling a checking line and, by match, a savings line; the entry is then reversed",
+          "when": "Read both lines, post one new transfer entry and match both lines to it, then match one again",
+          "then": "Both lines are pending again and offered as a transfer pair; one new entry settles both by match; a repeated match is refused; savings and checking end at 500.0000 each way; the integrity check passes.",
+          "tests": [
+            "tests.test_resettle_and_clearing.ResettleAndClearingTests.test_a_reversed_transfer_frees_both_lines_and_one_new_entry_settles_both"
+          ]
+        },
+        {
+          "id": "B02-RESETTLE.3",
+          "kind": "positive",
+          "given": "A 970.00 processor payout line on a checking statement: 1,000.00 of sales less 30.00 of fees",
+          "when": "Propose entries putting the gross in the bank, taking the fees off twice, or missing the bank; then the single net-plus-fees entry",
+          "then": "Each wrong entry is refused as not moving the bank account by the line amount and nothing is saved; the entry debiting the bank 970.00 and fees 30.00 against 1,000.00 of sales is accepted and posted, with income 1000.0000, expenses 30.0000 and the bank up 970.0000.",
+          "tests": [
+            "tests.test_resettle_and_clearing.ResettleAndClearingTests.test_a_processor_payout_is_one_entry_for_gross_sales_and_fees_and_must_put_the_net_in_the_bank"
+          ]
+        }
+      ]
     }
   ]
 }

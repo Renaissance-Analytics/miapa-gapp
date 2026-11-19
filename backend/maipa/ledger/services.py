@@ -248,8 +248,10 @@ def propose_journal(user, book_id, value, _kind=None):
         row = SourceRow.objects.filter(pk=row_id, source_import__book=book).select_related('source_import').first()
         require(row is not None, 'import_row_not_found')
         require(row.date == dated, 'import_date_mismatch')
-        require(abs(row.amount_units) == debit, 'import_amount_mismatch')
         bank = row.source_import.account_id
+        # Without a bank account the entry's total must be the line amount. With one, the bank account's own
+        # movement must be the line amount, so a payout can carry its gross sale and fees in the same entry.
+        require(bank is not None or abs(row.amount_units) == debit, 'import_amount_mismatch')
         if bank is not None:
             # Money in debits the statement's bank account; money out credits it; never both.
             moved_in = sum(left for account, _, left, _ in lines if account.pk == bank)
@@ -259,7 +261,8 @@ def propose_journal(user, book_id, value, _kind=None):
     require(not book.journals.filter(source_kind=value['source']['kind'], source_reference=reference).exists(),
             'ledger_source_exists')
     # A line already settled by a match cannot also get an entry of its own.
-    require(value['source']['kind'] != 'csv' or not SourceRowMatch.objects.filter(row_id=row_id).exists(), 'ledger_source_exists')
+    require(value['source']['kind'] != 'csv' or (str(row_id) not in _settled(book) and str(row_id) not in _duplicates(book)),
+            'ledger_source_exists')
     payload = {'book_id': str(book.pk), 'entity_id': str(book.entity_id), 'currency': book.currency,
                'date': value['date'], 'description': description, 'source': value['source'],
                'evidence': value['evidence'], 'lines': [{'account_id': str(a.pk), 'debit': money(d),
@@ -410,11 +413,19 @@ def _moves(lines, account_id, amount_units):
     return (moved_in, moved_out) == ((amount_units, 0) if amount_units > 0 else (0, -amount_units))
 
 
+def _reversed(book):
+    """Entries undone by a posted reversal: they no longer settle a statement line."""
+    return set(book.journals.filter(source_kind='reversal', state='posted').values_list('source_reference', flat=True))
+
+
 def _settled(book):
-    """Each settled line's entry: the entry it produced, or the entry it was matched to."""
-    cited = {journal.source_reference: (journal, 'entry') for journal in book.journals.filter(source_kind='csv')}
-    for match in SourceRowMatch.objects.filter(journal__book=book).select_related('journal'):
-        cited[str(match.row_id)] = (match.journal, 'match')
+    """Each settled line's entry: the entry it produced, or the entry it was matched to. Reversed entries settle nothing."""
+    undone = _reversed(book)
+    cited = {journal.source_reference: (journal, 'entry') for journal in book.journals.filter(source_kind='csv')
+             if str(journal.pk) not in undone}
+    for match in SourceRowMatch.objects.filter(journal__book=book).select_related('journal').order_by('created_at'):
+        if str(match.journal_id) not in undone:
+            cited[str(match.row_id)] = (match.journal, 'match')
     return cited
 
 
@@ -467,7 +478,7 @@ def mark_duplicate(user, book_id, value):
 def _taken(book, journal):
     """Bank accounts of this entry already accounted for by a statement line."""
     taken = set()
-    if journal.source_kind == 'csv':
+    if journal.source_kind == 'csv' and str(journal.pk) not in _reversed(book):
         source = SourceRow.objects.filter(pk=journal.source_reference, source_import__book=book).select_related('source_import').first()
         if source is not None and source.source_import.account_id:
             taken.add(source.source_import.account_id)
@@ -488,6 +499,7 @@ def match_check(book, row_id, journal_id):
     except (LedgerError, ValueError):
         journal = None
     require(journal is not None and journal.source_kind != 'reversal', 'ledger_not_found')
+    require(str(journal.pk) not in _reversed(book), 'match_entry_reversed')
     require(str(row.pk) not in _settled(book) and str(row.pk) not in _duplicates(book), 'match_row_not_pending')
     bank = row.source_import.account_id
     require(bank is not None, 'match_account_required')
@@ -548,8 +560,9 @@ def match_candidates(user, book_id):
                               'days_apart': abs((best.date - out.date).days)})
     paired = {item[key] for item in transfers for key in ('out_row_id', 'in_row_id')}
     entries = []
+    undone = _reversed(book)
     journals = [(journal, list(journal.lines.all()), _taken(book, journal))
-                for journal in book.journals.exclude(source_kind='reversal').order_by('sequence')[:2000]]
+                for journal in book.journals.exclude(source_kind='reversal').order_by('sequence')[:2000] if str(journal.pk) not in undone]
     for row in pending:
         if str(row.pk) in paired:
             continue
