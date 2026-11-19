@@ -7260,6 +7260,26 @@
       "decision": "aligned",
       "reason": "Reviewed against the test body: exact lines, states, source link, balances and refusals asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-REPLY-TEXT.1",
+      "test": "tests.test_reply_chunks.ReplyChunkTests.test_text_after_tool_use_starts_a_new_paragraph_and_tool_content_is_never_shown",
+      "scenario_sha256": "57699703373dcaad2470861e24d1b85c6475482b24e7fe9406320b97c10ded2e",
+      "source_sha256": "ae4d93db6911fff27c8dde2e5be4e5ff45e3c231972392fc9ea261052bee22fe",
+      "expected_observation": "Start the later text as a new paragraph, never include the tool content, and add no fields to the stored message.",
+      "decision": "aligned",
+      "reason": "Asserts the exact joined reply text and the exact set of message fields.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-REPLY-TEXT.2",
+      "test": "tests.test_reply_chunks.ReplyChunkTests.test_no_separator_is_added_at_the_start_or_between_plain_text_chunks",
+      "scenario_sha256": "e79b08db0f0415fadc0706a6a7f61ac774e4d20c5cdd2a6496490b234569df4e",
+      "source_sha256": "ae4d93db6911fff27c8dde2e5be4e5ff45e3c231972392fc9ea261052bee22fe",
+      "expected_observation": "Add no separator at the start, between plain chunks, or where the text already begins a new paragraph.",
+      "decision": "aligned",
+      "reason": "Asserts the exact joined reply text and the exact set of message fields.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

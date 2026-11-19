@@ -102,3 +102,12 @@ test('setup steps explain every step, show recorded answers and reject malformed
   }
   assert.deepEqual(await readOnboarding(async () => new Response(JSON.stringify({ ...fixture, messages: [{ role: 'agent', text: 'Morgan' }] }))).then(r => r.state), 'ready');
 });
+
+test('a saved setup says it is saved and shows a readable reporting basis', async () => {
+  const done = (await readOnboarding(async () => new Response(JSON.stringify({ ...fixture, step: 'complete', draft: { ...fixture.draft, reporting_basis: 'cash' } })))).value;
+  const items = Object.fromEntries(setupStepItems(done).map(item => [item.id, item.description]));
+  assert.equal(items.review, 'You confirmed this setup and it is saved.');
+  assert.equal(items.reporting_basis, 'Cash');
+  const reviewing = (await readOnboarding(async () => new Response(JSON.stringify(fixture)))).value;
+  assert.equal(Object.fromEntries(setupStepItems(reviewing).map(item => [item.id, item.description])).review, 'Why review');
+});
