@@ -89,6 +89,15 @@ def imports(request, book_id):
 
 
 @endpoint
+def integrity(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if request.GET:
+        return error('invalid_ledger_request', 400)
+    return JsonResponse(services.verify_book(request.user, str(book_id)))
+
+
+@endpoint
 def report(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')
