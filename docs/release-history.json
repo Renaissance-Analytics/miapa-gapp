@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-54",
+    "label": "Development update 54",
+    "cards": [
+      {
+        "title": "Close a finished month",
+        "description": "Ask Maipa to close your books through a date. After you approve, nothing can be added, posted or reversed on or before that date, so finished months stay as they are. Maipa can ask to reopen them if you need to, again with your approval. Bookkeeping shows the current close date."
+      }
+    ]
+  },
+  {
     "id": "development-53",
     "label": "Development update 53",
     "cards": [

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-74",
+    "label": "Development update 74",
+    "cards": [
+      {
+        "title": "Update cards are a slim banner",
+        "description": "The update card is now a wide, short banner in line with the conversation, so it takes much less room until you dismiss it."
+      }
+    ]
+  },
+  {
     "id": "development-73",
     "label": "Development update 73",
     "cards": [
@@ -198,16 +208,6 @@
       {
         "title": "Income statement and balance sheet",
         "description": "Bookkeeping now shows an income statement and a balance sheet built from your posted entries. Ask Maipa for any date range, for example your profit in March; it reads exact figures from your books instead of estimating them."
-      }
-    ]
-  },
-  {
-    "id": "development-54",
-    "label": "Development update 54",
-    "cards": [
-      {
-        "title": "Close a finished month",
-        "description": "Ask Maipa to close your books through a date. After you approve, nothing can be added, posted or reversed on or before that date, so finished months stay as they are. Maipa can ask to reopen them if you need to, again with your approval. Bookkeeping shows the current close date."
       }
     ]
   }

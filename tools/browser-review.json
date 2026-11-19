@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "36ac9de28fb4d50cabb5d0e98ff194ff8198cd5b462703e7968f9b718a31052b",
+    "tools/browser.mjs": "63baaa4c16319cd7d85dcec71919ba8c344a05f0088a6f449ef27a70ef021c39",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "a0101b72c3262ee8f75dd145567e5c5dd274252959ec6fac3b5eefb292cb7c23"
@@ -378,5 +378,6 @@
   "import_bank_account_review": "The own-books-statement-import case gains three assertions: exactly one account is marked bank or cash, the upload panel preselects it, and every imported row reports that account. No action, prior assertion or deadline changed.",
   "reconciliation_review": "The finite peer exact startup catalog adds the read-only maipa_books_reconcile tool. No browser action, assertion or deadline changed.",
   "statement_views_review": "One added case after the unchanged ledger views case. The finite peer gains one handler that presents two read-only statement components. No prior action, assertion or deadline changed; progress maximum 53 -> 54.",
-  "release_notes_placement_review": "The fancy-release-controls case gains assertions: the notice is inside the in-flow strip, no ancestor is fixed, absolute or sticky, it overlaps no header button and no sign-in control, the strip has height while shown and zero height once dismissed. No action, prior assertion or deadline changed."
+  "release_notes_placement_review": "The fancy-release-controls case gains assertions: the notice is inside the in-flow strip, no ancestor is fixed, absolute or sticky, it overlaps no header button and no sign-in control, the strip has height while shown and zero height once dismissed. No action, prior assertion or deadline changed.",
+  "release_banner_review": "The fancy-release-controls case additionally requires the notice to be a wide banner (at least 600 px or the strip width less 40) and the strip to be at most 220 px tall; measured 280 px with a 280 px wide card before this change. No action, prior assertion or deadline changed."
 }
