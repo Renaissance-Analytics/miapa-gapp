@@ -254,7 +254,7 @@ def _tools():
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':
-        'Read a text file the person attached in chat, by the attachment_id given in their message: name, size, line count and a '
+        'Read a file the person attached in chat, by the attachment_id given in their message: name, size, line count and a '
         'preview of the first 4000 characters. To import an attached bank statement, request statement.import with payload '
         '{book_id, attachment_id}; the exact file is bound to the request.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['attachment_id'],

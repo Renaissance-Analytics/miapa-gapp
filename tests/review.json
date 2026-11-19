@@ -7630,6 +7630,66 @@
       "decision": "aligned",
       "reason": "Exact account references, refusal codes, saved states and record counts asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.1",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_a_statement_workbook_converts_to_exactly_the_equivalent_csv",
+      "scenario_sha256": "dd934f1d4a2d5d69f449df06663646316b12b90dbd8aa3a1fe9dce1f1a1585b8",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "The CSV is exactly the equivalent rows: amounts unrounded, numeric reference as digits, text trimmed and quoted correctly, the blank row skipped; three-column workbooks keep three columns.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.2",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_unreadable_oversized_multi_sheet_and_malformed_workbooks_are_refused_naming_the_problem",
+      "scenario_sha256": "202af66ba2f2059ff7e174c4dbc4d95aafaacf40f4f583a5f006a50d8aae7d17",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "Each is refused with the exact code for its problem, naming the row number for a bad row.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.3",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_an_attached_workbook_is_kept_exactly_and_read_back_as_its_converted_rows",
+      "scenario_sha256": "78365411c7eaa787e5ede536b6de4c140bcec81b7e38c73d0797c7c91c1a2903",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "The workbook is kept byte for byte with its exact size and hash, its converted rows are the content and the reading says it was converted from xlsx; the CSV keeps no original and is not marked converted.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.4",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_bad_names_encodings_sizes_and_viewers_cannot_store_a_workbook",
+      "scenario_sha256": "74979bdd987b2b9e5ba0416e7d07e30ed63fe0d1c60273c4c271eb822cbe223e",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "Every one is refused, the bad row by its exact code; nothing is stored.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.5",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_an_approved_import_of_an_attached_workbook_saves_the_same_rows_as_the_csv_would",
+      "scenario_sha256": "b5cab1d775d25402a4eafe39c74fca0cab16360225d73848e1ec2ca57bc09707",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "The request shows the converted rows and imports nothing; approval saves exactly the same three rows, amounts and references the CSV would.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-XLSX.6",
+      "test": "tests.test_spreadsheet_statements.SpreadsheetStatementTests.test_http_upload_accepts_a_workbook_for_the_bound_owner_and_reports_the_exact_refusal",
+      "scenario_sha256": "13b5b86bb9c4c5667ca666b13d4e9e2031e2fa30c657d676ccce7bd73b050fc9",
+      "source_sha256": "50789b442e50c197726f2c99b911e565b83fd3d64003cbcf3c20b2db4d6f9fbd",
+      "expected_observation": "201 with the exact size, line count and only the documented fields; then 400 with the workbook-sheets code and nothing more stored.",
+      "decision": "aligned",
+      "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

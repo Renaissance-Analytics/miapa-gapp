@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ChatDrafts, attachmentNote, emptyDraft, sendProblem, sendableAttachment } from '../.test-build/chat-drafts.js';
+import { ChatDrafts, attachmentNote, emptyDraft, isWorkbook, sendProblem, sendableAttachment } from '../.test-build/chat-drafts.js';
 
 test('complete drafts and attachment references restore under only their original account', () => {
   const drafts = new ChatDrafts();
@@ -45,4 +45,15 @@ test('only picked CSV files within the size limit can be sent, and the note name
     assert.match(sendProblem('Import this', [bad]), /Remove them/);
   assert.match(sendProblem('Import this', [csv, csv, csv, csv]), /at most 3/);
   assert.equal(attachmentNote([{ id: 'ID1', name: 'march.csv', size: 177, lines: 4 }]), '[Attached file: march.csv — attachment_id ID1, 177 bytes, 4 lines]');
+});
+
+test('a picked Excel statement can be sent as bytes; other spreadsheet formats and unreadable picks cannot', () => {
+  const file = { text: async () => '', arrayBuffer: async () => new ArrayBuffer(8) };
+  const book = { id: 'b', name: 'March statement.XLSX', bytes: 9000, file };
+  assert.equal(sendableAttachment(book), true);
+  assert.equal(sendProblem('Import this', [book, { id: 'a', name: 'march.csv', bytes: 100, file }]), null);
+  assert.equal(isWorkbook(book.name), true); assert.equal(isWorkbook('march.csv'), false);
+  for (const bad of [{ ...book, name: 'march.xls' }, { ...book, name: 'march.xlsm' }, { ...book, name: 'march.ods' }, { ...book, bytes: 524289 },
+    { ...book, file: { text: async () => '' } }, { ...book, name: 'a/march.xlsx' }])
+    assert.match(sendProblem('Import this', [bad]), /Only CSV or Excel \(\.xlsx\) files up to 512 KB/);
 });

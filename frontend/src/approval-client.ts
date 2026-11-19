@@ -59,6 +59,33 @@ export async function uploadAttachment(user: string, name: string, content: stri
       || v.size !== new TextEncoder().encode(content).length || !Number.isSafeInteger(v.lines)) throw unavailable();
   return v as unknown as SavedAttachment;
 }
+/** Why the server refused a workbook, in words the person can act on. */
+export function workbookProblem(code: unknown): string {
+  const row = typeof code === 'string' ? /^import_row_([0-9]{1,4})_invalid$/.exec(code) : null;
+  if (row) return `Row ${row[1]} of that spreadsheet is not a valid statement row. Each row needs a date as YYYY-MM-DD, a description and an amount with at most four decimals. Your message and file were kept.`;
+  if (code === 'import_header_invalid') return 'The first row of that spreadsheet must be the headings date, description, amount and, optionally, reference. Your message and file were kept.';
+  if (code === 'import_workbook_sheets') return 'That workbook has more than one sheet. Save the statement as a workbook with a single sheet and attach it again. Your message and file were kept.';
+  if (code === 'import_row_count_invalid') return 'That spreadsheet has no statement rows, or more than 1,000. Your message and file were kept.';
+  return 'Maipa could not read that Excel file. Your message and file were kept; check that it is an .xlsx statement up to 512 KB and try again.';
+}
+/** Send an Excel statement as its exact bytes. The acknowledgment must name this file and its exact size. */
+export async function uploadWorkbook(user: string, name: string, bytes: Uint8Array, signal: AbortSignal, fetcher: typeof fetch = fetch): Promise<SavedAttachment> {
+  if (!/^[0-9]+$/.test(user) || signal.aborted || !bytes.length || bytes.length > 524_288) throw unavailable();
+  let binary = '';
+  for (let start = 0; start < bytes.length; start += 0x8000) binary += String.fromCharCode(...bytes.subarray(start, start + 0x8000));
+  const response = await fetcher('/api/agent/attachments/', { method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+    headers: { 'X-Maipa-Agent-Actor': user, 'Content-Type': 'application/json', 'X-CSRFToken': await csrfToken(fetcher) },
+    signal: AbortSignal.any([signal, AbortSignal.timeout(20000)]), body: JSON.stringify({ name, content_base64: btoa(binary) }) });
+  if (response.status !== 201) {
+    let code: unknown;
+    try { const refused: unknown = await response.json(); code = object(refused) && object(refused.error) ? refused.error.code : undefined; } catch { code = undefined; }
+    throw Error(workbookProblem(code));
+  }
+  const v: unknown = await response.json();
+  if (!object(v) || !exact(v, ['id', 'name', 'size', 'sha256', 'lines', 'created_at']) || !uuid(v.id) || v.name !== name || !hash(v.sha256)
+      || v.size !== bytes.length || !Number.isSafeInteger(v.lines)) throw unavailable();
+  return v as unknown as SavedAttachment;
+}
 /** Decide one request. The acknowledgment must be this request, decided, with the reviewed hash. */
 export async function decideApproval(user: string, item: ApprovalRequest, decision: 'approve' | 'reject', signal: AbortSignal, fetcher: typeof fetch = fetch) {
   if (item.state !== 'pending') throw unavailable();

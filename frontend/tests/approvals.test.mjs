@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ChatMessage } from '@particle-academy/react-fancy';
-import { approvalContent, approvalGroups, decisionMessage, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals, uploadAttachment } from '../.test-build/approval-client.js';
+import { approvalContent, approvalGroups, decisionMessage, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals, uploadAttachment, uploadWorkbook, workbookProblem } from '../.test-build/approval-client.js';
 
 const id = n => `12345678-1234-4234-8234-${String(n).padStart(12, '0')}`;
 const post = { id: id(1), operation: 'journal.post', summary: 'Post office purchase 42.17', payload: { book_id: id(2), journal_id: id(3), payload_hash: 'a'.repeat(64) },
@@ -151,4 +151,29 @@ test('a statement import card names the bank account the statement is from when 
   assert.equal(parseApprovalList({ actor_id: '1', pending: [load], recent: [] }, '1').pending[0].operation, 'statement.import');
   assert.match(approvalContent(load), /march\.csv · 120 bytes into Sample Co LLC books, as a statement of 1000 Checking\. Rows become pending transactions; no entries are posted\./);
   assert.match(approvalContent({ ...load, detail: { ...load.detail, account: null } }), /120 bytes into Sample Co LLC books\. Rows become pending/);
+});
+
+test('an Excel statement is sent as its exact bytes and a refusal says what to fix', async () => {
+  const bytes = new Uint8Array([80, 75, 3, 4, 0, 255, 128, 10]);
+  const saved = { id: id(7), name: 'march.xlsx', size: bytes.length, sha256: 'e'.repeat(64), lines: 3, created_at: '2026-11-19T00:00:00+00:00' };
+  const calls = [];
+  const fetcher = (reply, status = 201) => async (url, options) => { calls.push({ url, options }); return Response.json(url === '/api/session/csrf/' ? token : reply, { status: url === '/api/session/csrf/' ? 200 : status }); };
+  const signal = new AbortController().signal;
+  assert.deepEqual(await uploadWorkbook('1', 'march.xlsx', bytes, signal, fetcher(saved)), saved);
+  assert.deepEqual(JSON.parse(calls[1].options.body), { name: 'march.xlsx', content_base64: 'UEsDBAD/gAo=' });
+  assert.equal(calls[1].options.headers['X-Maipa-Agent-Actor'], '1');
+  for (const reply of [{ ...saved, name: 'other.xlsx' }, { ...saved, size: 1 }, { ...saved, rows: [] }])
+    await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', bytes, signal, fetcher(reply)));
+  const sent = calls.length;
+  await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', new Uint8Array(0), signal, fetcher(saved)));
+  await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', new Uint8Array(524_289), signal, fetcher(saved)));
+  assert.equal(calls.length, sent);
+  await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', bytes, signal, fetcher({ error: { code: 'import_row_7_invalid' } }, 400)), /Row 7 of that spreadsheet is not a valid statement row/);
+  await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', bytes, signal, fetcher({ error: { code: 'import_workbook_sheets' } }, 400)), /more than one sheet/);
+  assert.match(workbookProblem('import_header_invalid'), /headings date, description, amount/);
+  assert.match(workbookProblem('import_row_count_invalid'), /no statement rows, or more than 1,000/);
+  for (const code of ['import_workbook_invalid', 'import_row_x_invalid', undefined, { code: 1 }]) assert.match(workbookProblem(code), /could not read that Excel file/);
+  const large = new Uint8Array(100_000).fill(65);
+  await uploadWorkbook('1', 'big.xlsx', large, signal, fetcher({ ...saved, name: 'big.xlsx', size: large.length }));
+  assert.equal(JSON.parse(calls.at(-1).options.body).content_base64.length, Math.ceil(large.length / 3) * 4);
 });
