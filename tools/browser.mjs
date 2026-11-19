@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 50 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 51 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1467,6 +1467,13 @@ try {
   assert.equal(afterRepeat.book.journals.length,journalsBeforeImport);
   assert.equal(await evaluate("document.querySelectorAll('[data-source-row]').length"),2);
   record('own-books-statement-import');
+  // Financial statements shown in the panel equal the real report for the book period and balance.
+  const statements=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();const b=${JSON.stringify(bookId)};const book=(await(await fetch('/api/books/'+b+'/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).book;return (await fetch('/api/books/'+b+'/report/?from='+book.period_start+'&to='+book.period_end,{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  assert.equal(statements.income_statement.net_income,'-42.1700');assert.equal(statements.income_statement.total_expenses,'42.1700');
+  assert.equal(statements.balance_sheet.total_assets,'-42.1700');assert.equal(statements.balance_sheet.total_assets,statements.balance_sheet.total_liabilities_and_equity);
+  await until(()=>evaluate("document.querySelector('[aria-label=\"Financial statements\"]')?.dataset.reportNet==='-42.1700'"),'financial statements shown');
+  assert.equal(await evaluate("document.querySelector('[aria-label=\"Income statement\"]').textContent.includes('−42.17')&&document.querySelector('[aria-label=\"Balance sheet\"]').textContent.includes('Total liabilities and equity')"),true);
+  record('own-books-financial-statements');
   await click('Close contextual panel');
   assert.equal(await evaluate("document.getElementById('maipa-chat-message').value"),'Unsent bookkeeping follow-up Ω');
   record('own-books-review-post-and-trial-balance');

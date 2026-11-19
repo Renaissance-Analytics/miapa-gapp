@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "21236e848e6b8083bc78634fd7b9ede643a7588303bb3ac7299cf8f77a97a960",
+    "tools/browser.mjs": "ff62bc2e9b0481e3326efac32caa592d70bc24c3ec7c60a7bb3f7fc8f0efa2a6",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "bb8376f8fa052f59ee50c595812445f003327b214d062188830ec81880d8adf4"
@@ -210,6 +210,11 @@
       "expected": "After posting, a synthetic two-row CSV chosen through the real Fancy FileUpload input imports exactly: the server lists both rows pending with exact four-decimal signed amounts and references, the panel shows 2 rows needing entries, and importing the same file again reports already imported, adds no rows and creates no journal."
     },
     {
+      "id": "own-books-financial-statements",
+      "kind": "positive",
+      "expected": "After the 42.17 office purchase is posted, the real report API for the book period returns net income -42.1700, expenses 42.1700 and a balance sheet whose assets equal liabilities and equity; the Bookkeeping panel shows the same net and both statement tables."
+    },
+    {
       "id": "own-books-review-post-and-trial-balance",
       "kind": "positive",
       "expected": "Real header/component creates owned business books, prepares42.17 office debit/checking credit through native controls, confirms pending totals remain zero, posts the exact visible hash, reloads and verifies persistent42.1700 trial balances. Original unsent chat draft survives dismissal."
@@ -350,5 +355,6 @@
   "agent_approval_continue_review": "The existing approval case additionally waits for the real chat API to show the decision note as the last user message and a completed assistant reply. The finite peer answers that note without changing UI. No other action, assertion or deadline changed.",
   "chat_attachment_review": "The finite peer exact startup catalog adds the read-only maipa_attachment_read tool. No browser action, assertion or deadline changed: the existing unsupported .txt attachment case still requires the explicit \"Remove them\" refusal because only CSV files are deliverable.",
   "setup_open_race_review": "Intermittent setup_chat/setup_resume \"saved setup prompt\" timeouts: the app auto-opens Account setup when saved setup loads, and the helper checked aria-expanded then clicked, so a click landing just after the auto-open closed the panel. openAccountSetup now requires the panel to end up expanded, clicking again if not, under the same 150x100ms until budget. No assertion, case or deadline changed.",
-  "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed."
+  "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed.",
+  "financial_statements_browser_review": "One added case between the unchanged statement-import and own-books cases. It reads the real owner-bound report API and compares it with the rendered section. No prior action, assertion or deadline changed; progress maximum 50 -> 51."
 }

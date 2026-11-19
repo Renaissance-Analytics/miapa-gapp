@@ -56,6 +56,7 @@ BROWSER_CASES = (
     'intake-history-and-conflicts',
     'client-authority-and-revocation',
     'own-books-statement-import',
+    'own-books-financial-statements',
     'own-books-review-post-and-trial-balance',
     'agent-request-human-approval',
     'logout-and-viewer-denial',
