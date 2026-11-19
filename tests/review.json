@@ -7880,6 +7880,66 @@
       "decision": "aligned",
       "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.1",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_candidates_pair_each_repeated_line_with_one_earlier_line_and_leave_new_lines_alone",
+      "scenario_sha256": "b082336394a5f69c5b938fbb8e449cb4a9b5da88447c64a58258cc87b189b0eb",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "Each repeated line is paired with exactly one earlier line; the second identical fee and the new line are not offered; no transfer or entry candidates.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.2",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_approved_duplicate_settles_the_line_without_an_entry_and_keeps_it_out_of_further_work",
+      "scenario_sha256": "b9099bbabbfd326d4667bc355fcecf30e32a7c230e243826d089d68bc3799012",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "The request shows both lines and changes nothing; approval marks the line as a duplicate naming the original with one recorded event and no entry; the line can no longer get an entry or appear as a candidate; the integrity check passes; a repeated approval changes nothing.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.3",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_lines_that_are_not_the_same_movement_are_refused_and_nothing_is_recorded",
+      "scenario_sha256": "8dd5c2a014d9bb0158611cc0e03b1dbb25901a4c8979a482546419331499c775",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "Each is refused with its exact code; no request and no mark is recorded.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.4",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_a_duplicate_cannot_be_repeated_chained_or_used_once_the_line_has_an_entry",
+      "scenario_sha256": "aaeba3122696ce9f461b1d1e60c7927b3ad9067675ab7c1c60617b31e440648a",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "The second approval fails as no longer pending; the chained mark and the line with an entry are refused; one mark exists.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.5",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_the_integrity_check_finds_a_duplicate_mark_that_no_longer_fits",
+      "scenario_sha256": "b698c29fa87d9996d5881d300502660ea93240423ea78fdd3a5000697cea9a25",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "The check passes before and reports an invalid row match afterwards.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-DUPLICATES.6",
+      "test": "tests.test_duplicate_lines.DuplicateLineTests.test_the_agent_imports_tool_lists_duplicate_candidates",
+      "scenario_sha256": "4deb0ce7284d9df1078ea47e4e15c7880c97616bfce24f876773c919d2b714e5",
+      "source_sha256": "416d21b450bf8ba869356eb8a3157bf8bec0cfdd860d95d1b18289cf852c50c6",
+      "expected_observation": "It lists the same two duplicate candidates as the service and every row reports no duplicate mark yet.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, row states, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

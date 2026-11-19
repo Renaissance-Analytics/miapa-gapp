@@ -97,6 +97,12 @@ def _check_match(user, payload):
     ledger.match_check(book, payload['row_id'], payload['journal_id'])
 
 
+def _check_duplicate(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.duplicate_check(book, payload['row_id'], payload['of_row_id'])
+
+
 def _check_opening(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -147,6 +153,9 @@ OPERATIONS = {
     'statement.match': (('book_id', 'row_id', 'journal_id'), _check_match,
         lambda user, p: ledger.match_row(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                          'row_id': p['row_id'], 'journal_id': p['journal_id']})),
+    'statement.duplicate': (('book_id', 'row_id', 'of_row_id'), _check_duplicate,
+        lambda user, p: ledger.mark_duplicate(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                              'row_id': p['row_id'], 'of_row_id': p['of_row_id']})),
     'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
         lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
             {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
@@ -188,6 +197,18 @@ def _detail(row):
             return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
                     'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
                     'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
+        if row.operation == 'statement.duplicate':
+            from backend.maipa.ledger.models import SourceRow
+            pair = {str(item.pk): item for item in SourceRow.objects.select_related('source_import__account', 'source_import__book__entity').filter(
+                pk__in=(row.payload['row_id'], row.payload['of_row_id']), source_import__book_id=row.payload['book_id'])}
+            line, original = pair[row.payload['row_id']], pair[row.payload['of_row_id']]
+            book, bank = line.source_import.book, line.source_import.account
+
+            def shown(item):
+                return {'statement': item.source_import.filename, 'date': item.date.isoformat(), 'description': item.description,
+                        'amount': ledger.money(item.amount_units)}
+            return {'books': book.entity.name, 'currency': book.currency, 'account': f'{bank.code} {bank.name}' if bank else None,
+                    'row': shown(line), 'of': shown(original)}
         if row.operation == 'statement.match':
             from backend.maipa.ledger.models import Journal, SourceRow
             line = SourceRow.objects.select_related('source_import__account', 'source_import__book__entity').get(

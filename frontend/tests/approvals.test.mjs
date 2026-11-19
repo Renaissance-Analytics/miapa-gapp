@@ -241,3 +241,18 @@ test('a match card shows the statement line, the entry and its lines, and says n
   assert.match(approvalContent({ ...match, detail: null }), /can no longer be found\. Approving will fail/);
   assert.equal(approvalMessage(match).proposal.title, 'Match a statement line to an entry');
 });
+
+test('a duplicate card shows both lines side by side and how to refuse a false duplicate', () => {
+  const repeat = { ...single, operation: 'statement.duplicate', summary: 'Mark the repeated client payment', payload: { book_id: id(2), row_id: id(3), of_row_id: id(4) },
+    detail: { books: 'Sample Co LLC', currency: 'USD', account: '1000 Checking',
+      row: { statement: 'late-march.csv', date: '2026-03-30', description: 'CLIENT PAYMENT', amount: '1250.5000' },
+      of: { statement: 'march.csv', date: '2026-03-30', description: 'Client payment', amount: '1250.5000' } } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [repeat], recent: [] }, '1').pending[0].operation, 'statement.duplicate');
+  const content = approvalContent(repeat);
+  assert.match(content, /1000 Checking · USD/);
+  assert.match(content, /\| This line \| late-march\.csv \| 2026-03-30 \| CLIENT PAYMENT \| 1250\.5000 \|/);
+  assert.match(content, /\| Repeats \| march\.csv \| 2026-03-30 \| Client payment \| 1250\.5000 \|/);
+  assert.match(content, /settled as a repeat and gets no entry, so the movement is counted once\. If these were two separate transactions, reject this\./);
+  assert.match(approvalContent({ ...repeat, detail: null }), /can no longer be found\. Approving will fail/);
+  assert.equal(approvalMessage(repeat).proposal.title, 'Mark a repeated statement line');
+});

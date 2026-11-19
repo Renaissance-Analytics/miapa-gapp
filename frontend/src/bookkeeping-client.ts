@@ -10,7 +10,7 @@ export interface BookCatalog {actor_id:string;entities:{id:string;name:string;cl
 export interface LedgerSnapshot {actor_id:string;book:LedgerBook;report:LedgerReport}
 export interface ActivityRow {journal_id:string;sequence:number;date:string;description:string;source:{kind:string;reference:string};debit:string;credit:string}
 export interface AccountActivity {book_id:string;currency:string;revision:number;account:LedgerAccount;normal_side:'debit'|'credit';posted:(ActivityRow&{balance:string})[];pending:ActivityRow[];posted_debit:string;posted_credit:string;balance:string}
-export interface SourceRow {id:string;import_id:string;import_filename:string;row_number:number;date:string;description:string;amount:string;reference:string;account_id:string|null;status:'pending'|'proposed'|'posted';journal_id:string|null;via:'entry'|'match'|null}
+export interface SourceRow {id:string;import_id:string;import_filename:string;row_number:number;date:string;description:string;amount:string;reference:string;account_id:string|null;status:'pending'|'proposed'|'posted'|'duplicate';journal_id:string|null;via:'entry'|'match'|'duplicate'|null;duplicate_of:string|null}
 export interface SourceRows {book_id:string;currency:string;revision:number;rows:SourceRow[]}
 export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;account_id:string|null;opening_balance:string|null;closing_balance:string|null;created:boolean;created_at:string}
 /** Largest statement accepted by the server, in UTF-8 bytes. */
@@ -51,7 +51,9 @@ export function parseAccountActivity(v:unknown,bookId:string,accountId:string):A
 /** Display only: preserve decimal digits; no Number/parseFloat arithmetic. */
 export function displayMoney(value:string){if(!amount(value))throw unavailable();const [whole,fraction]=value.split('.');return whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+'.'+fraction.replace(/0+$/,'').padEnd(2,'0');}
 function sourceRow(v:unknown,bookId:string):v is SourceRow{
- if(!object(v)||!exact(v,['id','import_id','import_filename','row_number','date','description','amount','reference','account_id','status','journal_id','via'])||(v.account_id!==null&&!uuid(v.account_id))||!uuid(v.id)||!uuid(v.import_id)||!string(v.import_filename,128)||!integer(v.row_number)||v.row_number<1||!day(v.date)||!string(v.description)||!signed(v.amount)||v.amount==='0.0000'||typeof v.reference!=='string'||v.reference.length>128||!['pending','proposed','posted'].includes(String(v.status)))return false;
+ if(!object(v)||!exact(v,['id','import_id','import_filename','row_number','date','description','amount','reference','account_id','status','journal_id','via','duplicate_of'])||(v.duplicate_of!==null&&!uuid(v.duplicate_of))||(v.account_id!==null&&!uuid(v.account_id))||!uuid(v.id)||!uuid(v.import_id)||!string(v.import_filename,128)||!integer(v.row_number)||v.row_number<1||!day(v.date)||!string(v.description)||!signed(v.amount)||v.amount==='0.0000'||typeof v.reference!=='string'||v.reference.length>128||!['pending','proposed','posted','duplicate'].includes(String(v.status)))return false;
+ if(v.status==='duplicate')return v.journal_id===null&&v.via==='duplicate'&&uuid(v.duplicate_of)&&v.duplicate_of!==v.id;
+ if(v.duplicate_of!==null)return false;
  return v.status==='pending'?v.journal_id===null&&v.via===null:uuid(v.journal_id)&&(v.via==='entry'||v.via==='match');
 }
 export function parseSourceRows(v:unknown,bookId:string):SourceRows{

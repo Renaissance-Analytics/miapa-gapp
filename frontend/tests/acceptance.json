@@ -1959,6 +1959,16 @@
           "tests": [
             "bookkeeping.test.mjs#statement rows say how they were settled and reject an inconsistent settlement"
           ]
+        },
+        {
+          "id": "L05-BOOKS.row-duplicate",
+          "kind": "negative",
+          "given": "A statement row marked as a repeat of another row, and rows whose repeat mark is missing, malformed, self-referencing or combined with an entry or another state",
+          "when": "Parse the rows",
+          "then": "Accept the repeat naming the other row with no entry; refuse every inconsistent combination and a row without the field.",
+          "tests": [
+            "bookkeeping.test.mjs#a repeated statement line names the line it repeats and has no entry"
+          ]
         }
       ]
     },
@@ -2154,6 +2164,16 @@
           "then": "Show the statement line with its bank account, the entry with its state and lines, and that the line is settled without a second entry and no amounts change; say plainly when approving will fail.",
           "tests": [
             "approvals.test.mjs#a match card shows the statement line, the entry and its lines, and says nothing is booked twice"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.18",
+          "kind": "positive",
+          "given": "A pending request to mark a statement line as a repeat of a line on another statement, and one whose lines are gone",
+          "when": "Build their cards",
+          "then": "Show the bank account and both lines side by side with statement, date, description and amount; say the line gets no entry and to reject if they were two transactions; say plainly when approving will fail.",
+          "tests": [
+            "approvals.test.mjs#a duplicate card shows both lines side by side and how to refuse a false duplicate"
           ]
         }
       ]

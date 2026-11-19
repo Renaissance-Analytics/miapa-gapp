@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-47",
+    "label": "Development update 47",
+    "cards": [
+      {
+        "title": "Remember a model for future connections",
+        "description": "In Agent settings, remember the model your connected provider has confirmed. Your current conversation and unsent message stay in place. The saved choice applies the next time you connect."
+      },
+      {
+        "title": "Choose the provider default again",
+        "description": "Clear a saved model without changing your active connection. If a provider cannot confirm your saved choice, it is kept so you can review it or choose the default before reconnecting."
+      }
+    ]
+  },
+  {
     "id": "development-46",
     "label": "Development update 46",
     "cards": [
