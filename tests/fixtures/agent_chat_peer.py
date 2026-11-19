@@ -199,6 +199,23 @@ for line in sys.stdin:
                     'id': views['views'][-1]['id'], 'action': 'pin'})
             elif 'please continue with what is left' in text:
                 pass  # The person's decision note: reply only, change no UI.
+            elif 'attachment_id ' in text:
+                import re
+                attachment = re.search(r'attachment_id ([0-9a-f-]{36})', text).group(1)
+                seen = callback('maipa_attachment_read', {'attachment_id': attachment})
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                callback('maipa_action_request', {'operation': 'statement.import', 'summary': 'Import ' + seen['name'],
+                    'payload': {'book_id': books['books'][0]['id'], 'attachment_id': attachment}})
+            elif 'reverse the office purchase' in text or 'close the books now' in text:
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                book = json.loads(callback('maipa_books_read', {'book_id': books['books'][0]['id']})['content'][0]['text'])['book']
+                posted = next(j for j in book['journals'] if j['state'] == 'posted' and j['source']['kind'] == 'manual')
+                if 'reverse' in text:
+                    callback('maipa_action_request', {'operation': 'journal.reverse', 'summary': 'Reverse the office purchase',
+                        'payload': {'book_id': book['id'], 'journal_id': posted['id'], 'date': posted['date']}})
+                else:
+                    callback('maipa_action_request', {'operation': 'period.close', 'summary': 'Close through ' + posted['date'],
+                        'payload': {'book_id': book['id'], 'through': posted['date']}})
             elif 'request a new account' in text:
                 books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
                 callback('maipa_action_request', {'operation': 'account.create', 'summary': 'Add account 6300 Synthetic rent',
