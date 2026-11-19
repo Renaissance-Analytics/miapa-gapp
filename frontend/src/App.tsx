@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Popover, initTheme, useTheme } from '@particle-academy/react-fancy';
 import { readSession, themeStorageKey, type SessionState } from './api.js';
-import { BuildUpdates } from './BuildUpdates.js';
+import { BuildUpdates, ReleaseNotes } from './BuildUpdates.js';
 import { updatesStorageKey } from './updates.js';
 import { SignOutButton } from './Authentication.js';
 import { LocalAccess } from './FirstRun.js';
@@ -52,12 +52,13 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
   useEffect(() => {
     if (session.state === 'authenticated') theme.setPreference(preferences.theme);
   }, [session.state, preferences.theme]);
+  const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   return <div className="workspace agent-first" data-preferences-state={preferences.phase} data-layout-state={layout.phase}>
     <header className="app-header">
       <div className="brand"><span className="brand-mark" aria-hidden="true">m</span><h1>Maipa</h1></div>
       <div className="shell-controls">
         {session.state==='authenticated'&&<div className="header-shortcut-host" ref={setHeaderHost}/>}
-        <BuildUpdates key={updatesStorageKey(session)} session={session} />
+        <BuildUpdates key={updatesStorageKey(session)} session={session} onOpen={() => setReleaseNotesOpen(true)} />
         {/* Published Fancy popover: closes on outside click and Escape, so it never hides the work panel. */}
         <div className="account-menu" data-open={accountOpen}>
           <Popover open={accountOpen} onOpenChange={setAccountOpen} placement="bottom-end">
@@ -74,6 +75,7 @@ function WorkspaceSession({ session, refresh }: { session: SessionState; refresh
         </div>
       </div>
     </header>
+    <ReleaseNotes key={updatesStorageKey(session)} session={session} open={releaseNotesOpen} onOpenChange={setReleaseNotesOpen} />
     {session.state === 'authenticated' ? <>
       {(preferences.phase === 'conflict' || preferences.phase === 'unavailable') && <div className="shell-recovery" role="alert">
         Your saved appearance changed or could not be loaded. <Button size="sm" variant="ghost" onClick={() => void preferencesController.current?.load()}>Reload saved preferences</Button>

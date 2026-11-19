@@ -658,8 +658,12 @@ try {
   phase = "release_controls";
   await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), "Fancy release notes");
   assert.ok(await evaluate(`document.body.innerText.includes(${JSON.stringify(fixture.release_label)})`));
+  const noticePlacement=await evaluate("(()=>{const n=document.querySelector('[aria-label=\"What\\'s new in Maipa\"]'),strip=document.querySelector('[data-release-notes]');const r=n.getBoundingClientRect();const hit=s=>[...document.querySelectorAll(s)].some(e=>{const b=e.getBoundingClientRect();return b.width>0&&b.height>0&&!(b.right<=r.left||b.left>=r.right||b.bottom<=r.top||b.top>=r.bottom);});let fixed=false;for(let e=n;e&&e!==document.body;e=e.parentElement)if(['fixed','absolute','sticky'].includes(getComputedStyle(e).position))fixed=true;return {inStrip:!!strip&&strip.contains(n),fixed,header:hit('.app-header button'),form:hit('main form input, main form button'),height:Math.round(strip.getBoundingClientRect().height)};})()");
+  assert.deepEqual([noticePlacement.inStrip,noticePlacement.fixed,noticePlacement.header,noticePlacement.form],[true,false,false,false]);
+  assert.equal(noticePlacement.height>40,true);
   await click("Got it");
   await until(() => evaluate("!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), "release dismissal");
+  assert.equal(await evaluate("Math.round(document.querySelector('[data-release-notes]').getBoundingClientRect().height)"),0);
   await click("What's new");
   await until(() => evaluate("!!document.querySelector('[aria-label=\"What\\'s new in Maipa\"]')"), "reopen release notes");
   await click("Close updates");
