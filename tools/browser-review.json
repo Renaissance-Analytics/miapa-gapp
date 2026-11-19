@@ -6,7 +6,7 @@
     "tools/browser.mjs": "21236e848e6b8083bc78634fd7b9ede643a7588303bb3ac7299cf8f77a97a960",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "bcca55835c154971a3877c2b02258a37a2a265a7c59ec70968188718bf79784b"
+    "tests/fixtures/agent_chat_peer.py": "bb8376f8fa052f59ee50c595812445f003327b214d062188830ec81880d8adf4"
   },
   "cases": [
     {
@@ -349,5 +349,6 @@
   "agent_approval_review": "One added case after the unchanged own-books cases. The finite peer exact startup catalog adds maipa_action_request and maipa_action_list and one prompt handler that requests account.create through the real tool. The human approves with a native click on the published ChatMessage proposal card; outcomes are read from the real API. No prior action, assertion or deadline changed; progress maximum 49 -> 50.",
   "agent_approval_continue_review": "The existing approval case additionally waits for the real chat API to show the decision note as the last user message and a completed assistant reply. The finite peer answers that note without changing UI. No other action, assertion or deadline changed.",
   "chat_attachment_review": "The finite peer exact startup catalog adds the read-only maipa_attachment_read tool. No browser action, assertion or deadline changed: the existing unsupported .txt attachment case still requires the explicit \"Remove them\" refusal because only CSV files are deliverable.",
-  "setup_open_race_review": "Intermittent setup_chat/setup_resume \"saved setup prompt\" timeouts: the app auto-opens Account setup when saved setup loads, and the helper checked aria-expanded then clicked, so a click landing just after the auto-open closed the panel. openAccountSetup now requires the panel to end up expanded, clicking again if not, under the same 150x100ms until budget. No assertion, case or deadline changed."
+  "setup_open_race_review": "Intermittent setup_chat/setup_resume \"saved setup prompt\" timeouts: the app auto-opens Account setup when saved setup loads, and the helper checked aria-expanded then clicked, so a click landing just after the auto-open closed the panel. openAccountSetup now requires the panel to end up expanded, clicking again if not, under the same 150x100ms until budget. No assertion, case or deadline changed.",
+  "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed."
 }

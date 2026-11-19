@@ -1889,6 +1889,16 @@
           "tests": [
             "bookkeeping.test.mjs#books carry an optional close date and reject a malformed one"
           ]
+        },
+        {
+          "id": "L05-BOOKS.9",
+          "kind": "negative",
+          "given": "A balanced report, a loss, and unbalanced, mis-categorised, extra-field, wrong-range or wrong-book replies",
+          "when": "Read and parse financial statements",
+          "then": "Accept the exact report and a negative net income; reject every inconsistent reply; send an actor-bound GET for the exact range and refuse a malformed date before any request.",
+          "tests": [
+            "bookkeeping.test.mjs#financial statements are accepted only for this book and range and only when they balance"
+          ]
         }
       ]
     },

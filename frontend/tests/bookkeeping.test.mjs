@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {displayMoney,displaySigned,importStatement,parseAccountActivity,parseLedgerSnapshot,parseSourceRows,postJournal,proposeJournal,readAccountActivity} from '../.test-build/bookkeeping-client.js';
+import {displayMoney,displaySigned,parseFinancialReport,readFinancialReport,importStatement,parseAccountActivity,parseLedgerSnapshot,parseSourceRows,postJournal,proposeJournal,readAccountActivity} from '../.test-build/bookkeeping-client.js';
 import {compositionSchema} from '../.test-build/agent-chat.js';
 const id=n=>`12345678-1234-4234-8234-${String(n).padStart(12,'0')}`;
 const accounts=[{id:id(2),code:'1000',name:'Checking',category:'asset'},{id:id(3),code:'3000',name:'Owner equity',category:'equity'}];
@@ -87,4 +87,27 @@ test('books carry an optional close date and reject a malformed one', () => {
   assert.throws(() => parseLedgerSnapshot(bad, '1', book.id));
   const missing = fixture(); delete missing.book.closed_through;
   assert.throws(() => parseLedgerSnapshot(missing, '1', book.id));
+});
+
+test('financial statements are accepted only for this book and range and only when they balance', async () => {
+  const row = (n, code, name, category, amount) => ({ id: id(n), code, name, category, amount });
+  const report = { book_id: id(1), currency: 'USD', revision: 3, from: '2026-03-01', to: '2026-03-31', pending_count: 1,
+    income_statement: { income: [row(20, '4000', 'Sales', 'income', '1250.5000')], expenses: [row(21, '6200', 'Office expenses', 'expense', '900.2000')],
+      total_income: '1250.5000', total_expenses: '900.2000', net_income: '350.3000' },
+    balance_sheet: { as_of: '2026-03-31', assets: [row(22, '1000', 'Checking', 'asset', '350.3000')], liabilities: [], equity: [],
+      total_assets: '350.3000', total_liabilities: '0.0000', total_equity: '0.0000', earnings_to_date: '350.3000', total_liabilities_and_equity: '350.3000' } };
+  assert.deepEqual(parseFinancialReport(structuredClone(report), id(1), '2026-03-01', '2026-03-31'), report);
+  const loss = structuredClone(report); loss.income_statement.net_income = '-12.5000';
+  assert.equal(parseFinancialReport(loss, id(1), '2026-03-01', '2026-03-31').income_statement.net_income, '-12.5000');
+  const unbalanced = structuredClone(report); unbalanced.balance_sheet.total_liabilities_and_equity = '350.0000';
+  const wrongCategory = structuredClone(report); wrongCategory.income_statement.income[0].category = 'expense';
+  const extra = structuredClone(report); extra.balance_sheet.note = 'x';
+  for (const [value, from, to, book] of [[unbalanced, '2026-03-01', '2026-03-31', id(1)], [wrongCategory, '2026-03-01', '2026-03-31', id(1)],
+    [extra, '2026-03-01', '2026-03-31', id(1)], [report, '2026-02-01', '2026-03-31', id(1)], [report, '2026-03-01', '2026-03-31', id(9)]])
+    assert.throws(() => parseFinancialReport(structuredClone(value), book, from, to));
+  const calls = [];
+  await readFinancialReport('1', id(1), '2026-03-01', '2026-03-31', new AbortController().signal, async (url, options) => { calls.push({ url, options }); return Response.json(report); });
+  assert.equal(calls[0].url, `/api/books/${id(1)}/report/?from=2026-03-01&to=2026-03-31`);
+  assert.equal(calls[0].options.headers['X-Maipa-Agent-Actor'], '1');
+  await assert.rejects(() => readFinancialReport('1', id(1), 'March', '2026-03-31', new AbortController().signal, async () => Response.json(report)));
 });

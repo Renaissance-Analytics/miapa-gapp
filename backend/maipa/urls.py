@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/books/<uuid:book_id>/accounts/', books.accounts, name='book-accounts'),
     path('api/books/<uuid:book_id>/accounts/<uuid:account_id>/activity/', books.account_activity, name='book-account-activity'),
     path('api/books/<uuid:book_id>/imports/', books.imports, name='book-imports'),
+    path('api/books/<uuid:book_id>/report/', books.report, name='book-report'),
     path('api/books/<uuid:book_id>/journals/', books.journals, name='book-journals'),
     path('api/books/<uuid:book_id>/journals/<uuid:journal_id>/post/', books.post_journal, name='book-post'),
     path('api/agent/accounts/<uuid:account_id>/metadata/', agent_metadata, name='agent-account-metadata'),

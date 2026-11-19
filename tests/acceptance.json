@@ -6797,6 +6797,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A02-REPORTS",
+      "risk": "Profit or balances are computed by a model, include unposted entries, or do not balance.",
+      "scenarios": [
+        {
+          "id": "A02-REPORTS.1",
+          "kind": "positive",
+          "given": "Posted entries across January to April including 0.1 and 0.2 amounts, an unpaid bill and one draft",
+          "when": "Read the March and full-year reports",
+          "then": "March income statement covers only March (expenses 900.3000, net -900.3000); the balance sheet as of March 31 shows assets 5350.4000 equal to liabilities, equity and earnings to date; the draft is excluded and counted as pending; the year nets 420.2000.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_income_statement_covers_only_the_range_and_balance_sheet_balances_as_of_the_end_date"
+          ]
+        },
+        {
+          "id": "A02-REPORTS.2",
+          "kind": "negative",
+          "given": "Empty books, reversed, out-of-period or malformed ranges, missing or extra fields and a foreign reader",
+          "when": "Read a report",
+          "then": "Empty books report zeros that balance; every invalid range or foreign reader is refused.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_empty_books_report_zero_and_invalid_ranges_or_foreign_readers_are_refused"
+          ]
+        },
+        {
+          "id": "A02-REPORTS.3",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a malformed date and a foreign session",
+          "when": "Read the report over HTTP",
+          "then": "Return exactly the service report to the bound owner; 409 unbound, 400 malformed, 404 foreign.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_http_report_is_owner_bound_and_matches_the_service"
+          ]
+        }
+      ]
     }
   ]
 }

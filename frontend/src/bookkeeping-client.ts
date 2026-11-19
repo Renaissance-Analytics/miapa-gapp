@@ -15,6 +15,10 @@ export interface SourceRows {book_id:string;currency:string;revision:number;rows
 export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;created:boolean;created_at:string}
 /** Largest statement accepted by the server, in UTF-8 bytes. */
 export const MAX_STATEMENT_BYTES=524_288;
+export interface ReportRow extends LedgerAccount {amount:string}
+export interface FinancialReport {book_id:string;currency:string;revision:number;from:string;to:string;pending_count:number;
+ income_statement:{income:ReportRow[];expenses:ReportRow[];total_income:string;total_expenses:string;net_income:string};
+ balance_sheet:{as_of:string;assets:ReportRow[];liabilities:ReportRow[];equity:ReportRow[];total_assets:string;total_liabilities:string;total_equity:string;earnings_to_date:string;total_liabilities_and_equity:string}}
 export interface JournalInput {operation_id:string;expected_revision:number;date:string;description:string;source:{kind:'manual';reference:string};evidence:string[];lines:LedgerLine[]}
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const exact=(v:Record<string,unknown>,keys:string[])=>Object.keys(v).sort().join('|')===[...keys].sort().join('|');
@@ -54,6 +58,15 @@ export function parseSourceRows(v:unknown,bookId:string):SourceRows{
  if(!object(v)||!exact(v,['book_id','currency','revision','rows'])||v.book_id!==bookId||!currency(v.currency)||!integer(v.revision)||!Array.isArray(v.rows)||v.rows.length>5000||!v.rows.every(r=>sourceRow(r,bookId))||new Set(v.rows.map(r=>(r as SourceRow).id)).size!==v.rows.length)throw unavailable();
  return v as unknown as SourceRows;
 }
+const reportRows=(v:unknown,category:string):v is ReportRow[]=>Array.isArray(v)&&v.length<=1000&&v.every(r=>object(r)&&exact(r,['id','code','name','category','amount'])&&account({id:r.id,code:r.code,name:r.name,category:r.category})&&r.category===category&&signed(r.amount));
+/** A report is accepted only for this book and range, and only when the balance sheet balances. */
+export function parseFinancialReport(v:unknown,bookId:string,from:string,to:string):FinancialReport{
+ if(!object(v)||!exact(v,['book_id','currency','revision','from','to','income_statement','balance_sheet','pending_count'])||v.book_id!==bookId||v.from!==from||v.to!==to||!currency(v.currency)||!integer(v.revision)||!integer(v.pending_count))throw unavailable();
+ const i=v.income_statement,b=v.balance_sheet;
+ if(!object(i)||!exact(i,['income','expenses','total_income','total_expenses','net_income'])||!reportRows(i.income,'income')||!reportRows(i.expenses,'expense')||![i.total_income,i.total_expenses,i.net_income].every(signed))throw unavailable();
+ if(!object(b)||!exact(b,['as_of','assets','liabilities','equity','total_assets','total_liabilities','total_equity','earnings_to_date','total_liabilities_and_equity'])||b.as_of!==to||!reportRows(b.assets,'asset')||!reportRows(b.liabilities,'liability')||!reportRows(b.equity,'equity')||![b.total_assets,b.total_liabilities,b.total_equity,b.earnings_to_date,b.total_liabilities_and_equity].every(signed)||b.total_assets!==b.total_liabilities_and_equity)throw unavailable();
+ return v as unknown as FinancialReport;
+}
 /** A signed running balance; negative means the account sits on its opposite side. */
 export function displaySigned(value:string){if(!signed(value))throw unavailable();return value.startsWith('-')?'−'+displayMoney(value.slice(1)):displayMoney(value);}
 async function request(user:string,path:string,signal:AbortSignal,body:unknown|undefined,fetcher:typeof fetch){
@@ -78,6 +91,10 @@ export async function importStatement(user:string,b:LedgerBook,filename:string,c
  const v=await request(user,`/api/books/${b.id}/imports/`,signal,{expected_revision:b.revision,filename,content},fetcher);
  if(!object(v)||!exact(v,['id','book_id','filename','sha256','row_count','created','created_at'])||!uuid(v.id)||v.book_id!==b.id||!string(v.filename,128)||!hash(v.sha256)||!integer(v.row_count)||v.row_count<1||typeof v.created!=='boolean'||typeof v.created_at!=='string')throw unavailable();
  return v as unknown as StatementImport;
+}
+export async function readFinancialReport(user:string,bookId:string,from:string,to:string,signal:AbortSignal,fetcher:typeof fetch=fetch){
+ if(!uuid(bookId)||!day(from)||!day(to))throw unavailable();
+ return parseFinancialReport(await request(user,`/api/books/${bookId}/report/?from=${from}&to=${to}`,signal,undefined,fetcher),bookId,from,to);
 }
 export async function createLedger(user:string,value:{entity_id:string;currency:string;period_start:string;period_end:string},signal:AbortSignal,fetcher:typeof fetch=fetch){const b=parseLedgerBook(await request(user,'/api/books/',signal,value,fetcher));if(b.entity_id!==value.entity_id||b.currency!==value.currency||b.period_start!==value.period_start||b.period_end!==value.period_end)throw unavailable();return b;}
 export async function proposeJournal(user:string,id:string,value:JournalInput,signal:AbortSignal,fetcher:typeof fetch=fetch){

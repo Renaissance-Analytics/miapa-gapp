@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-35",
+    "label": "Development update 35",
+    "cards": [
+      {
+        "title": "Compose smaller, useful pieces",
+        "description": "Maipa can compose compact headings, commentary callouts and a read-only client table in the shared panel using Fancy components."
+      },
+      {
+        "title": "Reopen current client records",
+        "description": "A saved client table keeps your column choice and loads current authorized records when reopened. Failed reloads clear old rows and offer a retry."
+      }
+    ]
+  },
+  {
     "id": "development-34",
     "label": "Development update 34",
     "cards": [
