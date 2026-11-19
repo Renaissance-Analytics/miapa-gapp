@@ -124,6 +124,9 @@ class SourceImport(AppendOnly):
     row_count = models.PositiveIntegerField()
     # The bank or cash account this statement belongs to, when the importer named one.
     account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.PROTECT)
+    # The statement's own opening and closing balance, when given; the rows then add up from one to the other.
+    opening_units = models.BigIntegerField(null=True, blank=True)
+    closing_units = models.BigIntegerField(null=True, blank=True)
     imported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now)
 

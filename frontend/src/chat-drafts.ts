@@ -18,14 +18,18 @@ export class ChatDrafts {
   }
 }
 
-/** True for an Excel workbook name; these are sent as bytes, not text. */
+/** True for an Excel workbook name. */
 export const isWorkbook = (name: string) => /\.xlsx$/i.test(name);
-/** A CSV or Excel statement the person picked in this session: the attachments Maipa can receive today. */
+/** True for a file sent as its exact bytes (a workbook or a PDF), not as text. */
+export const sentAsBytes = (name: string) => /\.(xlsx|pdf)$/i.test(name);
+/** The largest file of this kind Maipa accepts, in bytes. */
+export const attachmentLimit = (name: string) => /\.pdf$/i.test(name) ? 716_800 : 524_288;
+/** A CSV, Excel or PDF statement the person picked in this session: the attachments Maipa can receive today. */
 export function sendableAttachment(value: unknown): value is { name: string; bytes: number; file: { text(): Promise<string>; arrayBuffer(): Promise<ArrayBuffer> } } {
   const item = value as { name?: unknown; bytes?: unknown; file?: { text?: unknown; arrayBuffer?: unknown } } | null;
-  return !!item && typeof item.name === 'string' && /^[^/\\:*?"<>|]{1,123}\.(csv|xlsx)$/i.test(item.name) && typeof item.bytes === 'number'
-    && item.bytes > 0 && item.bytes <= 524_288 && !!item.file
-    && typeof (isWorkbook(item.name) ? item.file.arrayBuffer : item.file.text) === 'function';
+  return !!item && typeof item.name === 'string' && /^[^/\\:*?"<>|]{1,123}\.(csv|xlsx|pdf)$/i.test(item.name) && typeof item.bytes === 'number'
+    && item.bytes > 0 && item.bytes <= attachmentLimit(item.name) && !!item.file
+    && typeof (sentAsBytes(item.name) ? item.file.arrayBuffer : item.file.text) === 'function';
 }
 /** The line added to the message so the agent can find each uploaded file. */
 export function attachmentNote(saved: { id: string; name: string; size: number; lines: number }[]): string {
@@ -33,7 +37,7 @@ export function attachmentNote(saved: { id: string; name: string; size: number; 
 }
 export function sendProblem(text: string, attachments: readonly unknown[]): string | null {
   if (attachments.length > 3 || !attachments.every(sendableAttachment))
-    return 'Only CSV or Excel (.xlsx) files up to 512 KB (at most 3) can be sent to Maipa. Remove them to send this message.';
+    return 'Only CSV or Excel (.xlsx) files up to 512 KB and PDF files up to 700 KB (at most 3) can be sent to Maipa. Remove them to send this message.';
   if (!text.trim()) return 'Write a message before sending.';
   if (text.length > 8000) return 'Keep the message within 8,000 characters. Your draft has been kept.';
   return null;

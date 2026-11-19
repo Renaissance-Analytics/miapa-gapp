@@ -2105,6 +2105,36 @@
           "tests": [
             "approvals.test.mjs#a long summary is shown whole up to the server limit, with markup characters made inert"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.15",
+          "kind": "positive",
+          "given": "A reconciled PDF import request showing two of three rows, the same for a CSV with all rows, and an import without balances",
+          "when": "Build their cards",
+          "then": "Show each row with markup inert, the count of rows not shown, the opening balance plus rows equals closing balance line, and a check-the-PDF note only for a PDF; show no balance line without balances.",
+          "tests": [
+            "approvals.test.mjs#a reconciled statement card shows the rows, both balances and a check-the-PDF note"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.16",
+          "kind": "negative",
+          "given": "A PDF of four bytes and of 600 KB, one over 700 KB, a 600 KB workbook, and scanned or unreadable PDF refusals",
+          "when": "Send the file",
+          "then": "Send PDFs as exact bytes up to 700 KB; never send an oversized PDF or a workbook over its own limit; say plainly that a scanned PDF has no readable text.",
+          "tests": [
+            "approvals.test.mjs#a PDF statement is sent as bytes up to its own limit and its refusals say what to do"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.pdf",
+          "kind": "negative",
+          "given": "A picked 650 KB PDF, one over 700 KB, a pick whose bytes cannot be read, a .docx and a 650 KB workbook",
+          "when": "Check whether the message can be sent",
+          "then": "The PDF can be sent as bytes; each other pick is refused with the instruction naming both limits.",
+          "tests": [
+            "chat-drafts.test.mjs#a picked PDF statement can be sent as bytes up to 700 KB; larger or unreadable picks cannot"
+          ]
         }
       ]
     }

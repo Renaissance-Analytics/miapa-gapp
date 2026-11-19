@@ -6,3 +6,4 @@ sqlparse==0.6.1 --hash=sha256:3be5a72d04c873d690d7c6dedd33d6fae2ef82759881ceec02
 tzdata==2026.6 ; sys_platform == "win32" --hash=sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec
 fancy-flow==0.30.1 --hash=sha256:9af8a7fd51f41226d9e170d4a6dbe0012d45a897eb388dd0f5eaf9c2411e8f6b
 fancy-holy-sheet==0.13.2 --hash=sha256:f58de30dab5b3f2a7da9271b8cff2c93ed006b289533a04a19f2349c6073247f
+fancy-fine-print==0.1.0 --hash=sha256:d93afdc0002c86b1a75aae6aa278e4bbeccbb84e99bb5eb17141e662e52ecc51

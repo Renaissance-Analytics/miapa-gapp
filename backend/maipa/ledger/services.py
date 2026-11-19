@@ -339,7 +339,29 @@ def parse_statement(book, content):
 def import_value(row, created):
     return {'id': str(row.pk), 'book_id': str(row.book_id), 'filename': row.filename, 'sha256': row.sha256,
             'row_count': row.row_count, 'account_id': str(row.account_id) if row.account_id else None,
+            'opening_balance': money(row.opening_units) if row.opening_units is not None else None,
+            'closing_balance': money(row.closing_units) if row.closing_units is not None else None,
             'created': created, 'created_at': row.created_at.isoformat()}
+
+
+def balance_units(value):
+    """A stated balance: signed, possibly zero, at most four decimals."""
+    require(type(value) is str and re.fullmatch(r'-?(?:0|[1-9][0-9]{0,13})(?:\.[0-9]{1,4})?', value) is not None)
+    result = int(Decimal(value) * 10000)
+    require(abs(result) <= MAX_UNITS)
+    return result
+
+
+def statement_rows(book, value):
+    """The parsed rows and stated balances of a statement. With balances, the rows must add up from one to the other."""
+    stated = [key for key in ('opening_balance', 'closing_balance') if key in value]
+    require(len(stated) in (0, 2))
+    rows = parse_statement(book, value['content'])
+    if not stated:
+        return rows, None, None
+    opening, closing = balance_units(value['opening_balance']), balance_units(value['closing_balance'])
+    require(opening + sum(row.amount_units for row in rows) == closing, 'import_balance_mismatch')
+    return rows, opening, closing
 
 
 def import_account(book, account_id):
@@ -355,7 +377,8 @@ def import_statement(user, book_id, value):
     """Save a CSV statement's rows as pending source records; no journal is created."""
     user, book = owned(user, book_id, True)
     require(type(value) is dict)
-    fields(value, ('expected_revision', 'filename', 'content', *(('account_id',) if 'account_id' in value else ())))
+    fields(value, ('expected_revision', 'filename', 'content',
+                   *(key for key in ('account_id', 'opening_balance', 'closing_balance') if key in value)))
     account = import_account(book, value['account_id']) if 'account_id' in value else None
     filename = text(value['filename'], 128)
     require(re.fullmatch(r'[^/\\:*?"<>|]+', filename) is not None and filename not in ('.', '..'), 'import_file_invalid')
@@ -364,9 +387,10 @@ def import_statement(user, book_id, value):
     existing = book.imports.filter(sha256=sha).first()
     if existing:
         return import_value(existing, False)
-    rows = parse_statement(book, value['content'])
+    rows, opening, closing = statement_rows(book, value)
     advance(book, value['expected_revision'])
-    saved = SourceImport.objects.create(book=book, sha256=sha, filename=filename, row_count=len(rows), account=account, imported_by=user)
+    saved = SourceImport.objects.create(book=book, sha256=sha, filename=filename, row_count=len(rows), account=account,
+                                        opening_units=opening, closing_units=closing, imported_by=user)
     for row in rows:
         row.source_import = saved
     SourceRow.objects.bulk_create(rows)

@@ -60,6 +60,8 @@ def _check_import(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     if 'account_id' in payload:
         ledger.import_account(book, payload['account_id'])
+    if 'opening_balance' in payload or 'closing_balance' in payload:
+        ledger.statement_rows(book, payload)
 
 
 def _check_books_create(user, payload):
@@ -134,7 +136,8 @@ OPERATIONS = {
                                                 {'expected_revision': _revision(p['book_id']), 'cash': p['cash']})),
     'statement.import': (('book_id', 'filename', 'content'), _check_import,
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
-            'filename': p['filename'], 'content': p['content'], **({'account_id': p['account_id']} if 'account_id' in p else {})})),
+            'filename': p['filename'], 'content': p['content'],
+            **{key: p[key] for key in ('account_id', 'opening_balance', 'closing_balance') if key in p}})),
     'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
         lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
             {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
@@ -149,7 +152,7 @@ OPERATIONS = {
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
 }
 # Fields an operation accepts but does not require.
-OPTIONAL = {'statement.import': ('account_id',)}
+OPTIONAL = {'statement.import': ('account_id', 'opening_balance', 'closing_balance')}
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
                  ValueError, TypeError, KeyError, IntegrityError, Book.DoesNotExist)
 
@@ -199,6 +202,13 @@ def _detail(row):
             if row.operation == 'statement.import':
                 named = book.accounts.filter(pk=row.payload['account_id']).first() if 'account_id' in row.payload else None
                 facts['account'] = f'{named.code} {named.name}' if named else None
+                if 'opening_balance' in row.payload:
+                    # A reconciled statement: show the rows and both balances for review.
+                    rows, opening, closing = ledger.statement_rows(book, row.payload)
+                    facts.update(opening_balance=ledger.money(opening), closing_balance=ledger.money(closing),
+                                 net=ledger.money(closing - opening), row_count=len(rows),
+                                 rows=[{'date': item.date.isoformat(), 'description': item.description,
+                                        'amount': ledger.money(item.amount_units)} for item in rows[:60]])
             return facts
         if row.operation == 'books.create':
             from backend.maipa.intake.models import Entity

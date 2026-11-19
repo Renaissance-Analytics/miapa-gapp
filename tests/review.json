@@ -7740,6 +7740,76 @@
       "decision": "aligned",
       "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.1",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_pdf_text_is_extracted_in_reading_order_with_hidden_instructions_redacted",
+      "scenario_sha256": "6eeb256d8530ab2d3f50e94bfa8ede8a24ada7a52485db0d7416ecc53a6fd159",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "Text comes back page by page in reading order; the instruction is replaced by a redaction marker; numbers compare equal regardless of separators, sign or currency mark.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.2",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_unreadable_empty_oversized_and_overlong_documents_are_refused_naming_the_problem",
+      "scenario_sha256": "b51cdc70f6b22023730bb7ba88ed49fbf4849dfd3212e983843e47fa8b0984c2",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "Each is refused with the exact code: document invalid, or no text for a page without text.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.3",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_an_attached_pdf_is_kept_exactly_and_read_back_as_text_in_pages_of_the_preview_size",
+      "scenario_sha256": "8e2c53da32d88a490cd32d158429e09e4040e08551cad322f5aaf44f34201ef4",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "The PDF is kept byte for byte; reading reports converted from pdf, the whole length and whether more follows, and two windows rebuild the exact text; bad offsets and every bad upload are refused, with one attachment stored.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.4",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_an_approved_pdf_import_saves_the_derived_rows_tied_to_the_account_with_both_balances",
+      "scenario_sha256": "4c054fafa017af5073730395497b12ca1ce530dd7ca55771d1357973ea2fea2c",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "The request shows both balances, the net, the row count and each row, and imports nothing; approval saves exactly the two rows tied to Checking with both balances recorded.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.5",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_rows_that_do_not_reconcile_or_are_not_in_the_document_are_refused_and_nothing_is_recorded",
+      "scenario_sha256": "146f5e25c7d2661174cb5ad66fa1cbc6be33e84c8cf7326539951b11de943412",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "Each is refused with its exact code (balance mismatch, amount not in document, row invalid, invalid request); no request and no import is recorded.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.6",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_any_import_may_state_balances_and_must_then_reconcile_while_others_stay_unchecked",
+      "scenario_sha256": "0530dd3be9a168296cf52ff13a7352131d69e9e6bfa836c28641443d6add40d7",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "One balance alone, a mismatch and malformed balances are refused and nothing is saved; the overdrawn statement is saved with its negative balances; the plain import records no balances.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-PDF.7",
+      "test": "tests.test_pdf_statements.PdfStatementTests.test_http_upload_accepts_a_pdf_and_reports_the_exact_refusal",
+      "scenario_sha256": "45aa6c8fa519478dd1eefe58478043a6ec88d572542706fbb8fa61bfa42b38b7",
+      "source_sha256": "c2f933ab6319d048356f07ed845067e4cfceb871be3db4003e1047b18b73ed9a",
+      "expected_observation": "201 with the exact size and only the documented fields; then 400 with the no-text code.",
+      "decision": "aligned",
+      "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

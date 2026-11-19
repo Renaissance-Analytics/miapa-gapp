@@ -172,7 +172,7 @@ test('an Excel statement is sent as its exact bytes and a refusal says what to f
   await assert.rejects(() => uploadWorkbook('1', 'march.xlsx', bytes, signal, fetcher({ error: { code: 'import_workbook_sheets' } }, 400)), /more than one sheet/);
   assert.match(workbookProblem('import_header_invalid'), /headings date, description, amount/);
   assert.match(workbookProblem('import_row_count_invalid'), /no statement rows, or more than 1,000/);
-  for (const code of ['import_workbook_invalid', 'import_row_x_invalid', undefined, { code: 1 }]) assert.match(workbookProblem(code), /could not read that Excel file/);
+  for (const code of ['import_workbook_invalid', 'import_row_x_invalid', undefined, { code: 1 }]) assert.match(workbookProblem(code), /could not read that file/);
   const large = new Uint8Array(100_000).fill(65);
   await uploadWorkbook('1', 'big.xlsx', large, signal, fetcher({ ...saved, name: 'big.xlsx', size: large.length }));
   assert.equal(JSON.parse(calls.at(-1).options.body).content_base64.length, Math.ceil(large.length / 3) * 4);
@@ -187,4 +187,41 @@ test('a long summary is shown whole up to the server limit, with markup characte
   assert.equal(approvalContent({ ...single, summary: 'x'.repeat(600) }).split('\n')[0].length, 500);
   assert.equal(approvalContent({ ...single, summary: 'Pay <b>*now*</b> | [link]' }).split('\n')[0], 'Pay  b  now  /b     link ');
   assert.equal(approvalContent({ ...single, detail: { entity: 'E'.repeat(300) } }).split('\n')[2].startsWith('E'.repeat(200) + ' ·'), true);
+});
+
+test('a reconciled statement card shows the rows, both balances and a check-the-PDF note', () => {
+  const load = { ...single, operation: 'statement.import', summary: 'Import the June statement',
+    payload: { book_id: id(2), filename: 'june.pdf', account_id: id(3), opening_balance: '3799.55', closing_balance: '5287.05',
+      content_bytes: 96, content_sha256: 'c'.repeat(64), content_preview: 'date,description,amount' },
+    detail: { books: 'Sample Co LLC', currency: 'USD', account: '1000 Checking', opening_balance: '3799.5500', closing_balance: '5287.0500', net: '1487.5000', row_count: 3,
+      rows: [{ date: '2026-06-12', description: 'Epsilon LLC | payment', amount: '1500.0000' }, { date: '2026-06-15', description: 'Card fee', amount: '-12.5000' }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [load], recent: [] }, '1').pending[0].operation, 'statement.import');
+  const content = approvalContent(load);
+  assert.match(content, /\| 2026-06-12 \| Epsilon LLC   payment \| 1500\.0000 \|/);
+  assert.match(content, /\| 2026-06-15 \| Card fee \| -12\.5000 \|/);
+  assert.match(content, /…and 1 more row\./);
+  assert.match(content, /Opening balance 3799\.5500 \+ rows 1487\.5000 = closing balance 5287\.0500 \(USD\)\. These 3 rows add up exactly between the statement's two balances\./);
+  assert.match(content, /Maipa read these rows from the PDF\. Check them against your statement before approving\./);
+  const sheet = approvalContent({ ...load, payload: { ...load.payload, filename: 'june.csv' }, detail: { ...load.detail, row_count: 2 } });
+  assert.doesNotMatch(sheet, /read these rows from the PDF/); assert.doesNotMatch(sheet, /more row/); assert.match(sheet, /These 2 rows add up exactly/);
+  assert.doesNotMatch(approvalContent({ ...load, detail: { books: 'Sample Co LLC', currency: 'USD', account: null } }), /Opening balance/);
+});
+
+test('a PDF statement is sent as bytes up to its own limit and its refusals say what to do', async () => {
+  const bytes = new Uint8Array([37, 80, 68, 70]);
+  const saved = { id: id(7), name: 'june.pdf', size: bytes.length, sha256: 'e'.repeat(64), lines: 9, created_at: '2026-11-19T00:00:00+00:00' };
+  const calls = [];
+  const fetcher = (reply, status = 201) => async (url, options) => { calls.push({ url, options }); return Response.json(url === '/api/session/csrf/' ? token : reply, { status: url === '/api/session/csrf/' ? 200 : status }); };
+  const signal = new AbortController().signal;
+  assert.deepEqual(await uploadWorkbook('1', 'june.pdf', bytes, signal, fetcher(saved)), saved);
+  assert.deepEqual(JSON.parse(calls[1].options.body), { name: 'june.pdf', content_base64: 'JVBERg==' });
+  const big = new Uint8Array(600_000).fill(65);
+  await uploadWorkbook('1', 'june.pdf', big, signal, fetcher({ ...saved, size: big.length }));
+  const sent = calls.length;
+  await assert.rejects(() => uploadWorkbook('1', 'june.pdf', new Uint8Array(716_801), signal, fetcher(saved)));
+  await assert.rejects(() => uploadWorkbook('1', 'june.xlsx', big, signal, fetcher({ ...saved, name: 'june.xlsx', size: big.length })));
+  assert.equal(calls.length, sent);
+  await assert.rejects(() => uploadWorkbook('1', 'scan.pdf', bytes, signal, fetcher({ error: { code: 'import_document_no_text' } }, 400)), /no readable text; it looks like a scanned image/);
+  assert.match(workbookProblem('import_document_invalid'), /could not read that PDF/);
+  assert.match(workbookProblem('unknown'), /could not read that file/);
 });
