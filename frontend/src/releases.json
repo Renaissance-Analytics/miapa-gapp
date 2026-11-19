@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-61",
+    "label": "Development update 61",
+    "cards": [
+      {
+        "title": "Statements belong to a bank account",
+        "description": "When you import a bank statement, Maipa now records which bank account it is from. Entries made from its rows must move that account by the exact amount, in the right direction, so money in can never be booked as money out."
+      }
+    ]
+  },
+  {
     "id": "development-60",
     "label": "Development update 60",
     "cards": [
@@ -242,20 +252,6 @@
       {
         "title": "Retry without another copy",
         "description": "A prepared send keeps its original retry identity across reload. Confirmed sends clear only their matching draft; newer typing is kept. File contents still need supported delivery."
-      }
-    ]
-  },
-  {
-    "id": "development-41",
-    "label": "Development update 41",
-    "cards": [
-      {
-        "title": "Inspect the same saved run",
-        "description": "Maipa can select a saved run and open its details in your workflow component. Your own run choice and detail visibility are saved and restored on reload."
-      },
-      {
-        "title": "Keep failures separate from repairs",
-        "description": "Run history keeps the failed version and its actual result. A repaired publication runs as a new immutable version; selecting history clearly identifies an older run."
       }
     ]
   }

@@ -1460,6 +1460,10 @@ try {
   const importedRows=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/imports/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
   assert.deepEqual(importedRows.rows.map(r=>[r.description,r.amount,r.reference,r.status]),[['Synthetic client payment','1250.5000','dep-1','pending'],['Synthetic rent, March','-900.0000','chk-1001','pending']]);
   assert.equal(await evaluate("document.querySelector('[data-import-pending]')?.dataset.importPending"),'2');
+  const checkingId=postedBook.book.accounts.find(a=>a.code==='1000').id;
+  assert.equal(postedBook.book.accounts.filter(a=>a.cash).length,1);
+  assert.equal(await evaluate("document.querySelector('[aria-label=\"Import bank statement\"]').dataset.importAccount"),checkingId);
+  assert.equal(importedRows.rows.every(r=>r.account_id===checkingId),true);
   await chooseStatement();
   await click('Import statement');
   await until(()=>evaluate("document.querySelector('.bookkeeping [role=status]')?.textContent.includes('already imported')"),'repeat import changes nothing');

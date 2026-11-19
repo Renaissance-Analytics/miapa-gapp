@@ -1939,6 +1939,16 @@
           "tests": [
             "bookkeeping.test.mjs#report and activity rows accept the server bank-or-cash flag and still refuse unknown fields"
           ]
+        },
+        {
+          "id": "L05-BOOKS.import-account",
+          "kind": "negative",
+          "given": "A book with one marked bank account and one unmarked asset account, and import acknowledgments and rows with matching, missing or malformed account references",
+          "when": "Import a statement naming an account and parse the rows",
+          "then": "Send the named marked account exactly; refuse an unmarked or unknown account before any request; accept only an acknowledgment naming the same account, and only rows whose account reference is a UUID or null.",
+          "tests": [
+            "bookkeeping.test.mjs#a statement import names only a marked bank account and accepts only the matching acknowledgment and rows"
+          ]
         }
       ]
     },
@@ -2054,6 +2064,16 @@
           "then": "Name the account and books, say whether it will or will no longer count as a bank account or cash on hand and that no amounts change; say plainly when approving will fail.",
           "tests": [
             "approvals.test.mjs#a bank or cash account card names the account and says no amounts change"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.12",
+          "kind": "positive",
+          "given": "Pending statement import requests with and without a named bank account",
+          "when": "Build their cards",
+          "then": "Name the bank account the statement is from when one is given, and omit it otherwise; keep the size, books and no-entries-posted wording.",
+          "tests": [
+            "approvals.test.mjs#a statement import card names the bank account the statement is from when one is given"
           ]
         }
       ]

@@ -56,6 +56,12 @@ def _check_book(user, payload):
     ledger.owned(user, payload['book_id'], True)
 
 
+def _check_import(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    if 'account_id' in payload:
+        ledger.import_account(book, payload['account_id'])
+
+
 def _check_books_create(user, payload):
     intake.owned_entity(user, _identity(payload['entity_id']), True)
     require(not Book.objects.filter(entity_id=payload['entity_id']).exists(), 'book_already_initialized')
@@ -126,9 +132,9 @@ OPERATIONS = {
     'account.cash': (('book_id', 'account_id', 'cash'), _check_cash,
         lambda user, p: ledger.set_account_cash(user, p['book_id'], p['account_id'],
                                                 {'expected_revision': _revision(p['book_id']), 'cash': p['cash']})),
-    'statement.import': (('book_id', 'filename', 'content'), _check_book,
+    'statement.import': (('book_id', 'filename', 'content'), _check_import,
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
-                                                'filename': p['filename'], 'content': p['content']})),
+            'filename': p['filename'], 'content': p['content'], **({'account_id': p['account_id']} if 'account_id' in p else {})})),
     'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
         lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
             {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
@@ -142,6 +148,8 @@ OPERATIONS = {
     'period.reopen': (('book_id', 'through'), _check_period('reopen'), _run_period('reopen')),
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
 }
+# Fields an operation accepts but does not require.
+OPTIONAL = {'statement.import': ('account_id',)}
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
                  ValueError, TypeError, KeyError, IntegrityError, Book.DoesNotExist)
 
@@ -187,7 +195,11 @@ def _detail(row):
             return {'books': book.entity.name, 'closed_through': book.closed_through.isoformat() if book.closed_through else None}
         if row.operation in ('account.create', 'statement.import'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
-            return {'books': book.entity.name, 'currency': book.currency}
+            facts = {'books': book.entity.name, 'currency': book.currency}
+            if row.operation == 'statement.import':
+                named = book.accounts.filter(pk=row.payload['account_id']).first() if 'account_id' in row.payload else None
+                facts['account'] = f'{named.code} {named.name}' if named else None
+            return facts
         if row.operation == 'books.create':
             from backend.maipa.intake.models import Entity
             return {'entity': Entity.objects.get(pk=row.payload['entity_id']).name}
@@ -224,7 +236,7 @@ def request_action(user, value):
     operation, payload, summary = value['operation'], value['payload'], value['summary']
     require(type(operation) is str and operation in OPERATIONS, 'approval_operation_unsupported')
     fields, check, _ = OPERATIONS[operation]
-    require(type(payload) is dict and set(payload) == set(fields))
+    require(type(payload) is dict and set(payload) - set(OPTIONAL.get(operation, ())) == set(fields))
     require(len(json.dumps(payload, allow_nan=False).encode()) <= MAX_PAYLOAD_BYTES)
     require(type(summary) is str and 0 < len(summary.strip()) and len(summary) <= 500
             and not any(ord(c) < 32 or ord(c) == 127 for c in summary))

@@ -111,7 +111,7 @@ export function approvalContent(item: ApprovalRequest): string {
   } else if (item.operation === 'account.create') {
     lines.push('', `${cell(p.code)} ${cell(p.name)} (${cell(p.category)}) in ${cell(d?.books)} books`);
   } else if (item.operation === 'statement.import') {
-    lines.push('', `${cell(p.filename)} · ${cell(p.content_bytes)} bytes into ${cell(d?.books)} books. Rows become pending transactions; no entries are posted.`);
+    lines.push('', `${cell(p.filename)} · ${cell(p.content_bytes)} bytes into ${cell(d?.books)} books${d?.account ? `, as a statement of ${cell(d.account)}` : ''}. Rows become pending transactions; no entries are posted.`);
   }
   return lines.join('\n');
 }

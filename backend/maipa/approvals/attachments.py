@@ -85,6 +85,7 @@ def resolve_payload(user, operation, payload):
     """Let a statement import name an attachment; the stored request still holds the exact content."""
     if operation != 'statement.import' or type(payload) is not dict or 'attachment_id' not in payload:
         return payload
-    require(set(payload) == {'book_id', 'attachment_id'})
+    require(set(payload) - {'account_id'} == {'book_id', 'attachment_id'})
     name, text = content(user, payload['attachment_id'])
-    return {'book_id': payload['book_id'], 'filename': name, 'content': text}
+    return {'book_id': payload['book_id'], 'filename': name, 'content': text,
+            **({'account_id': payload['account_id']} if 'account_id' in payload else {})}
