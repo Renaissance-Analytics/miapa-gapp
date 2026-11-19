@@ -233,6 +233,12 @@ def _tools():
             'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'statement.import', 'journal.post', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
+    definitions.append({'name': 'maipa_attachment_read', 'description':
+        'Read a text file the person attached in chat, by the attachment_id given in their message: name, size, line count and a '
+        'preview of the first 4000 characters. To import an attached bank statement, request statement.import with payload '
+        '{book_id, attachment_id}; the exact file is bound to the request.',
+        'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['attachment_id'],
+                        'properties': {'attachment_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_action_list', 'description':
         'Read your pending approval requests and recent outcomes (approved with result, rejected, or failed with a reason). '
         'Report actual outcomes; a pending request is not done.',
@@ -241,20 +247,28 @@ def _tools():
 
 
 SETUP_TOOLS = ('maipa_setup_read', 'maipa_setup_record')
-ACTION_TOOLS = ('maipa_action_request', 'maipa_action_list')
+ACTION_TOOLS = ('maipa_action_request', 'maipa_action_list', 'maipa_attachment_read')
 
 
 def _dispatch_action(actor, account_id, identity, name, arguments):
-    from backend.maipa.approvals import services as approvals
+    from backend.maipa.approvals import attachments, services as approvals
     _lookup(actor, account_id, identity)
+    if name == 'maipa_attachment_read':
+        _object(arguments, ('attachment_id',))
+        try:
+            return attachments.read(actor, arguments['attachment_id'])
+        except attachments.AttachmentError as problem:
+            return {'available': False, 'reason': problem.code}
     if name == 'maipa_action_list':
         _object(arguments, ())
         return approvals.list_requests(actor)
     if type(arguments) is not dict:
         raise ValueError('Closed object required')
     try:
+        if 'operation' in arguments and 'payload' in arguments:
+            arguments = {**arguments, 'payload': attachments.resolve_payload(actor, arguments['operation'], arguments['payload'])}
         return {'requested': True, 'request': approvals.request_action(actor, arguments)}
-    except approvals.ApprovalError as problem:
+    except (approvals.ApprovalError, attachments.AttachmentError) as problem:
         return {'requested': False, 'reason': problem.code}
 
 

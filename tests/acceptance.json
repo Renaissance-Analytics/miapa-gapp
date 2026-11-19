@@ -6679,6 +6679,46 @@
           "tests": [
             "tests.test_agent_approvals.AgentApprovalToolTests.test_agent_can_request_and_read_but_has_no_tool_to_decide"
           ]
+        },
+        {
+          "id": "A03-APPROVALS.11",
+          "kind": "positive",
+          "given": "A CSV and a long text file stored by their owner",
+          "when": "Store and read them",
+          "then": "Keep exact content with size, hash and line count; never return content from store; previews are bounded to 4000 characters and flagged when truncated.",
+          "tests": [
+            "tests.test_chat_attachments.ChatAttachmentTests.test_stored_file_is_exact_owned_and_read_back_with_a_bounded_preview"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.12",
+          "kind": "negative",
+          "given": "A foreign reader, unknown or malformed IDs, a viewer, path-like names, empty, oversized, binary or extra-field uploads",
+          "when": "Read or store",
+          "then": "Refuse them all and keep only the one valid file.",
+          "tests": [
+            "tests.test_chat_attachments.ChatAttachmentTests.test_foreign_unknown_viewer_and_invalid_files_are_refused"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.13",
+          "kind": "positive",
+          "given": "Owned books and a stored statement file",
+          "when": "Request statement.import by attachment and approve it",
+          "then": "Bind the exact file name and content hash into the request, import nothing until approval, then import its rows; a foreign user cannot resolve the file and other operations are untouched.",
+          "tests": [
+            "tests.test_chat_attachments.ChatAttachmentTests.test_statement_import_request_by_attachment_binds_the_exact_file_and_imports_on_approval"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.14",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a GET and a foreign user",
+          "when": "Upload over HTTP",
+          "then": "Refuse unbound uploads (409) and GET (405); store for the bound owner without echoing content; the foreign user cannot read it.",
+          "tests": [
+            "tests.test_chat_attachments.ChatAttachmentTests.test_http_upload_is_bound_to_the_owner_and_never_lists_foreign_files"
+          ]
         }
       ]
     }

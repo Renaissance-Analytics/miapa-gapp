@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-51",
+    "label": "Development update 51",
+    "cards": [
+      {
+        "title": "Attach your bank statement in the chat",
+        "description": "Attach a CSV file (up to 512 KB) to a message and Maipa receives it. Ask it to import the statement and it requests an import of that exact file for your one-click approval. Other file types are not delivered yet and are refused before sending."
+      }
+    ]
+  },
+  {
     "id": "development-50",
     "label": "Development update 50",
     "cards": [
@@ -286,20 +296,6 @@
       {
         "title": "Keep drafts edited during a send",
         "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancyâ€™s published draft-revision fix."
-      }
-    ]
-  },
-  {
-    "id": "development-31",
-    "label": "Development update 31",
-    "cards": [
-      {
-        "title": "A complete Fancy chat composer",
-        "description": "Chat now uses Fancy PromptInput and its contextual request drawer. Drafts stay editable during sends and survive failed confirmations and provider changes."
-      },
-      {
-        "title": "Read conversations at your pace",
-        "description": "Fancyâ€™s measured message list keeps long conversations responsive. Scrolling up pauses following; Back to latest resumes it."
       }
     ]
   }

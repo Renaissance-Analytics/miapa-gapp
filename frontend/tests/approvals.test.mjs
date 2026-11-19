@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ChatMessage } from '@particle-academy/react-fancy';
-import { approvalContent, approvalGroups, decisionMessage, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals } from '../.test-build/approval-client.js';
+import { approvalContent, approvalGroups, decisionMessage, approvalMessage, decideApproval, decideApprovalBatch, parseApprovalList, readApprovals, uploadAttachment } from '../.test-build/approval-client.js';
 
 const id = n => `12345678-1234-4234-8234-${String(n).padStart(12, '0')}`;
 const post = { id: id(1), operation: 'journal.post', summary: 'Post office purchase 42.17', payload: { book_id: id(2), journal_id: id(3), payload_hash: 'a'.repeat(64) },
@@ -77,4 +77,19 @@ test('the note sent after a decision states exact outcomes and is empty when not
     + 'I approved but these could not be done and need to be prepared again: Post rent  b 900 /b . Please continue with what is left.');
   assert.equal(decisionMessage([]), '');
   assert.equal(decisionMessage([post]), '');
+});
+
+test('an attached file is uploaded for this actor and only its exact acknowledgment is accepted', async () => {
+  const content = 'date,description,amount\n2026-03-01,Synthetic,1\n';
+  const saved = { id: id(7), name: 'march.csv', size: content.length, sha256: 'e'.repeat(64), lines: 2, created_at: '2026-11-19T00:00:00+00:00' };
+  const calls = [];
+  const fetcher = (reply, status = 201) => async (url, options) => { calls.push({ url, options }); return Response.json(url === '/api/session/csrf/' ? token : reply, { status: url === '/api/session/csrf/' ? 200 : status }); };
+  const signal = new AbortController().signal;
+  assert.deepEqual(await uploadAttachment('1', 'march.csv', content, signal, fetcher(saved)), saved);
+  assert.equal(calls[1].url, '/api/agent/attachments/');
+  assert.deepEqual(JSON.parse(calls[1].options.body), { name: 'march.csv', content });
+  assert.equal(calls[1].options.headers['X-Maipa-Agent-Actor'], '1');
+  for (const reply of [{ ...saved, name: 'other.csv' }, { ...saved, size: 1 }, { ...saved, content }])
+    await assert.rejects(() => uploadAttachment('1', 'march.csv', content, signal, fetcher(reply)));
+  await assert.rejects(() => uploadAttachment('1', 'march.csv', content, signal, fetcher({ error: 'x' }, 400)));
 });

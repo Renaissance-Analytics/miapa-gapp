@@ -6,14 +6,14 @@ import { Button, ChatDrawer, ContentRenderer, Field, Icon, Input, PromptInput, R
   type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
 import { Approvals } from './Approvals.js';
-import { decisionMessage, type ApprovalRequest } from './approval-client.js';
+import { decisionMessage, uploadAttachment, type ApprovalRequest } from './approval-client.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
 import { CHAT_PROSE } from './content-policy.js';
-import { emptyDraft, sendProblem } from './chat-drafts.js';
+import { attachmentNote, emptyDraft, sendProblem } from './chat-drafts.js';
 import { PersonalViewsController, type ViewsState } from './personal-views.js';
 import {DurableChatDrafts} from './durable-chat-drafts.js';
 import { SavedViews } from './SavedViews.js';
@@ -213,6 +213,13 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
     let request_id:string;
     setBusy(true); setSendError(''); setFollow(true);
     try {
+      if (attachments.length) {
+        // Deliver the files first; the message then names each stored file for the agent.
+        const saved = [];
+        for (const item of attachments) saved.push(await uploadAttachment(userId, item.name, await item.file!.text(), new AbortController().signal));
+        text = `${text}\n\n${attachmentNote(saved)}`;
+        if (text.length > 8000) return { ok: false, error: 'Keep the message within 8,000 characters. Your draft has been kept.' };
+      }
       request_id=await draftStore.prepare(account,text);
       if(!alive.current||current.current.connection.account_id!==account||current.current.connection.revision!==selected.revision)return {ok:false,error:'The connection changed. Your draft has been kept.'};
       const next = await chatRequest(userId, { action: 'send', revision: current.current.revision,
@@ -307,7 +314,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
             {draftPhase==='conflict'&&<div role="alert"><Text size="sm">Your draft could not be confirmed. Keep your input or load the saved copy.</Text>
               <Button size="sm" variant="ghost" onClick={()=>{void draftStore.resolve(draftAccount,true);}}>Save this draft</Button>
               <Button size="sm" variant="ghost" onClick={()=>{void draftStore.resolve(draftAccount,false);}}>Load saved draft</Button></div>}
-            {(draft.attachments.length>0||draft.pills.some(p=>p.kind==='image'))&&<Text size="sm">Attachments cannot be sent yet. Saved file names do not restore their contents.</Text>}
+            {(draft.attachments.length>0||draft.pills.some(p=>p.kind==='image'))&&<Text size="sm">Maipa can receive CSV files up to 512 KB. Other attachments, and files restored from a saved draft, need to be removed or attached again.</Text>}
             <div className="chat-composer" aria-label="Message Maipa"><Field label="Message Maipa" labelHidden htmlFor="maipa-chat-message">
               <PromptInput inputId="maipa-chat-message" name="message" placeholder="Ask Maipa…" draft={draft} onDraftChange={changeDraft}
                 budgetTokens={0} meter="hidden" maxHeight={160} attachButton="icon" sendButton="icon"

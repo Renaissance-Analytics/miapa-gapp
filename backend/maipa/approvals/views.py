@@ -30,6 +30,20 @@ def endpoint(function):
 
 
 @endpoint
+def attachments(request):
+    from . import attachments as files
+    if request.method != 'POST':
+        return method_not_allowed('POST')
+    value, denied = body(request)
+    if denied is not None:
+        return denied
+    try:
+        return JsonResponse(files.store(request.user, value), status=201)
+    except files.AttachmentError as problem:
+        return error(problem.code, 403 if problem.code == 'attachment_denied' else 400)
+
+
+@endpoint
 def requests(request):
     if request.method != 'GET':
         return method_not_allowed('GET')
