@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-50",
+    "label": "Development update 50",
+    "cards": [
+      {
+        "title": "Maipa carries on after you approve",
+        "description": "When you approve or reject a change, Maipa is told the exact outcome and continues with what is left. You no longer need to say that you approved. If Maipa is still replying, it continues as soon as that reply finishes."
+      }
+    ]
+  },
+  {
     "id": "development-49",
     "label": "Development update 49",
     "cards": [
