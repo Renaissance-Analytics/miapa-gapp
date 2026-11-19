@@ -89,6 +89,17 @@ def imports(request, book_id):
 
 
 @endpoint
+def reconciliation(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if not request.GET:
+        return JsonResponse(services.statements(request.user, str(book_id)))
+    if set(request.GET) != {'import'}:
+        return error('invalid_ledger_request', 400)
+    return JsonResponse(services.reconciliation(request.user, str(book_id), {'import_id': request.GET['import']}))
+
+
+@endpoint
 def integrity(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')

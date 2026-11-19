@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/books/<uuid:book_id>/imports/', books.imports, name='book-imports'),
     path('api/books/<uuid:book_id>/report/', books.report, name='book-report'),
     path('api/books/<uuid:book_id>/integrity/', books.integrity, name='book-integrity'),
+    path('api/books/<uuid:book_id>/reconciliation/', books.reconciliation, name='book-reconciliation'),
     path('api/books/<uuid:book_id>/journals/', books.journals, name='book-journals'),
     path('api/books/<uuid:book_id>/journals/<uuid:journal_id>/post/', books.post_journal, name='book-post'),
     path('api/agent/accounts/<uuid:account_id>/metadata/', agent_metadata, name='agent-account-metadata'),

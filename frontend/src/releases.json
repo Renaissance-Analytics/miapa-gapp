@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-70",
+    "label": "Development update 70",
+    "cards": [
+      {
+        "title": "Maipa can reconcile a bank statement",
+        "description": "Ask Maipa whether your books agree with a bank statement. It compares the statement's closing balance with your books, lists the statement lines not yet posted and the entries the bank has not shown, and tells you the exact difference if any remains. It only reports; it changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-69",
     "label": "Development update 69",
     "cards": [
@@ -194,16 +204,6 @@
       {
         "title": "Attach your bank statement in the chat",
         "description": "Attach a CSV file (up to 512 KB) to a message and Maipa receives it. Ask it to import the statement and it requests an import of that exact file for your one-click approval. Other file types are not delivered yet and are refused before sending."
-      }
-    ]
-  },
-  {
-    "id": "development-50",
-    "label": "Development update 50",
-    "cards": [
-      {
-        "title": "Maipa carries on after you approve",
-        "description": "When you approve or reject a change, Maipa is told the exact outcome and continues with what is left. You no longer need to say that you approved. If Maipa is still replying, it continues as soon as that reply finishes."
       }
     ]
   }

@@ -6,7 +6,7 @@
     "tools/browser.mjs": "a7eaec46ab4335242335ecb201303e714b29ad491c2a0e8afcaccd521d29f83c",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "80938e7f7aa2d50687c63643d20754806d8181bc5d22e265684d5575256db7b3"
+    "tests/fixtures/agent_chat_peer.py": "6d099df6ec4957bc160d06877d760072d3da0649a27a1599ba44f29f86073843"
   },
   "cases": [
     {
@@ -370,5 +370,6 @@
   "agent_flows_browser_review": "One added case after the unchanged approval case. The finite peer gains handlers that call the real maipa_attachment_read, maipa_books_read and maipa_action_request tools for statement.import by attachment, journal.reverse and period.close; the human approves each with a native click. Outcomes are read from the real owner-bound APIs. No prior action, assertion or deadline changed; progress maximum 51 -> 52.",
   "ledger_integrity_review": "The finite peer exact startup catalog adds the read-only maipa_books_verify tool. No browser action, assertion or deadline changed.",
   "ledger_views_review": "One added case after the unchanged attach/reverse/close case. The finite peer gains one handler that presents three read-only ledger components. No prior action, assertion or deadline changed; progress maximum 52 -> 53.",
-  "import_bank_account_review": "The own-books-statement-import case gains three assertions: exactly one account is marked bank or cash, the upload panel preselects it, and every imported row reports that account. No action, prior assertion or deadline changed."
+  "import_bank_account_review": "The own-books-statement-import case gains three assertions: exactly one account is marked bank or cash, the upload panel preselects it, and every imported row reports that account. No action, prior assertion or deadline changed.",
+  "reconciliation_review": "The finite peer exact startup catalog adds the read-only maipa_books_reconcile tool. No browser action, assertion or deadline changed."
 }

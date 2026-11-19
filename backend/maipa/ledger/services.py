@@ -406,6 +406,90 @@ def import_statement(user, book_id, value):
     return import_value(saved, True)
 
 
+def _statement(book, import_id):
+    try:
+        statement = book.imports.filter(pk=identity(import_id)).select_related('account').first()
+    except (LedgerError, ValueError):
+        statement = None
+    require(statement is not None, 'import_not_found')
+    return statement
+
+
+@guarded
+@transaction.atomic
+def statements(user, book_id):
+    """Every imported statement with its bank account, stated balances and dates, and whether it can be reconciled."""
+    _, book = owned(user, book_id)
+    listed = []
+    for statement in book.imports.select_related('account').order_by('created_at')[:500]:
+        dates = sorted(statement.rows.values_list('date', flat=True))
+        account = statement.account
+        listed.append({'id': str(statement.pk), 'filename': statement.filename, 'account_id': str(account.pk) if account else None,
+                       'account': f'{account.code} {account.name}' if account else None,
+                       'opening_balance': money(statement.opening_units) if statement.opening_units is not None else None,
+                       'closing_balance': money(statement.closing_units) if statement.closing_units is not None else None,
+                       'first_date': dates[0].isoformat(), 'last_date': dates[-1].isoformat(), 'row_count': statement.row_count,
+                       'can_reconcile': account is not None and statement.closing_units is not None})
+    return {'book_id': str(book.pk), 'revision': book.revision, 'statements': listed}
+
+
+@guarded
+@transaction.atomic
+def reconciliation(user, book_id, value):
+    """One statement's closing balance against the books at its last date. Read-only; nothing is adjusted.
+
+    Books plus statement lines not yet posted must equal the bank's closing balance plus posted entries
+    the bank has not shown. Whatever remains is the unexplained difference.
+    """
+    _, book = owned(user, book_id)
+    fields(value, ('import_id',))
+    statement = _statement(book, value['import_id'])
+    account = statement.account
+    require(account is not None, 'match_account_required')
+    require(statement.closing_units is not None and statement.opening_units is not None, 'reconciliation_balances_required')
+    dates = sorted(statement.rows.values_list('date', flat=True))
+    as_of = dates[-1]
+    settled, repeats, undone = _settled(book), _duplicates(book), _reversed(book)
+    # Entries that a statement line of this account has cleared, when both the line and the posted entry fall on or before the date.
+    cleared, unrecorded = set(), []
+    for row in SourceRow.objects.filter(source_import__book=book, source_import__account=account, date__lte=as_of).order_by(
+            'date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]:
+        if str(row.pk) in repeats:
+            continue
+        journal = settled.get(str(row.pk), (None, None))[0]
+        if journal is not None and journal.state == 'posted' and journal.date <= as_of:
+            cleared.add(journal.pk)
+        else:
+            unrecorded.append({'row_id': str(row.pk), 'date': row.date.isoformat(), 'description': row.description,
+                               'amount': money(row.amount_units), 'status': 'pending' if journal is None else
+                               'proposed' if journal.state != 'posted' else 'posted_later', 'units': row.amount_units})
+    balance, moves = 0, {}
+    for line in JournalLine.objects.filter(journal__book=book, journal__state='posted', journal__date__lte=as_of,
+                                           account=account).select_related('journal'):
+        net = line.debit_units - line.credit_units
+        balance += net
+        moves[line.journal_id] = (line.journal, moves.get(line.journal_id, (None, 0))[1] + net)
+    outstanding = []
+    for journal, net in sorted(moves.values(), key=lambda item: item[0].sequence):
+        # Opening entries are the bank's own starting balance; an entry and its reversal cancel out.
+        if (journal.pk in cleared or journal.source_kind in ('opening', 'reversal') or str(journal.pk) in undone or net == 0):
+            continue
+        outstanding.append({'journal_id': str(journal.pk), 'sequence': journal.sequence, 'date': journal.date.isoformat(),
+                            'description': journal.description, 'amount': money(net), 'units': net})
+    unrecorded_total = sum(item.pop('units') for item in unrecorded)
+    outstanding_total = sum(item.pop('units') for item in outstanding)
+    adjusted_books, adjusted_bank = balance + unrecorded_total, statement.closing_units + outstanding_total
+    return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision,
+            'statement': {'id': str(statement.pk), 'filename': statement.filename,
+                          'account': {'id': str(account.pk), 'code': account.code, 'name': account.name},
+                          'opening_balance': money(statement.opening_units), 'closing_balance': money(statement.closing_units),
+                          'first_date': dates[0].isoformat(), 'as_of': as_of.isoformat()},
+            'book_balance': money(balance), 'unrecorded_lines': unrecorded[:500], 'unrecorded_total': money(unrecorded_total),
+            'outstanding_entries': outstanding[:500], 'outstanding_total': money(outstanding_total),
+            'adjusted_books': money(adjusted_books), 'adjusted_bank': money(adjusted_bank),
+            'difference': money(adjusted_books - adjusted_bank), 'reconciled': adjusted_books == adjusted_bank}
+
+
 MATCH_DAYS = 10
 
 

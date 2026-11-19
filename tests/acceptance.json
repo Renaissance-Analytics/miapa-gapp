@@ -7569,6 +7569,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B03-RECONCILIATION",
+      "risk": "A reconciliation is reported as agreeing when it does not, or a difference is hidden or adjusted away.",
+      "scenarios": [
+        {
+          "id": "B03-RECONCILIATION.1",
+          "kind": "positive",
+          "given": "Books with a 1,000.00 opening balance, a March statement closing at 1,340.50 with two lines posted and a 10.00 fee not yet, and a 200.00 cheque the bank has not shown",
+          "when": "Reconcile the statement twice",
+          "then": "Book balance 1150.5000; the fee is the one unrecorded line and the cheque the one outstanding entry; adjusted books and adjusted bank are both 1140.5000, difference 0.0000, reconciled; the second run is identical.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_statement_and_books_agree_once_unrecorded_lines_and_outstanding_entries_are_counted"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.2",
+          "kind": "positive",
+          "given": "The same books with the fee entry drafted and then posted",
+          "when": "Reconcile after each step",
+          "then": "While drafted the line is unrecorded as proposed and the book balance is unchanged; once posted it is no longer listed, the book balance is 1140.5000 and the statement still reconciles.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_a_draft_entry_or_one_dated_after_the_statement_leaves_its_line_unrecorded_as_of_that_date"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.3",
+          "kind": "negative",
+          "given": "Books without an opening balance where only the payment is posted",
+          "when": "Reconcile the statement",
+          "then": "Adjusted books 340.5000 against adjusted bank 1340.5000: an unexplained difference of -1000.0000 and not reconciled, with both unposted lines listed.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_a_missing_opening_balance_or_a_wrong_entry_shows_as_an_unexplained_difference"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.4",
+          "kind": "negative",
+          "given": "The cheque reversed, and a later overlapping statement repeating the fee line and adding an April line",
+          "when": "Reconcile the March statement",
+          "then": "The reversed pair is not listed as outstanding; the duplicate and the April line are not counted; only the fee remains unrecorded and the statement reconciles at 1340.5000.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_a_reversed_pair_is_not_listed_and_a_duplicate_or_later_line_is_not_counted"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.5",
+          "kind": "negative",
+          "given": "A statement without balances, one without a bank account, unknown or malformed statements, missing or extra arguments and a foreign reader",
+          "when": "Reconcile",
+          "then": "Each is refused with its exact code.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_statements_without_balances_or_a_bank_account_and_foreign_readers_are_refused"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.6",
+          "kind": "positive",
+          "given": "A complete statement, one without balances and one without a bank account",
+          "when": "List the statements",
+          "then": "Each is listed with its account, balances, first and last dates and row count; only the complete one can be reconciled.",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_statements_are_listed_with_what_each_needs_before_it_can_be_reconciled"
+          ]
+        },
+        {
+          "id": "B03-RECONCILIATION.7",
+          "kind": "negative",
+          "given": "A bound owner over HTTP and the agent tool in a real original session",
+          "when": "Read the statement list and one reconciliation; send a malformed id, an extra parameter, no actor binding, a POST and an extra tool argument",
+          "then": "HTTP and the tool return exactly the service results; malformed and extra input is refused (400, 409 unbound, 405 for POST, tool error).",
+          "tests": [
+            "tests.test_bank_reconciliation.BankReconciliationTests.test_http_and_the_agent_tool_return_exactly_the_service_results"
+          ]
+        }
+      ]
     }
   ]
 }
