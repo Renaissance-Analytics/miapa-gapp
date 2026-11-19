@@ -119,6 +119,7 @@ def snapshot(row):
     page = list(row.journals.order_by('-sequence')[:101])
     return {'id': str(row.pk), 'entity_id': str(row.entity_id), 'currency': row.currency,
             'period_start': row.period_start.isoformat(), 'period_end': row.period_end.isoformat(),
+            'closed_through': row.closed_through.isoformat() if row.closed_through else None,
             'revision': row.revision, 'accounts': [account_value(a) for a in row.accounts.order_by('code')],
             'journals': [entry_value(entry) for entry in page[:100]], 'has_more_journals': len(page) > 100}
 
@@ -193,6 +194,7 @@ def propose_journal(user, book_id, value, _reversal=False):
         return entry_value(existing)
     dated = day(value['date'])
     require(book.period_start <= dated <= book.period_end, 'ledger_date_outside_period')
+    require(not closed(book, dated), 'ledger_period_closed')
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
     require(value['source']['kind'] in ('manual', 'csv') or (_reversal is True and value['source']['kind'] == 'reversal'))
@@ -345,6 +347,40 @@ def source_rows(user, book_id):
                      'journal_id': None if journal is None else str(journal.pk)})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
 
+def closed(book, dated):
+    return book.closed_through is not None and dated <= book.closed_through
+
+
+def check_period_change(book, action, through):
+    """Validate closing through a later date, or reopening to an earlier date or fully (None)."""
+    if action == 'close':
+        target = day(through)
+        require(book.period_start <= target <= book.period_end, 'ledger_date_outside_period')
+        require(book.closed_through is None or target > book.closed_through, 'ledger_period_already_closed')
+        require(not book.journals.filter(state='draft', date__lte=target).exists(), 'ledger_period_has_drafts')
+        return target
+    require(action == 'reopen' and book.closed_through is not None, 'ledger_period_not_closed')
+    if through is None:
+        return None
+    target = day(through)
+    require(book.period_start <= target < book.closed_through, 'ledger_period_reopen_invalid')
+    return target
+
+
+@guarded
+@transaction.atomic
+def change_period(user, book_id, value):
+    """Close the books through a date, or reopen them. Posted history is never altered."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'action', 'through'))
+    target = check_period_change(book, value['action'], value['through'])
+    advance(book, value['expected_revision'])
+    Book.objects.filter(pk=book.pk).update(closed_through=target)
+    event(book, user, 'period.' + value['action'], book.pk, digest({'through': target.isoformat() if target else None}))
+    return {'book_id': str(book.pk), 'closed_through': target.isoformat() if target else None, 'revision': book.revision}
+
+
 def reversal_lines(journal):
     """The exact opposite of a journal's lines, in the same order."""
     return [{'account_id': str(line.account_id), 'debit': money(line.credit_units), 'credit': money(line.debit_units)}
@@ -455,6 +491,7 @@ def confirm_own_journal(user, book_id, journal_id, value):
                           'credit': money(line.credit_units)} for line in lines]}
     require(digest(payload) == row.payload_hash, 'ledger_review_conflict')
     require(book.period_start <= row.date <= book.period_end, 'ledger_date_outside_period')
+    require(not closed(book, row.date), 'ledger_period_closed')
     advance(book, value['expected_revision'])
     require(Journal.objects.filter(pk=row.pk, state='draft', payload_hash=row.payload_hash).update(state='posted') == 1,
             'ledger_review_conflict')

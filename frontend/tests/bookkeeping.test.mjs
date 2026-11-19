@@ -6,7 +6,7 @@ const id=n=>`12345678-1234-4234-8234-${String(n).padStart(12,'0')}`;
 const accounts=[{id:id(2),code:'1000',name:'Checking',category:'asset'},{id:id(3),code:'3000',name:'Owner equity',category:'equity'}];
 const lines=[{account_id:id(2),debit:'0.3000',credit:'0.0000'},{account_id:id(3),debit:'0.0000',credit:'0.3000'}];
 const journal={id:id(4),book_id:id(1),sequence:1,operation_id:id(5),payload_hash:'a'.repeat(64),state:'draft',date:'2026-11-04',description:'Synthetic contribution',source:{kind:'manual',reference:'synthetic-source'},evidence:['synthetic-source'],debit:'0.3000',credit:'0.3000',lines};
-const book={id:id(1),entity_id:id(6),currency:'USD',period_start:'2026-01-01',period_end:'2026-12-31',revision:1,accounts,journals:[journal],has_more_journals:false};
+const book={id:id(1),entity_id:id(6),currency:'USD',period_start:'2026-01-01',period_end:'2026-12-31',closed_through:null,revision:1,accounts,journals:[journal],has_more_journals:false};
 const report={book_id:id(1),currency:'USD',revision:1,accounts:accounts.map(a=>({...a,draft_debit:'0.0000',draft_credit:'0.0000',posted_debit:'0.0000',posted_credit:'0.0000',balance_debit:'0.0000',balance_credit:'0.0000'})),posted_debit:'0.0000',posted_credit:'0.0000',trial_debit:'0.0000',trial_credit:'0.0000',pending_count:1};
 const fixture=()=>structuredClone({actor_id:'1',book,report});
 const input={operation_id:id(5),expected_revision:0,date:journal.date,description:journal.description,source:journal.source,evidence:journal.evidence,lines:[{account_id:id(2),debit:'0.30',credit:'0'},{account_id:id(3),debit:'0',credit:'0.30'}]};
@@ -78,4 +78,13 @@ test('statement import sends exact bounded content with the observed revision an
   await assert.rejects(()=>importStatement('1',book,name,body,new AbortController().signal,fetcher));
  assert.equal(calls.length,2);
  await assert.rejects(()=>importStatement('1',book,'synthetic-bank.csv',content,new AbortController().signal,async url=>Response.json(url==='/api/session/csrf/'?{csrf_token:'x'.repeat(64)}:{...saved,book_id:id(9)},{status:201})));
+});
+
+test('books carry an optional close date and reject a malformed one', () => {
+  const closed = fixture(); closed.book.closed_through = '2026-03-31';
+  assert.equal(parseLedgerSnapshot(closed, '1', book.id).book.closed_through, '2026-03-31');
+  const bad = fixture(); bad.book.closed_through = 'March';
+  assert.throws(() => parseLedgerSnapshot(bad, '1', book.id));
+  const missing = fixture(); delete missing.book.closed_through;
+  assert.throws(() => parseLedgerSnapshot(missing, '1', book.id));
 });

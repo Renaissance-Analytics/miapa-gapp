@@ -269,3 +269,82 @@ class ReversalApprovalTests(TestCase):
                 'operation_id': str(uuid.uuid4()), 'expected_revision': ledger.read_book(self.user, self.book['id'])['revision'],
                 'date': '2026-03-31', 'description': 'Forged', 'source': {'kind': 'reversal', 'reference': str(uuid.uuid4())},
                 'evidence': ['x'], 'lines': self.entry['lines']})
+
+
+class PeriodCloseTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        install = Installation.objects.create()
+        cls.user = get_user_model().objects.create_user(username='period-owner')
+        cls.other = get_user_model().objects.create_user(username='period-other')
+        Membership.objects.create(user=cls.user, installation=install, role='preparer')
+        Membership.objects.create(user=cls.other, installation=install, role='administrator')
+        cls.entity = Entity.objects.create(engagement=Engagement.objects.create(
+            owner=cls.user, installation=install, name='Synthetic periods'), name='Synthetic period business')
+
+    def setUp(self):
+        self.book = ledger.create_book(self.user, self.entity.pk, PERIOD)
+        self.accounts = {a['code']: a['id'] for a in self.book['accounts']}
+
+    def revision(self):
+        return ledger.read_book(self.user, self.book['id'])['revision']
+
+    def draft(self, day, reference):
+        return ledger.propose_journal(self.user, self.book['id'], {
+            'operation_id': str(uuid.uuid4()), 'expected_revision': self.revision(), 'date': day, 'description': 'Synthetic ' + reference,
+            'source': {'kind': 'manual', 'reference': reference}, 'evidence': [reference],
+            'lines': [{'account_id': self.accounts['6200'], 'debit': '10', 'credit': '0'}, {'account_id': self.accounts['1000'], 'debit': '0', 'credit': '10'}]})
+
+    def post(self, entry):
+        return ledger.confirm_own_journal(self.user, self.book['id'], entry['id'],
+            {'expected_revision': self.revision(), 'payload_hash': entry['payload_hash'], 'confirm': True})
+
+    def decide(self, operation, through):
+        item = approvals.request_action(self.user, {'operation': operation, 'summary': 'Synthetic period change',
+                                                    'payload': {'book_id': self.book['id'], 'through': through}})
+        return approvals.decide(self.user, item['id'], {'decision': 'approve', 'payload_hash': item['payload_hash']})
+
+    def test_approved_close_blocks_new_posted_and_reversed_entries_on_or_before_the_date(self):
+        march = self.draft('2026-03-10', 'synthetic-march'); self.post(march)
+        self.assertEqual(ledger.read_book(self.user, self.book['id'])['closed_through'], None)
+        done = self.decide('period.close', '2026-03-31')
+        self.assertEqual((done['state'], done['result']['closed_through']), ('approved', '2026-03-31'))
+        self.assertEqual(ledger.read_book(self.user, self.book['id'])['closed_through'], '2026-03-31')
+        for day in ('2026-03-31', '2026-01-15'):
+            with self.assertRaises(ledger.LedgerError) as caught:
+                self.draft(day, 'synthetic-closed-' + day)
+            self.assertEqual(caught.exception.code, 'ledger_period_closed')
+        with self.assertRaises(approvals.ApprovalError):  # A reversal dated inside the closed period.
+            approvals.request_action(self.user, {'operation': 'journal.reverse', 'summary': 'x',
+                'payload': {'book_id': self.book['id'], 'journal_id': march['id'], 'date': '2026-03-31'}})
+        april = self.draft('2026-04-01', 'synthetic-april')
+        self.assertEqual(self.post(april)['state'], 'posted')
+        reversal = approvals.request_action(self.user, {'operation': 'journal.reverse', 'summary': 'Reverse March in April',
+            'payload': {'book_id': self.book['id'], 'journal_id': march['id'], 'date': '2026-04-02'}})
+        self.assertEqual(approvals.decide(self.user, reversal['id'], {'decision': 'approve', 'payload_hash': reversal['payload_hash']})['state'], 'approved')
+
+    def test_close_requires_no_drafts_in_range_and_a_draft_cannot_be_posted_into_a_closed_period(self):
+        pending = self.draft('2026-02-10', 'synthetic-pending')
+        with self.assertRaises(approvals.ApprovalError) as caught:
+            approvals.request_action(self.user, {'operation': 'period.close', 'summary': 'x', 'payload': {'book_id': self.book['id'], 'through': '2026-02-28'}})
+        self.assertEqual(caught.exception.code, 'ledger_period_has_drafts')
+        self.assertEqual(self.decide('period.close', '2026-01-31')['state'], 'approved')
+        from backend.maipa.ledger.models import Book as BookRow
+        BookRow.objects.filter(pk=self.book['id']).update(closed_through='2026-02-28')  # Closed by another path after the draft existed.
+        with self.assertRaises(ledger.LedgerError) as caught:
+            self.post(pending)
+        self.assertEqual(caught.exception.code, 'ledger_period_closed')
+        self.assertEqual(Journal.objects.get(pk=pending['id']).state, 'draft')
+
+    def test_reopen_moves_the_close_back_and_invalid_or_foreign_changes_are_refused(self):
+        self.decide('period.close', '2026-06-30')
+        for operation, through in (('period.close', '2026-03-31'), ('period.close', '2027-01-01'), ('period.close', 'soon'),
+                                   ('period.reopen', '2026-06-30'), ('period.reopen', '2026-09-30')):
+            with self.assertRaises(approvals.ApprovalError):
+                approvals.request_action(self.user, {'operation': operation, 'summary': 'x', 'payload': {'book_id': self.book['id'], 'through': through}})
+        with self.assertRaises(approvals.ApprovalError):
+            approvals.request_action(self.other, {'operation': 'period.reopen', 'summary': 'x', 'payload': {'book_id': self.book['id'], 'through': None}})
+        self.assertEqual(self.decide('period.reopen', '2026-03-31')['result']['closed_through'], '2026-03-31')
+        self.assertEqual(self.post(self.draft('2026-05-01', 'synthetic-may'))['state'], 'posted')
+        self.assertEqual(self.decide('period.reopen', None)['result']['closed_through'], None)
+        self.assertEqual(self.post(self.draft('2026-01-05', 'synthetic-january'))['state'], 'posted')

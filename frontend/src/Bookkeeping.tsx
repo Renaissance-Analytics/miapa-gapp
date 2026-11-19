@@ -81,7 +81,7 @@ export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
    <Button type="submit" disabled={busy||!entity}>Create books</Button>
   </Form>}
   {b&&report&&<>
-   <p className="bookkeeping-context">{catalog?.books.find(row=>row.id===b.id)?.name} · {b.currency} · {b.period_start} to {b.period_end}</p>
+   <p className="bookkeeping-context">{catalog?.books.find(row=>row.id===b.id)?.name} · {b.currency} · {b.period_start} to {b.period_end}{b.closed_through ? ` · Closed through ${b.closed_through}` : ''}</p>
    <Callout color="blue">Ask Maipa to record a transaction, categorize it or split an entry. Prepared entries appear here for your review. Posting requires your confirmation.</Callout>
    <Form aria-label="Prepare journal entry" className="intake-form" onSubmit={event=>{event.preventDefault();void act(async()=>{
     operation.current??=crypto.randomUUID();

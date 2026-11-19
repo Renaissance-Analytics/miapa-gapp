@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'statement.import', 'journal.post', 'journal.reverse', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'statement.import', 'journal.post', 'journal.reverse', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'journal.reverse': 'Reverse a posted entry', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'journal.reverse': 'Reverse a posted entry', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -88,6 +88,11 @@ export function approvalContent(item: ApprovalRequest): string {
       ...d.lines.filter(object).map(l => `| ${cell(l.account)} | ${cell(l.debit)} | ${cell(l.credit)} |`));
     if (item.operation === 'journal.reverse') lines.push('', `This posts the exact opposite of the entry dated ${cell(d.original_date)}. The original entry stays in your books.`);
     if (d.current === false) lines.push('', 'This entry changed after Maipa asked. Approving will fail; ask Maipa to prepare it again.');
+  } else if (item.operation === 'period.close') {
+    lines.push('', `Close ${cell(d?.books)} books through ${cell(p.through)}. Entries on or before that date can no longer be added, posted or reversed into. Posted history is not changed.`);
+  } else if (item.operation === 'period.reopen') {
+    lines.push('', p.through === null ? `Reopen ${cell(d?.books)} books fully (currently closed through ${cell(d?.closed_through)}).`
+      : `Move the close of ${cell(d?.books)} books back to ${cell(p.through)} (currently ${cell(d?.closed_through)}).`);
   } else if (item.operation === 'books.create') {
     lines.push('', `${cell(d?.entity)} · ${cell(p.currency)} · ${cell(p.period_start)} to ${cell(p.period_end)}`);
   } else if (item.operation === 'account.create') {

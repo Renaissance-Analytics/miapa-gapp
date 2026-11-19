@@ -14,6 +14,8 @@ class Book(models.Model):
     currency = models.CharField(max_length=3)
     period_start = models.DateField()
     period_end = models.DateField()
+    # Entries dated on or before this day can no longer be proposed, posted or reversed into.
+    closed_through = models.DateField(null=True, blank=True)
     revision = models.PositiveIntegerField(default=0)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now)

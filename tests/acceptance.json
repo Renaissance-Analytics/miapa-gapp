@@ -6739,6 +6739,36 @@
           "tests": [
             "tests.test_agent_approvals.ReversalApprovalTests.test_drafts_reversals_foreign_users_and_out_of_period_dates_cannot_be_reversed"
           ]
+        },
+        {
+          "id": "A03-APPROVALS.17",
+          "kind": "negative",
+          "given": "Books with a posted March entry, then an approved close through March 31",
+          "when": "Propose, reverse into, and post around the close date",
+          "then": "Record the close date; refuse proposals and reversals dated on or before it with ledger_period_closed; allow April entries and an April-dated reversal of the March entry.",
+          "tests": [
+            "tests.test_agent_approvals.PeriodCloseTests.test_approved_close_blocks_new_posted_and_reversed_entries_on_or_before_the_date"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.18",
+          "kind": "negative",
+          "given": "A draft dated inside the range to close, and a draft that ends up inside a closed period",
+          "when": "Request the close, and post the draft",
+          "then": "Refuse closing over pending drafts; refuse posting a draft into a closed period and leave it a draft.",
+          "tests": [
+            "tests.test_agent_approvals.PeriodCloseTests.test_close_requires_no_drafts_in_range_and_a_draft_cannot_be_posted_into_a_closed_period"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.19",
+          "kind": "negative",
+          "given": "Books closed through June, with backward closes, out-of-period or malformed dates, non-earlier reopens and a foreign user",
+          "when": "Request period changes, then reopen partly and fully",
+          "then": "Refuse the invalid and foreign requests; an approved reopen moves the close back or clears it and earlier dates become postable again.",
+          "tests": [
+            "tests.test_agent_approvals.PeriodCloseTests.test_reopen_moves_the_close_back_and_invalid_or_foreign_changes_are_refused"
+          ]
         }
       ]
     },

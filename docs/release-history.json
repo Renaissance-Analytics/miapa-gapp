@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-34",
+    "label": "Development update 34",
+    "cards": [
+      {
+        "title": "Keep useful views close",
+        "description": "Save a composed panel as your personal pin. Reopen it without losing your conversation or draft, rename or reorder it, and unpin it while keeping its definition history."
+      },
+      {
+        "title": "Shared, confirmed view changes",
+        "description": "Saved-view changes use current ownership, role and revision checks. Maipa waits for confirmed saves, and conflicts offer a reload instead of overwriting another edit."
+      }
+    ]
+  },
+  {
     "id": "development-33",
     "label": "Development update 33",
     "cards": [

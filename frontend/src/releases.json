@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-54",
+    "label": "Development update 54",
+    "cards": [
+      {
+        "title": "Close a finished month",
+        "description": "Ask Maipa to close your books through a date. After you approve, nothing can be added, posted or reversed on or before that date, so finished months stay as they are. Maipa can ask to reopen them if you need to, again with your approval. Bookkeeping shows the current close date."
+      }
+    ]
+  },
+  {
     "id": "development-53",
     "label": "Development update 53",
     "cards": [
@@ -282,20 +292,6 @@
       {
         "title": "Reopen current client records",
         "description": "A saved client table keeps your column choice and loads current authorized records when reopened. Failed reloads clear old rows and offer a retry."
-      }
-    ]
-  },
-  {
-    "id": "development-34",
-    "label": "Development update 34",
-    "cards": [
-      {
-        "title": "Keep useful views close",
-        "description": "Save a composed panel as your personal pin. Reopen it without losing your conversation or draft, rename or reorder it, and unpin it while keeping its definition history."
-      },
-      {
-        "title": "Shared, confirmed view changes",
-        "description": "Saved-view changes use current ownership, role and revision checks. Maipa waits for confirmed saves, and conflicts offer a reload instead of overwriting another edit."
       }
     ]
   }
