@@ -7711,6 +7711,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A05-FINANCE-BOUNDARY",
+      "risk": "A workflow run, or an approval inside a workflow, changes financial records or stands in for a financial approval.",
+      "scenarios": [
+        {
+          "id": "A05-FINANCE-BOUNDARY.1",
+          "kind": "negative",
+          "given": "The workflow package of the application",
+          "when": "Read its admitted node kinds and its source",
+          "then": "Exactly five kinds are admitted (manual trigger, transform, output, human approval, user input); no workflow module imports the ledger or approvals code or calls a posting, import, reversal, request or decision function.",
+          "tests": [
+            "tests.test_workflow_finance_boundary.WorkflowFinanceBoundaryTests.test_the_admitted_node_kinds_are_exactly_the_five_reviewed_ones_and_the_workflow_code_never_touches_finance"
+          ]
+        },
+        {
+          "id": "A05-FINANCE-BOUNDARY.2",
+          "kind": "positive",
+          "given": "Books with one draft entry and one pending request to post it, and a workflow whose text and run input name that entry, an amount, approve and confirm",
+          "when": "Save, dispatch and finish the run, then approve the financial request as the person",
+          "then": "The run completes with only its text output; the book revision, entry states, ledger events, imports, requests and posted total are all unchanged; the entry is posted only by the person approving the real request afterwards.",
+          "tests": [
+            "tests.test_workflow_finance_boundary.WorkflowFinanceBoundaryTests.test_a_completed_run_that_names_an_entry_changes_no_books_and_decides_no_financial_request"
+          ]
+        },
+        {
+          "id": "A05-FINANCE-BOUNDARY.3",
+          "kind": "negative",
+          "given": "Graphs whose middle node names a financial operation, an agent bookkeeping tool, or an effectful built-in kind",
+          "when": "Save each",
+          "then": "Every one is refused as an invalid workflow; no run exists and no financial record changes.",
+          "tests": [
+            "tests.test_workflow_finance_boundary.WorkflowFinanceBoundaryTests.test_graphs_that_name_financial_or_effectful_node_kinds_are_refused_and_nothing_is_saved"
+          ]
+        }
+      ]
     }
   ]
 }
