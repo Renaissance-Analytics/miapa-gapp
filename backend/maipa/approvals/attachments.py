@@ -61,15 +61,17 @@ def store(user, value):
     original = None
     if 'content_base64' in value:
         # An Excel workbook: kept exactly, and converted once to the rows the importer checks.
-        require(name.lower().endswith('.xlsx') and type(value['content_base64']) is str and value['content_base64'] != '')
+        kind = name.lower().rsplit('.', 1)[-1]
+        require(kind in ('xlsx', 'pdf') and type(value['content_base64']) is str and value['content_base64'] != '')
         try:
             raw = base64.b64decode(value['content_base64'], validate=True)
         except (binascii.Error, ValueError):
             raise AttachmentError('invalid_attachment') from None
-        require(0 < len(raw) <= MAX_BYTES, 'attachment_too_large')
-        from backend.maipa.ledger import services as ledger, spreadsheet
+        from backend.maipa.ledger import documents, services as ledger, spreadsheet
+        require(0 < len(raw) <= (documents.MAX_DOCUMENT_BYTES if kind == 'pdf' else MAX_BYTES), 'attachment_too_large')
         try:
-            content = spreadsheet.statement_csv(raw)
+            # A workbook becomes the rows the importer checks; a PDF becomes its text for the agent to read.
+            content = documents.pdf_text(raw) if kind == 'pdf' else spreadsheet.statement_csv(raw)
         except ledger.LedgerError as problem:
             raise AttachmentError(problem.code) from None
         original = raw
@@ -89,11 +91,16 @@ def listing(user):
     return [_value(row) for row in ChatAttachment.objects.filter(user=user).order_by('-created_at')[:MAX_FILES]]
 
 
-def read(user, identity):
-    """What the agent sees: identity plus a bounded preview."""
+def _kind(row):
+    return None if row.original is None else row.name.lower().rsplit('.', 1)[-1]
+
+
+def read(user, identity, offset=0):
+    """What the agent sees: identity plus a bounded window of the text, starting at offset."""
     row = _row(user, identity)
-    return {**_value(row), 'preview': row.content[:PREVIEW], 'truncated': len(row.content) > PREVIEW,
-            'converted_from': 'xlsx' if row.original is not None else None}
+    require(type(offset) is int and 0 <= offset <= len(row.content))
+    return {**_value(row), 'preview': row.content[offset:offset + PREVIEW], 'truncated': offset + PREVIEW < len(row.content),
+            'offset': offset, 'length': len(row.content), 'converted_from': _kind(row)}
 
 
 def content(user, identity):
@@ -105,7 +112,20 @@ def resolve_payload(user, operation, payload):
     """Let a statement import name an attachment; the stored request still holds the exact content."""
     if operation != 'statement.import' or type(payload) is not dict or 'attachment_id' not in payload:
         return payload
-    require(set(payload) - {'account_id'} == {'book_id', 'attachment_id'})
-    name, text = content(user, payload['attachment_id'])
-    return {'book_id': payload['book_id'], 'filename': name, 'content': text,
-            **({'account_id': payload['account_id']} if 'account_id' in payload else {})}
+    row = _row(user, payload['attachment_id'])
+    extras = ('account_id', 'opening_balance', 'closing_balance')
+    if _kind(row) != 'pdf':
+        require(set(payload) - set(extras) == {'book_id', 'attachment_id'})
+        return {'book_id': payload['book_id'], 'filename': row.name, 'content': row.content,
+                **{key: payload[key] for key in extras if key in payload}}
+    # A PDF has no table: the agent supplies the rows it read, and they must reconcile to the document itself.
+    require(set(payload) == {'book_id', 'attachment_id', 'content', *extras})
+    from backend.maipa.ledger import documents, services as ledger
+    try:
+        _, book = ledger.owned(user, payload['book_id'], True)
+        rows, opening, closing = ledger.statement_rows(book, payload)
+        documents.require_written(row.content, [opening, closing, *(item.amount_units for item in rows)])
+    except ledger.LedgerError as problem:
+        raise AttachmentError(problem.code) from None
+    return {'book_id': payload['book_id'], 'filename': row.name, 'content': payload['content'],
+            **{key: payload[key] for key in extras}}

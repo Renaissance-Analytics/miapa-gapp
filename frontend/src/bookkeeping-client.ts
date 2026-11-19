@@ -12,7 +12,7 @@ export interface ActivityRow {journal_id:string;sequence:number;date:string;desc
 export interface AccountActivity {book_id:string;currency:string;revision:number;account:LedgerAccount;normal_side:'debit'|'credit';posted:(ActivityRow&{balance:string})[];pending:ActivityRow[];posted_debit:string;posted_credit:string;balance:string}
 export interface SourceRow {id:string;import_id:string;import_filename:string;row_number:number;date:string;description:string;amount:string;reference:string;account_id:string|null;status:'pending'|'proposed'|'posted';journal_id:string|null}
 export interface SourceRows {book_id:string;currency:string;revision:number;rows:SourceRow[]}
-export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;account_id:string|null;created:boolean;created_at:string}
+export interface StatementImport {id:string;book_id:string;filename:string;sha256:string;row_count:number;account_id:string|null;opening_balance:string|null;closing_balance:string|null;created:boolean;created_at:string}
 /** Largest statement accepted by the server, in UTF-8 bytes. */
 export const MAX_STATEMENT_BYTES=524_288;
 export interface ReportRow extends LedgerAccount {amount:string}
@@ -91,7 +91,7 @@ export async function importStatement(user:string,b:LedgerBook,filename:string,c
  if(!string(filename,128)||/[\\/:*?"<>|]/.test(filename)||new TextEncoder().encode(content).length>MAX_STATEMENT_BYTES||!content)throw Error('Choose a CSV statement up to 512 KB with a simple file name.');
  if(accountId!==undefined&&!b.accounts.some(a=>a.id===accountId&&a.cash===true))throw Error('Choose one of your bank or cash accounts for this statement.');
  const v=await request(user,`/api/books/${b.id}/imports/`,signal,{expected_revision:b.revision,filename,content,...(accountId?{account_id:accountId}:{})},fetcher);
- if(!object(v)||!exact(v,['id','book_id','filename','sha256','row_count','account_id','created','created_at'])||v.account_id!==(accountId??null)||!uuid(v.id)||v.book_id!==b.id||!string(v.filename,128)||!hash(v.sha256)||!integer(v.row_count)||v.row_count<1||typeof v.created!=='boolean'||typeof v.created_at!=='string')throw unavailable();
+ if(!object(v)||!exact(v,['id','book_id','filename','sha256','row_count','account_id','opening_balance','closing_balance','created','created_at'])||v.account_id!==(accountId??null)||![v.opening_balance,v.closing_balance].every(x=>x===null||signed(x))||(v.opening_balance===null)!==(v.closing_balance===null)||!uuid(v.id)||v.book_id!==b.id||!string(v.filename,128)||!hash(v.sha256)||!integer(v.row_count)||v.row_count<1||typeof v.created!=='boolean'||typeof v.created_at!=='string')throw unavailable();
  return v as unknown as StatementImport;
 }
 export async function readFinancialReport(user:string,bookId:string,from:string,to:string,signal:AbortSignal,fetcher:typeof fetch=fetch){

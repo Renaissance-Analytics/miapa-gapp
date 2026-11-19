@@ -13,7 +13,7 @@ import { SharedUiBridge } from './shared-ui-bridge.js';
 import type { LayoutState } from './layout.js';
 import { readOnboarding } from './onboarding.js';
 import { CHAT_PROSE } from './content-policy.js';
-import { attachmentNote, emptyDraft, isWorkbook, sendProblem } from './chat-drafts.js';
+import { attachmentNote, emptyDraft, sendProblem, sentAsBytes } from './chat-drafts.js';
 import { PersonalViewsController, type ViewsState } from './personal-views.js';
 import {DurableChatDrafts} from './durable-chat-drafts.js';
 import { SavedViews } from './SavedViews.js';
@@ -216,7 +216,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
       if (attachments.length) {
         // Deliver the files first; the message then names each stored file for the agent.
         const saved = [];
-        for (const item of attachments) saved.push(isWorkbook(item.name)
+        for (const item of attachments) saved.push(sentAsBytes(item.name)
           ? await uploadWorkbook(userId, item.name, new Uint8Array(await item.file!.arrayBuffer()), new AbortController().signal)
           : await uploadAttachment(userId, item.name, await item.file!.text(), new AbortController().signal));
         text = `${text}\n\n${attachmentNote(saved)}`;
@@ -316,7 +316,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
             {draftPhase==='conflict'&&<div role="alert"><Text size="sm">Your draft could not be confirmed. Keep your input or load the saved copy.</Text>
               <Button size="sm" variant="ghost" onClick={()=>{void draftStore.resolve(draftAccount,true);}}>Save this draft</Button>
               <Button size="sm" variant="ghost" onClick={()=>{void draftStore.resolve(draftAccount,false);}}>Load saved draft</Button></div>}
-            {(draft.attachments.length>0||draft.pills.some(p=>p.kind==='image'))&&<Text size="sm">Maipa can receive CSV and Excel (.xlsx) statement files up to 512 KB. Other attachments, and files restored from a saved draft, need to be removed or attached again.</Text>}
+            {(draft.attachments.length>0||draft.pills.some(p=>p.kind==='image'))&&<Text size="sm">Maipa can receive CSV and Excel (.xlsx) statement files up to 512 KB and PDF statements up to 700 KB. Other attachments, and files restored from a saved draft, need to be removed or attached again.</Text>}
             <div className="chat-composer" aria-label="Message Maipa"><Field label="Message Maipa" labelHidden htmlFor="maipa-chat-message">
               <PromptInput inputId="maipa-chat-message" name="message" placeholder="Ask Maipa…" draft={draft} onDraftChange={changeDraft}
                 budgetTokens={0} meter="hidden" maxHeight={160} attachButton="icon" sendButton="icon"

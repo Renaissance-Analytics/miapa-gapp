@@ -66,11 +66,13 @@ export function workbookProblem(code: unknown): string {
   if (code === 'import_header_invalid') return 'The first row of that spreadsheet must be the headings date, description, amount and, optionally, reference. Your message and file were kept.';
   if (code === 'import_workbook_sheets') return 'That workbook has more than one sheet. Save the statement as a workbook with a single sheet and attach it again. Your message and file were kept.';
   if (code === 'import_row_count_invalid') return 'That spreadsheet has no statement rows, or more than 1,000. Your message and file were kept.';
-  return 'Maipa could not read that Excel file. Your message and file were kept; check that it is an .xlsx statement up to 512 KB and try again.';
+  if (code === 'import_document_no_text') return 'That PDF has no readable text; it looks like a scanned image. Download the statement from your bank as a PDF with text, or as CSV or Excel. Your message and file were kept.';
+  if (code === 'import_document_invalid') return 'Maipa could not read that PDF. Your message and file were kept; check that it is a statement PDF without a password, up to 700 KB and 30 pages.';
+  return 'Maipa could not read that file. Your message and file were kept; check that it is an .xlsx statement up to 512 KB or a PDF up to 700 KB and try again.';
 }
-/** Send an Excel statement as its exact bytes. The acknowledgment must name this file and its exact size. */
+/** Send an Excel or PDF statement as its exact bytes. The acknowledgment must name this file and its exact size. */
 export async function uploadWorkbook(user: string, name: string, bytes: Uint8Array, signal: AbortSignal, fetcher: typeof fetch = fetch): Promise<SavedAttachment> {
-  if (!/^[0-9]+$/.test(user) || signal.aborted || !bytes.length || bytes.length > 524_288) throw unavailable();
+  if (!/^[0-9]+$/.test(user) || signal.aborted || !bytes.length || bytes.length > (/\.pdf$/i.test(name) ? 716_800 : 524_288)) throw unavailable();
   let binary = '';
   for (let start = 0; start < bytes.length; start += 0x8000) binary += String.fromCharCode(...bytes.subarray(start, start + 0x8000));
   const response = await fetcher('/api/agent/attachments/', { method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'error',
@@ -140,6 +142,15 @@ export function approvalContent(item: ApprovalRequest): string {
     lines.push('', `${cell(p.code)} ${cell(p.name)} (${cell(p.category)}) in ${cell(d?.books)} books`);
   } else if (item.operation === 'statement.import') {
     lines.push('', `${cell(p.filename)} · ${cell(p.content_bytes)} bytes into ${cell(d?.books)} books${d?.account ? `, as a statement of ${cell(d.account)}` : ''}. Rows become pending transactions; no entries are posted.`);
+    if (d && Array.isArray(d.rows)) {
+      // A reconciled statement: the rows to be saved and the balances they add up between.
+      const rows = d.rows.filter(object), more = Number(d.row_count) - rows.length;
+      lines.push('', '| Date | Description | Amount |', '|---|---|---:|', ...rows.map(r => `| ${cell(r.date)} | ${cell(r.description)} | ${cell(r.amount)} |`));
+      if (more > 0) lines.push('', `…and ${more} more ${more === 1 ? 'row' : 'rows'}.`);
+      lines.push('', `Opening balance ${cell(d.opening_balance)} + rows ${cell(d.net)} = closing balance ${cell(d.closing_balance)} (${cell(d.currency)}). `
+        + `These ${cell(d.row_count)} rows add up exactly between the statement's two balances.`);
+      if (/\.pdf$/i.test(String(p.filename))) lines.push('', 'Maipa read these rows from the PDF. Check them against your statement before approving.');
+    }
   }
   return lines.join('\n');
 }

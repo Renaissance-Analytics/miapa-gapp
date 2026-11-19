@@ -7269,6 +7269,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B01-PDF",
+      "risk": "Rows read from a PDF are wrong, invented or incomplete, or text inside a PDF steers the agent, and nothing catches it before import.",
+      "scenarios": [
+        {
+          "id": "B01-PDF.1",
+          "kind": "negative",
+          "given": "A two-page statement PDF whose second page carries an embedded instruction, and number text with separators, signs and currency marks",
+          "when": "Extract the text and collect its numbers",
+          "then": "Text comes back page by page in reading order; the instruction is replaced by a redaction marker; numbers compare equal regardless of separators, sign or currency mark.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_pdf_text_is_extracted_in_reading_order_with_hidden_instructions_redacted"
+          ]
+        },
+        {
+          "id": "B01-PDF.2",
+          "kind": "negative",
+          "given": "Non-PDF bytes, empty or non-byte input, a PDF with no text or only spaces, one over the size limit and one of 31 pages",
+          "when": "Extract the text",
+          "then": "Each is refused with the exact code: document invalid, or no text for a page without text.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_unreadable_empty_oversized_and_overlong_documents_are_refused_naming_the_problem"
+          ]
+        },
+        {
+          "id": "B01-PDF.3",
+          "kind": "negative",
+          "given": "A two-page PDF with more than 4,000 characters of text; a viewer, non-PDF bytes, a textless PDF and a .docx name",
+          "when": "Store it and read it back in windows",
+          "then": "The PDF is kept byte for byte; reading reports converted from pdf, the whole length and whether more follows, and two windows rebuild the exact text; bad offsets and every bad upload are refused, with one attachment stored.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_an_attached_pdf_is_kept_exactly_and_read_back_as_text_in_pages_of_the_preview_size"
+          ]
+        },
+        {
+          "id": "B01-PDF.4",
+          "kind": "positive",
+          "given": "An attached statement PDF with opening 3,799.55, two transactions and closing 5,287.05, and the rows the agent derived",
+          "when": "Request and approve the import",
+          "then": "The request shows both balances, the net, the row count and each row, and imports nothing; approval saves exactly the two rows tied to Checking with both balances recorded.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_an_approved_pdf_import_saves_the_derived_rows_tied_to_the_account_with_both_balances"
+          ]
+        },
+        {
+          "id": "B01-PDF.5",
+          "kind": "negative",
+          "given": "Derived rows with a row left out, a wrong sign, a mistyped balance, an invented amount whose balances still fit, two invented balances, a malformed row or balance, a missing required field and an extra field",
+          "when": "Request the import",
+          "then": "Each is refused with its exact code (balance mismatch, amount not in document, row invalid, invalid request); no request and no import is recorded.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_rows_that_do_not_reconcile_or_are_not_in_the_document_are_refused_and_nothing_is_recorded"
+          ]
+        },
+        {
+          "id": "B01-PDF.6",
+          "kind": "negative",
+          "given": "A CSV import stating one balance, balances that do not reconcile, an over-precise or null balance; an overdrawn statement that reconciles; a statement without balances",
+          "when": "Import each",
+          "then": "One balance alone, a mismatch and malformed balances are refused and nothing is saved; the overdrawn statement is saved with its negative balances; the plain import records no balances.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_any_import_may_state_balances_and_must_then_reconcile_while_others_stay_unchecked"
+          ]
+        },
+        {
+          "id": "B01-PDF.7",
+          "kind": "negative",
+          "given": "A bound owner uploading a statement PDF and then a PDF without text",
+          "when": "Upload over HTTP",
+          "then": "201 with the exact size and only the documented fields; then 400 with the no-text code.",
+          "tests": [
+            "tests.test_pdf_statements.PdfStatementTests.test_http_upload_accepts_a_pdf_and_reports_the_exact_refusal"
+          ]
+        }
+      ]
     }
   ]
 }

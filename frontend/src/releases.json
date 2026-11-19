@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-65",
+    "label": "Development update 65",
+    "cards": [
+      {
+        "title": "Attach a PDF statement",
+        "description": "You can attach a bank statement as a PDF. Maipa reads its text and works out the transactions, then asks you to approve them. The card shows every row and the statement's opening and closing balance."
+      },
+      {
+        "title": "PDF rows must add up",
+        "description": "A PDF import is refused unless the rows add up exactly from the opening balance to the closing balance, and every amount actually appears in the document. A scanned PDF without text cannot be read."
+      }
+    ]
+  },
+  {
     "id": "development-64",
     "label": "Development update 64",
     "cards": [
@@ -226,20 +240,6 @@
       {
         "title": "Review conflicting account names",
         "description": "If another window changes the name, review the saved value while keeping your text. Choose which name to use before saving again."
-      }
-    ]
-  },
-  {
-    "id": "development-45",
-    "label": "Development update 45",
-    "cards": [
-      {
-        "title": "Keep the latest reply in view",
-        "description": "Chat now includes the spacing between messages when measuring its scroll position. Back to latest reaches the newest reply, including when the contextual panel changes size."
-      },
-      {
-        "title": "Keep following while resizing",
-        "description": "Resizing the window keeps the latest reply visible. Scrolling up still pauses following so you can read earlier messages."
       }
     ]
   }

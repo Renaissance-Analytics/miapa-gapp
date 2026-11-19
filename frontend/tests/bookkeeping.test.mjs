@@ -66,7 +66,7 @@ test('statement import sends exact bounded content with the observed revision an
    {...rows,rows:[{...row,amount:'0.0000'}]},{...rows,rows:[row,row]},{...rows,rows:[{...row,row_number:0}]},{...rows,rows:[{...row,owner:'1'}]}])
   assert.throws(()=>parseSourceRows(structuredClone(broken),id(1)));
  const calls=[];
- const saved={id:id(9),book_id:id(1),filename:'synthetic-bank.csv',sha256:'b'.repeat(64),row_count:2,account_id:null,created:true,created_at:'2026-11-05T00:00:00+00:00'};
+ const saved={id:id(9),book_id:id(1),filename:'synthetic-bank.csv',sha256:'b'.repeat(64),row_count:2,account_id:null,opening_balance:null,closing_balance:null,created:true,created_at:'2026-11-05T00:00:00+00:00'};
  const fetcher=async(url,options)=>{calls.push({url,options});return Response.json(url==='/api/session/csrf/'?{csrf_token:'x'.repeat(64)}:saved,{status:url==='/api/session/csrf/'?200:201});};
  const content='date,description,amount\n2026-03-02,Synthetic coffee,-0.1\n';
  assert.deepEqual(await importStatement('1',book,'synthetic-bank.csv',content,new AbortController().signal,fetcher),saved);
@@ -144,7 +144,7 @@ test('report and activity rows accept the server bank-or-cash flag and still ref
 test('a statement import names only a marked bank account and accepts only the matching acknowledgment and rows', async () => {
   const bank = id(31), plain = id(32);
   const owned = { ...book, accounts: [{ id: bank, code: '1000', name: 'Checking', category: 'asset', cash: true }, { id: plain, code: '1500', name: 'Equipment', category: 'asset', cash: false }] };
-  const saved = { id: id(9), book_id: id(1), filename: 'synthetic-bank.csv', sha256: 'b'.repeat(64), row_count: 1, account_id: bank, created: true, created_at: '2026-11-05T00:00:00+00:00' };
+  const saved = { id: id(9), book_id: id(1), filename: 'synthetic-bank.csv', sha256: 'b'.repeat(64), row_count: 1, account_id: bank, opening_balance: null, closing_balance: null, created: true, created_at: '2026-11-05T00:00:00+00:00' };
   const calls = [];
   const answer = value => async (url, options) => { calls.push({ url, options }); return Response.json(url === '/api/session/csrf/' ? { csrf_token: 'x'.repeat(64) } : value, { status: url === '/api/session/csrf/' ? 200 : 201 }); };
   const content = 'date,description,amount\n2026-03-02,Synthetic deposit,12.5\n';
@@ -157,6 +157,10 @@ test('a statement import names only a marked bank account and accepts only the m
   assert.equal(calls.length, sent);
   await assert.rejects(() => importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer({ ...saved, account_id: null }), bank));
   await assert.rejects(() => importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer(saved)));
+  const balanced = { ...saved, opening_balance: '-10.0000', closing_balance: '2.5000' };
+  assert.deepEqual(await importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer(balanced), bank), balanced);
+  for (const change of [{ opening_balance: null }, { closing_balance: 'two' }, { opening_balance: 1 }])
+    await assert.rejects(() => importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer({ ...balanced, ...change }), bank));
   const row = { id: id(8), import_id: id(9), import_filename: 'synthetic-bank.csv', row_number: 1, date: '2026-03-02', description: 'Synthetic deposit', amount: '12.5000', reference: '', account_id: bank, status: 'pending', journal_id: null };
   const rows = { book_id: id(1), currency: 'USD', revision: 2, rows: [row] };
   assert.equal(parseSourceRows(structuredClone(rows), id(1)).rows[0].account_id, bank);

@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-45",
+    "label": "Development update 45",
+    "cards": [
+      {
+        "title": "Keep the latest reply in view",
+        "description": "Chat now includes the spacing between messages when measuring its scroll position. Back to latest reaches the newest reply, including when the contextual panel changes size."
+      },
+      {
+        "title": "Keep following while resizing",
+        "description": "Resizing the window keeps the latest reply visible. Scrolling up still pauses following so you can read earlier messages."
+      }
+    ]
+  },
+  {
     "id": "development-44",
     "label": "Development update 44",
     "cards": [

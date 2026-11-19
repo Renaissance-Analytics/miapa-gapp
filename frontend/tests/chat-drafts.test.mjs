@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ChatDrafts, attachmentNote, emptyDraft, isWorkbook, sendProblem, sendableAttachment } from '../.test-build/chat-drafts.js';
+import { ChatDrafts, attachmentLimit, attachmentNote, emptyDraft, isWorkbook, sendProblem, sendableAttachment, sentAsBytes } from '../.test-build/chat-drafts.js';
 
 test('complete drafts and attachment references restore under only their original account', () => {
   const drafts = new ChatDrafts();
@@ -56,4 +56,15 @@ test('a picked Excel statement can be sent as bytes; other spreadsheet formats a
   for (const bad of [{ ...book, name: 'march.xls' }, { ...book, name: 'march.xlsm' }, { ...book, name: 'march.ods' }, { ...book, bytes: 524289 },
     { ...book, file: { text: async () => '' } }, { ...book, name: 'a/march.xlsx' }])
     assert.match(sendProblem('Import this', [bad]), /Only CSV or Excel \(\.xlsx\) files up to 512 KB/);
+});
+
+test('a picked PDF statement can be sent as bytes up to 700 KB; larger or unreadable picks cannot', () => {
+  const file = { text: async () => '', arrayBuffer: async () => new ArrayBuffer(8) };
+  const doc = { id: 'p', name: 'June statement.PDF', bytes: 650_000, file };
+  assert.equal(sendableAttachment(doc), true);
+  assert.equal(sendProblem('Import this', [doc]), null);
+  assert.deepEqual([sentAsBytes(doc.name), sentAsBytes('a.xlsx'), sentAsBytes('a.csv'), isWorkbook(doc.name)], [true, true, false, false]);
+  assert.deepEqual([attachmentLimit('a.pdf'), attachmentLimit('a.xlsx'), attachmentLimit('a.csv')], [716800, 524288, 524288]);
+  for (const bad of [{ ...doc, bytes: 716_801 }, { ...doc, file: { text: async () => '' } }, { ...doc, name: 'june.docx' }, { id: 'x', name: 'big.xlsx', bytes: 650_000, file }])
+    assert.match(sendProblem('Import this', [bad]), /PDF files up to 700 KB/);
 });
