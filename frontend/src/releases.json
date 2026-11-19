@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-57",
+    "label": "Development update 57",
+    "cards": [
+      {
+        "title": "Maipa can check your books are sound",
+        "description": "Ask Maipa whether your books are sound. It rechecks every entry: each one balances, nothing was altered after it was saved, posted entries have their posting record and reversals match their original. It reports anything it finds and changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-56",
     "label": "Development update 56",
     "cards": [
@@ -270,20 +280,6 @@
       {
         "title": "Save a workflow version",
         "description": "Ask Maipa to publish the current draft as a saved version. Publishing saves the definition without starting a run."
-      }
-    ]
-  },
-  {
-    "id": "development-37",
-    "label": "Development update 37",
-    "cards": [
-      {
-        "title": "Fill a client form together",
-        "description": "Ask Maipa to open Client setup and fill its pending names. You can edit the same saved input. Creating a client still requires your Create client action."
-      },
-      {
-        "title": "Keep control of shared edits",
-        "description": "Conflicting edits keep your unsent input for review. A brief notice marks confirmed Maipa edits, and reloading restores saved input without replaying that notice."
       }
     ]
   }

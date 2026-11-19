@@ -466,6 +466,70 @@ def reverse_journal(user, book_id, journal_id, value):
                                                             'payload_hash': entry['payload_hash'], 'confirm': True})
 
 
+@guarded
+@transaction.atomic
+def verify_book(user, book_id):
+    """Recheck every stored entry against the double-entry rules, independently of how it was written.
+
+    Read-only. Each finding names the rule and the entry; a clean book has none.
+    """
+    _, book = owned(user, book_id)
+    accounts = set(book.accounts.values_list('pk', flat=True))
+    journals = list(book.journals.order_by('sequence'))
+    lines = {journal.pk: [] for journal in journals}
+    for line in JournalLine.objects.filter(journal__book=book).order_by('position'):
+        lines[line.journal_id].append(line)
+    receipts = {row.journal_id: row for row in PostingReceipt.objects.filter(journal__book=book)}
+    by_id = {journal.pk: journal for journal in journals}
+    findings, posted_debit, posted_credit = [], 0, 0
+
+    def found(code, journal=None):
+        findings.append({'code': code, 'journal_id': str(journal.pk) if journal else None,
+                         'sequence': journal.sequence if journal else None})
+
+    for journal in journals:
+        own = lines[journal.pk]
+        debit, credit = sum(line.debit_units for line in own), sum(line.credit_units for line in own)
+        if journal.state == 'posted':
+            posted_debit += debit; posted_credit += credit
+        if not (2 <= len(own) <= 100 and [line.position for line in own] == list(range(len(own)))
+                and all((line.debit_units > 0 and line.credit_units == 0) or (line.credit_units > 0 and line.debit_units == 0) for line in own)):
+            found('journal_lines_invalid', journal)
+        if not 0 < debit == credit == journal.total_units:
+            found('journal_unbalanced', journal)
+        if any(line.account_id not in accounts for line in own):
+            found('line_account_foreign', journal)
+        payload = {'book_id': str(book.pk), 'entity_id': str(book.entity_id), 'currency': book.currency,
+                   'date': journal.date.isoformat(), 'description': journal.description,
+                   'source': {'kind': journal.source_kind, 'reference': journal.source_reference}, 'evidence': journal.evidence,
+                   'lines': [{'account_id': str(line.account_id), 'debit': money(line.debit_units),
+                              'credit': money(line.credit_units)} for line in own]}
+        if digest(payload) != journal.payload_hash:
+            found('journal_hash_mismatch', journal)
+        receipt = receipts.get(journal.pk)
+        if (journal.state == 'posted') != (receipt is not None) or (receipt is not None and receipt.payload_hash != journal.payload_hash):
+            found('posting_receipt_invalid', journal)
+        if journal.source_kind == 'reversal':
+            try:
+                original = by_id.get(uuid.UUID(journal.source_reference))
+            except ValueError:
+                original = None
+            mirrored = original is not None and original.state == 'posted' and original.source_kind != 'reversal' and [
+                (line.account_id, line.credit_units, line.debit_units) for line in lines[original.pk]] == [
+                (line.account_id, line.debit_units, line.credit_units) for line in own]
+            if not mirrored:
+                found('reversal_invalid', journal)
+    revisions = sorted(LedgerEvent.objects.filter(book=book).values_list('revision', flat=True))
+    if revisions != list(range(1, book.revision + 1)):
+        found('event_history_incomplete')
+    if posted_debit != posted_credit:
+        found('posted_totals_unequal')
+    return {'book_id': str(book.pk), 'revision': book.revision, 'ok': not findings, 'journals_checked': len(journals),
+            'posted_count': sum(1 for journal in journals if journal.state == 'posted'),
+            'draft_count': sum(1 for journal in journals if journal.state == 'draft'),
+            'posted_debit': money(posted_debit), 'posted_credit': money(posted_credit), 'findings': findings}
+
+
 NORMAL_DEBIT = ('asset', 'expense')
 
 

@@ -6873,6 +6873,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "L02-INTEGRITY",
+      "risk": "Stored entries stop balancing or are altered after saving and nothing notices.",
+      "scenarios": [
+        {
+          "id": "L02-INTEGRITY.1",
+          "kind": "positive",
+          "given": "Books with two posted entries, one draft, one posted reversal and one imported statement",
+          "when": "Run the integrity check twice",
+          "then": "ok with no findings: 4 entries checked, 3 posted, 1 draft, posted debits and credits both 1250.7000; the second run is identical and nothing changes.",
+          "tests": [
+            "tests.test_ledger_integrity.LedgerIntegrityTests.test_clean_books_with_posted_draft_reversed_and_imported_records_pass_exactly"
+          ]
+        },
+        {
+          "id": "L02-INTEGRITY.2",
+          "kind": "negative",
+          "given": "A stored line amount changed, a line removed, a line moved to another book, an entry date changed or an entry total changed directly in the database",
+          "when": "Run the integrity check",
+          "then": "Each change is reported on exactly the changed entry with its exact rule codes (unbalanced, lines invalid, foreign account, hash mismatch); after the change is undone the book is ok again.",
+          "tests": [
+            "tests.test_ledger_integrity.LedgerIntegrityTests.test_changed_removed_or_foreign_lines_are_found_on_the_exact_entry"
+          ]
+        },
+        {
+          "id": "L02-INTEGRITY.3",
+          "kind": "negative",
+          "given": "An entry marked posted without a posting record, a posting record removed or altered, a reversed original unposted, a reversal that no longer mirrors its original, and a deleted change event",
+          "when": "Run the integrity check",
+          "then": "Posting-record, reversal and incomplete-history findings are reported on the exact entry, or on the book for the missing event.",
+          "tests": [
+            "tests.test_ledger_integrity.LedgerIntegrityTests.test_posting_without_a_receipt_a_broken_reversal_and_a_missing_event_are_found"
+          ]
+        },
+        {
+          "id": "L02-INTEGRITY.4",
+          "kind": "negative",
+          "given": "A user without access to the books, an unknown book and a malformed book id",
+          "when": "Run the integrity check",
+          "then": "Every one is refused.",
+          "tests": [
+            "tests.test_ledger_integrity.LedgerIntegrityTests.test_foreign_readers_and_malformed_books_are_refused"
+          ]
+        },
+        {
+          "id": "L02-INTEGRITY.5",
+          "kind": "negative",
+          "given": "An owner session, a missing actor binding, a POST, an extra parameter and a foreign session",
+          "when": "Read the integrity check over HTTP",
+          "then": "Return exactly the service result to the bound owner; 409 unbound, 405 for POST, 400 for a parameter, 404 foreign.",
+          "tests": [
+            "tests.test_ledger_integrity.LedgerIntegrityTests.test_http_integrity_is_owner_bound_and_matches_the_service"
+          ]
+        },
+        {
+          "id": "L02-INTEGRITY.6",
+          "kind": "positive",
+          "given": "The agent integrity tool in a real original session with the book presented",
+          "when": "Call it for the book, with an extra argument and for an unknown book",
+          "then": "The schema takes only book_id; the result equals the service check (ok, no findings, one draft); an extra argument or unknown book is an error.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_integrity_tool_returns_exactly_the_service_check_and_takes_only_a_book"
+          ]
+        }
+      ]
     }
   ]
 }

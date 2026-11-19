@@ -6,7 +6,7 @@
     "tools/browser.mjs": "86e75d1fc16dd955e534b6f97d890e49dba823ca39caf8cd5fa6ef6779d50093",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "a926f4d707a02e5ff1fa39528bbaf308f2f5da39d4e928b4fc4af74d574735ad"
+    "tests/fixtures/agent_chat_peer.py": "983e76583d0da4213b570d1e859f7f37b5ccfcca5226ecb068677f3af63f0865"
   },
   "cases": [
     {
@@ -362,5 +362,6 @@
   "setup_open_race_review": "Intermittent setup_chat/setup_resume \"saved setup prompt\" timeouts: the app auto-opens Account setup when saved setup loads, and the helper checked aria-expanded then clicked, so a click landing just after the auto-open closed the panel. openAccountSetup now requires the panel to end up expanded, clicking again if not, under the same 150x100ms until budget. No assertion, case or deadline changed.",
   "financial_report_review": "The finite peer exact startup catalog adds the read-only maipa_books_report tool. No browser action, assertion or deadline changed.",
   "financial_statements_browser_review": "One added case between the unchanged statement-import and own-books cases. It reads the real owner-bound report API and compares it with the rendered section. No prior action, assertion or deadline changed; progress maximum 50 -> 51.",
-  "agent_flows_browser_review": "One added case after the unchanged approval case. The finite peer gains handlers that call the real maipa_attachment_read, maipa_books_read and maipa_action_request tools for statement.import by attachment, journal.reverse and period.close; the human approves each with a native click. Outcomes are read from the real owner-bound APIs. No prior action, assertion or deadline changed; progress maximum 51 -> 52."
+  "agent_flows_browser_review": "One added case after the unchanged approval case. The finite peer gains handlers that call the real maipa_attachment_read, maipa_books_read and maipa_action_request tools for statement.import by attachment, journal.reverse and period.close; the human approves each with a native click. Outcomes are read from the real owner-bound APIs. No prior action, assertion or deadline changed; progress maximum 51 -> 52.",
+  "ledger_integrity_review": "The finite peer exact startup catalog adds the read-only maipa_books_verify tool. No browser action, assertion or deadline changed."
 }

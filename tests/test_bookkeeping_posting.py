@@ -104,7 +104,7 @@ class BookkeepingPostingTests(TestCase):
     def test_agent_ledger_tools_have_proposal_and_read_but_no_confirmation_or_posting_tool(self):
         from backend.maipa.ledger.tools import tool_definitions
         definitions = tool_definitions()
-        self.assertEqual({t['name'] for t in definitions}, {'maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_journal_propose'})
+        self.assertEqual({t['name'] for t in definitions}, {'maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_journal_propose'})
         schema = next(t for t in definitions if t['name'] == 'maipa_journal_propose')['inputSchema']
         self.assertFalse(schema['additionalProperties'])
         self.assertNotIn('confirm', json.dumps(schema))
@@ -161,6 +161,19 @@ class BookkeepingPostingTests(TestCase):
         plain = broker.call('maipa_books_report', {'book_id': self.book['id'], 'from': start, 'to': end})
         self.assertNotIn('comparison', json.loads(plain['content'][0]['text']))
         self.assertTrue(broker.call('maipa_books_report', {'book_id': self.book['id'], 'from': start, 'to': end, 'compare_from': start})['isError'])
+
+    def test_agent_integrity_tool_returns_exactly_the_service_check_and_takes_only_a_book(self):
+        from backend.maipa.ledger.tools import tool_definitions
+        schema = next(t for t in tool_definitions() if t['name'] == 'maipa_books_verify')['inputSchema']
+        self.assertEqual((schema['required'], list(schema['properties']), schema['additionalProperties']), (['book_id'], ['book_id'], False))
+        broker, _, _ = self.broker()
+        answer = broker.call('maipa_books_verify', {'book_id': self.book['id']})
+        self.assertFalse(answer.get('isError', False))
+        value = json.loads(answer['content'][0]['text'])
+        self.assertEqual(value, services.verify_book(self.user, self.book['id']))
+        self.assertEqual((value['ok'], value['findings'], value['draft_count']), (True, [], 1))
+        self.assertTrue(broker.call('maipa_books_verify', {'book_id': self.book['id'], 'repair': True})['isError'])
+        self.assertTrue(broker.call('maipa_books_verify', {'book_id': str(uuid.uuid4())})['isError'])
 
     def test_dismissed_component_and_revoked_original_session_authority_prevent_agent_mutation(self):
         broker, account, lease = self.broker()
