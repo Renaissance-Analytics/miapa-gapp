@@ -1879,6 +1879,16 @@
           "tests": [
             "bookkeeping.test.mjs#statement import sends exact bounded content with the observed revision and parses only consistent rows"
           ]
+        },
+        {
+          "id": "L05-BOOKS.8",
+          "kind": "negative",
+          "given": "Book snapshots with a close date, a malformed close date and a missing close field",
+          "when": "Parse the snapshot",
+          "then": "Accept a valid close date and reject malformed or missing ones.",
+          "tests": [
+            "bookkeeping.test.mjs#books carry an optional close date and reject a malformed one"
+          ]
         }
       ]
     },
@@ -1964,6 +1974,16 @@
           "then": "Accept the reversal operation, show the opposite lines, state that the original entry is kept, and title the card as a reversal.",
           "tests": [
             "approvals.test.mjs#a reversal card shows the opposite lines and says the original entry is kept"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.9",
+          "kind": "positive",
+          "given": "Pending requests to close, fully reopen and partly reopen the books",
+          "when": "Build their cards",
+          "then": "State exactly what closing does and that history is unchanged; state the current and new close dates for reopening; accept both operations.",
+          "tests": [
+            "approvals.test.mjs#period cards say exactly what closing or reopening does"
           ]
         }
       ]

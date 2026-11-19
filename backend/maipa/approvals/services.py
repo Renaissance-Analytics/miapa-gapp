@@ -74,6 +74,20 @@ def _check_reverse(user, payload):
     require(original.source_kind != 'reversal', 'ledger_reversal_not_reversible')
     require(not book.journals.filter(source_kind='reversal', source_reference=str(original.pk)).exists(), 'ledger_already_reversed')
     require(book.period_start <= ledger.day(payload['date']) <= book.period_end, 'ledger_date_outside_period')
+    require(not ledger.closed(book, ledger.day(payload['date'])), 'ledger_period_closed')
+
+
+def _check_period(action):
+    def check(user, payload):
+        _, book = ledger.owned(user, payload['book_id'], True)
+        require(book.created_by_id == user.pk, 'approval_denied')
+        ledger.check_period_change(book, action, payload['through'])
+    return check
+
+
+def _run_period(action):
+    return lambda user, p: ledger.change_period(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                                                    'action': action, 'through': p['through']})
 
 
 def _check_setup(user, payload):
@@ -106,6 +120,8 @@ OPERATIONS = {
     'journal.reverse': (('book_id', 'journal_id', 'date'), _check_reverse,
         lambda user, p: ledger.reverse_journal(user, p['book_id'], p['journal_id'],
                                                {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
+    'period.close': (('book_id', 'through'), _check_period('close'), _run_period('close')),
+    'period.reopen': (('book_id', 'through'), _check_period('reopen'), _run_period('reopen')),
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
 }
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
@@ -134,6 +150,9 @@ def _detail(row):
             return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
                     'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
                     'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
+        if row.operation in ('period.close', 'period.reopen'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            return {'books': book.entity.name, 'closed_through': book.closed_through.isoformat() if book.closed_through else None}
         if row.operation in ('account.create', 'statement.import'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             return {'books': book.entity.name, 'currency': book.currency}

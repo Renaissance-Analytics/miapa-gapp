@@ -104,3 +104,13 @@ test('a reversal card shows the opposite lines and says the original entry is ke
   assert.match(content, /exact opposite of the entry dated 2026-03-03\. The original entry stays in your books\./);
   assert.equal(approvalMessage(reverse).proposal.title, 'Reverse a posted entry');
 });
+
+test('period cards say exactly what closing or reopening does', () => {
+  const close = { ...single, operation: 'period.close', summary: 'Close March', payload: { book_id: id(2), through: '2026-03-31' }, detail: { books: 'Sample Co LLC', closed_through: null } };
+  assert.match(approvalContent(close), /Close Sample Co LLC books through 2026-03-31\. Entries on or before that date can no longer be added, posted or reversed into\. Posted history is not changed\./);
+  assert.equal(approvalMessage(close).proposal.title, 'Close the books');
+  const reopen = { ...close, operation: 'period.reopen', payload: { book_id: id(2), through: null }, detail: { books: 'Sample Co LLC', closed_through: '2026-03-31' } };
+  assert.match(approvalContent(reopen), /Reopen Sample Co LLC books fully \(currently closed through 2026-03-31\)\./);
+  assert.match(approvalContent({ ...reopen, payload: { book_id: id(2), through: '2026-02-28' } }), /Move the close of Sample Co LLC books back to 2026-02-28 \(currently 2026-03-31\)\./);
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [close, { ...reopen, id: id(7) }], recent: [] }, '1').pending.length, 2);
+});
