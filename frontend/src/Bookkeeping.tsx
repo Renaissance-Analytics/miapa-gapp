@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {Button,Callout,DatePicker,FileUpload,Form,Heading,Input,Select,Table} from '@particle-academy/react-fancy';
-import {MAX_STATEMENT_BYTES,createLedger,displayMoney,displaySigned,importStatement,postJournal,proposeJournal,readAccountActivity,readBooks,readLedger,readSourceRows,type AccountActivity,type BookCatalog,type JournalInput,type LedgerLine,type LedgerSnapshot,type SourceRows} from './bookkeeping-client.js';
+import {MAX_STATEMENT_BYTES,createLedger,displayMoney,displaySigned,importStatement,postJournal,proposeJournal,readAccountActivity,readBooks,readFinancialReport,readLedger,readSourceRows,type AccountActivity,type FinancialReport,type BookCatalog,type JournalInput,type LedgerLine,type LedgerSnapshot,type SourceRows} from './bookkeeping-client.js';
 
 /** One registered surface shared with the real agent; service rows are authoritative. */
 export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
@@ -42,6 +42,15 @@ export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
   void readSourceRows(userId,b.id,controller.signal).then(value=>{if(!controller.signal.aborted)setSources(value);}).catch(()=>{});
   return()=>controller.abort();
  },[userId,b?.id,b?.revision]);
+ const [statements,setStatements]=useState<FinancialReport>();
+ // Statements follow the book revision, so a posted or reversed entry shows up at once.
+ useEffect(()=>{
+  if(!b)return;
+  const controller=new AbortController();
+  void readFinancialReport(userId,b.id,b.period_start,b.period_end,controller.signal).then(value=>{if(!controller.signal.aborted)setStatements(value);}).catch(()=>{if(!controller.signal.aborted)setStatements(undefined);});
+  return()=>controller.abort();
+ },[userId,b?.id,b?.revision]);
+ const shownStatements=statements&&b&&statements.book_id===b.id&&statements.revision===b.revision?statements:undefined;
  const shownSources=sources&&b&&sources.book_id===b.id?sources:undefined;
  const pendingRows=shownSources?.rows.filter(row=>row.status==='pending')??[];
  // Re-read activity whenever the book revision changes, so posting shows up immediately.
@@ -135,6 +144,27 @@ export function Bookkeeping({userId,bookId}:{userId:string;bookId?:string}){
    <Heading as="h4" size="sm">Trial balance · posted entries only</Heading>
    <Table aria-label="Trial balance"><Table.Head><Table.Row>{['Account','Category','Debit balance','Credit balance','Activity'].map(t=><Table.Cell key={t} header scope="col">{t}</Table.Cell>)}</Table.Row></Table.Head><Table.Body>{report.accounts.map(a=><Table.Row key={a.id} data-account-code={a.code}><Table.Cell>{a.code} · {a.name}</Table.Cell><Table.Cell>{a.category}</Table.Cell><Table.Cell>{money(a.balance_debit)}</Table.Cell><Table.Cell>{money(a.balance_credit)}</Table.Cell><Table.Cell><Button size="sm" variant="ghost" aria-pressed={activityAccount===a.id} aria-label={`View activity for ${a.code} ${a.name}`} onClick={()=>setActivityAccount(a.id)}>View activity</Button></Table.Cell></Table.Row>)}</Table.Body></Table>
    <p data-trial-totals>Debits {money(report.trial_debit)} · Credits {money(report.trial_credit)}</p>
+   {shownStatements&&<section aria-label="Financial statements" className="bookkeeping-review" data-report-net={shownStatements.income_statement.net_income}>
+    <Heading as="h4" size="sm">Income statement · {shownStatements.from} to {shownStatements.to} · posted entries only</Heading>
+    <Table aria-label="Income statement"><Table.Head><Table.Row>{['Account','Amount'].map(t=><Table.Cell key={t} header scope="col">{t}</Table.Cell>)}</Table.Row></Table.Head>
+     <Table.Body>
+      {shownStatements.income_statement.income.map(r=><Table.Row key={r.id}><Table.Cell>{r.code} · {r.name}</Table.Cell><Table.Cell>{displaySigned(r.amount)}</Table.Cell></Table.Row>)}
+      <Table.Row><Table.Cell>Total income</Table.Cell><Table.Cell>{displaySigned(shownStatements.income_statement.total_income)}</Table.Cell></Table.Row>
+      {shownStatements.income_statement.expenses.map(r=><Table.Row key={r.id}><Table.Cell>{r.code} · {r.name}</Table.Cell><Table.Cell>{displaySigned(r.amount)}</Table.Cell></Table.Row>)}
+      <Table.Row><Table.Cell>Total expenses</Table.Cell><Table.Cell>{displaySigned(shownStatements.income_statement.total_expenses)}</Table.Cell></Table.Row>
+      <Table.Row><Table.Cell>Net income</Table.Cell><Table.Cell>{displaySigned(shownStatements.income_statement.net_income)}</Table.Cell></Table.Row>
+     </Table.Body></Table>
+    <Heading as="h4" size="sm">Balance sheet · as of {shownStatements.balance_sheet.as_of}</Heading>
+    <Table aria-label="Balance sheet"><Table.Head><Table.Row>{['Account','Amount'].map(t=><Table.Cell key={t} header scope="col">{t}</Table.Cell>)}</Table.Row></Table.Head>
+     <Table.Body>
+      {shownStatements.balance_sheet.assets.map(r=><Table.Row key={r.id}><Table.Cell>{r.code} · {r.name}</Table.Cell><Table.Cell>{displaySigned(r.amount)}</Table.Cell></Table.Row>)}
+      <Table.Row><Table.Cell>Total assets</Table.Cell><Table.Cell>{displaySigned(shownStatements.balance_sheet.total_assets)}</Table.Cell></Table.Row>
+      {[...shownStatements.balance_sheet.liabilities,...shownStatements.balance_sheet.equity].map(r=><Table.Row key={r.id}><Table.Cell>{r.code} · {r.name}</Table.Cell><Table.Cell>{displaySigned(r.amount)}</Table.Cell></Table.Row>)}
+      <Table.Row><Table.Cell>Earnings to date</Table.Cell><Table.Cell>{displaySigned(shownStatements.balance_sheet.earnings_to_date)}</Table.Cell></Table.Row>
+      <Table.Row><Table.Cell>Total liabilities and equity</Table.Cell><Table.Cell>{displaySigned(shownStatements.balance_sheet.total_liabilities_and_equity)}</Table.Cell></Table.Row>
+     </Table.Body></Table>
+    <p>Ask Maipa for any other date range, for example “What was my profit in March?”</p>
+   </section>}
    {activityError&&<Callout color="amber" role="alert">{activityError}</Callout>}
    {shownActivity&&<section aria-label="Account activity" className="bookkeeping-review" data-activity-account={shownActivity.account.code}>
     <Heading as="h4" size="sm">Account activity · {shownActivity.account.code} {shownActivity.account.name}</Heading>

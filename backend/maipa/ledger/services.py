@@ -347,6 +347,46 @@ def source_rows(user, book_id):
                      'journal_id': None if journal is None else str(journal.pk)})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
 
+@guarded
+@transaction.atomic
+def financial_report(user, book_id, value):
+    """Income statement for a date range and balance sheet as of its end, from posted entries only."""
+    _, book = owned(user, book_id)
+    fields(value, ('from', 'to'))
+    start, end = day(value['from']), day(value['to'])
+    require(book.period_start <= start <= end <= book.period_end, 'ledger_date_outside_period')
+    accounts = {a.pk: a for a in book.accounts.all()}
+    in_range = dict.fromkeys(accounts, 0)   # debit minus credit inside the range
+    to_date = dict.fromkeys(accounts, 0)    # debit minus credit up to the end date
+    lines = JournalLine.objects.filter(journal__book=book, journal__state='posted', journal__date__lte=end).select_related('journal')
+    for line in lines.iterator(chunk_size=1000):
+        net = line.debit_units - line.credit_units
+        to_date[line.account_id] += net
+        if line.journal.date >= start:
+            in_range[line.account_id] += net
+
+    def section(category, source, sign):
+        rows = [(a, sign * source[pk]) for pk, a in accounts.items() if a.category == category and source[pk] != 0]
+        rows.sort(key=lambda item: item[0].code)
+        return [{**account_value(a), 'amount': money(units)} for a, units in rows], sum(units for _, units in rows)
+
+    income, total_income = section('income', in_range, -1)
+    expenses, total_expenses = section('expense', in_range, 1)
+    assets, total_assets = section('asset', to_date, 1)
+    liabilities, total_liabilities = section('liability', to_date, -1)
+    equity, total_equity = section('equity', to_date, -1)
+    # Income and expense accounts are not closed into equity, so earnings to date complete the equation.
+    earnings = -sum(units for pk, units in to_date.items() if accounts[pk].category in ('income', 'expense'))
+    return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'from': start.isoformat(), 'to': end.isoformat(),
+            'income_statement': {'income': income, 'expenses': expenses, 'total_income': money(total_income),
+                                 'total_expenses': money(total_expenses), 'net_income': money(total_income - total_expenses)},
+            'balance_sheet': {'as_of': end.isoformat(), 'assets': assets, 'liabilities': liabilities, 'equity': equity,
+                              'total_assets': money(total_assets), 'total_liabilities': money(total_liabilities),
+                              'total_equity': money(total_equity), 'earnings_to_date': money(earnings),
+                              'total_liabilities_and_equity': money(total_liabilities + total_equity + earnings)},
+            'pending_count': book.journals.filter(state='draft').count()}
+
+
 def closed(book, dated):
     return book.closed_through is not None and dated <= book.closed_through
 

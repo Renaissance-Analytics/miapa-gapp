@@ -89,6 +89,15 @@ def imports(request, book_id):
 
 
 @endpoint
+def report(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if set(request.GET) != {'from', 'to'}:
+        return error('invalid_ledger_request', 400)
+    return JsonResponse(services.financial_report(request.user, str(book_id), {'from': request.GET['from'], 'to': request.GET['to']}))
+
+
+@endpoint
 def journals(request, book_id):
     if request.method != 'POST':
         return method_not_allowed('POST')

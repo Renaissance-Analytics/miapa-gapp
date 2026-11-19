@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-55",
+    "label": "Development update 55",
+    "cards": [
+      {
+        "title": "Income statement and balance sheet",
+        "description": "Bookkeeping now shows an income statement and a balance sheet built from your posted entries. Ask Maipa for any date range, for example your profit in March; it reads exact figures from your books instead of estimating them."
+      }
+    ]
+  },
+  {
     "id": "development-54",
     "label": "Development update 54",
     "cards": [
@@ -278,20 +288,6 @@
       {
         "title": "Keep your draft during a usage limit",
         "description": "A reported future reset pauses new sends for that account. Your draft remains editable, status survives login, and no reply is retried automatically."
-      }
-    ]
-  },
-  {
-    "id": "development-35",
-    "label": "Development update 35",
-    "cards": [
-      {
-        "title": "Compose smaller, useful pieces",
-        "description": "Maipa can compose compact headings, commentary callouts and a read-only client table in the shared panel using Fancy components."
-      },
-      {
-        "title": "Reopen current client records",
-        "description": "A saved client table keeps your column choice and loads current authorized records when reopened. Failed reloads clear old rows and offer a retry."
       }
     ]
   }
