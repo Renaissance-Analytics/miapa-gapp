@@ -164,6 +164,12 @@ function command(method, params = {}) {
     socket.send(JSON.stringify({ id, method, params }));
   });
 }
+async function openAccountSetup() {
+  // The app also opens this panel by itself once saved setup loads. A click that lands just after that would close it,
+  // so require the panel to end up open and click again if it did not.
+  const expanded = () => evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Account setup')?.getAttribute('aria-expanded')==='true'");
+  await until(async () => { if (await expanded()) return true; await click('Account setup'); return expanded(); }, 'account setup panel open');
+}
 async function openAccountMenu() {
   // The account menu is a published Fancy Popover: its theme controls mount only while open.
   // The shell can re-render while the session settles after a reload; reopen until the controls are mounted.
@@ -425,7 +431,7 @@ try {
     await chooseAgent();
     checkpoint = 'setup_mobile';
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-    await click('Account setup');
+    await openAccountSetup();
     await until(() => evaluate("!document.querySelector('[data-pane=agent]').inert && document.querySelector('[data-pane=work]').inert"), 'mobile account conversation');
     const atStep = step => until(() => evaluate(`document.querySelector('[data-setup-step]')?.dataset.setupStep === ${JSON.stringify(step)} && document.querySelector('[data-setup-step]').getAttribute('aria-busy') === 'false'`), 'saved setup prompt');
     checkpoint = 'setup_display_name';
@@ -437,7 +443,7 @@ try {
     checkpoint = 'setup_resume';
     await command('Page.reload');
     await until(() => evaluate("!![...document.querySelectorAll('button, summary')].find(b=>b.textContent==='Account setup')"), 'resumed authenticated shell');
-    await click('Account setup');
+    await openAccountSetup();
     await atStep('workspace');
     assert.ok(await evaluate("document.querySelector('[aria-label=\"Account setup steps\"]').innerText.includes('Synthetic onboarding owner')"));
     checkpoint = 'setup_engagement';
