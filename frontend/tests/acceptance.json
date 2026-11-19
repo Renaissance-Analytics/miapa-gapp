@@ -1945,6 +1945,16 @@
           "tests": [
             "approvals.test.mjs#an attached file is uploaded for this actor and only its exact acknowledgment is accepted"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.8",
+          "kind": "positive",
+          "given": "A pending reversal request with server-read opposite lines",
+          "when": "Parse it and build its card",
+          "then": "Accept the reversal operation, show the opposite lines, state that the original entry is kept, and title the card as a reversal.",
+          "tests": [
+            "approvals.test.mjs#a reversal card shows the opposite lines and says the original entry is kept"
+          ]
         }
       ]
     }

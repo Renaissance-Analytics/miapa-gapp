@@ -202,3 +202,70 @@ class AgentApprovalToolTests(TestCase):
             with self.assertRaises(self.ui.UiUnavailable):
                 self.call(name, {'id': asked['request']['id'], 'decision': 'approve', 'payload_hash': asked['request']['payload_hash']})
         self.assertEqual((Book.objects.count(), ActionRequest.objects.get().state), (0, 'pending'))
+
+
+class ReversalApprovalTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        install = Installation.objects.create()
+        cls.user = get_user_model().objects.create_user(username='reversal-owner')
+        cls.other = get_user_model().objects.create_user(username='reversal-other')
+        Membership.objects.create(user=cls.user, installation=install, role='preparer')
+        Membership.objects.create(user=cls.other, installation=install, role='administrator')
+        cls.entity = Entity.objects.create(engagement=Engagement.objects.create(
+            owner=cls.user, installation=install, name='Synthetic reversals'), name='Synthetic reversal business')
+
+    def setUp(self):
+        self.book = ledger.create_book(self.user, self.entity.pk, PERIOD)
+        accounts = {a['code']: a['id'] for a in self.book['accounts']}
+        self.entry = ledger.propose_journal(self.user, self.book['id'], {
+            'operation_id': str(uuid.uuid4()), 'expected_revision': 0, 'date': '2026-03-03', 'description': 'Synthetic rent',
+            'source': {'kind': 'manual', 'reference': 'synthetic-rent'}, 'evidence': ['synthetic-rent'],
+            'lines': [{'account_id': accounts['6200'], 'debit': '900', 'credit': '0'}, {'account_id': accounts['1000'], 'debit': '0', 'credit': '900'}]})
+
+    def post(self):
+        ledger.confirm_own_journal(self.user, self.book['id'], self.entry['id'],
+            {'expected_revision': 1, 'payload_hash': self.entry['payload_hash'], 'confirm': True})
+
+    def ask(self, **changes):
+        return approvals.request_action(self.user, {'operation': 'journal.reverse', 'summary': 'Reverse the rent entry',
+            'payload': {'book_id': self.book['id'], 'journal_id': self.entry['id'], 'date': '2026-03-31'} | changes})
+
+    def test_approved_reversal_posts_a_linked_opposite_entry_and_zeroes_the_balances_once(self):
+        self.post()
+        item = self.ask()
+        self.assertEqual(item['detail']['lines'], [{'account': '6200 Office expenses', 'debit': '0.0000', 'credit': '900.0000'},
+                                                  {'account': '1000 Checking', 'debit': '900.0000', 'credit': '0.0000'}])
+        self.assertEqual(Journal.objects.count(), 1)
+        done = approvals.decide(self.user, item['id'], {'decision': 'approve', 'payload_hash': item['payload_hash']})
+        self.assertEqual((done['state'], done['result']['state']), ('approved', 'posted'))
+        reversal = Journal.objects.exclude(pk=self.entry['id']).get()
+        self.assertEqual((reversal.state, reversal.source_kind, reversal.source_reference, reversal.date.isoformat()),
+                         ('posted', 'reversal', self.entry['id'], '2026-03-31'))
+        self.assertEqual(Journal.objects.get(pk=self.entry['id']).state, 'posted')
+        report = ledger.journal_preview(self.user, self.book['id'])
+        self.assertEqual((report['trial_debit'], report['trial_credit'], report['posted_debit']), ('0.0000', '0.0000', '1800.0000'))
+        with self.assertRaises(approvals.ApprovalError):
+            self.ask()
+        self.assertEqual(Journal.objects.count(), 2)
+
+    def test_drafts_reversals_foreign_users_and_out_of_period_dates_cannot_be_reversed(self):
+        with self.assertRaises(approvals.ApprovalError):
+            self.ask()  # Still a draft.
+        self.post()
+        for changes in ({'date': '2027-01-01'}, {'date': 'soon'}, {'journal_id': str(uuid.uuid4())}):
+            with self.assertRaises(approvals.ApprovalError):
+                self.ask(**changes)
+        with self.assertRaises(approvals.ApprovalError):
+            approvals.request_action(self.other, {'operation': 'journal.reverse', 'summary': 'x',
+                'payload': {'book_id': self.book['id'], 'journal_id': self.entry['id'], 'date': '2026-03-31'}})
+        item = self.ask()
+        approvals.decide(self.user, item['id'], {'decision': 'approve', 'payload_hash': item['payload_hash']})
+        reversal = Journal.objects.exclude(pk=self.entry['id']).get()
+        with self.assertRaises(approvals.ApprovalError):
+            self.ask(journal_id=str(reversal.pk))
+        with self.assertRaises(ledger.LedgerError):  # A reversal source cannot be forged through the ordinary proposal path.
+            ledger.propose_journal(self.user, self.book['id'], {
+                'operation_id': str(uuid.uuid4()), 'expected_revision': ledger.read_book(self.user, self.book['id'])['revision'],
+                'date': '2026-03-31', 'description': 'Forged', 'source': {'kind': 'reversal', 'reference': str(uuid.uuid4())},
+                'evidence': ['x'], 'lines': self.entry['lines']})

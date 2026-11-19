@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'statement.import', 'journal.post', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'statement.import', 'journal.post', 'journal.reverse', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'journal.reverse': 'Reverse a posted entry', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -83,9 +83,10 @@ const cell = (v: unknown) => String(v ?? '').replace(/[|\\`*_<>\[\]]/g, ' ').sli
 export function approvalContent(item: ApprovalRequest): string {
   const lines = [cell(item.summary)];
   const d = item.detail, p = item.payload;
-  if (item.operation === 'journal.post' && d && Array.isArray(d.lines)) {
+  if ((item.operation === 'journal.post' || item.operation === 'journal.reverse') && d && Array.isArray(d.lines)) {
     lines.push('', `${cell(d.date)} · ${cell(d.description)} · ${cell(d.currency)}`, '', '| Account | Debit | Credit |', '|---|---:|---:|',
       ...d.lines.filter(object).map(l => `| ${cell(l.account)} | ${cell(l.debit)} | ${cell(l.credit)} |`));
+    if (item.operation === 'journal.reverse') lines.push('', `This posts the exact opposite of the entry dated ${cell(d.original_date)}. The original entry stays in your books.`);
     if (d.current === false) lines.push('', 'This entry changed after Maipa asked. Approving will fail; ask Maipa to prepare it again.');
   } else if (item.operation === 'books.create') {
     lines.push('', `${cell(d?.entity)} · ${cell(p.currency)} · ${cell(p.period_start)} to ${cell(p.period_end)}`);
