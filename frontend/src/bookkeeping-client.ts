@@ -58,7 +58,7 @@ export function parseSourceRows(v:unknown,bookId:string):SourceRows{
  if(!object(v)||!exact(v,['book_id','currency','revision','rows'])||v.book_id!==bookId||!currency(v.currency)||!integer(v.revision)||!Array.isArray(v.rows)||v.rows.length>5000||!v.rows.every(r=>sourceRow(r,bookId))||new Set(v.rows.map(r=>(r as SourceRow).id)).size!==v.rows.length)throw unavailable();
  return v as unknown as SourceRows;
 }
-const reportRows=(v:unknown,category:string):v is ReportRow[]=>Array.isArray(v)&&v.length<=1000&&v.every(r=>object(r)&&exact(r,['id','code','name','category','amount'])&&account({id:r.id,code:r.code,name:r.name,category:r.category})&&r.category===category&&signed(r.amount));
+const reportRows=(v:unknown,category:string):v is ReportRow[]=>Array.isArray(v)&&v.length<=1000&&v.every(r=>object(r)&&exact(r,['id','code','name','category','amount',...('cash' in r?['cash']:[])])&&account({id:r.id,code:r.code,name:r.name,category:r.category,...('cash' in r?{cash:r.cash}:{})})&&r.category===category&&signed(r.amount));
 /** A report is accepted only for this book and range, and only when the balance sheet balances. */
 export function parseFinancialReport(v:unknown,bookId:string,from:string,to:string):FinancialReport{
  if(!object(v)||!exact(v,['book_id','currency','revision','from','to','income_statement','balance_sheet','pending_count'])||v.book_id!==bookId||v.from!==from||v.to!==to||!currency(v.currency)||!integer(v.revision)||!integer(v.pending_count))throw unavailable();

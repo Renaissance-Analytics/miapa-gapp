@@ -1684,7 +1684,7 @@
     {
       "scenario": "L05-BOOKS.1",
       "test": "bookkeeping.test.mjs#proposal acknowledgment must match the exact requested journal content",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "8787ec7ba8cfe725c5748e238f3864d836685aaacb48053404df3e054e2097a1",
       "expected_observation": "A changed description in a journal acknowledgment is rejected even with the original operation UUID.",
       "decision": "aligned",
@@ -1694,7 +1694,7 @@
     {
       "scenario": "L05-BOOKS.2",
       "test": "bookkeeping.test.mjs#ledger snapshots reject stale actors mixed book revisions and foreign account rows",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "42cc614e41704d348cf71345cad1ce3b5809109732c70b41146ed2fe11981823",
       "expected_observation": "Original snapshots pass; stale actors, mixed revisions and journal accounts from another book refuse.",
       "decision": "aligned",
@@ -1704,7 +1704,7 @@
     {
       "scenario": "L05-BOOKS.3",
       "test": "bookkeeping.test.mjs#posting sends exact human review hash and rejects unconfirmed or foreign receipts",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "03b995dafc495a33c910599e9c43746c460a5405ea43f9c3dc5857e4606c3e92",
       "expected_observation": "Only the exact journal/hash/current revision is posted using CSRF and original actor; foreign actor/hash/revision/state receipts refuse.",
       "decision": "aligned",
@@ -1714,7 +1714,7 @@
     {
       "scenario": "L05-BOOKS.4",
       "test": "bookkeeping.test.mjs#decimal display preserves large and four-decimal amounts without float rounding",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "dc58d970b1393a417db1fa9b19ad7b223f86f210e34bfa9ab2979501d2974872",
       "expected_observation": "Large decimal and four-place values display exactly without floating rounding; nonfinite and exponent strings refuse.",
       "decision": "aligned",
@@ -1724,7 +1724,7 @@
     {
       "scenario": "L05-BOOKS.5",
       "test": "bookkeeping.test.mjs#book components accept stable references and reject invented data authority or repeated controls",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "c7f594ef8459c8010b73dda57a636cc2636241e8ce4414892b2d7ea6b2d2b481",
       "expected_observation": "Stable book UUID components pass; supplied rows, foreign reference and duplicate control reject.",
       "decision": "aligned",
@@ -1734,7 +1734,7 @@
     {
       "scenario": "L05-BOOKS.6",
       "test": "bookkeeping.test.mjs#account activity keeps exact signed balances and rejects foreign or inconsistent rows",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "97cd2e16422b511b57ad354b88f348c55cddcde8458cfee381d7a476042ca206",
       "expected_observation": "Accept only the exact bound book/account reply, display signed balances without float arithmetic, send an actor-bound GET, and reject foreign, inconsistent, negative-zero, short-decimal, extra-field or path-like input before any request.",
       "decision": "aligned",
@@ -1744,7 +1744,7 @@
     {
       "scenario": "L05-BOOKS.7",
       "test": "bookkeeping.test.mjs#statement import sends exact bounded content with the observed revision and parses only consistent rows",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "1302688bfbd965854abba7eaa8d4ae17759f9edbf810adcb1e2354623b36b024",
       "expected_observation": "Send the exact content, filename and observed revision with the actor binding; accept only consistent rows for this book; refuse unsafe, empty or oversized files before any request and refuse foreign or inconsistent replies.",
       "decision": "aligned",
@@ -1854,7 +1854,7 @@
     {
       "scenario": "L05-BOOKS.8",
       "test": "bookkeeping.test.mjs#books carry an optional close date and reject a malformed one",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "fdb3158759c1543aa95f16a3af8a095cf89f8ea483d00091faa2fad4f8d841b3",
       "expected_observation": "Accept a valid close date and reject malformed or missing ones.",
       "decision": "aligned",
@@ -1884,7 +1884,7 @@
     {
       "scenario": "L05-BOOKS.9",
       "test": "bookkeeping.test.mjs#financial statements are accepted only for this book and range and only when they balance",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "fa6bb4a922faf923dff3ca63b325c00c830edf831042cd2295cd1849f1bff8d8",
       "expected_observation": "Accept the exact report and a negative net income; reject every inconsistent reply; send an actor-bound GET for the exact range and refuse a malformed date before any request.",
       "decision": "aligned",
@@ -1924,11 +1924,21 @@
     {
       "scenario": "L05-BOOKS.cash-flag",
       "test": "bookkeeping.test.mjs#accounts may carry a bank-or-cash flag only as a boolean and only on asset accounts",
-      "source_sha256": "5fa2da807030e3f619a494ec0120d63f51abd042ee9011d3a7a3988f1469d1b4",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
       "scenario_sha256": "10675cea43c6111349ed4e98a282441f2234a702340016cd65f24d6c3402d0f9",
       "expected_observation": "Accept the boolean mark on the asset account; refuse a non-boolean mark and a mark on any other category.",
       "decision": "aligned",
       "reason": "Reviewed against the test body: exact accepted and rejected values and card text asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L05-BOOKS.cash-flag-reports",
+      "test": "bookkeeping.test.mjs#report and activity rows accept the server bank-or-cash flag and still refuse unknown fields",
+      "source_sha256": "d84c3ba199aec33c7f7f1fd0ac14db62b2837d61ae4df252f8b64ab51218cd0f",
+      "scenario_sha256": "e0086df0f4eeab55a2295321eb7cf06a56c764531c1046ef23f83a6da68e2a8a",
+      "expected_observation": "Accept the flagged report and history unchanged; refuse the non-boolean flag, the flag on a non-asset account and the unknown field.",
+      "decision": "aligned",
+      "reason": "Added after the real browser run showed financial statements rejected once accounts carried the flag; exact accepted and refused values asserted.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]

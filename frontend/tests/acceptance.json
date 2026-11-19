@@ -1929,6 +1929,16 @@
           "tests": [
             "bookkeeping.test.mjs#accounts may carry a bank-or-cash flag only as a boolean and only on asset accounts"
           ]
+        },
+        {
+          "id": "L05-BOOKS.cash-flag-reports",
+          "kind": "negative",
+          "given": "A financial report and an account history whose accounts carry the bank-or-cash flag, and ones with a non-boolean flag, a flag on an income account or an unknown field",
+          "when": "Parse them",
+          "then": "Accept the flagged report and history unchanged; refuse the non-boolean flag, the flag on a non-asset account and the unknown field.",
+          "tests": [
+            "bookkeeping.test.mjs#report and activity rows accept the server bank-or-cash flag and still refuse unknown fields"
+          ]
         }
       ]
     },

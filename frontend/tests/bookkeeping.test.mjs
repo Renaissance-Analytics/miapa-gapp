@@ -123,3 +123,20 @@ test('accounts may carry a bank-or-cash flag only as a boolean and only on asset
     assert.throws(() => parseLedgerSnapshot(bad, '1', book.id));
   }
 });
+
+test('report and activity rows accept the server bank-or-cash flag and still refuse unknown fields', () => {
+  const row = (n, code, name, category, amount, extra = {}) => ({ id: id(n), code, name, category, cash: false, amount, ...extra });
+  const report = { book_id: id(1), currency: 'USD', revision: 3, from: '2026-03-01', to: '2026-03-31', pending_count: 0,
+    income_statement: { income: [row(20, '4000', 'Sales', 'income', '350.3000')], expenses: [], total_income: '350.3000', total_expenses: '0.0000', net_income: '350.3000' },
+    balance_sheet: { as_of: '2026-03-31', assets: [row(22, '1000', 'Checking', 'asset', '350.3000', { cash: true })], liabilities: [], equity: [],
+      total_assets: '350.3000', total_liabilities: '0.0000', total_equity: '0.0000', earnings_to_date: '350.3000', total_liabilities_and_equity: '350.3000' } };
+  assert.equal(parseFinancialReport(structuredClone(report), id(1), '2026-03-01', '2026-03-31').balance_sheet.assets[0].cash, true);
+  for (const change of [r => { r.balance_sheet.assets[0].cash = 'yes'; }, r => { r.income_statement.income[0].cash = true; }, r => { r.balance_sheet.assets[0].balance = '1'; }]) {
+    const bad = structuredClone(report); change(bad);
+    assert.throws(() => parseFinancialReport(bad, id(1), '2026-03-01', '2026-03-31'));
+  }
+  const activity = { book_id: id(1), currency: 'USD', revision: 3, account: { id: id(22), code: '1000', name: 'Checking', category: 'asset', cash: true },
+    normal_side: 'debit', posted: [], pending: [], posted_debit: '0.0000', posted_credit: '0.0000', balance: '0.0000' };
+  assert.equal(parseAccountActivity(structuredClone(activity), id(1), id(22)).account.cash, true);
+  assert.throws(() => parseAccountActivity({ ...activity, account: { ...activity.account, cash: 'yes' } }, id(1), id(22)));
+});
