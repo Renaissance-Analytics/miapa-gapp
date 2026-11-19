@@ -221,10 +221,41 @@ def _tools():
     ):
         definitions.append({'name': name, 'description': description, 'inputSchema': {
             'type': 'object', 'properties': properties, 'required': required, 'additionalProperties': False}})
+    definitions.append({'name': 'maipa_action_request', 'description':
+        'Ask the person to approve one exact change to their records; you do the bookkeeping work this way. Operations and payloads: '
+        'books.create {entity_id,currency,period_start,period_end}; account.create {book_id,code,name,category}; '
+        'statement.import {book_id,filename,content} (CSV text with columns date,description,amount[,reference]); '
+        'journal.post {book_id,journal_id,payload_hash} for a draft entry you proposed; '
+        'setup.confirm {setup_id,revision} when account setup is at the review step. '
+        'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
+        'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
+        'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'statement.import', 'journal.post', 'setup.confirm']},
+            'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
+            'batch_id': {'type': 'string', 'format': 'uuid'}}}})
+    definitions.append({'name': 'maipa_action_list', 'description':
+        'Read your pending approval requests and recent outcomes (approved with result, rejected, or failed with a reason). '
+        'Report actual outcomes; a pending request is not done.',
+        'inputSchema': {'type': 'object', 'properties': {}, 'required': [], 'additionalProperties': False}})
     return definitions
 
 
 SETUP_TOOLS = ('maipa_setup_read', 'maipa_setup_record')
+ACTION_TOOLS = ('maipa_action_request', 'maipa_action_list')
+
+
+def _dispatch_action(actor, account_id, identity, name, arguments):
+    from backend.maipa.approvals import services as approvals
+    _lookup(actor, account_id, identity)
+    if name == 'maipa_action_list':
+        _object(arguments, ())
+        return approvals.list_requests(actor)
+    if type(arguments) is not dict:
+        raise ValueError('Closed object required')
+    try:
+        return {'requested': True, 'request': approvals.request_action(actor, arguments)}
+    except approvals.ApprovalError as problem:
+        return {'requested': False, 'reason': problem.code}
 
 
 def _dispatch_setup(actor, account_id, identity, name, arguments):
@@ -312,6 +343,8 @@ def dispatch_ui(actor, account_id, identity, request):
         raise ValueError('Unsupported UI method')
     _object(params, ('name', 'arguments'))
     name, arguments = params['name'], params['arguments']
+    if name in ACTION_TOOLS:
+        return _dispatch_action(actor, account_id, identity, name, arguments)
     if name in SETUP_TOOLS:
         return _dispatch_setup(actor, account_id, identity, name, arguments)
     if name in ('maipa_views_list','maipa_views_save','maipa_views_change','maipa_views_open'):

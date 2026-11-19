@@ -5,6 +5,7 @@ import {CommonViewsController,type CommonView,type CommonViewKey} from './common
 import { Button, ChatDrawer, ContentRenderer, Field, Icon, Input, PromptInput, ResizablePanels, Select, Text, VirtualList, renderMarkdown,
   type PromptAttachment, type PromptDraft, type SubmitResult } from '@particle-academy/react-fancy';
 import { AccountSetupChat } from './AccountSetupChat.js';
+import { Approvals } from './Approvals.js';
 import { AgentSurface } from './AgentSurface.js';
 import { chatRequest, emptyChat, newerChat, readEventStream, reconnectChat, type ChatState } from './agent-chat.js';
 import { SharedUiBridge } from './shared-ui-bridge.js';
@@ -239,6 +240,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
               {message.state === 'interrupted' && <small>Interrupted · partial reply retained</small>}
             </article></div>} />}
           {!follow && <Button size="sm" variant="ghost" onClick={() => setFollow(true)}>Back to latest{unseen ? ` (${unseen} new)` : ''}</Button>}
+          <Approvals userId={userId} syncKey={state.revision} />
           {setup && <div className="chat-setup-panel"><AccountSetupChat providerReady={state.phase === 'ready' || state.phase === 'thinking'}
             syncKey={state.revision} onAskAgent={() => setDraft(GUIDED_SETUP_REQUEST)}
             onOpenFacts={() => { setSetup(false); setDraft('Open my saved client facts'); }} /></div>}

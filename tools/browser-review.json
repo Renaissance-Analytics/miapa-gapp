@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "8828db1069bc226bf49f0ab4d9df1ba85b7837660d3ab8ec47c1d60ff9e5df05",
+    "tools/browser.mjs": "d95ecbdbf18edcfc85490abf4f77d81e985aacd89c6d1654dfedd8f2d85a1496",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "dbf28d75f97ddafbbf3b50e836dc53022771ccd8dce3db7b128db673228f7760"
+    "tests/fixtures/agent_chat_peer.py": "39ff8c3c1994e8fd5da736e1e6ee1b6e529ccbd11b2a0466543d816d892c1aef"
   },
   "cases": [
     {
@@ -215,6 +215,11 @@
       "expected": "Real header/component creates owned business books, prepares42.17 office debit/checking credit through native controls, confirms pending totals remain zero, posts the exact visible hash, reloads and verifies persistent42.1700 trial balances. Original unsent chat draft survives dismissal."
     },
     {
+      "id": "agent-request-human-approval",
+      "kind": "positive",
+      "expected": "The finite peer asks, through the real maipa_action_request tool, to add account 6300. The chat shows one Fancy approval card and the books are unchanged; after the human clicks Approve the real owner-bound API shows account 6300 and the card clears."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -340,5 +345,6 @@
   "account_popover_review": "The hand-built details account menu stayed open over the work panel and blocked Reload books. It is now the published Fancy Popover, which closes on outside click and Escape. Browser helpers read the stable data-open handle and openAccountMenu reopens the menu, retrying while the shell settles after reload, before reading theme controls that mount only while open. All case actions, assertions, deadlines and cleanup are otherwise unchanged.",
   "statement_import_review": "The finite peer exact startup catalog adds the read-only maipa_books_imports tool. No browser action, assertion, deadline or case changed.",
   "agent_guided_setup_review": "Account setup is now explained steps, not a scripted chat. The browser flow keeps every original native action, assertion, deadline and case; only the submit label (Send answer -> Save answer) and the transcript selector (Account setup conversation -> Account setup steps, which shows recorded answers) follow the new markup. The finite peer exact startup catalog adds maipa_setup_read and maipa_setup_record. No real-model onboarding acceptance is claimed.",
-  "statement_import_browser_review": "One added real-browser case after the posted trial-balance assertions and before the existing own-books record. It uses DOM.setFileInputFiles on the published FileUpload input, as the existing attachment case does, and reads results through the real owner-bound API. All prior case actions, assertions, deadlines and cleanup are unchanged; the progress maximum rises from 48 to 49."
+  "statement_import_browser_review": "One added real-browser case after the posted trial-balance assertions and before the existing own-books record. It uses DOM.setFileInputFiles on the published FileUpload input, as the existing attachment case does, and reads results through the real owner-bound API. All prior case actions, assertions, deadlines and cleanup are unchanged; the progress maximum rises from 48 to 49.",
+  "agent_approval_review": "One added case after the unchanged own-books cases. The finite peer exact startup catalog adds maipa_action_request and maipa_action_list and one prompt handler that requests account.create through the real tool. The human approves with a native click on the published ChatMessage proposal card; outcomes are read from the real API. No prior action, assertion or deadline changed; progress maximum 49 -> 50."
 }

@@ -1,0 +1,224 @@
+"""Agent-requested record changes, executed only by the person's exact approval.
+
+The agent records what it wants to change. A human session decides. Approval is
+bound to the stored payload hash, and the server then runs the existing domain
+service as that person. A failure rolls back and is reported; nothing is partial.
+"""
+import hashlib
+import json
+import uuid
+
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+
+from backend.maipa.intake import services as intake
+from backend.maipa.intake.schema import InvalidFact
+from backend.maipa.ledger import services as ledger
+from backend.maipa.ledger.models import Book
+from .models import ActionRequest
+
+MAX_PAYLOAD_BYTES = 600_000
+MAX_PENDING = 200
+
+
+class ApprovalError(Exception):
+    def __init__(self, code='approval_unavailable'):
+        self.code = code
+        super().__init__(code)
+
+
+def require(condition, code='invalid_approval_request'):
+    if not condition:
+        raise ApprovalError(code)
+
+
+def _identity(value):
+    require(type(value) is str)
+    try:
+        parsed = uuid.UUID(value)
+    except ValueError:
+        raise ApprovalError('invalid_approval_request') from None
+    require(str(parsed) == value)
+    return parsed
+
+
+def _digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True,
+                                     allow_nan=False).encode()).hexdigest()
+
+
+def _revision(book_id):
+    return Book.objects.get(pk=_identity(book_id)).revision
+
+
+# Each operation: exact payload fields, a read-only check at request time, and the execution.
+def _check_book(user, payload):
+    ledger.owned(user, payload['book_id'], True)
+
+
+def _check_books_create(user, payload):
+    intake.owned_entity(user, _identity(payload['entity_id']), True)
+    require(not Book.objects.filter(entity_id=payload['entity_id']).exists(), 'book_already_initialized')
+
+
+def _check_post(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.journals.filter(pk=_identity(payload['journal_id']), state='draft',
+                                 payload_hash=payload['payload_hash']).exists(), 'ledger_review_conflict')
+
+
+def _check_setup(user, payload):
+    from backend.maipa.workspace import onboarding
+    row = onboarding.current(user)
+    require(str(row.identity) == payload['setup_id'] and row.revision == payload['revision'] and row.step == 'review',
+            'setup_review_conflict')
+
+
+def _run_setup(user, payload):
+    from backend.maipa.workspace import onboarding
+    row = onboarding.respond(user, {'expected_revision': payload['revision'], 'action': 'reply', 'answer': 'confirm'},
+                             payload['setup_id'])
+    return {'step': row.step, 'entity_id': str(row.entity_id) if row.entity_id else None}
+
+
+OPERATIONS = {
+    'books.create': (('entity_id', 'currency', 'period_start', 'period_end'), _check_books_create,
+        lambda user, p: ledger.create_book(user, _identity(p['entity_id']),
+                                           {k: p[k] for k in ('currency', 'period_start', 'period_end')})),
+    'account.create': (('book_id', 'code', 'name', 'category'), _check_book,
+        lambda user, p: ledger.create_account(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                              **{k: p[k] for k in ('code', 'name', 'category')}})),
+    'statement.import': (('book_id', 'filename', 'content'), _check_book,
+        lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                                'filename': p['filename'], 'content': p['content']})),
+    'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
+        lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
+            {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
+    'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
+}
+DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
+                 ValueError, TypeError, KeyError, IntegrityError, Book.DoesNotExist)
+
+
+def _code(problem):
+    return getattr(problem, 'code', None) or type(problem).__name__.lower()[:64]
+
+
+def _detail(row):
+    """Server-read facts about the target, so the person reviews real records, not only the agent's words."""
+    try:
+        if row.operation == 'journal.post':
+            from backend.maipa.ledger.models import Journal
+            journal = Journal.objects.select_related('book').get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])
+            return {'date': journal.date.isoformat(), 'description': journal.description, 'currency': journal.book.currency,
+                    'reference': journal.source_reference, 'current': journal.payload_hash == row.payload['payload_hash'],
+                    'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
+                               'credit': ledger.money(line.credit_units)}
+                              for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('account.create', 'statement.import'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            return {'books': book.entity.name, 'currency': book.currency}
+        if row.operation == 'books.create':
+            from backend.maipa.intake.models import Entity
+            return {'entity': Entity.objects.get(pk=row.payload['entity_id']).name}
+    except Exception:  # Detail is display help only; a missing target is reported at decision time.
+        return None
+    return None
+
+
+def _value(row):
+    payload = dict(row.payload)
+    if 'content' in payload:  # Never echo a whole statement; identify it exactly instead.
+        content = payload.pop('content')
+        payload.update(content_bytes=len(content.encode('utf-8')),
+                       content_sha256=hashlib.sha256(content.encode('utf-8')).hexdigest(),
+                       content_preview=content[:2000])
+    return {'id': str(row.pk), 'operation': row.operation, 'summary': row.summary, 'payload': payload,
+            'payload_hash': row.payload_hash, 'batch_id': str(row.batch) if row.batch else None, 'state': row.state,
+            'detail': _detail(row) if row.state == 'pending' else None, 'result': row.result, 'error': row.error, 'created_at': row.created_at.isoformat(),
+            'decided_at': row.decided_at.isoformat() if row.decided_at else None}
+
+
+def _writer(user):
+    try:
+        return intake.scope(user, True)
+    except (intake.ScopeDenied, intake.NotFound, AttributeError):
+        raise ApprovalError('approval_denied') from None
+
+
+@transaction.atomic
+def request_action(user, value):
+    """Agent or person records an exact change for the person to decide. Changes no records."""
+    _writer(user)
+    require(type(value) is dict and set(value) - {'batch_id'} == {'operation', 'payload', 'summary'})
+    operation, payload, summary = value['operation'], value['payload'], value['summary']
+    require(type(operation) is str and operation in OPERATIONS, 'approval_operation_unsupported')
+    fields, check, _ = OPERATIONS[operation]
+    require(type(payload) is dict and set(payload) == set(fields))
+    require(len(json.dumps(payload, allow_nan=False).encode()) <= MAX_PAYLOAD_BYTES)
+    require(type(summary) is str and 0 < len(summary.strip()) and len(summary) <= 500
+            and not any(ord(c) < 32 or ord(c) == 127 for c in summary))
+    batch = _identity(value['batch_id']) if value.get('batch_id') is not None else None
+    require(ActionRequest.objects.filter(user=user, state='pending').count() < MAX_PENDING, 'approval_limit')
+    try:
+        check(user, payload)
+    except ApprovalError:
+        raise
+    except DOMAIN_ERRORS as problem:
+        raise ApprovalError(_code(problem)) from None
+    row = ActionRequest.objects.create(user=user, operation=operation, payload=payload, payload_hash=_digest(
+        {'operation': operation, 'payload': payload}), summary=summary.strip(), batch=batch)
+    return _value(row)
+
+
+def list_requests(user):
+    rows = ActionRequest.objects.filter(user=user)
+    return {'actor_id': str(user.pk),
+            'pending': [_value(r) for r in rows.filter(state='pending').order_by('created_at')[:MAX_PENDING]],
+            'recent': [_value(r) for r in rows.exclude(state='pending').order_by('-decided_at')[:20]]}
+
+
+def _decide(user, row, decision):
+    if row.state != 'pending':
+        require((decision, row.state) in (('approve', 'approved'), ('approve', 'failed'), ('reject', 'rejected')),
+                'approval_already_decided')
+        return _value(row)
+    now = timezone.now()
+    if decision == 'reject':
+        require(ActionRequest.objects.filter(pk=row.pk, state='pending').update(state='rejected', decided_at=now) == 1,
+                'approval_already_decided')
+    else:
+        try:
+            with transaction.atomic():
+                require(ActionRequest.objects.filter(pk=row.pk, state='pending').update(state='approved', decided_at=now) == 1,
+                        'approval_already_decided')
+                result = OPERATIONS[row.operation][2](user, row.payload)
+                ActionRequest.objects.filter(pk=row.pk).update(result=result)
+        except ApprovalError:
+            raise
+        except DOMAIN_ERRORS as problem:
+            ActionRequest.objects.filter(pk=row.pk, state='pending').update(state='failed', error=_code(problem), decided_at=now)
+    row.refresh_from_db()
+    return _value(row)
+
+
+def decide(user, request_id, value):
+    """Human control only: approve (execute exactly) or reject one request."""
+    _writer(user)
+    require(type(value) is dict and set(value) == {'decision', 'payload_hash'} and value['decision'] in ('approve', 'reject'))
+    row = ActionRequest.objects.filter(pk=_identity(request_id), user=user).first()
+    require(row is not None, 'approval_not_found')
+    require(value['payload_hash'] == row.payload_hash, 'approval_review_conflict')
+    return _decide(user, row, value['decision'])
+
+
+def decide_batch(user, batch_id, value):
+    """Human control only: decide every pending request of one batch; each reports its own outcome."""
+    _writer(user)
+    require(type(value) is dict and set(value) == {'decision', 'payload_hashes'} and value['decision'] in ('approve', 'reject'))
+    rows = list(ActionRequest.objects.filter(user=user, batch=_identity(batch_id)).order_by('created_at'))
+    require(rows, 'approval_not_found')
+    hashes = value['payload_hashes']
+    require(type(hashes) is dict and {str(r.pk): r.payload_hash for r in rows if r.state == 'pending'} == hashes,
+            'approval_review_conflict')
+    return {'batch_id': str(batch_id), 'requests': [_decide(user, row, value['decision']) for row in rows]}

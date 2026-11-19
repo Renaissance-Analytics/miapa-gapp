@@ -21,8 +21,12 @@ from .agent_accounts.settings_view import settings as agent_settings
 from .agent_accounts.metadata import metadata as agent_metadata
 from .agent_accounts.model_preferences import model_preference
 from .ledger import views as books
+from .approvals import views as approvals
 
 urlpatterns = [
+    path('api/approvals/', approvals.requests, name='approvals'),
+    path('api/approvals/<uuid:request_id>/decide/', approvals.decide, name='approval-decide'),
+    path('api/approvals/batch/<uuid:batch_id>/decide/', approvals.decide_batch, name='approval-batch-decide'),
     path('api/books/', books.books, name='books'),
     path('api/books/<uuid:book_id>/', books.book, name='book'),
     path('api/books/<uuid:book_id>/accounts/', books.accounts, name='book-accounts'),

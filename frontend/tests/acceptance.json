@@ -1871,6 +1871,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "A03-APPROVALS-UI",
+      "risk": "The person approves something other than what is shown, or a decision is reported that the server did not make.",
+      "scenarios": [
+        {
+          "id": "A03-APPROVALS-UI.1",
+          "kind": "negative",
+          "given": "An approval list reply and foreign, duplicated, unknown-operation or extra-field variants",
+          "when": "Read and parse approvals",
+          "then": "Accept only this actor's consistent pending and decided requests with an actor-bound GET; reject every variant.",
+          "tests": [
+            "approvals.test.mjs#approval list accepts only this actor and consistent pending and decided requests"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.2",
+          "kind": "negative",
+          "given": "A reviewed pending request and matching, failed, mismatched or undecided acknowledgments",
+          "when": "Approve or reject it",
+          "then": "Send exactly the decision and reviewed hash; accept approved or failed outcomes for this request and reject mismatched, undecided or contradictory replies.",
+          "tests": [
+            "approvals.test.mjs#one decision sends the reviewed hash and rejects a mismatched or undecided acknowledgment"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.3",
+          "kind": "negative",
+          "given": "A batch of two reviewed requests and complete or incomplete acknowledgments",
+          "when": "Approve the batch",
+          "then": "Send exactly the reviewed hashes for that batch; require every item decided; refuse mixed batches.",
+          "tests": [
+            "approvals.test.mjs#a batch decision sends exactly the reviewed hashes and requires every item decided"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.4",
+          "kind": "positive",
+          "given": "Pending requests in and out of a batch with server-read entry lines and markup in a description",
+          "when": "Build and render approval cards",
+          "then": "Group batches, show the entry lines without raw markup, warn when the target changed, and render Approve/Reject through the published Fancy approval card only while pending.",
+          "tests": [
+            "approvals.test.mjs#cards group batches, show server-read entry lines and render through the Fancy approval card"
+          ]
+        }
+      ]
     }
   ]
 }

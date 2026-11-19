@@ -76,7 +76,7 @@ for line in sys.stdin:
             raise RuntimeError('Pre-session tool discovery unavailable')
         if {tool['name'] for tool in startup['result']['tools']} != {'maipa_ui_catalog', 'maipa_ui_present', 'maipa_ui_update', 'maipa_ui_dismiss',
                 'maipa_views_list', 'maipa_views_save', 'maipa_views_change', 'maipa_views_open',
-                'maipa_setup_read', 'maipa_setup_record',
+                'maipa_setup_read', 'maipa_setup_record', 'maipa_action_request', 'maipa_action_list',
                 'form_list','form_describe','form_get_value','form_get_values','form_set_value','form_set_values','form_focus','form_submit',
                 'flow_get_state','flow_list_nodes','flow_get_node','flow_list_edges','flow_get_node_schema',
                 'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
@@ -197,6 +197,10 @@ for line in sys.stdin:
                 views = callback('maipa_views_list', {})
                 callback('maipa_views_change', {'views_id': views['views_id'], 'expected_revision': views['revision'],
                     'id': views['views'][-1]['id'], 'action': 'pin'})
+            elif 'request a new account' in text:
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                callback('maipa_action_request', {'operation': 'account.create', 'summary': 'Add account 6300 Synthetic rent',
+                    'payload': {'book_id': books['books'][0]['id'], 'code': '6300', 'name': 'Synthetic rent', 'category': 'expense'}})
             elif 'dismiss' in text:
                 callback('maipa_ui_dismiss', {'revision': revision})
             else:
