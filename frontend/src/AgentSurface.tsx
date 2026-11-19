@@ -9,7 +9,7 @@ import type {SettingsControls} from './agent-settings.js';
 import type { Composition } from './agent-chat.js';
 import { CHAT_PROSE } from './content-policy.js';
 import { ClientTable, type ClientColumn } from './ClientTable.js';
-import { LedgerAccounts, LedgerActivity, LedgerJournal, type JournalFilter } from './LedgerViews.js';
+import { LedgerAccounts, LedgerActivity, LedgerJournal, LedgerReconciliation, LedgerStatements, type JournalFilter } from './LedgerViews.js';
 import type { FormBinding, NativeFormActivity } from './shared-form.js';
 import type {WorkflowActivity} from './shared-workflow.js';
 import type {WorkflowConnection} from './workflow-permissions.js';
@@ -44,6 +44,8 @@ registerSchemaComponents({
   'Maipa.Accounts': ({ book_id }) => <LedgerAccounts userId={useContext(Principal)} bookId={String(book_id)} />,
   'Maipa.Journal': ({ book_id, show }) => <LedgerJournal userId={useContext(Principal)} bookId={String(book_id)} show={show as JournalFilter} />,
   'Maipa.AccountActivity': ({ book_id, account_id }) => <LedgerActivity userId={useContext(Principal)} bookId={String(book_id)} accountId={String(account_id)} />,
+  'Maipa.Statements': ({ book_id }) => <LedgerStatements userId={useContext(Principal)} bookId={String(book_id)} />,
+  'Maipa.Reconciliation': ({ book_id, import_id }) => <LedgerReconciliation userId={useContext(Principal)} bookId={String(book_id)} importId={String(import_id)} />,
   'Maipa.Workflow': ({draft_id}) => {
     const userId=useContext(Principal),draftId=String(draft_id);
     return <Suspense fallback={<span role="status">Loading workflow…</span>}>

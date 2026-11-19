@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 53 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 54 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1539,6 +1539,20 @@ try {
   await until(()=>evaluate("!document.querySelector('section[aria-label=\"Chart of accounts\"]')"),'agent ledger views dismissed');
   await agentIdle('agent idle after dismissing ledger views');
   record('agent-composed-ledger-views');
+  // The agent composes the statement list and a reconciliation; a statement without balances is explained, not shown as an error.
+  await typeChat('Show the bank statements');await click('Send');
+  await until(()=>evaluate("!!document.querySelector('section[aria-label=\"Bank statements\"] [data-statement-count]')&&!!document.querySelector('section[aria-label=\"Bank reconciliation\"] [data-reconciliation-blocked]')"),'agent statement views loaded');
+  const statementList=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/reconciliation/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  const shownStatements=await evaluate("(()=>{const q=s=>document.querySelector(s);return {count:q('[data-statement-count]').dataset.statementCount,ready:document.querySelectorAll('[data-can-reconcile=\"true\"]').length,blocked:q('[data-reconciliation-blocked]').dataset.reconciliationBlocked,text:q('[data-reconciliation-blocked]').textContent,figures:!!q('[data-reconciled]')};})()");
+  assert.equal(statementList.statements.length>=2,true);
+  assert.deepEqual([shownStatements.count,shownStatements.ready,shownStatements.blocked,shownStatements.figures],[String(statementList.statements.length),statementList.statements.filter(s=>s.can_reconcile).length,statementList.statements[0].id,false]);
+  assert.equal(statementList.statements[0].can_reconcile,false);
+  assert.equal(shownStatements.text.includes('cannot be reconciled yet')&&shownStatements.text.includes(statementList.statements[0].account_id?'Needs its opening and closing balance':'Needs its bank account'),true);
+  await agentIdle('agent idle after statement views');
+  await typeChat('Dismiss this view');await click('Send');
+  await until(()=>evaluate("!document.querySelector('section[aria-label=\"Bank statements\"]')"),'agent statement views dismissed');
+  await agentIdle('agent idle after dismissing statement views');
+  record('agent-composed-statement-views');
   await typeChat(beforeBookDraft);
   await preferencesReady();
   await requestComponent('Present a note', 'Maipa.Note'); await preferencesReady();

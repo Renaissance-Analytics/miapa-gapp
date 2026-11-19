@@ -2956,6 +2956,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_ledger_views_accept_only_exact_book_and_account_references"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.statement-views",
+          "kind": "negative",
+          "given": "Statement list and reconciliation schemas with exact references, and ones with missing or malformed ids, supplied statements, differences or results, or no props",
+          "when": "Present or update the composition",
+          "then": "The exact schema is saved unchanged; every other schema is refused and the saved composition does not change.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_statement_and_reconciliation_views_accept_only_exact_references"
+          ]
         }
       ]
     },

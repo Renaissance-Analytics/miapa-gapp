@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-72",
+    "label": "Development update 72",
+    "cards": [
+      {
+        "title": "See your statements and reconciliation beside the chat",
+        "description": "Ask Maipa to show your bank statements or a reconciliation. The list says what each statement still needs before it can be reconciled, and the reconciliation shows bank against books, the open items and the exact difference, read live from your books."
+      }
+    ]
+  },
+  {
     "id": "development-71",
     "label": "Development update 71",
     "cards": [
@@ -198,16 +208,6 @@
       {
         "title": "Clearer setup and replies",
         "description": "A finished account setup now says it is saved, the reporting basis reads as Cash or Accrual, and Maipa's replies start a new paragraph after it uses a tool instead of running sentences together."
-      }
-    ]
-  },
-  {
-    "id": "development-52",
-    "label": "Development update 52",
-    "cards": [
-      {
-        "title": "Maipa can undo a posted entry",
-        "description": "Ask Maipa to reverse an entry that was posted by mistake. It requests a reversal for your approval; approving posts the exact opposite entry, linked to the original, so your balances are corrected and the history stays intact. An entry can be reversed once."
       }
     ]
   }

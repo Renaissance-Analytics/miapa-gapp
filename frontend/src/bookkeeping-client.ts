@@ -80,6 +80,47 @@ async function request(user:string,path:string,signal:AbortSignal,body:unknown|u
  if(![200,201].includes(response.status)||signal.aborted)throw unavailable();
  const value:unknown=await response.json();if(signal.aborted)throw unavailable();return value;
 }
+export interface StatementSummary {id:string;filename:string;account_id:string|null;account:string|null;opening_balance:string|null;closing_balance:string|null;
+ first_date:string;last_date:string;row_count:number;can_reconcile:boolean;reconciliation:RecordedReconciliation|null}
+export interface RecordedReconciliation {recorded_at:string;as_of:string;unchanged:boolean}
+export interface StatementList {book_id:string;revision:number;statements:StatementSummary[]}
+export interface Reconciliation {book_id:string;currency:string;revision:number;
+ statement:{id:string;filename:string;account:{id:string;code:string;name:string};opening_balance:string;closing_balance:string;first_date:string;as_of:string};
+ book_balance:string;unrecorded_lines:{row_id:string;date:string;description:string;amount:string;status:'pending'|'proposed'|'posted_later'}[];unrecorded_total:string;
+ outstanding_entries:{journal_id:string;sequence:number;date:string;description:string;amount:string}[];outstanding_total:string;
+ adjusted_books:string;adjusted_bank:string;difference:string;reconciled:boolean;recorded:RecordedReconciliation|null}
+/** Exact four-decimal amounts as integer units, for checking that reported totals add up. */
+const units=(v:string)=>BigInt(v.replace('.',''));
+const recordedOk=(v:unknown):v is RecordedReconciliation|null=>v===null||(object(v)&&exact(v,['recorded_at','as_of','unchanged'])&&typeof v.recorded_at==='string'&&v.recorded_at.length>=10&&v.recorded_at.length<=40&&day(v.as_of)&&typeof v.unchanged==='boolean');
+/** A statement list is accepted only for this book, with each statement's readiness consistent with what it holds. */
+export function parseStatements(v:unknown,bookId:string):StatementList{
+ if(!object(v)||!exact(v,['book_id','revision','statements'])||v.book_id!==bookId||!integer(v.revision)||!Array.isArray(v.statements)||v.statements.length>500||!v.statements.every(s=>
+  object(s)&&exact(s,['id','filename','account_id','account','opening_balance','closing_balance','first_date','last_date','row_count','can_reconcile','reconciliation'])
+  &&uuid(s.id)&&string(s.filename,128)&&(s.account_id===null?s.account===null:uuid(s.account_id)&&string(s.account,160))
+  &&(s.opening_balance===null?s.closing_balance===null:signed(s.opening_balance)&&signed(s.closing_balance))
+  &&day(s.first_date)&&day(s.last_date)&&s.first_date<=s.last_date&&integer(s.row_count)&&s.row_count>=1
+  &&s.can_reconcile===(s.account_id!==null&&s.closing_balance!==null)&&recordedOk(s.reconciliation)&&(s.reconciliation===null||s.can_reconcile===true)))throw unavailable();
+ return v as unknown as StatementList;
+}
+/** A reconciliation is accepted only for this statement and only when its own figures add up. */
+export function parseReconciliation(v:unknown,bookId:string,importId:string):Reconciliation{
+ if(!object(v)||!exact(v,['book_id','currency','revision','statement','book_balance','unrecorded_lines','unrecorded_total','outstanding_entries','outstanding_total','adjusted_books','adjusted_bank','difference','reconciled','recorded'])
+  ||v.book_id!==bookId||!currency(v.currency)||!integer(v.revision)||typeof v.reconciled!=='boolean'||!recordedOk(v.recorded))throw unavailable();
+ const t=v.statement;
+ if(!object(t)||!exact(t,['id','filename','account','opening_balance','closing_balance','first_date','as_of'])||t.id!==importId||!string(t.filename,128)||!object(t.account)||!exact(t.account,['id','code','name'])
+  ||!uuid(t.account.id)||!string(t.account.code,16)||!string(t.account.name,128)||!signed(t.opening_balance)||!signed(t.closing_balance)||!day(t.first_date)||!day(t.as_of))throw unavailable();
+ const lines=v.unrecorded_lines,entries=v.outstanding_entries;
+ if(!Array.isArray(lines)||lines.length>500||!lines.every(l=>object(l)&&exact(l,['row_id','date','description','amount','status'])&&uuid(l.row_id)&&day(l.date)&&string(l.description)&&signed(l.amount)&&['pending','proposed','posted_later'].includes(String(l.status)))
+  ||!Array.isArray(entries)||entries.length>500||!entries.every(e=>object(e)&&exact(e,['journal_id','sequence','date','description','amount'])&&uuid(e.journal_id)&&integer(e.sequence)&&day(e.date)&&string(e.description)&&signed(e.amount))
+  ||![v.book_balance,v.unrecorded_total,v.outstanding_total,v.adjusted_books,v.adjusted_bank,v.difference].every(signed))throw unavailable();
+ const sum=(items:{amount:string}[])=>items.reduce((total,item)=>total+units(item.amount),0n);
+ const books=units(v.book_balance as string)+units(v.unrecorded_total as string),bank=units(t.closing_balance as string)+units(v.outstanding_total as string);
+ if((lines.length<500&&sum(lines as {amount:string}[])!==units(v.unrecorded_total as string))||(entries.length<500&&sum(entries as {amount:string}[])!==units(v.outstanding_total as string))
+  ||units(v.adjusted_books as string)!==books||units(v.adjusted_bank as string)!==bank||units(v.difference as string)!==books-bank||v.reconciled!==(books===bank))throw unavailable();
+ return v as unknown as Reconciliation;
+}
+export async function readStatements(user:string,bookId:string,signal:AbortSignal,fetcher:typeof fetch=fetch){if(!uuid(bookId))throw unavailable();return parseStatements(await request(user,`/api/books/${bookId}/reconciliation/`,signal,undefined,fetcher),bookId);}
+export async function readReconciliation(user:string,bookId:string,importId:string,signal:AbortSignal,fetcher:typeof fetch=fetch){if(!uuid(bookId)||!uuid(importId))throw unavailable();return parseReconciliation(await request(user,`/api/books/${bookId}/reconciliation/?import=${importId}`,signal,undefined,fetcher),bookId,importId);}
 export async function readBooks(user:string,signal:AbortSignal,fetcher:typeof fetch=fetch):Promise<BookCatalog>{
  const v=await request(user,'/api/books/',signal,undefined,fetcher);
  if(!object(v)||!exact(v,['actor_id','entities','books'])||v.actor_id!==user||!Array.isArray(v.entities)||!v.entities.every(e=>object(e)&&uuid(e.id)&&string(e.name,128)&&string(e.client,128))||!Array.isArray(v.books)||!v.books.every(b=>object(b)&&uuid(b.id)&&uuid(b.entity_id)&&string(b.name,128)&&currency(b.currency)&&(v.entities as {id:string}[]).some(e=>e.id===b.entity_id)))throw unavailable();

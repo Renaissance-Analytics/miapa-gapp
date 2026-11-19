@@ -216,6 +216,15 @@ for line in sys.stdin:
                 else:
                     callback('maipa_action_request', {'operation': 'period.close', 'summary': 'Close through ' + posted['date'],
                         'payload': {'book_id': book['id'], 'through': posted['date']}})
+            elif 'show the bank statements' in text:
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                book_id = books['books'][0]['id']
+                listed = json.loads(callback('maipa_books_reconcile', {'book_id': book_id})['content'][0]['text'])
+                callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present', {'revision': revision, 'title': 'Bank statements',
+                    'schema': {'id': 'bank-views', 'type': 'Maipa.Stack', 'children': [
+                        {'id': 'bank-statements', 'type': 'Maipa.Statements', 'props': {'book_id': book_id}},
+                        {'id': 'bank-reconciliation', 'type': 'Maipa.Reconciliation',
+                         'props': {'book_id': book_id, 'import_id': listed['statements'][0]['id']}}]}})
             elif 'show the ledger views' in text:
                 books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
                 book = json.loads(callback('maipa_books_read', {'book_id': books['books'][0]['id']})['content'][0]['text'])['book']

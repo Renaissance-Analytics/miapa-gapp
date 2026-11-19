@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readLedger, type AccountActivity, type LedgerSnapshot } from './bookkeeping-client.js';
+import { displayMoney, displaySigned, readAccountActivity, readLedger, readReconciliation, readStatements, type AccountActivity, type LedgerSnapshot,
+  type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
 type Phase = 'loading' | 'ready' | 'unavailable';
@@ -89,4 +90,78 @@ export function LedgerJournal({ userId, bookId, show }: { userId: string; bookId
 export function LedgerActivity({ userId, bookId, accountId }: { userId: string; bookId: string; accountId: string }) {
   const live = useLive(signal => readAccountActivity(userId, bookId, accountId, signal), `${userId}:${bookId}:${accountId}`);
   return <Frame label="Account activity" phase={live.phase} reload={live.reload}>{live.value && <ActivityTable activity={live.value} />}</Frame>;
+}
+
+/** What a statement still needs before it can be reconciled, or how its recorded reconciliation stands. */
+function statementState(item: StatementSummary) {
+  if (item.account_id === null) return 'Needs its bank account';
+  if (item.closing_balance === null) return 'Needs its opening and closing balance';
+  if (item.reconciliation === null) return 'Ready to reconcile';
+  return `Recorded as of ${item.reconciliation.as_of}${item.reconciliation.unchanged ? '' : ' · figures have changed since'}`;
+}
+
+export function StatementsTable({ list }: { list: StatementList }) {
+  return <Table aria-label="Imported statements" data-statement-count={list.statements.length} data-book-revision={list.revision}>
+    {head(['Statement', 'Bank account', 'Dates', 'Lines', 'Opening', 'Closing', 'Reconciliation'])}
+    <Table.Body>{list.statements.map(item => <Table.Row key={item.id} data-statement-id={item.id} data-can-reconcile={String(item.can_reconcile)}>
+      <Table.Cell>{item.filename}</Table.Cell><Table.Cell>{item.account ?? '—'}</Table.Cell>
+      <Table.Cell>{item.first_date === item.last_date ? item.first_date : `${item.first_date} to ${item.last_date}`}</Table.Cell><Table.Cell>{item.row_count}</Table.Cell>
+      <Table.Cell>{item.opening_balance === null ? '—' : displaySigned(item.opening_balance)}</Table.Cell>
+      <Table.Cell>{item.closing_balance === null ? '—' : displaySigned(item.closing_balance)}</Table.Cell>
+      <Table.Cell>{statementState(item)}</Table.Cell>
+    </Table.Row>)}</Table.Body>
+    {!list.statements.length && <Table.Tray>No statements imported yet.</Table.Tray>}
+  </Table>;
+}
+
+const STATUS = { pending: 'Needs an entry', proposed: 'Entry awaiting your review', posted_later: 'Posted after this date' } as const;
+
+export function ReconciliationView({ report }: { report: Reconciliation }) {
+  const t = report.statement, lower = report.difference.startsWith('-');
+  return <div data-reconciled={String(report.reconciled)} data-difference={report.difference} data-book-revision={report.revision}>
+    <p>{t.filename} · {t.account.code} · {t.account.name} · as of {t.as_of}</p>
+    <Table aria-label="Bank against books">
+      {head(['', report.currency])}
+      <Table.Body>
+        <Table.Row><Table.Cell>Bank closing balance</Table.Cell><Table.Cell>{displaySigned(t.closing_balance)}</Table.Cell></Table.Row>
+        <Table.Row><Table.Cell>Entries the bank has not shown</Table.Cell><Table.Cell>{displaySigned(report.outstanding_total)}</Table.Cell></Table.Row>
+        <Table.Row><Table.Cell>Bank, adjusted</Table.Cell><Table.Cell>{displaySigned(report.adjusted_bank)}</Table.Cell></Table.Row>
+        <Table.Row><Table.Cell>Books balance</Table.Cell><Table.Cell>{displaySigned(report.book_balance)}</Table.Cell></Table.Row>
+        <Table.Row><Table.Cell>Statement lines not yet posted</Table.Cell><Table.Cell>{displaySigned(report.unrecorded_total)}</Table.Cell></Table.Row>
+        <Table.Row><Table.Cell>Books, adjusted</Table.Cell><Table.Cell>{displaySigned(report.adjusted_books)}</Table.Cell></Table.Row>
+      </Table.Body>
+    </Table>
+    {report.reconciled ? <Callout color="green">The statement agrees with your books.</Callout>
+      : <Callout color="amber">Unexplained difference of {displaySigned(report.difference)} {report.currency}: the books are {lower ? 'lower' : 'higher'} than the bank.</Callout>}
+    <p>{report.recorded === null ? 'Not yet recorded as reviewed.'
+      : `Recorded as reviewed on ${report.recorded.recorded_at.slice(0, 10)} as of ${report.recorded.as_of}${report.recorded.unchanged ? '.' : ', but the figures have changed since.'}`}</p>
+    {report.unrecorded_lines.length > 0 && <Table aria-label="Statement lines not yet posted" data-unrecorded-count={report.unrecorded_lines.length}>
+      {head(['Date', 'Statement line', 'Amount', 'State'])}
+      <Table.Body>{report.unrecorded_lines.map(line => <Table.Row key={line.row_id}><Table.Cell>{line.date}</Table.Cell><Table.Cell>{line.description}</Table.Cell>
+        <Table.Cell>{displaySigned(line.amount)}</Table.Cell><Table.Cell>{STATUS[line.status]}</Table.Cell></Table.Row>)}</Table.Body>
+    </Table>}
+    {report.outstanding_entries.length > 0 && <Table aria-label="Entries the bank has not shown" data-outstanding-count={report.outstanding_entries.length}>
+      {head(['Date', 'Entry', 'Amount'])}
+      <Table.Body>{report.outstanding_entries.map(entry => <Table.Row key={entry.journal_id}><Table.Cell>{entry.date}</Table.Cell>
+        <Table.Cell>#{entry.sequence} {entry.description}</Table.Cell><Table.Cell>{displaySigned(entry.amount)}</Table.Cell></Table.Row>)}</Table.Body>
+    </Table>}
+  </div>;
+}
+
+export function LedgerStatements({ userId, bookId }: { userId: string; bookId: string }) {
+  const live = useLive(signal => readStatements(userId, bookId, signal), `${userId}:${bookId}:statements`);
+  return <Frame label="Bank statements" phase={live.phase} reload={live.reload}>{live.value && <StatementsTable list={live.value} />}</Frame>;
+}
+
+export function LedgerReconciliation({ userId, bookId, importId }: { userId: string; bookId: string; importId: string }) {
+  // The list says whether this statement can be reconciled at all, so a missing account or balance is explained, not shown as an error.
+  const live = useLive(async signal => {
+    const item = (await readStatements(userId, bookId, signal)).statements.find(statement => statement.id === importId);
+    if (!item) throw Error('Statement not found');
+    return item.can_reconcile ? { item, report: await readReconciliation(userId, bookId, importId, signal) } : { item, report: null };
+  }, `${userId}:${bookId}:${importId}:reconciliation`);
+  return <Frame label="Bank reconciliation" phase={live.phase} reload={live.reload}>
+    {live.value && (live.value.report ? <ReconciliationView report={live.value.report} />
+      : <Callout color="blue" data-reconciliation-blocked={live.value.item.id}>{live.value.item.filename} cannot be reconciled yet. {statementState(live.value.item)}.</Callout>)}
+  </Frame>;
 }
