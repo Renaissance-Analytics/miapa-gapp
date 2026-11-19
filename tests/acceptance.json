@@ -7523,6 +7523,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B02-STATEMENT-ACCOUNT",
+      "risk": "An earlier statement is tied to the wrong account, or its lines can never be matched or reconciled.",
+      "scenarios": [
+        {
+          "id": "B02-STATEMENT-ACCOUNT.1",
+          "kind": "positive",
+          "given": "A statement imported without a bank account, with one posted entry that debits Checking by its line amount",
+          "when": "Request and approve tying it to Checking, then approve again",
+          "then": "The request shows the statement, its two lines and the account and changes nothing; approval ties the statement so every line reports Checking, with one recorded event; a repeated approval changes nothing; the integrity check passes.",
+          "tests": [
+            "tests.test_statement_account.StatementAccountTests.test_approved_request_ties_the_statement_and_its_lines_to_the_bank_account"
+          ]
+        },
+        {
+          "id": "B02-STATEMENT-ACCOUNT.2",
+          "kind": "negative",
+          "given": "A statement whose entry was booked to receivables instead of the bank; an unmarked, foreign or malformed account; an unknown or malformed statement; a user without access; an extra field",
+          "when": "Request the tie",
+          "then": "Each is refused with its exact code; no request is recorded and the statement stays untied.",
+          "tests": [
+            "tests.test_statement_account.StatementAccountTests.test_a_statement_whose_entries_do_not_move_that_account_or_that_is_already_tied_is_refused"
+          ]
+        },
+        {
+          "id": "B02-STATEMENT-ACCOUNT.3",
+          "kind": "negative",
+          "given": "Two pending requests to tie the same statement",
+          "when": "Approve one, then the other, then request again",
+          "then": "The second approval fails as already set and a new request is refused as already set.",
+          "tests": [
+            "tests.test_statement_account.StatementAccountTests.test_a_tied_statement_cannot_be_tied_again_and_a_stale_request_fails"
+          ]
+        },
+        {
+          "id": "B02-STATEMENT-ACCOUNT.4",
+          "kind": "positive",
+          "given": "A line of an untied statement whose entry was reversed, and a corrected manual entry",
+          "when": "Try to match the line, tie the statement to Checking, then match",
+          "then": "The match is refused while the statement has no account; the reversed entry does not block tying; afterwards the match is approved, the line is posted by match and the integrity check passes.",
+          "tests": [
+            "tests.test_statement_account.StatementAccountTests.test_tying_the_statement_lets_a_line_whose_entry_was_reversed_be_matched_to_a_corrected_entry"
+          ]
+        }
+      ]
     }
   ]
 }

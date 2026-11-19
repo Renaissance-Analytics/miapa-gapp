@@ -256,3 +256,15 @@ test('a duplicate card shows both lines side by side and how to refuse a false d
   assert.match(approvalContent({ ...repeat, detail: null }), /can no longer be found\. Approving will fail/);
   assert.equal(approvalMessage(repeat).proposal.title, 'Mark a repeated statement line');
 });
+
+test('a statement account card names the statement, its lines and the account, and warns when it is stale', () => {
+  const tie = { ...single, operation: 'statement.account', summary: 'Tie april.csv to Checking', payload: { book_id: id(2), import_id: id(3), account_id: id(4) },
+    detail: { books: 'Sample Co LLC', statement: 'april.csv', row_count: 2, account: '1000 Checking', current: true } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [tie], recent: [] }, '1').pending[0].operation, 'statement.account');
+  const content = approvalContent(tie);
+  assert.match(content, /april\.csv \(2 lines\) in Sample Co LLC books will be recorded as a statement of 1000 Checking\. Entries already made from its lines agree with that account\. No entries or amounts change\./);
+  assert.doesNotMatch(content, /already tied/);
+  assert.match(approvalContent({ ...tie, detail: { ...tie.detail, row_count: 1, current: false } }), /\(1 line\).*already tied to an account\. Approving will fail/);
+  assert.match(approvalContent({ ...tie, detail: null }), /can no longer be found\. Approving will fail/);
+  assert.equal(approvalMessage(tie).proposal.title, 'Tie a statement to its bank account');
+});
