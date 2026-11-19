@@ -1017,6 +1017,36 @@
           "tests": [
             "component-palette.test.mjs#ledger views show exactly the server figures: balances, entry lines by account name, and running balances"
           ]
+        },
+        {
+          "id": "A07-PALETTE.statement-definitions",
+          "kind": "negative",
+          "given": "Statement list and reconciliation definitions with exact references, and ones with missing or malformed ids or supplied statements, differences or results",
+          "when": "Validate and render them",
+          "then": "Only the exact definitions are accepted unchanged and render two loading views; every other definition is refused.",
+          "tests": [
+            "component-palette.test.mjs#statement and reconciliation definitions hold only exact references, never figures"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.statement-parsers",
+          "kind": "negative",
+          "given": "A statement list and a reconciliation report from the server, and ones with inconsistent readiness, unknown fields, another book or statement, or totals that do not add up",
+          "when": "Parse them",
+          "then": "Accept the exact consistent values, including a report with a real difference; refuse every inconsistent, foreign or padded value.",
+          "tests": [
+            "component-palette.test.mjs#statement lists and reconciliation reports are accepted only when exact and internally consistent"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.statement-figures",
+          "kind": "positive",
+          "given": "A list of three statements (recorded but changed, missing balances, missing account) and a reconciliation that agrees and one that is 49.00 apart",
+          "when": "Render the list and both reconciliations",
+          "then": "Show each statement's balances and what it needs with markup inert; show bank against books, the unposted line and the outstanding entry, that it agrees or the exact unexplained difference and its direction, and the recorded state.",
+          "tests": [
+            "component-palette.test.mjs#the statement list says what each statement needs and the reconciliation shows exact figures and the difference"
+          ]
         }
       ]
     },

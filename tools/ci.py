@@ -61,6 +61,7 @@ BROWSER_CASES = (
     'agent-request-human-approval',
     'agent-attach-reverse-and-close',
     'agent-composed-ledger-views',
+    'agent-composed-statement-views',
     'logout-and-viewer-denial',
     'intake-user-isolation',
     'layout-user-isolation-and-login',

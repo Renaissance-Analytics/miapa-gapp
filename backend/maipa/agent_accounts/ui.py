@@ -60,7 +60,8 @@ def _lookup(actor, account_id, identity):
     return saved
 
 
-LEDGER_VIEWS = {'Maipa.Accounts': ('book_id',), 'Maipa.Journal': ('book_id', 'show'), 'Maipa.AccountActivity': ('book_id', 'account_id')}
+LEDGER_VIEWS = {'Maipa.Accounts': ('book_id',), 'Maipa.Journal': ('book_id', 'show'), 'Maipa.AccountActivity': ('book_id', 'account_id'),
+                'Maipa.Statements': ('book_id',), 'Maipa.Reconciliation': ('book_id', 'import_id')}
 
 
 def _components(role):
@@ -77,6 +78,8 @@ def _components(role):
         ('Maipa.Accounts', 'Read-only chart of accounts with current posted balances, loaded from the scoped books service. Props: book_id. No rows or balances are supplied.'),
         ('Maipa.Journal', 'Read-only journal entries with their lines by account, loaded from the scoped books service. Props: book_id and show (all, posted or pending).'),
         ('Maipa.AccountActivity', 'Read-only posted entries and running balance for one account, loaded from the scoped books service. Props: book_id and account_id from maipa_books_read.'),
+        ('Maipa.Statements', 'Read-only list of imported bank statements with bank account, stated balances, dates, whether each can be reconciled and any recorded reconciliation, loaded from the scoped books service. Props: book_id.'),
+        ('Maipa.Reconciliation', 'Read-only bank reconciliation of one statement: bank closing balance against the books, lines not yet posted, entries the bank has not shown and the exact difference, loaded live. Props: book_id and import_id from maipa_books_reconcile. No figures are supplied.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':
@@ -127,8 +130,10 @@ def validate_schema(value, role):
             controls.add(item['type'])
         elif item['type'] in LEDGER_VIEWS:
             _object(item, ('id', 'type', 'props')); _object(item['props'], LEDGER_VIEWS[item['type']])
-            for key in ('book_id', 'account_id'):
-                identity = item['props'].get(key, item['props']['book_id'])
+            for key in LEDGER_VIEWS[item['type']]:
+                if key == 'show':
+                    continue
+                identity = item['props'][key]
                 if type(identity) is not str or str(UUID(identity)) != identity:
                     raise ValueError('Invalid ledger reference')
             if item['props'].get('show', 'all') not in ('all', 'posted', 'pending') or item['type'] in controls:

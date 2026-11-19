@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-52",
+    "label": "Development update 52",
+    "cards": [
+      {
+        "title": "Maipa can undo a posted entry",
+        "description": "Ask Maipa to reverse an entry that was posted by mistake. It requests a reversal for your approval; approving posts the exact opposite entry, linked to the original, so your balances are corrected and the history stays intact. An entry can be reversed once."
+      }
+    ]
+  },
+  {
     "id": "development-51",
     "label": "Development update 51",
     "cards": [

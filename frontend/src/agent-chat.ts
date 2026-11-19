@@ -56,14 +56,17 @@ export function compositionSchema(input: unknown): ScreenSchema {
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || controls.has(v.type)) return fail();
       controls.add(v.type); return {id:v.id,type:v.type,props:{book_id:v.props.book_id}};
     }
-    if (v.type === 'Maipa.Accounts' || v.type === 'Maipa.Journal' || v.type === 'Maipa.AccountActivity') {
-      const keys = v.type === 'Maipa.Accounts' ? ['book_id'] : v.type === 'Maipa.Journal' ? ['book_id', 'show'] : ['book_id', 'account_id'];
+    if (['Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation'].includes(String(v.type))) {
+      const kind = String(v.type);
+      const keys = v.type === 'Maipa.Accounts' || v.type === 'Maipa.Statements' ? ['book_id'] : v.type === 'Maipa.Journal' ? ['book_id', 'show']
+        : v.type === 'Maipa.Reconciliation' ? ['book_id', 'import_id'] : ['book_id', 'account_id'];
       const exact = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
-      if (!object(v.props) || !closed(v.props, keys) || !exact(v.props.book_id) || controls.has(v.type)
+      if (!object(v.props) || !closed(v.props, keys) || !exact(v.props.book_id) || controls.has(kind)
         || (v.type === 'Maipa.Journal' && !['all', 'posted', 'pending'].includes(String(v.props.show)))
-        || (v.type === 'Maipa.AccountActivity' && !exact(v.props.account_id))) return fail();
-      controls.add(v.type);
-      return { id: v.id, type: v.type, props: Object.fromEntries(keys.map(key => [key, (v.props as Record<string, unknown>)[key]])) };
+        || (v.type === 'Maipa.AccountActivity' && !exact(v.props.account_id))
+        || (v.type === 'Maipa.Reconciliation' && !exact(v.props.import_id))) return fail();
+      controls.add(kind);
+      return { id: v.id, type: kind, props: Object.fromEntries(keys.map(key => [key, (v.props as Record<string, unknown>)[key]])) };
     }
     if (v.type === 'Maipa.Workflow') {
       if (!object(v.props) || Object.keys(v.props).length !== 1 || typeof v.props.draft_id !== 'string'

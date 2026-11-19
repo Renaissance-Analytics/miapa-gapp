@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "a7eaec46ab4335242335ecb201303e714b29ad491c2a0e8afcaccd521d29f83c",
+    "tools/browser.mjs": "8de59e36da2ef8c1192a2397d87cf5976797c5cc5088a6fa5278ebbef20935e5",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "6d099df6ec4957bc160d06877d760072d3da0649a27a1599ba44f29f86073843"
+    "tests/fixtures/agent_chat_peer.py": "a0101b72c3262ee8f75dd145567e5c5dd274252959ec6fac3b5eefb292cb7c23"
   },
   "cases": [
     {
@@ -235,6 +235,11 @@
       "expected": "The finite peer composes Maipa.Accounts, Maipa.Journal (posted) and Maipa.AccountActivity for the owned book through the real UI tool. The three views load from the real APIs: the account count, posted entry count, and the checking account code, row count and balance equal the owner-bound API values, and the approved 6300 account is listed. The agent then dismisses the view and the panel is gone."
     },
     {
+      "id": "agent-composed-statement-views",
+      "kind": "positive",
+      "expected": "The finite peer reads the statement list through the real reconciliation tool and composes Maipa.Statements and Maipa.Reconciliation for the first statement. The list shows as many statements as the owner-bound API reports, with the same number ready to reconcile. The first statement has no stated balances, so the reconciliation view explains what it needs and shows no figures. The agent then dismisses the view."
+    },
+    {
       "id": "logout-and-viewer-denial",
       "kind": "negative",
       "expected": "Actual Sign out restores the password form and session401; viewer password login retains viewer despite forged role hints, cannot start its own transport check (403/no history), and cannot read the first user history (404)."
@@ -371,5 +376,6 @@
   "ledger_integrity_review": "The finite peer exact startup catalog adds the read-only maipa_books_verify tool. No browser action, assertion or deadline changed.",
   "ledger_views_review": "One added case after the unchanged attach/reverse/close case. The finite peer gains one handler that presents three read-only ledger components. No prior action, assertion or deadline changed; progress maximum 52 -> 53.",
   "import_bank_account_review": "The own-books-statement-import case gains three assertions: exactly one account is marked bank or cash, the upload panel preselects it, and every imported row reports that account. No action, prior assertion or deadline changed.",
-  "reconciliation_review": "The finite peer exact startup catalog adds the read-only maipa_books_reconcile tool. No browser action, assertion or deadline changed."
+  "reconciliation_review": "The finite peer exact startup catalog adds the read-only maipa_books_reconcile tool. No browser action, assertion or deadline changed.",
+  "statement_views_review": "One added case after the unchanged ledger views case. The finite peer gains one handler that presents two read-only statement components. No prior action, assertion or deadline changed; progress maximum 53 -> 54."
 }
