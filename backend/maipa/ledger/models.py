@@ -138,7 +138,8 @@ class SourceRowMatch(AppendOnly):
     """A statement line settled without an entry of its own: by an entry another line already produced (the second
     side of a transfer), or as a repeat of a line from an overlapping statement."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    row = models.OneToOneField('SourceRow', related_name='match', on_delete=models.PROTECT)
+    # A line can be settled again after the entry that settled it is reversed, so this is not one-to-one.
+    row = models.ForeignKey('SourceRow', related_name='settlements', on_delete=models.PROTECT)
     journal = models.ForeignKey(Journal, null=True, blank=True, related_name='matches', on_delete=models.PROTECT)
     duplicate_of = models.ForeignKey('SourceRow', null=True, blank=True, related_name='duplicates', on_delete=models.PROTECT)
     matched_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
