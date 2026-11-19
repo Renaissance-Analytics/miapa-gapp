@@ -197,6 +197,8 @@ for line in sys.stdin:
                 views = callback('maipa_views_list', {})
                 callback('maipa_views_change', {'views_id': views['views_id'], 'expected_revision': views['revision'],
                     'id': views['views'][-1]['id'], 'action': 'pin'})
+            elif 'please continue with what is left' in text:
+                pass  # The person's decision note: reply only, change no UI.
             elif 'request a new account' in text:
                 books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
                 callback('maipa_action_request', {'operation': 'account.create', 'summary': 'Add account 6300 Synthetic rent',

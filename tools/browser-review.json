@@ -3,10 +3,10 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "d95ecbdbf18edcfc85490abf4f77d81e985aacd89c6d1654dfedd8f2d85a1496",
+    "tools/browser.mjs": "a29664a95f966aa099f79b875e7f4318b64d05ce3c5195b5adbd82714b272fed",
     "tools/check_browser.py": "ebfcd7b127104595f051404dfa363c45c01dee387072e3247e5f9988026cf11c",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "39ff8c3c1994e8fd5da736e1e6ee1b6e529ccbd11b2a0466543d816d892c1aef"
+    "tests/fixtures/agent_chat_peer.py": "7a7e45a9ae7c122fe152e6fa8804f83cac478bb2dab7fcb06e0e8b66cb18f112"
   },
   "cases": [
     {
@@ -217,7 +217,7 @@
     {
       "id": "agent-request-human-approval",
       "kind": "positive",
-      "expected": "The finite peer asks, through the real maipa_action_request tool, to add account 6300. The chat shows one Fancy approval card and the books are unchanged; after the human clicks Approve the real owner-bound API shows account 6300 and the card clears."
+      "expected": "The finite peer asks, through the real maipa_action_request tool, to add account 6300. The chat shows one Fancy approval card and the books are unchanged; after the human clicks Approve the real owner-bound API shows account 6300 and the card clears. The app then sends the exact decision note on the person's behalf and the peer completes a reply turn."
     },
     {
       "id": "logout-and-viewer-denial",
@@ -346,5 +346,6 @@
   "statement_import_review": "The finite peer exact startup catalog adds the read-only maipa_books_imports tool. No browser action, assertion, deadline or case changed.",
   "agent_guided_setup_review": "Account setup is now explained steps, not a scripted chat. The browser flow keeps every original native action, assertion, deadline and case; only the submit label (Send answer -> Save answer) and the transcript selector (Account setup conversation -> Account setup steps, which shows recorded answers) follow the new markup. The finite peer exact startup catalog adds maipa_setup_read and maipa_setup_record. No real-model onboarding acceptance is claimed.",
   "statement_import_browser_review": "One added real-browser case after the posted trial-balance assertions and before the existing own-books record. It uses DOM.setFileInputFiles on the published FileUpload input, as the existing attachment case does, and reads results through the real owner-bound API. All prior case actions, assertions, deadlines and cleanup are unchanged; the progress maximum rises from 48 to 49.",
-  "agent_approval_review": "One added case after the unchanged own-books cases. The finite peer exact startup catalog adds maipa_action_request and maipa_action_list and one prompt handler that requests account.create through the real tool. The human approves with a native click on the published ChatMessage proposal card; outcomes are read from the real API. No prior action, assertion or deadline changed; progress maximum 49 -> 50."
+  "agent_approval_review": "One added case after the unchanged own-books cases. The finite peer exact startup catalog adds maipa_action_request and maipa_action_list and one prompt handler that requests account.create through the real tool. The human approves with a native click on the published ChatMessage proposal card; outcomes are read from the real API. No prior action, assertion or deadline changed; progress maximum 49 -> 50.",
+  "agent_approval_continue_review": "The existing approval case additionally waits for the real chat API to show the decision note as the last user message and a completed assistant reply. The finite peer answers that note without changing UI. No other action, assertion or deadline changed."
 }

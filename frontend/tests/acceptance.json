@@ -1915,6 +1915,16 @@
           "tests": [
             "approvals.test.mjs#cards group batches, show server-read entry lines and render through the Fancy approval card"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.5",
+          "kind": "negative",
+          "given": "Approved, failed and rejected outcomes with markup in a summary, an empty list and a still-pending request",
+          "when": "Build the note sent to the agent after a decision",
+          "then": "State each outcome exactly with markup neutralised and ask the agent to continue; produce no note when nothing was decided.",
+          "tests": [
+            "approvals.test.mjs#the note sent after a decision states exact outcomes and is empty when nothing was decided"
+          ]
         }
       ]
     }

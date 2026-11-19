@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-30",
+    "label": "Development update 30",
+    "cards": [
+      {
+        "title": "Fancy content and composer controls",
+        "description": "Agent replies, setup guidance and shared notes use Fancyâ€™s content renderer. The message input uses Fancyâ€™s multiline component while keeping drafts and confirmed sends."
+      },
+      {
+        "title": "Consistent connection controls",
+        "description": "When a connection changes, model choices and sign-in controls stay with the current conversation."
+      }
+    ]
+  },
+  {
     "id": "development-29",
     "label": "Development update 29",
     "cards": [
