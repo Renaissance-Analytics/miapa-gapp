@@ -18,7 +18,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 
 from backend.maipa.intake import services as intake
-from .models import Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, SourceImport, SourceRow
+from .models import Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, SourceImport, SourceRow, SourceRowMatch
 
 MAX_UNITS = 999999999999999999
 STARTER = (('1000', 'Checking', 'asset'), ('1100', 'Accounts receivable', 'asset'),
@@ -258,6 +258,8 @@ def propose_journal(user, book_id, value, _kind=None):
                     'import_account_mismatch')
     require(not book.journals.filter(source_kind=value['source']['kind'], source_reference=reference).exists(),
             'ledger_source_exists')
+    # A line already settled by a match cannot also get an entry of its own.
+    require(value['source']['kind'] != 'csv' or not SourceRowMatch.objects.filter(row_id=row_id).exists(), 'ledger_source_exists')
     payload = {'book_id': str(book.pk), 'entity_id': str(book.entity_id), 'currency': book.currency,
                'date': value['date'], 'description': description, 'source': value['source'],
                'evidence': value['evidence'], 'lines': [{'account_id': str(a.pk), 'debit': money(d),
@@ -398,22 +400,122 @@ def import_statement(user, book_id, value):
     return import_value(saved, True)
 
 
+MATCH_DAYS = 10
+
+
+def _moves(lines, account_id, amount_units):
+    """Whether these lines move one account by exactly this signed amount: in as a debit, out as a credit, never both."""
+    moved_in = sum(line.debit_units for line in lines if line.account_id == account_id)
+    moved_out = sum(line.credit_units for line in lines if line.account_id == account_id)
+    return (moved_in, moved_out) == ((amount_units, 0) if amount_units > 0 else (0, -amount_units))
+
+
+def _settled(book):
+    """Each settled line's entry: the entry it produced, or the entry it was matched to."""
+    cited = {journal.source_reference: (journal, 'entry') for journal in book.journals.filter(source_kind='csv')}
+    for match in SourceRowMatch.objects.filter(journal__book=book).select_related('journal'):
+        cited[str(match.row_id)] = (match.journal, 'match')
+    return cited
+
+
+def _taken(book, journal):
+    """Bank accounts of this entry already accounted for by a statement line."""
+    taken = set()
+    if journal.source_kind == 'csv':
+        source = SourceRow.objects.filter(pk=journal.source_reference, source_import__book=book).select_related('source_import').first()
+        if source is not None and source.source_import.account_id:
+            taken.add(source.source_import.account_id)
+    for match in journal.matches.select_related('row__source_import'):
+        taken.add(match.row.source_import.account_id)
+    return taken
+
+
+def match_check(book, row_id, journal_id):
+    """The pending statement line and the entry that already records its movement. Read-only."""
+    try:
+        row = SourceRow.objects.filter(pk=identity(row_id), source_import__book=book).select_related('source_import').first()
+    except (LedgerError, ValueError):
+        row = None
+    require(row is not None, 'import_row_not_found')
+    try:
+        journal = book.journals.filter(pk=identity(journal_id)).first()
+    except (LedgerError, ValueError):
+        journal = None
+    require(journal is not None and journal.source_kind != 'reversal', 'ledger_not_found')
+    require(str(row.pk) not in _settled(book), 'match_row_not_pending')
+    bank = row.source_import.account_id
+    require(bank is not None, 'match_account_required')
+    require(_moves(list(journal.lines.all()), bank, row.amount_units), 'import_account_mismatch')
+    require(bank not in _taken(book, journal), 'match_account_taken')
+    require(abs((row.date - journal.date).days) <= MATCH_DAYS, 'match_date_too_far')
+    require(not closed(book, journal.date) or journal.state == 'posted', 'ledger_period_closed')
+    return row, journal
+
+
+@guarded
+@transaction.atomic
+def match_row(user, book_id, value):
+    """Settle a statement line with an existing entry instead of a second entry. No amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'row_id', 'journal_id'))
+    row, journal = match_check(book, value['row_id'], value['journal_id'])
+    advance(book, value['expected_revision'])
+    SourceRowMatch.objects.create(row=row, journal=journal, matched_by=user)
+    event(book, user, 'statement.match', row.pk, journal.payload_hash)
+    return {'row_id': str(row.pk), 'journal_id': str(journal.pk), 'revision': book.revision}
+
+
+@guarded
+@transaction.atomic
+def match_candidates(user, book_id):
+    """Pending lines that look like one movement seen twice: opposite lines of two bank accounts, or a line an entry already records."""
+    _, book = owned(user, book_id)
+    settled = _settled(book)
+    pending = [row for row in SourceRow.objects.filter(source_import__book=book, source_import__account__isnull=False)
+               .select_related('source_import').order_by('date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]
+               if str(row.pk) not in settled]
+    transfers, used = [], set()
+    for out in (row for row in pending if row.amount_units < 0):
+        best = min((row for row in pending if row.pk not in used and row.amount_units == -out.amount_units
+                    and row.source_import.account_id != out.source_import.account_id
+                    and abs((row.date - out.date).days) <= MATCH_DAYS),
+                   key=lambda row: (abs((row.date - out.date).days), row.date, row.row_number), default=None)
+        if best is not None:
+            used.add(best.pk)
+            transfers.append({'out_row_id': str(out.pk), 'in_row_id': str(best.pk), 'amount': money(best.amount_units),
+                              'days_apart': abs((best.date - out.date).days)})
+    paired = {item[key] for item in transfers for key in ('out_row_id', 'in_row_id')}
+    entries = []
+    journals = [(journal, list(journal.lines.all()), _taken(book, journal))
+                for journal in book.journals.exclude(source_kind='reversal').order_by('sequence')[:2000]]
+    for row in pending:
+        if str(row.pk) in paired:
+            continue
+        bank = row.source_import.account_id
+        for journal, lines, taken in journals:
+            if bank not in taken and abs((row.date - journal.date).days) <= MATCH_DAYS and _moves(lines, bank, row.amount_units):
+                entries.append({'row_id': str(row.pk), 'journal_id': str(journal.pk), 'days_apart': abs((row.date - journal.date).days)})
+                break
+    return {'book_id': str(book.pk), 'revision': book.revision, 'transfers': transfers[:200], 'entries': entries[:200]}
+
+
 @guarded
 @transaction.atomic
 def source_rows(user, book_id):
-    """Imported statement rows, oldest first, each marked pending or linked to its proposal."""
+    """Imported statement rows, oldest first, each pending or settled by its own entry or by a match to another entry."""
     _, book = owned(user, book_id)
-    cited = {journal.source_reference: journal for journal in book.journals.filter(source_kind='csv')}
+    settled = _settled(book)
     rows = []
     for row in SourceRow.objects.filter(source_import__book=book).select_related('source_import').order_by(
             'date', 'source_import__created_at', 'row_number')[:MAX_IMPORT_ROWS * 5]:
-        journal = cited.get(str(row.pk))
+        journal, via = settled.get(str(row.pk), (None, None))
         rows.append({'id': str(row.pk), 'import_id': str(row.source_import_id), 'import_filename': row.source_import.filename,
                      'row_number': row.row_number, 'date': row.date.isoformat(), 'description': row.description,
                      'amount': money(row.amount_units), 'reference': row.reference,
                      'account_id': str(row.source_import.account_id) if row.source_import.account_id else None,
                      'status': 'pending' if journal is None else 'posted' if journal.state == 'posted' else 'proposed',
-                     'journal_id': None if journal is None else str(journal.pk)})
+                     'journal_id': None if journal is None else str(journal.pk), 'via': via})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
 
 def _statements(book, accounts, start, end):
@@ -588,6 +690,10 @@ def verify_book(user, book_id):
                 (line.account_id, line.debit_units, line.credit_units) for line in own]
             if not mirrored:
                 found('reversal_invalid', journal)
+    for match in SourceRowMatch.objects.filter(journal__book=book).select_related('journal', 'row__source_import'):
+        bank = match.row.source_import.account_id
+        if bank is None or match.row.source_import.book_id != book.pk or not _moves(lines[match.journal_id], bank, match.row.amount_units):
+            found('row_match_invalid', match.journal)
     revisions = sorted(LedgerEvent.objects.filter(book=book).values_list('revision', flat=True))
     if revisions != list(range(1, book.revision + 1)):
         found('event_history_incomplete')

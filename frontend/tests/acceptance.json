@@ -1949,6 +1949,16 @@
           "tests": [
             "bookkeeping.test.mjs#a statement import names only a marked bank account and accepts only the matching acknowledgment and rows"
           ]
+        },
+        {
+          "id": "L05-BOOKS.row-settlement",
+          "kind": "negative",
+          "given": "Statement rows settled by a match, by their own entry and still pending, and rows with a missing, unknown or inconsistent settlement",
+          "when": "Parse the rows",
+          "then": "Accept match, entry and pending rows as given; refuse a settled row without how it was settled, an unknown value, a pending row claiming a match, a settled row without an entry, and a row without the field.",
+          "tests": [
+            "bookkeeping.test.mjs#statement rows say how they were settled and reject an inconsistent settlement"
+          ]
         }
       ]
     },
@@ -2134,6 +2144,16 @@
           "then": "The PDF can be sent as bytes; each other pick is refused with the instruction naming both limits.",
           "tests": [
             "chat-drafts.test.mjs#a picked PDF statement can be sent as bytes up to 700 KB; larger or unreadable picks cannot"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.17",
+          "kind": "positive",
+          "given": "A pending request to match a savings statement line to a draft transfer entry, the same with a posted entry, and one whose records are gone",
+          "when": "Build their cards",
+          "then": "Show the statement line with its bank account, the entry with its state and lines, and that the line is settled without a second entry and no amounts change; say plainly when approving will fail.",
+          "tests": [
+            "approvals.test.mjs#a match card shows the statement line, the entry and its lines, and says nothing is booked twice"
           ]
         }
       ]

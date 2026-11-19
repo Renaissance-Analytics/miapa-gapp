@@ -91,6 +91,12 @@ def _check_cash(user, payload):
     ledger.cash_change(book, payload['account_id'], payload['cash'])
 
 
+def _check_match(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.match_check(book, payload['row_id'], payload['journal_id'])
+
+
 def _check_opening(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -138,6 +144,9 @@ OPERATIONS = {
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
             'filename': p['filename'], 'content': p['content'],
             **{key: p[key] for key in ('account_id', 'opening_balance', 'closing_balance') if key in p}})),
+    'statement.match': (('book_id', 'row_id', 'journal_id'), _check_match,
+        lambda user, p: ledger.match_row(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                         'row_id': p['row_id'], 'journal_id': p['journal_id']})),
     'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
         lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
             {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
@@ -179,6 +188,18 @@ def _detail(row):
             return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
                     'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
                     'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
+        if row.operation == 'statement.match':
+            from backend.maipa.ledger.models import Journal, SourceRow
+            line = SourceRow.objects.select_related('source_import__account', 'source_import__book__entity').get(
+                pk=row.payload['row_id'], source_import__book_id=row.payload['book_id'])
+            journal = Journal.objects.get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])
+            book, bank = line.source_import.book, line.source_import.account
+            return {'books': book.entity.name, 'currency': book.currency,
+                    'row': {'date': line.date.isoformat(), 'description': line.description, 'amount': ledger.money(line.amount_units),
+                            'account': f'{bank.code} {bank.name}' if bank else None},
+                    'entry': {'sequence': journal.sequence, 'date': journal.date.isoformat(), 'description': journal.description, 'state': journal.state},
+                    'lines': [{'account': f'{item.account.code} {item.account.name}', 'debit': ledger.money(item.debit_units),
+                               'credit': ledger.money(item.credit_units)} for item in journal.lines.select_related('account').order_by('position')]}
         if row.operation == 'account.cash':
             from backend.maipa.ledger.models import Account
             account = Account.objects.select_related('book__entity').get(pk=row.payload['account_id'], book_id=row.payload['book_id'])

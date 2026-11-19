@@ -7345,6 +7345,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "B02-TRANSFERS",
+      "risk": "A transfer between two own accounts is booked twice or as income, or a statement line is settled by an entry that does not record it.",
+      "scenarios": [
+        {
+          "id": "B02-TRANSFERS.1",
+          "kind": "positive",
+          "given": "Checking and savings statements with a 500.00 transfer one day apart, a second 500.00 out 17 days away, rent and interest",
+          "when": "List the match candidates before and after booking the transfer entry",
+          "then": "Exactly the one-day pair is offered as a transfer; after the entry exists the savings line is offered against that entry instead.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_candidates_pair_opposite_lines_of_two_bank_accounts_within_ten_days_and_lines_with_existing_entries"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.2",
+          "kind": "positive",
+          "given": "A draft transfer entry made from the checking line, and the pending savings line",
+          "when": "Request and approve the match, post the entry, approve again",
+          "then": "The request shows the line, the entry and its lines and changes nothing; approval links the line with one recorded event and no second entry; posting marks both lines posted with checking 500.0000 credit and savings 500.0000 debit; the integrity check passes; a repeated approval changes nothing.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_approved_match_links_the_second_line_to_the_one_transfer_entry_without_another_entry"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.3",
+          "kind": "negative",
+          "given": "A line of another amount, a line whose bank side the entry already used, a line 44 days away, the entry's own line, an entry that does not touch the account, unknown ids, a user without access and an extra field",
+          "when": "Request the match",
+          "then": "Each is refused with its exact code; no request and no match is recorded.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_lines_that_do_not_fit_the_entry_are_refused_and_nothing_is_recorded"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.4",
+          "kind": "negative",
+          "given": "Two pending requests for the same match, then a second savings line of the same amount",
+          "when": "Approve one then the other; try to give the matched line its own entry; request the second line against the same entry",
+          "then": "The second approval fails as no longer pending; the matched line cannot get its own entry; the second line is refused because that side is taken; one match and one entry exist.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_a_matched_line_cannot_be_matched_or_booked_again_and_a_second_line_cannot_take_the_same_side"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.5",
+          "kind": "negative",
+          "given": "A line of a statement imported without a bank account",
+          "when": "Request a match",
+          "then": "Refused: a bank account is required.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_a_line_of_a_statement_without_a_bank_account_cannot_be_matched"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.6",
+          "kind": "negative",
+          "given": "A recorded match redirected in the database to a line of another amount",
+          "when": "Run the integrity check",
+          "then": "The check passes before and reports an invalid row match on the entry afterwards.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_the_integrity_check_finds_a_match_whose_entry_no_longer_moves_the_line"
+          ]
+        },
+        {
+          "id": "B02-TRANSFERS.7",
+          "kind": "positive",
+          "given": "The books HTTP listing and the agent imports tool after a transfer entry exists",
+          "when": "Read both",
+          "then": "HTTP rows keep their four top-level fields and report how each line was settled; the agent tool returns the same rows plus the transfer and entry candidates.",
+          "tests": [
+            "tests.test_transfer_matching.TransferMatchingTests.test_the_agent_imports_tool_adds_candidates_and_http_rows_report_how_each_line_was_settled"
+          ]
+        }
+      ]
     }
   ]
 }

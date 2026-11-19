@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.match', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'journal.reverse': 'Reverse a posted entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.match': 'Match a statement line to an entry', 'journal.reverse': 'Reverse a posted entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -135,6 +135,14 @@ export function approvalContent(item: ApprovalRequest): string {
       : `Move the close of ${cell(d?.books)} books back to ${cell(p.through)} (currently ${cell(d?.closed_through)}).`);
   } else if (item.operation === 'books.create') {
     lines.push('', `${cell(d?.entity)} · ${cell(p.currency)} · ${cell(p.period_start)} to ${cell(p.period_end)}`);
+  } else if (item.operation === 'statement.match') {
+    const row = d && object(d.row) ? d.row : null, entry = d && object(d.entry) ? d.entry : null;
+    if (row && entry && d && Array.isArray(d.lines)) {
+      lines.push('', `Statement line: ${cell(row.date)} · ${cell(row.description)} · ${cell(row.amount)} ${cell(d.currency)} on ${cell(row.account)}`,
+        '', `Entry #${cell(entry.sequence)} dated ${cell(entry.date)} · ${cell(entry.description)} · ${entry.state === 'posted' ? 'posted' : 'awaiting your review'}`,
+        '', '| Account | Debit | Credit |', '|---|---:|---:|', ...d.lines.filter(object).map(l => `| ${cell(l.account)} | ${cell(l.debit)} | ${cell(l.credit)} |`),
+        '', 'This entry already records the movement, so the line is settled without a second entry. No amounts change.');
+    } else lines.push('', 'This line or entry can no longer be found. Approving will fail; ask Maipa to check again.');
   } else if (item.operation === 'account.cash') {
     lines.push('', d ? `${cell(d.account)} in ${cell(d.books)} books will ${p.cash === true ? 'count' : 'no longer count'} as a bank account or cash on hand. No amounts change.`
       : 'This account can no longer be found. Approving will fail; ask Maipa to check again.');

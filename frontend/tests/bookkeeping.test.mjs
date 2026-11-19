@@ -59,8 +59,8 @@ test('account activity keeps exact signed balances and rejects foreign or incons
  assert.equal(calls.length,1);
 });
 test('statement import sends exact bounded content with the observed revision and parses only consistent rows',async()=>{
- const row={id:id(8),import_id:id(9),import_filename:'synthetic-bank.csv',row_number:1,date:'2026-03-02',description:'Synthetic coffee',amount:'-0.1000',reference:'',account_id:null,status:'pending',journal_id:null};
- const rows={book_id:id(1),currency:'USD',revision:2,rows:[row,{...row,id:id(10),row_number:2,amount:'12.5000',status:'proposed',journal_id:id(4)}]};
+ const row={id:id(8),import_id:id(9),import_filename:'synthetic-bank.csv',row_number:1,date:'2026-03-02',description:'Synthetic coffee',amount:'-0.1000',reference:'',account_id:null,status:'pending',journal_id:null,via:null};
+ const rows={book_id:id(1),currency:'USD',revision:2,rows:[row,{...row,id:id(10),row_number:2,amount:'12.5000',status:'proposed',journal_id:id(4),via:'entry'}]};
  assert.deepEqual(parseSourceRows(structuredClone(rows),id(1)),rows);
  for(const broken of [{...rows,book_id:id(9)},{...rows,rows:[{...row,status:'pending',journal_id:id(4)}]},{...rows,rows:[{...row,status:'posted'}]},
    {...rows,rows:[{...row,amount:'0.0000'}]},{...rows,rows:[row,row]},{...rows,rows:[{...row,row_number:0}]},{...rows,rows:[{...row,owner:'1'}]}])
@@ -161,10 +161,22 @@ test('a statement import names only a marked bank account and accepts only the m
   assert.deepEqual(await importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer(balanced), bank), balanced);
   for (const change of [{ opening_balance: null }, { closing_balance: 'two' }, { opening_balance: 1 }])
     await assert.rejects(() => importStatement('1', owned, 'synthetic-bank.csv', content, signal(), answer({ ...balanced, ...change }), bank));
-  const row = { id: id(8), import_id: id(9), import_filename: 'synthetic-bank.csv', row_number: 1, date: '2026-03-02', description: 'Synthetic deposit', amount: '12.5000', reference: '', account_id: bank, status: 'pending', journal_id: null };
+  const row = { id: id(8), import_id: id(9), import_filename: 'synthetic-bank.csv', row_number: 1, date: '2026-03-02', description: 'Synthetic deposit', amount: '12.5000', reference: '', account_id: bank, status: 'pending', journal_id: null, via: null };
   const rows = { book_id: id(1), currency: 'USD', revision: 2, rows: [row] };
   assert.equal(parseSourceRows(structuredClone(rows), id(1)).rows[0].account_id, bank);
   for (const account_id of ['checking', 1, undefined]) assert.throws(() => parseSourceRows({ ...rows, rows: [{ ...row, account_id }] }, id(1)));
   const without = { ...row }; delete without.account_id;
+  assert.throws(() => parseSourceRows({ ...rows, rows: [without] }, id(1)));
+});
+
+test('statement rows say how they were settled and reject an inconsistent settlement', () => {
+  const row = { id: id(8), import_id: id(9), import_filename: 'savings.csv', row_number: 1, date: '2026-03-03', description: 'Transfer from checking', amount: '500.0000',
+    reference: '', account_id: id(31), status: 'proposed', journal_id: id(4), via: 'match' };
+  const rows = { book_id: id(1), currency: 'USD', revision: 5, rows: [row, { ...row, id: id(10), row_number: 2, status: 'posted', via: 'entry' }, { ...row, id: id(11), row_number: 3, status: 'pending', journal_id: null, via: null }] };
+  assert.deepEqual(parseSourceRows(structuredClone(rows), id(1)).rows.map(r => r.via), ['match', 'entry', null]);
+  for (const change of [{ via: null }, { via: 'guess' }, { status: 'pending', journal_id: null, via: 'match' }, { journal_id: null }]) {
+    assert.throws(() => parseSourceRows({ ...rows, rows: [{ ...row, ...change }] }, id(1)), undefined, JSON.stringify(change));
+  }
+  const without = { ...row }; delete without.via;
   assert.throws(() => parseSourceRows({ ...rows, rows: [without] }, id(1)));
 });

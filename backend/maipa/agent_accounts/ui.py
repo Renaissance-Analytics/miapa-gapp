@@ -241,6 +241,7 @@ def _tools():
         'books.create {entity_id,currency,period_start,period_end}; account.create {book_id,code,name,category}; '
         'account.cash {book_id,account_id,cash} to mark (true) or unmark (false) an ASSET account as a bank account or cash on hand; maipa_books_read shows each account\'s cash flag; '
         'statement.import {book_id,filename,content[,account_id][,opening_balance,closing_balance]} (CSV text with columns date,description,amount[,reference]); give account_id, the marked bank or cash account the statement is from, whenever it is a bank statement; give both balances when the statement prints them, and the import is then refused unless the rows add up from one to the other; '
+        'statement.match {book_id,row_id,journal_id} to settle a pending statement row with an entry that already records the same movement on that row\'s bank account (the second side of a transfer), so it is not booked twice; no amounts change; '
         'journal.post {book_id,journal_id,payload_hash} for a draft entry you proposed; '
         'journal.reverse {book_id,journal_id,date} to undo a POSTED entry by posting its exact opposite on that date (each entry reverses once; the original is kept); '
         'opening.balance {book_id,balances,control} to record starting balances on the first day of the book period: balances is a list of {account_id,debit,credit} with exactly one side above zero per account (not 3900), and control is {debit,credit}, the totals of those figures as stated in the source records; any difference between debits and credits goes to 3900 Opening balance equity and is shown to the person; one opening entry per book, reverse it to correct it; '
@@ -250,7 +251,7 @@ def _tools():
         'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
         'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
-            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.match', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':

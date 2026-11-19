@@ -7810,6 +7810,76 @@
       "decision": "aligned",
       "reason": "Exact text, refusal codes, stored bytes, balances and record counts asserted as described; test PDFs are written by hand because the published package has no writer.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.1",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_candidates_pair_opposite_lines_of_two_bank_accounts_within_ten_days_and_lines_with_existing_entries",
+      "scenario_sha256": "ccd99a654d52a98c10e71ac41b566b914c1de39a55befc6578fd298c4b17a725",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "Exactly the one-day pair is offered as a transfer; after the entry exists the savings line is offered against that entry instead.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.2",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_approved_match_links_the_second_line_to_the_one_transfer_entry_without_another_entry",
+      "scenario_sha256": "76b6bd5d3c5819db9e63059b36f331d81752241f77ef68e64110d2aaa07b7499",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "The request shows the line, the entry and its lines and changes nothing; approval links the line with one recorded event and no second entry; posting marks both lines posted with checking 500.0000 credit and savings 500.0000 debit; the integrity check passes; a repeated approval changes nothing.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.3",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_lines_that_do_not_fit_the_entry_are_refused_and_nothing_is_recorded",
+      "scenario_sha256": "1ff81d09dd71a8c5ee48f9e5f6632cefc7889b23b95698c88df8abbfcda2ef88",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "Each is refused with its exact code; no request and no match is recorded.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.4",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_a_matched_line_cannot_be_matched_or_booked_again_and_a_second_line_cannot_take_the_same_side",
+      "scenario_sha256": "d3fa4270fa6145070ea64c8a4dbcb9b6120fc8b0d54dd0840626292335740377",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "The second approval fails as no longer pending; the matched line cannot get its own entry; the second line is refused because that side is taken; one match and one entry exist.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.5",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_a_line_of_a_statement_without_a_bank_account_cannot_be_matched",
+      "scenario_sha256": "204db889b592108a1a77ca4f328b432bc32f144a0a601a0caec9adff24bb77d9",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "Refused: a bank account is required.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.6",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_the_integrity_check_finds_a_match_whose_entry_no_longer_moves_the_line",
+      "scenario_sha256": "61a7a645e654ca85fe8ec04ef6effbb03b0e431977f3a7def8a530bd8cd40d9d",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "The check passes before and reports an invalid row match on the entry afterwards.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B02-TRANSFERS.7",
+      "test": "tests.test_transfer_matching.TransferMatchingTests.test_the_agent_imports_tool_adds_candidates_and_http_rows_report_how_each_line_was_settled",
+      "scenario_sha256": "5e2cc266b6031106ab69bcc30908c47c35c8fe612f05946289bf4c2753966bff",
+      "source_sha256": "2ddffadb92670b263d64ba5a8e26009f620ee5ab065f6a868bce5029af9d0579",
+      "expected_observation": "HTTP rows keep their four top-level fields and report how each line was settled; the agent tool returns the same rows plus the transfer and entry candidates.",
+      "decision": "aligned",
+      "reason": "Exact candidates, refusal codes, balances, events and record counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }
