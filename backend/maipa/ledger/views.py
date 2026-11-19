@@ -92,9 +92,9 @@ def imports(request, book_id):
 def report(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')
-    if set(request.GET) != {'from', 'to'}:
+    if set(request.GET) not in ({'from', 'to'}, {'from', 'to', 'compare_from', 'compare_to'}):
         return error('invalid_ledger_request', 400)
-    return JsonResponse(services.financial_report(request.user, str(book_id), {'from': request.GET['from'], 'to': request.GET['to']}))
+    return JsonResponse(services.financial_report(request.user, str(book_id), {key: request.GET[key] for key in request.GET}))
 
 
 @endpoint

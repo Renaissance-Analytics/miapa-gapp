@@ -6831,6 +6831,46 @@
           "tests": [
             "tests.test_financial_reports.FinancialReportTests.test_http_report_is_owner_bound_and_matches_the_service"
           ]
+        },
+        {
+          "id": "A02-REPORTS.4",
+          "kind": "positive",
+          "given": "Posted January to March entries including 0.1 and 0.2 amounts, an unpaid bill and one February draft",
+          "when": "Read March compared with February",
+          "then": "The March report is unchanged; the comparison holds exactly the February statements (net 1250.5000, assets 6250.5000) and the exact change of every total, March minus February (net -2150.8000, assets -900.1000, liabilities 0.2000); a period compared with itself changes by zero.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_comparison_reports_both_periods_and_exact_differences"
+          ]
+        },
+        {
+          "id": "A02-REPORTS.5",
+          "kind": "negative",
+          "given": "Half a comparison, reversed, out-of-period, malformed or null comparison dates, an extra field and a foreign reader",
+          "when": "Read a compared report",
+          "then": "Every one is refused.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_incomplete_or_out_of_period_comparisons_and_foreign_readers_are_refused"
+          ]
+        },
+        {
+          "id": "A02-REPORTS.6",
+          "kind": "negative",
+          "given": "A bound owner session with half a comparison, a complete comparison and an unknown extra parameter",
+          "when": "Read the compared report over HTTP",
+          "then": "Return exactly the service comparison for the complete request (net change -10.0000); 400 for half a comparison or an extra parameter.",
+          "tests": [
+            "tests.test_financial_reports.FinancialReportTests.test_http_comparison_matches_the_service_and_refuses_half_a_comparison"
+          ]
+        },
+        {
+          "id": "A02-REPORTS.7",
+          "kind": "positive",
+          "given": "The agent report tool in a real original session with the book presented",
+          "when": "Call it with and without a complete comparison and with half a comparison",
+          "then": "The schema requires only book_id, from and to and allows the two comparison dates; the compared result equals the service; a plain call has no comparison; half a comparison is an error.",
+          "tests": [
+            "tests.test_bookkeeping_posting.BookkeepingPostingTests.test_agent_report_tool_compares_two_periods_exactly_as_the_service_and_refuses_half_a_comparison"
+          ]
         }
       ]
     }

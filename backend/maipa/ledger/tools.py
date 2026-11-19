@@ -30,7 +30,7 @@ def tool_definitions():
         {'name': 'maipa_books_read', 'description': 'Read an owned book chart, recent immutable journal proposals and actual posted trial balance. Read before proposing; distinguish pending from posted.', 'inputSchema': obj({'book_id': identifier})},
         {'name': 'maipa_books_activity', 'description': 'Read one owned account\'s posted entries in date order with exact running balances, plus pending (unposted) entries listed separately. Read-only.', 'inputSchema': obj({'book_id': identifier, 'account_id': identifier})},
         {'name': 'maipa_books_imports', 'description': 'Read statement rows the person imported into an owned book, oldest first, each pending, proposed or posted. To categorize a pending row, propose a journal with source kind csv and the row id as reference, the row date, and a total equal to the row amount. You cannot import files.', 'inputSchema': obj({'book_id': identifier})},
-        {'name': 'maipa_books_report', 'description': 'Read the income statement for a date range and the balance sheet as of its end date, from posted entries only (exact decimal strings). Dates must be inside the book period. Use this for profit, totals and balances; never compute them yourself.', 'inputSchema': obj({'book_id': identifier, 'from': {'type': 'string', 'format': 'date'}, 'to': {'type': 'string', 'format': 'date'}})},
+        {'name': 'maipa_books_report', 'description': 'Read the income statement for a date range and the balance sheet as of its end date, from posted entries only (exact decimal strings). Dates must be inside the book period. Use this for profit, totals and balances; never compute them yourself. To compare two periods (for example this month against last month), also give compare_from and compare_to together: the result adds the same statements for that range and the exact change in each total, requested range minus compared range.', 'inputSchema': obj({'book_id': identifier, 'from': {'type': 'string', 'format': 'date'}, 'to': {'type': 'string', 'format': 'date'}, 'compare_from': {'type': 'string', 'format': 'date'}, 'compare_to': {'type': 'string', 'format': 'date'}}, ['book_id', 'from', 'to'])},
         {'name': 'maipa_journal_propose', 'description': 'Save an exact balanced journal proposal for the currently visible Maipa.Books component. Requires the just-read book revision and original account IDs. Use decimal strings, original user-supplied references and a stable operation UUID. This never posts; the human reviews the exact entry in the shared UI.', 'inputSchema': obj({'book_id': identifier, 'entry': entry})},
     ]
 
@@ -54,10 +54,11 @@ class LedgerBroker:
             else:
                 services.fields(arguments, ('book_id', 'entry') if name == 'maipa_journal_propose'
                                else ('book_id', 'account_id') if name == 'maipa_books_activity'
-                               else ('book_id', 'from', 'to') if name == 'maipa_books_report' else ('book_id',))
+                               else ('book_id', 'from', 'to', *(key for key in ('compare_from', 'compare_to') if key in arguments))
+                               if name == 'maipa_books_report' else ('book_id',))
                 book_id = arguments['book_id']
                 if name == 'maipa_books_report':
-                    value = services.financial_report(actor, book_id, {'from': arguments['from'], 'to': arguments['to']})
+                    value = services.financial_report(actor, book_id, {key: item for key, item in arguments.items() if key != 'book_id'})
                 elif name == 'maipa_books_imports':
                     value = services.source_rows(actor, book_id)
                 elif name == 'maipa_books_activity':
