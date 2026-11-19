@@ -34,10 +34,13 @@ def endpoint(function):
     return dispatch
 
 
-def body(request):
+STATEMENT_BODY_BYTES = 1_048_576  # A 512 KiB statement as JSON text or base64, with room for escaping.
+
+
+def body(request, limit=65536):
     require(request.content_type == 'application/json')
-    raw = request.read(65537)
-    if len(raw) > 65536:
+    raw = request.read(limit + 1)
+    if len(raw) > limit:
         return None, error('request_too_large', 413)
     def pairs(items):
         result = {}

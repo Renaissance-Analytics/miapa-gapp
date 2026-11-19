@@ -7690,6 +7690,56 @@
       "decision": "aligned",
       "reason": "Exact converted text, refusal codes, stored bytes and record counts asserted as described; workbooks are built with the published package itself.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-UPLOAD-SIZE.1",
+      "test": "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_csv_attachment_near_the_documented_limit_is_stored_and_one_over_it_is_refused",
+      "scenario_sha256": "b37f6e68e58bf3875ffe9a5124a67472b4d6b0a5a46a09d6972e822145919e75",
+      "source_sha256": "59173b6b251536dcf2cd75ee6a9d67aac97e2d9929d7bb3f19b079cb4fa4190d",
+      "expected_observation": "201 with the exact size and 1,001 lines; 400 attachment too large; 413 request too large; exactly one attachment stored.",
+      "decision": "aligned",
+      "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-UPLOAD-SIZE.2",
+      "test": "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_workbook_attachment_of_several_hundred_kilobytes_is_stored",
+      "scenario_sha256": "327c6c084653264a224a102b54dac8d134dd4175d827ce2baff3c951b2a7f688",
+      "source_sha256": "59173b6b251536dcf2cd75ee6a9d67aac97e2d9929d7bb3f19b079cb4fa4190d",
+      "expected_observation": "201 with the exact size and 1,001 lines; the stored original equals the uploaded bytes.",
+      "decision": "aligned",
+      "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-UPLOAD-SIZE.3",
+      "test": "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_statement_near_the_documented_limit_imports_through_the_books_endpoint",
+      "scenario_sha256": "c04428cf089f45ebcdd2ef52369fbc71773d5b84a6c00cb639dadcd23bb2a0b9",
+      "source_sha256": "59173b6b251536dcf2cd75ee6a9d67aac97e2d9929d7bb3f19b079cb4fa4190d",
+      "expected_observation": "201 with 1,000 rows saved; then 413 request too large.",
+      "decision": "aligned",
+      "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-UPLOAD-SIZE.4",
+      "test": "tests.test_statement_upload_size.StatementUploadSizeTests.test_other_endpoints_keep_the_small_request_limit",
+      "scenario_sha256": "93273bca92fa4a829785b1d6870bea8d381b15e441d0649dc517635ffb9bf55d",
+      "source_sha256": "59173b6b251536dcf2cd75ee6a9d67aac97e2d9929d7bb3f19b079cb4fa4190d",
+      "expected_observation": "Both are refused with 413: only the two statement endpoints accept large bodies.",
+      "decision": "aligned",
+      "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "B01-UPLOAD-SIZE.5",
+      "test": "tests.test_statement_upload_size.StatementUploadSizeTests.test_a_large_attached_statement_is_imported_whole_by_an_approved_request",
+      "scenario_sha256": "f11e56e8e758273d29e07e67123bc011a7bfb222b9e391aaf592deb8f7c2b797",
+      "source_sha256": "59173b6b251536dcf2cd75ee6a9d67aac97e2d9929d7bb3f19b079cb4fa4190d",
+      "expected_observation": "The request binds the exact size and hash; approval saves all 1,000 rows.",
+      "decision": "aligned",
+      "reason": "Found by probing real request sizes: the shared body reader stopped at 64 KiB. Exact status codes, sizes and row counts asserted.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }
