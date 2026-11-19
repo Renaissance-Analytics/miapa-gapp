@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -135,6 +135,19 @@ export function approvalContent(item: ApprovalRequest): string {
       : `Move the close of ${cell(d?.books)} books back to ${cell(p.through)} (currently ${cell(d?.closed_through)}).`);
   } else if (item.operation === 'books.create') {
     lines.push('', `${cell(d?.entity)} · ${cell(p.currency)} · ${cell(p.period_start)} to ${cell(p.period_end)}`);
+  } else if (item.operation === 'statement.balances') {
+    lines.push('', d ? `${cell(d.statement)} · ${cell(d.account ?? 'no bank account yet')} · ${cell(d.books)} books`
+      + `\n\nOpening balance ${cell(d.opening_balance)} + ${cell(d.row_count)} ${Number(d.row_count) === 1 ? 'line' : 'lines'} ${cell(d.net)} = closing balance ${cell(d.closing_balance)} (${cell(d.currency)}). `
+      + 'These are recorded as the balances printed on the statement. No entries or amounts change.'
+      + (d.current === false ? ' This statement already has balances. Approving will fail; ask Maipa to check again.' : '')
+      : 'This statement can no longer be found. Approving will fail; ask Maipa to check again.');
+  } else if (item.operation === 'reconciliation.record') {
+    lines.push('', d ? `${cell(d.statement)} · ${cell(d.account)} · as of ${cell(d.as_of)}`
+      + `\n\n| | ${cell(d.currency)} |\n|---|---:|\n| Bank closing balance | ${cell(d.closing_balance)} |\n| Books balance | ${cell(d.book_balance)} |`
+      + `\n| Statement lines not yet posted | ${cell(d.unrecorded_total)} |\n| Entries the bank has not shown | ${cell(d.outstanding_total)} |\n| Difference | ${cell(d.difference)} |`
+      + (d.reconciled === true ? '\n\nThe statement agrees with the books. Approving records that you reviewed it. No entries or amounts change.'
+        : '\n\nThe statement no longer agrees with the books. Approving will fail; ask Maipa to reconcile it again.')
+      : 'This statement can no longer be found. Approving will fail; ask Maipa to check again.');
   } else if (item.operation === 'statement.account') {
     lines.push('', d ? `${cell(d.statement)} (${cell(d.row_count)} ${Number(d.row_count) === 1 ? 'line' : 'lines'}) in ${cell(d.books)} books will be recorded as a statement of ${cell(d.account)}. `
       + `Entries already made from its lines agree with that account. No entries or amounts change.`

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-51",
+    "label": "Development update 51",
+    "cards": [
+      {
+        "title": "Attach your bank statement in the chat",
+        "description": "Attach a CSV file (up to 512 KB) to a message and Maipa receives it. Ask it to import the statement and it requests an import of that exact file for your one-click approval. Other file types are not delivered yet and are refused before sending."
+      }
+    ]
+  },
+  {
     "id": "development-50",
     "label": "Development update 50",
     "cards": [

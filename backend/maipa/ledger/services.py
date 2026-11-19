@@ -18,7 +18,8 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 
 from backend.maipa.intake import services as intake
-from .models import Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, SourceImport, SourceRow, SourceRowMatch
+from .models import (Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, Reconciliation, SourceImport, SourceRow,
+                     SourceRowMatch)
 
 MAX_UNITS = 999999999999999999
 STARTER = (('1000', 'Checking', 'asset'), ('1100', 'Accounts receivable', 'asset'),
@@ -415,35 +416,8 @@ def _statement(book, import_id):
     return statement
 
 
-@guarded
-@transaction.atomic
-def statements(user, book_id):
-    """Every imported statement with its bank account, stated balances and dates, and whether it can be reconciled."""
-    _, book = owned(user, book_id)
-    listed = []
-    for statement in book.imports.select_related('account').order_by('created_at')[:500]:
-        dates = sorted(statement.rows.values_list('date', flat=True))
-        account = statement.account
-        listed.append({'id': str(statement.pk), 'filename': statement.filename, 'account_id': str(account.pk) if account else None,
-                       'account': f'{account.code} {account.name}' if account else None,
-                       'opening_balance': money(statement.opening_units) if statement.opening_units is not None else None,
-                       'closing_balance': money(statement.closing_units) if statement.closing_units is not None else None,
-                       'first_date': dates[0].isoformat(), 'last_date': dates[-1].isoformat(), 'row_count': statement.row_count,
-                       'can_reconcile': account is not None and statement.closing_units is not None})
-    return {'book_id': str(book.pk), 'revision': book.revision, 'statements': listed}
-
-
-@guarded
-@transaction.atomic
-def reconciliation(user, book_id, value):
-    """One statement's closing balance against the books at its last date. Read-only; nothing is adjusted.
-
-    Books plus statement lines not yet posted must equal the bank's closing balance plus posted entries
-    the bank has not shown. Whatever remains is the unexplained difference.
-    """
-    _, book = owned(user, book_id)
-    fields(value, ('import_id',))
-    statement = _statement(book, value['import_id'])
+def _reconcile(book, statement):
+    """The reconciliation of one statement, in exact units, with the listed items."""
     account = statement.account
     require(account is not None, 'match_account_required')
     require(statement.closing_units is not None and statement.opening_units is not None, 'reconciliation_balances_required')
@@ -476,18 +450,121 @@ def reconciliation(user, book_id, value):
             continue
         outstanding.append({'journal_id': str(journal.pk), 'sequence': journal.sequence, 'date': journal.date.isoformat(),
                             'description': journal.description, 'amount': money(net), 'units': net})
-    unrecorded_total = sum(item.pop('units') for item in unrecorded)
-    outstanding_total = sum(item.pop('units') for item in outstanding)
-    adjusted_books, adjusted_bank = balance + unrecorded_total, statement.closing_units + outstanding_total
+    unrecorded_units = sum(item.pop('units') for item in unrecorded)
+    outstanding_units = sum(item.pop('units') for item in outstanding)
+    figures = digest({'closing': statement.closing_units, 'book': balance, 'unrecorded': [item['row_id'] for item in unrecorded],
+                      'outstanding': [item['journal_id'] for item in outstanding]})
+    return {'account': account, 'first': dates[0], 'as_of': as_of, 'balance': balance, 'unrecorded': unrecorded, 'outstanding': outstanding,
+            'unrecorded_units': unrecorded_units, 'outstanding_units': outstanding_units, 'figures': figures,
+            'adjusted_books': balance + unrecorded_units, 'adjusted_bank': statement.closing_units + outstanding_units}
+
+
+def _recorded(book, statement, figures=None):
+    """The recorded reconciliation of a statement, and whether its figures are unchanged today."""
+    saved = Reconciliation.objects.filter(statement=statement).first()
+    if saved is None:
+        return None
+    if figures is None:
+        figures = _reconcile(book, statement)['figures']
+    return {'recorded_at': saved.created_at.isoformat(), 'as_of': saved.as_of.isoformat(), 'unchanged': saved.figures_hash == figures}
+
+
+@guarded
+@transaction.atomic
+def statements(user, book_id):
+    """Every imported statement with its bank account, stated balances and dates, whether it can be reconciled, and any recorded reconciliation."""
+    _, book = owned(user, book_id)
+    listed = []
+    for statement in book.imports.select_related('account').order_by('created_at')[:500]:
+        dates = sorted(statement.rows.values_list('date', flat=True))
+        account = statement.account
+        able = account is not None and statement.closing_units is not None
+        listed.append({'id': str(statement.pk), 'filename': statement.filename, 'account_id': str(account.pk) if account else None,
+                       'account': f'{account.code} {account.name}' if account else None,
+                       'opening_balance': money(statement.opening_units) if statement.opening_units is not None else None,
+                       'closing_balance': money(statement.closing_units) if statement.closing_units is not None else None,
+                       'first_date': dates[0].isoformat(), 'last_date': dates[-1].isoformat(), 'row_count': statement.row_count,
+                       'can_reconcile': able, 'reconciliation': _recorded(book, statement) if able else None})
+    return {'book_id': str(book.pk), 'revision': book.revision, 'statements': listed}
+
+
+def _report(book, statement):
+    found = _reconcile(book, statement)
+    account = found['account']
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision,
             'statement': {'id': str(statement.pk), 'filename': statement.filename,
                           'account': {'id': str(account.pk), 'code': account.code, 'name': account.name},
                           'opening_balance': money(statement.opening_units), 'closing_balance': money(statement.closing_units),
-                          'first_date': dates[0].isoformat(), 'as_of': as_of.isoformat()},
-            'book_balance': money(balance), 'unrecorded_lines': unrecorded[:500], 'unrecorded_total': money(unrecorded_total),
-            'outstanding_entries': outstanding[:500], 'outstanding_total': money(outstanding_total),
-            'adjusted_books': money(adjusted_books), 'adjusted_bank': money(adjusted_bank),
-            'difference': money(adjusted_books - adjusted_bank), 'reconciled': adjusted_books == adjusted_bank}
+                          'first_date': found['first'].isoformat(), 'as_of': found['as_of'].isoformat()},
+            'book_balance': money(found['balance']), 'unrecorded_lines': found['unrecorded'][:500],
+            'unrecorded_total': money(found['unrecorded_units']), 'outstanding_entries': found['outstanding'][:500],
+            'outstanding_total': money(found['outstanding_units']), 'adjusted_books': money(found['adjusted_books']),
+            'adjusted_bank': money(found['adjusted_bank']), 'difference': money(found['adjusted_books'] - found['adjusted_bank']),
+            'reconciled': found['adjusted_books'] == found['adjusted_bank'], 'recorded': _recorded(book, statement, found['figures'])}
+
+
+@guarded
+@transaction.atomic
+def reconciliation(user, book_id, value):
+    """One statement's closing balance against the books at its last date. Read-only; nothing is adjusted.
+
+    Books plus statement lines not yet posted must equal the bank's closing balance plus posted entries
+    the bank has not shown. Whatever remains is the unexplained difference.
+    """
+    _, book = owned(user, book_id)
+    fields(value, ('import_id',))
+    return _report(book, _statement(book, value['import_id']))
+
+
+def record_check(book, import_id):
+    """A statement that agrees with the books today and has no recorded reconciliation yet. Read-only."""
+    statement = _statement(book, import_id)
+    found = _reconcile(book, statement)
+    require(not Reconciliation.objects.filter(statement=statement).exists(), 'reconciliation_already_recorded')
+    require(found['adjusted_books'] == found['adjusted_bank'], 'reconciliation_difference')
+    return statement, found
+
+
+@guarded
+@transaction.atomic
+def record_reconciliation(user, book_id, value):
+    """Record that the person reviewed this statement and it agrees with the books. No entries or amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'import_id'))
+    statement, found = record_check(book, value['import_id'])
+    advance(book, value['expected_revision'])
+    Reconciliation.objects.create(statement=statement, account=found['account'], as_of=found['as_of'], closing_units=statement.closing_units,
+                                  book_units=found['balance'], unrecorded_units=found['unrecorded_units'],
+                                  outstanding_units=found['outstanding_units'], figures_hash=found['figures'], recorded_by=user)
+    event(book, user, 'reconciliation.record', statement.pk, found['figures'])
+    return {'import_id': str(statement.pk), 'as_of': found['as_of'].isoformat(), 'closing_balance': money(statement.closing_units),
+            'book_balance': money(found['balance']), 'revision': book.revision}
+
+
+def balances_check(book, import_id, opening, closing):
+    """A statement without stated balances, and balances its rows add up between. Read-only."""
+    statement = _statement(book, import_id)
+    require(statement.opening_units is None and statement.closing_units is None, 'import_balances_already_set')
+    opening_units, closing_units = balance_units(opening), balance_units(closing)
+    require(opening_units + sum(statement.rows.values_list('amount_units', flat=True)) == closing_units, 'import_balance_mismatch')
+    return statement, opening_units, closing_units
+
+
+@guarded
+@transaction.atomic
+def set_statement_balances(user, book_id, value):
+    """Add the stated opening and closing balance to an earlier statement. No entries or amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'import_id', 'opening_balance', 'closing_balance'))
+    statement, opening, closing = balances_check(book, value['import_id'], value['opening_balance'], value['closing_balance'])
+    advance(book, value['expected_revision'])
+    require(SourceImport.objects.filter(pk=statement.pk, opening_units__isnull=True, closing_units__isnull=True).update(
+        opening_units=opening, closing_units=closing) == 1, 'import_balances_already_set')
+    statement.opening_units, statement.closing_units = opening, closing
+    event(book, user, 'statement.balances', statement.pk, digest({'opening': opening, 'closing': closing}))
+    return import_value(statement, False)
 
 
 MATCH_DAYS = 10

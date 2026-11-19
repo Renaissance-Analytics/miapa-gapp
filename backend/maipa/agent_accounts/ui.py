@@ -242,6 +242,8 @@ def _tools():
         'account.cash {book_id,account_id,cash} to mark (true) or unmark (false) an ASSET account as a bank account or cash on hand; maipa_books_read shows each account\'s cash flag; '
         'statement.import {book_id,filename,content[,account_id][,opening_balance,closing_balance]} (CSV text with columns date,description,amount[,reference]); give account_id, the marked bank or cash account the statement is from, whenever it is a bank statement; give both balances when the statement prints them, and the import is then refused unless the rows add up from one to the other; '
         'statement.account {book_id,import_id,account_id} to tie a statement that was imported WITHOUT a bank account to the marked bank or cash account it came from (import_id is on each row of maipa_books_imports); refused if an entry made from its rows does not move that account by the row amount; no entries or amounts change; '
+        'statement.balances {book_id,import_id,opening_balance,closing_balance} to add the printed opening and closing balance to a statement imported without them, so it can be reconciled; refused unless its rows add up from one to the other; '
+        'reconciliation.record {book_id,import_id} to record that the person reviewed a statement and it agrees with the books; refused while maipa_books_reconcile reports any difference; '
         'statement.match {book_id,row_id,journal_id} to settle a pending statement row with an entry that already records the same movement on that row\'s bank account (the second side of a transfer), so it is not booked twice; no amounts change; '
         'statement.duplicate {book_id,row_id,of_row_id} to settle a pending statement row that repeats a row of ANOTHER statement of the same bank account (same date and amount), so it is not booked again; two rows of one statement are never duplicates; '
         'journal.post {book_id,journal_id,payload_hash} for a draft entry you proposed; '
@@ -253,7 +255,7 @@ def _tools():
         'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
         'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
-            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':

@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-71",
+    "label": "Development update 71",
+    "cards": [
+      {
+        "title": "Record a bank reconciliation",
+        "description": "When a statement agrees with your books, you can approve recording that you reviewed it. Maipa keeps the figures as they stood and tells you if later changes alter them. A statement with any difference cannot be recorded."
+      },
+      {
+        "title": "Add balances to an earlier statement",
+        "description": "A statement imported without its opening and closing balance can have them added, so it can be reconciled. They are accepted only if the statement's lines add up from one to the other."
+      }
+    ]
+  },
+  {
     "id": "development-70",
     "label": "Development update 70",
     "cards": [
@@ -194,16 +208,6 @@
       {
         "title": "Maipa can undo a posted entry",
         "description": "Ask Maipa to reverse an entry that was posted by mistake. It requests a reversal for your approval; approving posts the exact opposite entry, linked to the original, so your balances are corrected and the history stays intact. An entry can be reversed once."
-      }
-    ]
-  },
-  {
-    "id": "development-51",
-    "label": "Development update 51",
-    "cards": [
-      {
-        "title": "Attach your bank statement in the chat",
-        "description": "Attach a CSV file (up to 512 KB) to a message and Maipa receives it. Ask it to import the statement and it requests an import of that exact file for your one-click approval. Other file types are not delivered yet and are refused before sending."
       }
     ]
   }

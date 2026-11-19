@@ -2185,6 +2185,16 @@
           "tests": [
             "approvals.test.mjs#a statement account card names the statement, its lines and the account, and warns when it is stale"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.20",
+          "kind": "negative",
+          "given": "Pending requests to add a statement's balances and to record a reconciliation; the same when the statement already has balances, no longer agrees, or cannot be found",
+          "when": "Build their cards",
+          "then": "Show the opening plus lines equals closing figures, or the bank, books, unposted, outstanding and difference figures; say nothing changes when current, and that approving will fail when stale or missing.",
+          "tests": [
+            "approvals.test.mjs#balance and reconciliation cards show the exact figures and say when approving will fail"
+          ]
         }
       ]
     }
