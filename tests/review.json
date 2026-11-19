@@ -7964,7 +7964,7 @@
     {
       "scenario": "B02-RESETTLE.3",
       "test": "tests.test_resettle_and_clearing.ResettleAndClearingTests.test_a_processor_payout_is_one_entry_for_gross_sales_and_fees_and_must_put_the_net_in_the_bank",
-      "scenario_sha256": "ce7a0db72c93597e8a369f25c8936ae9af8edb540b5564aafb38646bdd430ec9",
+      "scenario_sha256": "517b1e1865e07c548482ea42059e63c8a6640d1cb25455f2eff7a27a7c027901",
       "source_sha256": "0125f58e17e2b88f8eb987ca063ecb95cf0fe7f30ff1b84273d23f7b54828596",
       "expected_observation": "Each wrong entry is refused as not moving the bank account by the line amount and nothing is saved; the entry debiting the bank 970.00 and fees 30.00 against 1,000.00 of sales is accepted and posted, with income 1000.0000, expenses 30.0000 and the bank up 970.0000.",
       "decision": "aligned",

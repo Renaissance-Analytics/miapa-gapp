@@ -7514,7 +7514,7 @@
         },
         {
           "id": "B02-RESETTLE.3",
-          "kind": "negative",
+          "kind": "positive",
           "given": "A 970.00 processor payout line on a checking statement: 1,000.00 of sales less 30.00 of fees",
           "when": "Propose entries putting the gross in the bank, taking the fees off twice, or missing the bank; then the single net-plus-fees entry",
           "then": "Each wrong entry is refused as not moving the bank account by the line amount and nothing is saved; the entry debiting the bank 970.00 and fees 30.00 against 1,000.00 of sales is accepted and posted, with income 1000.0000, expenses 30.0000 and the bank up 970.0000.",
