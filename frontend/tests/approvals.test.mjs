@@ -93,3 +93,14 @@ test('an attached file is uploaded for this actor and only its exact acknowledgm
     await assert.rejects(() => uploadAttachment('1', 'march.csv', content, signal, fetcher(reply)));
   await assert.rejects(() => uploadAttachment('1', 'march.csv', content, signal, fetcher({ error: 'x' }, 400)));
 });
+
+test('a reversal card shows the opposite lines and says the original entry is kept', () => {
+  const reverse = { ...post, operation: 'journal.reverse', summary: 'Reverse the rent entry', payload: { book_id: id(2), journal_id: id(3), date: '2026-03-31' },
+    detail: { date: '2026-03-31', description: 'Reversal of: Synthetic rent', currency: 'USD', original_date: '2026-03-03', current: true,
+      lines: [{ account: '6200 Office expenses', debit: '0.0000', credit: '900.0000' }, { account: '1000 Checking', debit: '900.0000', credit: '0.0000' }] } };
+  assert.deepEqual(parseApprovalList({ actor_id: '1', pending: [reverse], recent: [] }, '1').pending[0].operation, 'journal.reverse');
+  const content = approvalContent(reverse);
+  assert.match(content, /\| 6200 Office expenses \| 0\.0000 \| 900\.0000 \|/);
+  assert.match(content, /exact opposite of the entry dated 2026-03-03\. The original entry stays in your books\./);
+  assert.equal(approvalMessage(reverse).proposal.title, 'Reverse a posted entry');
+});

@@ -182,7 +182,7 @@ def create_account(user, book_id, value):
 
 @guarded
 @transaction.atomic
-def propose_journal(user, book_id, value):
+def propose_journal(user, book_id, value, _reversal=False):
     user, book = owned(user, book_id, True)
     fields(value, ('operation_id', 'expected_revision', 'date', 'description', 'source', 'evidence', 'lines'))
     operation = identity(value['operation_id'])
@@ -195,7 +195,7 @@ def propose_journal(user, book_id, value):
     require(book.period_start <= dated <= book.period_end, 'ledger_date_outside_period')
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
-    require(value['source']['kind'] in ('manual', 'csv'))
+    require(value['source']['kind'] in ('manual', 'csv') or (_reversal is True and value['source']['kind'] == 'reversal'))
     reference = text(value['source']['reference'], 256)
     require(type(value['evidence']) is list and 1 <= len(value['evidence']) <= 20)
     for item in value['evidence']:
@@ -344,6 +344,33 @@ def source_rows(user, book_id):
                      'status': 'pending' if journal is None else 'posted' if journal.state == 'posted' else 'proposed',
                      'journal_id': None if journal is None else str(journal.pk)})
     return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'rows': rows}
+
+def reversal_lines(journal):
+    """The exact opposite of a journal's lines, in the same order."""
+    return [{'account_id': str(line.account_id), 'debit': money(line.credit_units), 'credit': money(line.debit_units)}
+            for line in journal.lines.order_by('position')]
+
+
+@guarded
+@transaction.atomic
+def reverse_journal(user, book_id, journal_id, value):
+    """Undo a posted entry by posting its linked opposite. The original is never edited; each entry reverses once."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'date'))
+    original = book.journals.filter(pk=identity(journal_id), state='posted').first()
+    require(original is not None, 'ledger_not_found')
+    require(original.source_kind != 'reversal', 'ledger_reversal_not_reversible')
+    require(not book.journals.filter(source_kind='reversal', source_reference=str(original.pk)).exists(), 'ledger_already_reversed')
+    entry = propose_journal(user, book_id, {
+        'operation_id': str(uuid.uuid4()), 'expected_revision': value['expected_revision'], 'date': value['date'],
+        'description': ('Reversal of: ' + original.description)[:500],
+        'source': {'kind': 'reversal', 'reference': str(original.pk)},
+        'evidence': [f'Reverses entry {original.sequence} dated {original.date.isoformat()}'],
+        'lines': reversal_lines(original)}, _reversal=True)
+    return confirm_own_journal(user, book_id, entry['id'], {'expected_revision': value['expected_revision'] + 1,
+                                                            'payload_hash': entry['payload_hash'], 'confirm': True})
+
 
 NORMAL_DEBIT = ('asset', 'expense')
 

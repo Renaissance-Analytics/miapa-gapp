@@ -105,7 +105,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#version checks fetch the same-origin uncached build with bounded lifetime and no redirects",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "6f6301537fdb6238375910047df1f9ddb51facfa7b1903b72499a7a928058cc8",
+      "source_sha256": "0452de6ceb94abecc5cc8b6bea0a88c083f70886322c5e64a584d391148a096e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -115,7 +115,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#release notes describe the installed build and Fancy selects only unseen release groups per account",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "6f6301537fdb6238375910047df1f9ddb51facfa7b1903b72499a7a928058cc8",
+      "source_sha256": "0452de6ceb94abecc5cc8b6bea0a88c083f70886322c5e64a584d391148a096e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Expected installed release44/header card, retain prior43-through36 title assertions at shifted positions, archive24 with original23-through17,20active/28distinct IDs. Original missed/seen selection and account isolation assertions retained. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -125,7 +125,7 @@
       "scenario": "K05-UPDATE-SURFACE.visible",
       "test": "updates.test.mjs#the update surface always exposes the installed build and a named whats-new button without a false update alert",
       "scenario_sha256": "52f8f0024a068665927114a02d58b675e6ccb06b73b888773d143d40ca3ee0ad",
-      "source_sha256": "6f6301537fdb6238375910047df1f9ddb51facfa7b1903b72499a7a928058cc8",
+      "source_sha256": "0452de6ceb94abecc5cc8b6bea0a88c083f70886322c5e64a584d391148a096e",
       "expected_observation": "Use bounded same-origin uncached checks; show the installed release label, build and named What's new action; Fancy selects only unseen groups with separate cosmetic keys",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -135,7 +135,7 @@
       "scenario": "K05-UPDATE-SURFACE.failure",
       "test": "updates.test.mjs#failed or malformed version responses reject with a generic message instead of signalling an update",
       "scenario_sha256": "993e1877002883c823666040c1027f5521c9e91c1592af2706dac3272b7408b9",
-      "source_sha256": "6f6301537fdb6238375910047df1f9ddb51facfa7b1903b72499a7a928058cc8",
+      "source_sha256": "0452de6ceb94abecc5cc8b6bea0a88c083f70886322c5e64a584d391148a096e",
       "expected_observation": "Reject with only Build check unavailable so the package does not announce an invented update",
       "decision": "aligned",
       "reason": "Original20-group browser budget, all fetch/markup/unseen-group/privacy assertions and prior36 card remain. Newest37 card/id are exact. Oldest17 group moves unchanged into the documented archive; test additionally asserts its exact identity and21 unique retained release ids across browser+archive. No build metadata limit or existing scenario changed. Current update38 preview notes shift the exact current group to38. Old37 client-form and36 failure cards remain checked at their new positions; archive18/17 and total22 are explicit. Original20-group cap, unique IDs, per-user cursors, unseen/seen selection, request/error assertions remain unchanged. Genuine final-CI release red retained. Update40 adds explicit administrator workflow permission controls; previous group assertions remain at shifted positions, history group20 is archived unchanged, totaldistinct24 and browserbudget20 remain. Update41 adds shared saved run selection/details and immutable repair history; previous groups remain asserted, group21 archived unchanged,20active/25total distinct groups. Update43 adds actual provider/session settings; all previous release/card assertions remain shifted, group23 archives unchanged,20active/27total groups. Release45 adds scroll correction, preserves header44/prior release observations shifted intact, and archives25; original seen/unseen/principal-isolation assertions retained. Release46 adds account naming; previous45/header44/all historical card checks shifted intact, archive26added and30distinct IDs; original seen/unseen and account isolation assertions retained. Release47 adds exact future-model/default cards. Preserve20active groups by moving unchanged27 to archive; retain every old46-through36 card check at shifted positions, exact27-through17 archive IDs/31distinct IDs, original newest/previous seen/unseen and account isolation assertions. Stale release46 fixture red retained; no assertion removed or made dynamic. Reviewed current addition: bookkeeping shortcut and48 release. Existing role denials, title/history IDs and unseen-state assertions are retained.",
@@ -1764,7 +1764,7 @@
     {
       "scenario": "A03-APPROVALS-UI.1",
       "test": "approvals.test.mjs#approval list accepts only this actor and consistent pending and decided requests",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "94d000bb6f44a0ebca0e298e432afce61e7d7fe59b82f04b86d8d70af4daa5f8",
       "expected_observation": "Accept only this actor's consistent pending and decided requests with an actor-bound GET; reject every variant.",
       "decision": "aligned",
@@ -1774,7 +1774,7 @@
     {
       "scenario": "A03-APPROVALS-UI.2",
       "test": "approvals.test.mjs#one decision sends the reviewed hash and rejects a mismatched or undecided acknowledgment",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "70432f4bfbc339d0edb177d77c67dc5b686d830233dc2591aebc8e6ee784c6e6",
       "expected_observation": "Send exactly the decision and reviewed hash; accept approved or failed outcomes for this request and reject mismatched, undecided or contradictory replies.",
       "decision": "aligned",
@@ -1784,7 +1784,7 @@
     {
       "scenario": "A03-APPROVALS-UI.3",
       "test": "approvals.test.mjs#a batch decision sends exactly the reviewed hashes and requires every item decided",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "ee0793a5d57ff4976ef185898421226a08fc9c961a89c0518c56bc897b5ed702",
       "expected_observation": "Send exactly the reviewed hashes for that batch; require every item decided; refuse mixed batches.",
       "decision": "aligned",
@@ -1794,7 +1794,7 @@
     {
       "scenario": "A03-APPROVALS-UI.4",
       "test": "approvals.test.mjs#cards group batches, show server-read entry lines and render through the Fancy approval card",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "87d70e8608053e14b56e0416cb66f30a4655eca9612cb7622b0059300294a77a",
       "expected_observation": "Group batches, show the entry lines without raw markup, warn when the target changed, and render Approve/Reject through the published Fancy approval card only while pending.",
       "decision": "aligned",
@@ -1804,7 +1804,7 @@
     {
       "scenario": "A03-APPROVALS-UI.5",
       "test": "approvals.test.mjs#the note sent after a decision states exact outcomes and is empty when nothing was decided",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "bfef91ef227673f10ba0302d3e9ee82e8ebe58461f33c454d3be2f8cfc06484e",
       "expected_observation": "State each outcome exactly with markup neutralised and ask the agent to continue; produce no note when nothing was decided.",
       "decision": "aligned",
@@ -1824,11 +1824,21 @@
     {
       "scenario": "A03-APPROVALS-UI.7",
       "test": "approvals.test.mjs#an attached file is uploaded for this actor and only its exact acknowledgment is accepted",
-      "source_sha256": "b31e40189344817edb1319b6cbed96954ba07919771e4dee3548968d0dc9c5fb",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
       "scenario_sha256": "e28f2a629829877bb1ce06d6578504410f7c64c3c57aa8ec3e6e3dc2b12350e6",
       "expected_observation": "Send the name and content with the actor binding; accept only the acknowledgment for that exact name and size; reject the others.",
       "decision": "aligned",
       "reason": "Reviewed against the test body: exact accepted and refused inputs, request body, headers and note text asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "A03-APPROVALS-UI.8",
+      "test": "approvals.test.mjs#a reversal card shows the opposite lines and says the original entry is kept",
+      "source_sha256": "b31dc09e552f3cf538858ed298420a9cd0ea4da2c04bca5491cf7633a22a567e",
+      "scenario_sha256": "47fed31e4ebe909ad72ea82121d4c1e8bdee95810847129bafe49d1b895bb651",
+      "expected_observation": "Accept the reversal operation, show the opposite lines, state that the original entry is kept, and title the card as a reversal.",
+      "decision": "aligned",
+      "reason": "Asserts the parsed operation, the opposite line row, the exact kept-original sentence and the card title.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]

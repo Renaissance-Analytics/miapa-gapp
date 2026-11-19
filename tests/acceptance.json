@@ -6719,6 +6719,26 @@
           "tests": [
             "tests.test_chat_attachments.ChatAttachmentTests.test_http_upload_is_bound_to_the_owner_and_never_lists_foreign_files"
           ]
+        },
+        {
+          "id": "A03-APPROVALS.15",
+          "kind": "positive",
+          "given": "A posted rent entry and a request to reverse it on a later date",
+          "when": "Approve the request, then ask again",
+          "then": "Show the opposite lines on the request; approval posts one linked opposite entry on that date, keeps the original posted, nets balances to zero, and a second reversal is refused.",
+          "tests": [
+            "tests.test_agent_approvals.ReversalApprovalTests.test_approved_reversal_posts_a_linked_opposite_entry_and_zeroes_the_balances_once"
+          ]
+        },
+        {
+          "id": "A03-APPROVALS.16",
+          "kind": "negative",
+          "given": "A draft entry, out-of-period or malformed dates, an unknown entry, a foreign user, a reversal entry and a forged reversal source",
+          "when": "Request a reversal or propose a reversal-sourced journal",
+          "then": "Refuse every one; a reversal cannot be reversed and its source kind cannot be forged through ordinary proposals.",
+          "tests": [
+            "tests.test_agent_approvals.ReversalApprovalTests.test_drafts_reversals_foreign_users_and_out_of_period_dates_cannot_be_reversed"
+          ]
         }
       ]
     }

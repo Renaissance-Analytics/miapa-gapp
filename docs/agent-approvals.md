@@ -30,6 +30,7 @@ every change is an **action request** that the person approves or rejects.
 | `account.create` | `book_id`, `code`, `name`, `category` | add an account |
 | `statement.import` | `book_id`, `filename`, `content` (CSV text) | import statement rows as pending transactions |
 | `journal.post` | `book_id`, `journal_id`, `payload_hash` | post the exact draft entry |
+| `journal.reverse` | `book_id`, `journal_id`, `date` | post the exact opposite of a posted entry, linked to it; the original is kept and each entry reverses once |
 | `setup.confirm` | `setup_id`, `revision` | save the reviewed account setup |
 
 Statement content is never echoed back; a request shows its size, hash and a

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-52",
+    "label": "Development update 52",
+    "cards": [
+      {
+        "title": "Maipa can undo a posted entry",
+        "description": "Ask Maipa to reverse an entry that was posted by mistake. It requests a reversal for your approval; approving posts the exact opposite entry, linked to the original, so your balances are corrected and the history stays intact. An entry can be reversed once."
+      }
+    ]
+  },
+  {
     "id": "development-51",
     "label": "Development update 51",
     "cards": [
@@ -286,16 +296,6 @@
       {
         "title": "Keep chat controls in view",
         "description": "The message composer stays in view as the window gets shorter. Conversation history scrolls in the space above it, and long drafts use a smaller editor in short windows."
-      }
-    ]
-  },
-  {
-    "id": "development-32",
-    "label": "Development update 32",
-    "cards": [
-      {
-        "title": "Keep drafts edited during a send",
-        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancyâ€™s published draft-revision fix."
       }
     ]
   }

@@ -67,6 +67,15 @@ def _check_post(user, payload):
                                  payload_hash=payload['payload_hash']).exists(), 'ledger_review_conflict')
 
 
+def _check_reverse(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    original = book.journals.filter(pk=_identity(payload['journal_id']), state='posted').first()
+    require(original is not None, 'ledger_not_found')
+    require(original.source_kind != 'reversal', 'ledger_reversal_not_reversible')
+    require(not book.journals.filter(source_kind='reversal', source_reference=str(original.pk)).exists(), 'ledger_already_reversed')
+    require(book.period_start <= ledger.day(payload['date']) <= book.period_end, 'ledger_date_outside_period')
+
+
 def _check_setup(user, payload):
     from backend.maipa.workspace import onboarding
     row = onboarding.current(user)
@@ -94,6 +103,9 @@ OPERATIONS = {
     'journal.post': (('book_id', 'journal_id', 'payload_hash'), _check_post,
         lambda user, p: ledger.confirm_own_journal(user, p['book_id'], p['journal_id'],
             {'expected_revision': _revision(p['book_id']), 'payload_hash': p['payload_hash'], 'confirm': True})),
+    'journal.reverse': (('book_id', 'journal_id', 'date'), _check_reverse,
+        lambda user, p: ledger.reverse_journal(user, p['book_id'], p['journal_id'],
+                                               {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
 }
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
@@ -115,6 +127,13 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'journal.reverse':
+            from backend.maipa.ledger.models import Journal
+            journal = Journal.objects.select_related('book').get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])
+            names = {str(a.pk): f'{a.code} {a.name}' for a in journal.book.accounts.all()}
+            return {'date': row.payload['date'], 'description': 'Reversal of: ' + journal.description, 'currency': journal.book.currency,
+                    'original_date': journal.date.isoformat(), 'current': journal.state == 'posted',
+                    'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in ledger.reversal_lines(journal)]}
         if row.operation in ('account.create', 'statement.import'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             return {'books': book.entity.name, 'currency': book.currency}

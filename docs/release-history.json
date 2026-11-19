@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-32",
+    "label": "Development update 32",
+    "cards": [
+      {
+        "title": "Keep drafts edited during a send",
+        "description": "An edited draft stays yours while a message is sending, even when you change it back to the original words. Maipa uses Fancyâ€™s published draft-revision fix."
+      }
+    ]
+  },
+  {
     "id": "development-31",
     "label": "Development update 31",
     "cards": [
