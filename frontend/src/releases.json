@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-63",
+    "label": "Development update 63",
+    "cards": [
+      {
+        "title": "Approval cards show the whole request",
+        "description": "A long description on an approval card is no longer cut off part-way, so you can read everything Maipa is asking you to approve. Maipa is also told to keep its own working notes out of its replies."
+      }
+    ]
+  },
+  {
     "id": "development-62",
     "label": "Development update 62",
     "cards": [
@@ -234,20 +244,6 @@
       {
         "title": "Keep your place in the conversation",
         "description": "Open and close a common view while keeping your unsent message. When connected, the shortcut opens the same contextual panel shared with Maipa."
-      }
-    ]
-  },
-  {
-    "id": "development-43",
-    "label": "Development update 43",
-    "cards": [
-      {
-        "title": "Open your agent settings",
-        "description": "Ask Maipa to show settings for your supported provider and owned accounts. Private app profile assignment is shown separately from actual connection status."
-      },
-      {
-        "title": "Choose an acknowledged model",
-        "description": "Use the providerâ€™s available models for the current live connection. Settings and chat show the same confirmed choice without replacing your conversation or unsent draft."
       }
     ]
   }

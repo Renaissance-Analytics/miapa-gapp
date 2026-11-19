@@ -105,10 +105,11 @@ export async function decideApprovalBatch(user: string, items: ApprovalRequest[]
   return v.requests as ApprovalRequest[];
 }
 
-const cell = (v: unknown) => String(v ?? '').replace(/[|\\`*_<>\[\]]/g, ' ').slice(0, 200);
+const cell = (v: unknown, limit = 200) => String(v ?? '').replace(/[|\\`*_<>\[\]]/g, ' ').slice(0, limit);
 /** The approval card's body: the agent's summary plus facts the server read about the target. */
 export function approvalContent(item: ApprovalRequest): string {
-  const lines = [cell(item.summary)];
+  // The server accepts summaries up to 500 characters; show all of it.
+  const lines = [cell(item.summary, 500)];
   const d = item.detail, p = item.payload;
   if ((item.operation === 'journal.post' || item.operation === 'journal.reverse') && d && Array.isArray(d.lines)) {
     lines.push('', `${cell(d.date)} · ${cell(d.description)} · ${cell(d.currency)}`, '', '| Account | Debit | Credit |', '|---|---:|---:|',
