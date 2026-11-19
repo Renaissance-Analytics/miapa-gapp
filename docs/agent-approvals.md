@@ -31,6 +31,7 @@ every change is an **action request** that the person approves or rejects.
 | `statement.import` | `book_id`, `filename`, `content` (CSV text) | import statement rows as pending transactions |
 | `journal.post` | `book_id`, `journal_id`, `payload_hash` | post the exact draft entry |
 | `journal.reverse` | `book_id`, `journal_id`, `date` | post the exact opposite of a posted entry, linked to it; the original is kept and each entry reverses once |
+| `opening.balance` | `book_id`, `balances` (list of `account_id`, `debit`, `credit`), `control` (`debit`, `credit`) | post one opening entry on the first day of the book period; the figures must add up to the control totals, and any difference between debits and credits goes to 3900 Opening balance equity as its own line; one active opening entry per book, reversed to correct |
 | `period.close` | `book_id`, `through` | lock the books through a date; entries on or before it can no longer be proposed, posted or reversed into; refused while drafts remain in range |
 | `period.reopen` | `book_id`, `through` (earlier date or `null`) | move the lock back or remove it; posted history is never altered |
 | `setup.confirm` | `setup_id`, `revision` | save the reviewed account setup |

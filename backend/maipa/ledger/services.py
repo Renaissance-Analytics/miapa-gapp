@@ -183,7 +183,7 @@ def create_account(user, book_id, value):
 
 @guarded
 @transaction.atomic
-def propose_journal(user, book_id, value, _reversal=False):
+def propose_journal(user, book_id, value, _kind=None):
     user, book = owned(user, book_id, True)
     fields(value, ('operation_id', 'expected_revision', 'date', 'description', 'source', 'evidence', 'lines'))
     operation = identity(value['operation_id'])
@@ -197,7 +197,8 @@ def propose_journal(user, book_id, value, _reversal=False):
     require(not closed(book, dated), 'ledger_period_closed')
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
-    require(value['source']['kind'] in ('manual', 'csv') or (_reversal is True and value['source']['kind'] == 'reversal'))
+    # Reversal and opening entries are only ever built by their own services.
+    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening') and value['source']['kind'] == _kind))
     reference = text(value['source']['reference'], 256)
     require(type(value['evidence']) is list and 1 <= len(value['evidence']) <= 20)
     for item in value['evidence']:
@@ -461,7 +462,7 @@ def reverse_journal(user, book_id, journal_id, value):
         'description': ('Reversal of: ' + original.description)[:500],
         'source': {'kind': 'reversal', 'reference': str(original.pk)},
         'evidence': [f'Reverses entry {original.sequence} dated {original.date.isoformat()}'],
-        'lines': reversal_lines(original)}, _reversal=True)
+        'lines': reversal_lines(original)}, _kind='reversal')
     return confirm_own_journal(user, book_id, entry['id'], {'expected_revision': value['expected_revision'] + 1,
                                                             'payload_hash': entry['payload_hash'], 'confirm': True})
 
@@ -528,6 +529,66 @@ def verify_book(user, book_id):
             'posted_count': sum(1 for journal in journals if journal.state == 'posted'),
             'draft_count': sum(1 for journal in journals if journal.state == 'draft'),
             'posted_debit': money(posted_debit), 'posted_credit': money(posted_credit), 'findings': findings}
+
+
+OPENING_EQUITY = '3900'
+
+
+def opening_entry(book, value):
+    """The exact opening entry for supplied balances. Read-only.
+
+    The supplied figures must add up to the control totals from the source records. Any
+    difference between their debits and credits goes to opening balance equity, shown as its own line.
+    """
+    fields(value, ('balances', 'control'))
+    fields(value['control'], ('debit', 'credit'))
+    require(type(value['balances']) is list and 1 <= len(value['balances']) <= 98)
+    require(not closed(book, book.period_start), 'ledger_period_closed')
+    for earlier in book.journals.filter(source_kind='opening'):
+        require(earlier.state == 'posted' and book.journals.filter(source_kind='reversal', source_reference=str(earlier.pk),
+                                                                   state='posted').exists(), 'ledger_opening_exists')
+    accounts = {account.pk: account for account in book.accounts.all()}
+    equity = next((account for account in accounts.values() if account.code == OPENING_EQUITY and account.category == 'equity'), None)
+    require(equity is not None, 'ledger_opening_equity_missing')
+    lines, seen, debit, credit = [], set(), 0, 0
+    for item in value['balances']:
+        fields(item, ('account_id', 'debit', 'credit'))
+        account = accounts.get(identity(item['account_id']))
+        require(account is not None, 'ledger_account_not_found')
+        require(account.pk != equity.pk and account.pk not in seen, 'ledger_opening_account_invalid')
+        seen.add(account.pk)
+        left, right = units(item['debit']), units(item['credit'])
+        require((left > 0 and right == 0) or (right > 0 and left == 0))
+        debit += left; credit += right
+        lines.append({'account_id': str(account.pk), 'account': f'{account.code} {account.name}',
+                      'debit': money(left), 'credit': money(right), 'offset': False})
+    require(units(value['control']['debit']) == debit and units(value['control']['credit']) == credit, 'ledger_opening_control_mismatch')
+    if debit != credit:
+        lines.append({'account_id': str(equity.pk), 'account': f'{equity.code} {equity.name}',
+                      'debit': money(max(credit - debit, 0)), 'credit': money(max(debit - credit, 0)), 'offset': True})
+    total = max(debit, credit)
+    require(len(lines) >= 2 and 0 < total <= MAX_UNITS, 'ledger_unbalanced')
+    return {'date': book.period_start.isoformat(), 'number': book.journals.filter(source_kind='opening').count() + 1,
+            'lines': lines, 'total_debit': money(total), 'total_credit': money(total),
+            'control_debit': money(debit), 'control_credit': money(credit)}
+
+
+@guarded
+@transaction.atomic
+def post_opening(user, book_id, value):
+    """Post the opening entry for the supplied balances. One active opening entry per book; reverse it to correct it."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'balances', 'control'))
+    built = opening_entry(book, {'balances': value['balances'], 'control': value['control']})
+    entry = propose_journal(user, book_id, {
+        'operation_id': str(uuid.uuid4()), 'expected_revision': value['expected_revision'], 'date': built['date'],
+        'description': 'Opening balances', 'source': {'kind': 'opening', 'reference': f"opening-{built['number']}"},
+        'evidence': [f"Supplied totals: debits {built['control_debit']}, credits {built['control_credit']}"],
+        'lines': [{'account_id': line['account_id'], 'debit': line['debit'], 'credit': line['credit']} for line in built['lines']]},
+        _kind='opening')
+    return confirm_own_journal(user, book_id, entry['id'], {'expected_revision': value['expected_revision'] + 1,
+                                                            'payload_hash': entry['payload_hash'], 'confirm': True})
 
 
 NORMAL_DEBIT = ('asset', 'expense')
