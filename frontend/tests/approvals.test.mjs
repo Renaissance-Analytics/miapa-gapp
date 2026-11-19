@@ -133,3 +133,13 @@ test('an opening balance card shows every line, the totals and what goes to open
   assert.match(approvalContent(balanced), /They balance, so nothing goes to opening balance equity\./);
   assert.match(approvalContent({ ...opening, detail: { books: 'Sample Co LLC', currency: 'USD', current: false } }), /can no longer be recorded as asked\. Approving will fail/);
 });
+
+test('a bank or cash account card names the account and says no amounts change', () => {
+  const mark = { ...single, operation: 'account.cash', summary: 'Mark Savings as a bank account', payload: { book_id: id(2), account_id: id(3), cash: true },
+    detail: { books: 'Sample Co LLC', account: '1010 Savings', cash: false } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [mark], recent: [] }, '1').pending[0].operation, 'account.cash');
+  assert.match(approvalContent(mark), /1010 Savings in Sample Co LLC books will count as a bank account or cash on hand\. No amounts change\./);
+  assert.match(approvalContent({ ...mark, payload: { ...mark.payload, cash: false } }), /1010 Savings in Sample Co LLC books will no longer count as a bank account or cash on hand\./);
+  assert.match(approvalContent({ ...mark, detail: null }), /can no longer be found\. Approving will fail/);
+  assert.equal(approvalMessage(mark).proposal.title, 'Mark a bank or cash account');
+});

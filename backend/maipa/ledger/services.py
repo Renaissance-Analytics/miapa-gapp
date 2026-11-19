@@ -27,6 +27,7 @@ STARTER = (('1000', 'Checking', 'asset'), ('1100', 'Accounts receivable', 'asset
            ('3900', 'Opening balance equity', 'equity'), ('4000', 'Sales', 'income'),
            ('5000', 'Cost of sales', 'expense'), ('6000', 'General expenses', 'expense'),
            ('6100', 'Bank fees', 'expense'), ('6200', 'Office expenses', 'expense'))
+STARTER_BANK = '1000'  # The starter account that is a bank account.
 
 
 class LedgerError(Exception):
@@ -102,7 +103,7 @@ def owned(user, book_id, write=False):
 
 
 def account_value(row):
-    return {'id': str(row.pk), 'code': row.code, 'name': row.name, 'category': row.category}
+    return {'id': str(row.pk), 'code': row.code, 'name': row.name, 'category': row.category, 'cash': row.cash}
 
 
 def entry_value(row):
@@ -153,7 +154,7 @@ def create_book(user, entity_id, value):
         return snapshot(row)
     row = Book.objects.create(entity=entity, currency=value['currency'], period_start=start,
                               period_end=end, created_by=user)
-    Account.objects.bulk_create([Account(book=row, code=code, name=name, category=category)
+    Account.objects.bulk_create([Account(book=row, code=code, name=name, category=category, cash=code == STARTER_BANK)
                                  for code, name, category in STARTER])
     return snapshot(row)
 
@@ -178,6 +179,31 @@ def create_account(user, book_id, value):
     advance(row, value['expected_revision'])
     account = Account.objects.create(book=row, code=code, name=name, category=value['category'])
     event(row, user, 'account.create', account.pk, digest(account_value(account)))
+    return account_value(account)
+
+
+def cash_change(book, account_id, cash):
+    """The asset account whose bank-or-cash mark would change. Read-only."""
+    require(type(cash) is bool)
+    account = book.accounts.filter(pk=identity(account_id)).first()
+    require(account is not None, 'ledger_account_not_found')
+    require(account.category == 'asset', 'ledger_cash_account_invalid')
+    require(account.cash is not cash, 'ledger_cash_unchanged')
+    return account
+
+
+@guarded
+@transaction.atomic
+def set_account_cash(user, book_id, account_id, value):
+    """Mark or unmark an asset account as a bank account or cash on hand. No amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'cash'))
+    account = cash_change(book, account_id, value['cash'])
+    advance(book, value['expected_revision'])
+    Account.objects.filter(pk=account.pk).update(cash=value['cash'])
+    account.cash = value['cash']
+    event(book, user, 'account.cash', account.pk, digest(account_value(account)))
     return account_value(account)
 
 

@@ -38,7 +38,7 @@ export function AccountsTable({ snapshot }: { snapshot: LedgerSnapshot }) {
   return <Table aria-label="Accounts and posted balances" data-account-count={report.accounts.length} data-book-revision={report.revision}>
     {head(['Account', 'Category', 'Debit balance', 'Credit balance'])}
     <Table.Body>{report.accounts.map(account => <Table.Row key={account.id} data-account-code={account.code}>
-      <Table.Cell>{account.code} · {account.name}</Table.Cell><Table.Cell>{account.category}</Table.Cell>
+      <Table.Cell>{account.code} · {account.name}</Table.Cell><Table.Cell>{account.category}{account.cash === true && ' · bank or cash'}</Table.Cell>
       <Table.Cell>{side(account.balance_debit)}</Table.Cell><Table.Cell>{side(account.balance_credit)}</Table.Cell>
     </Table.Row>)}</Table.Body>
     <Table.Tray>Debit balances {displayMoney(report.trial_debit)} · Credit balances {displayMoney(report.trial_credit)} · {report.currency}

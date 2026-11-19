@@ -28,6 +28,7 @@ every change is an **action request** that the person approves or rejects.
 |---|---|---|
 | `books.create` | `entity_id`, `currency`, `period_start`, `period_end` | create books with the starter chart |
 | `account.create` | `book_id`, `code`, `name`, `category` | add an account |
+| `account.cash` | `book_id`, `account_id`, `cash` (`true` or `false`) | mark or unmark an asset account as a bank account or cash on hand; no amounts change |
 | `statement.import` | `book_id`, `filename`, `content` (CSV text) | import statement rows as pending transactions |
 | `journal.post` | `book_id`, `journal_id`, `payload_hash` | post the exact draft entry |
 | `journal.reverse` | `book_id`, `journal_id`, `date` | post the exact opposite of a posted entry, linked to it; the original is kept and each entry reverses once |

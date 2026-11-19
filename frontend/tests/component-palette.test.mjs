@@ -55,7 +55,7 @@ test('ledger view definitions hold only exact book and account references, never
 });
 
 test('ledger views show exactly the server figures: balances, entry lines by account name, and running balances', () => {
-  const accounts = [{ id: CASH, code: '1000', name: 'Checking', category: 'asset' }, { id: RENT, code: '6300', name: 'Rent <b>expense</b>', category: 'expense' }];
+  const accounts = [{ id: CASH, code: '1000', name: 'Checking', category: 'asset', cash: true }, { id: RENT, code: '6300', name: 'Rent <b>expense</b>', category: 'expense' }];
   const trial = [{ ...accounts[0], draft_debit: '0.0000', draft_credit: '25.0000', posted_debit: '1250.5000', posted_credit: '900.0000', balance_debit: '350.5000', balance_credit: '0.0000' },
     { ...accounts[1], draft_debit: '25.0000', draft_credit: '0.0000', posted_debit: '900.0000', posted_credit: '0.0000', balance_debit: '900.0000', balance_credit: '0.0000' }];
   const entry = (sequence, state, date, description, amount) => ({ id: `${sequence}b1f1c1e-5a53-4f0c-9d63-0a4f8f3a2b99`, book_id: BOOK, sequence, operation_id: CASH, payload_hash: 'a'.repeat(64),
@@ -66,7 +66,7 @@ test('ledger views show exactly the server figures: balances, entry lines by acc
     report: { book_id: BOOK, currency: 'USD', revision: 4, accounts: trial, posted_debit: '2150.5000', posted_credit: '900.0000', trial_debit: '1250.5000', trial_credit: '0.0000', pending_count: 1 } };
   const chart = renderToStaticMarkup(React.createElement(AccountsTable, { snapshot }));
   assert.match(chart, /data-account-count="2"/); assert.match(chart, /data-account-code="1000"/);
-  assert.match(chart, /1000 · Checking/); assert.match(chart, /350\.50/); assert.match(chart, /Rent &lt;b&gt;expense&lt;\/b&gt;/); assert.doesNotMatch(chart, /<b>expense/);
+  assert.match(chart, /1000 · Checking/); assert.match(chart, /asset · bank or cash/); assert.equal(chart.split('bank or cash').length, 2); assert.match(chart, /350\.50/); assert.match(chart, /Rent &lt;b&gt;expense&lt;\/b&gt;/); assert.doesNotMatch(chart, /<b>expense/);
   assert.match(chart, /Debit balances 1,250\.50 · Credit balances 0\.00 · USD/);
   const all = renderToStaticMarkup(React.createElement(JournalTable, { snapshot, show: 'all' }));
   assert.match(all, /data-journal-count="2"/); assert.match(all, /March rent/); assert.match(all, /Posted/); assert.match(all, /Pending review/);
