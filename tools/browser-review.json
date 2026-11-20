@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "426b56144eae3f61168698738155480796249eb02962ac6eeac3cd7a1e2471eb",
+    "tools/browser.mjs": "475b4b3123b0d558a4174f14549f8a58a0857ac8cd232e69b6f1d6ff3130cdd1",
     "tools/check_browser.py": "fc480ca6821653d6229b5879280c2642c8277d4976c770936bd0340605a94844",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "5f14eb1d3a063e62a743595a976b62656a7cf166c5e5a2c4c2528632200d8eec"
@@ -227,7 +227,7 @@
     {
       "id": "agent-composed-report-view",
       "kind": "positive",
-      "expected": "The finite peer reads the real book and composes Maipa.Report for the book period, then saves the same definition as a pinned personal view. The rendered income statement and balance sheet equal the owner-bound report API (a non-zero net result, total assets, book revision, one row per reported account, all eight totals), and the saved view holds only the book and dates, no figures."
+      "expected": "The finite peer reads the real book and composes Maipa.Report for the book period, then saves the same definition as a pinned personal view. The rendered income statement and balance sheet equal the owner-bound report API (a non-zero net result, total assets, book revision, one row per reported account, all eight totals), and the saved view holds only the book and dates, no figures. The cash flow table shows the same net change, closing cash, marked account and moved accounts as the report API, with one marked account and a non-zero change."
     },
     {
       "id": "agent-attach-reverse-and-close",
@@ -385,5 +385,6 @@
   "statement_views_review": "One added case after the unchanged ledger views case. The finite peer gains one handler that presents two read-only statement components. No prior action, assertion or deadline changed; progress maximum 53 -> 54.",
   "release_notes_placement_review": "The fancy-release-controls case gains assertions: the notice is inside the in-flow strip, no ancestor is fixed, absolute or sticky, it overlaps no header button and no sign-in control, the strip has height while shown and zero height once dismissed. No action, prior assertion or deadline changed.",
   "release_banner_review": "The fancy-release-controls case additionally requires the notice to be a wide banner (at least 600 px or the strip width less 40) and the strip to be at most 220 px tall; measured 280 px with a 280 px wide card before this change. No action, prior assertion or deadline changed.",
-  "report_view_review": "One added case before the unchanged attach/reverse/close case, while the books still hold a posted entry. The finite peer gains one handler that presents one read-only report component and saves it through the real maipa_views_save tool. No prior action, assertion or deadline changed; progress maximum 54 -> 55. The fixture now expects three saved views before the fresh-profile run, the third being the report view saved in this case (was two)."
+  "report_view_review": "One added case before the unchanged attach/reverse/close case, while the books still hold a posted entry. The finite peer gains one handler that presents one read-only report component and saves it through the real maipa_views_save tool. No prior action, assertion or deadline changed; progress maximum 54 -> 55. The fixture now expects three saved views before the fresh-profile run, the third being the report view saved in this case (was two).",
+  "cash_flow_review": "The agent-composed-report-view case gains assertions comparing the rendered cash flow with the owner-bound report API. No action, prior assertion or deadline changed."
 }

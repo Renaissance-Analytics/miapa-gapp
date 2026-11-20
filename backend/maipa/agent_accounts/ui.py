@@ -82,7 +82,7 @@ def _components(role):
         ('Maipa.AccountActivity', 'Read-only posted entries and running balance for one account, loaded from the scoped books service. Props: book_id and account_id from maipa_books_read.'),
         ('Maipa.Statements', 'Read-only list of imported bank statements with bank account, stated balances, dates, whether each can be reconciled and any recorded reconciliation, loaded from the scoped books service. Props: book_id.'),
         ('Maipa.Reconciliation', 'Read-only bank reconciliation of one statement: bank closing balance against the books, lines not yet posted, entries the bank has not shown and the exact difference, loaded live. Props: book_id and import_id from maipa_books_reconcile. No figures are supplied.'),
-        ('Maipa.Report', 'Read-only income statement for a date range and balance sheet as of its end date, from posted entries only, loaded live from the scoped books service. Props: book_id, from and to (YYYY-MM-DD, from not after to, inside the book period). No rows or totals are supplied.'),
+        ('Maipa.Report', 'Read-only income statement and cash flow for a date range and balance sheet as of its end date, from posted entries only, loaded live from the scoped books service. Props: book_id, from and to (YYYY-MM-DD, from not after to, inside the book period). No rows or totals are supplied.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':

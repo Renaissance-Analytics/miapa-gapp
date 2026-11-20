@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-77",
+    "label": "Development update 77",
+    "cards": [
+      {
+        "title": "See where your cash went",
+        "description": "Your financial statements now include a cash flow: what your bank and cash accounts held at the start and end of the dates you choose, and what was received and paid in between, by account. Ask Maipa where the money went."
+      }
+    ]
+  },
+  {
     "id": "development-76",
     "label": "Development update 76",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Start your books with opening balances",
         "description": "Tell Maipa what you already had on the first day of your books, such as your bank balance, equipment and amounts owed. It prepares one opening entry for you to approve, checks your figures against the totals from your records, and shows exactly what goes to opening balance equity."
-      }
-    ]
-  },
-  {
-    "id": "development-57",
-    "label": "Development update 57",
-    "cards": [
-      {
-        "title": "Maipa can check your books are sound",
-        "description": "Ask Maipa whether your books are sound. It rechecks every entry: each one balances, nothing was altered after it was saved, posted entries have their posting record and reversals match their original. It reports anything it finds and changes nothing."
       }
     ]
   }

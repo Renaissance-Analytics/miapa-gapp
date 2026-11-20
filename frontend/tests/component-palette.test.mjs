@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
 import { AccountsTable, ActivityTable, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
-import { parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
+import { parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
   const schema = compositionSchema({ id: 'overview', type: 'Maipa.Stack', children: [
@@ -157,6 +157,9 @@ test('the statement list says what each statement needs and the reconciliation s
 
 const row = (id, code, name, category, amount) => ({ id, code, name, category, amount });
 const statements = { book_id: BOOK, currency: 'USD', revision: 7, from: '2026-01-01', to: '2026-03-31', pending_count: 2,
+  cash_flow: { accounts: [{ id: CASH, code: '1000', name: 'Checking', category: 'asset', cash: true, opening: '1000.0000', closing: '1350.5000' }],
+    opening_cash: '1000.0000', closing_cash: '1350.5000', net_change: '350.5000', received: '1250.5000', paid: '-900.0000',
+    movements: [{ id: STATEMENT, code: '4000', name: 'Sales <i>income</i>', category: 'income', cash: false, amount: '1250.5000' }, { id: RENT, code: '6300', name: 'Rent', category: 'expense', cash: false, amount: '-900.0000' }] },
   income_statement: { income: [row(STATEMENT, '4000', 'Sales <i>income</i>', 'income', '1250.5000')], expenses: [row(RENT, '6300', 'Rent', 'expense', '900.0000')],
     total_income: '1250.5000', total_expenses: '900.0000', net_income: '350.5000' },
   balance_sheet: { as_of: '2026-03-31', assets: [{ ...row(CASH, '1000', 'Checking', 'asset', '1350.5000'), cash: true }], liabilities: [], equity: [row(BOOK, '3000', 'Owner equity', 'equity', '1000.0000')],
@@ -191,4 +194,26 @@ test('the report view shows the income statement and balance sheet with exact to
   const lost = renderToStaticMarkup(React.createElement(ReportView, { report: loss }));
   assert.match(lost, /data-net-income="-900\.0000"/); assert.match(lost, /Net loss/); assert.match(lost, /−900\.00/);
   assert.match(lost, /No income in this period\./); assert.doesNotMatch(lost, /pending/);
+});
+
+test('the cash flow is shown only when it reconciles, and an unmarked book says why there is none', () => {
+  assert.deepEqual(parseFinancialReport(structuredClone(statements), BOOK, '2026-01-01', '2026-03-31'), statements);
+  const html = renderToStaticMarkup(React.createElement(ReportView, { report: statements }));
+  assert.match(html, /Cash flow · 2026-01-01 to 2026-03-31 · USD/); assert.match(html, /data-cash-flow="shown"/);
+  assert.match(html, /data-net-cash="350\.5000"/); assert.match(html, /data-closing-cash="1350\.5000"/);
+  for (const text of ['Cash at the start', 'Cash received', 'Cash paid', 'Change in cash', 'Cash at the end', '1000 · Checking at the end', '−900.00', '1,350.50'])
+    assert.equal(html.includes(text), true, text);
+  assert.equal(html.split('data-cash-movement=').length, 3); assert.equal(html.split('data-cash-account=').length, 2);
+  assert.equal(html.split('data-account-code=').length, 5);   // The two statements keep their four account rows.
+  const flow = statements.cash_flow;
+  for (const change of [{ net_change: '350.0000' }, { closing_cash: '1350.0000' }, { opening_cash: '999.0000' }, { received: '1250.0000' }, { paid: '-899.0000' },
+    { movements: [flow.movements[0]] }, { movements: [...flow.movements, flow.movements[0]] }, { movements: [{ ...flow.movements[0], cash: true }, flow.movements[1]] },
+    { movements: [{ ...flow.movements[0], amount: '0.0000' }, flow.movements[1]] }, { accounts: [] }, { accounts: [{ ...flow.accounts[0], cash: false }] },
+    { accounts: [{ ...flow.accounts[0], closing: '1.0000' }] }, { accounts: [{ ...flow.accounts[0], balance: '1' }] }, { note: 'x' }])
+    assert.throws(() => parseFinancialReport({ ...structuredClone(statements), cash_flow: { ...flow, ...change } }, BOOK, '2026-01-01', '2026-03-31'), undefined, JSON.stringify(change));
+  const { cash_flow: _, ...without } = statements;
+  assert.throws(() => parseFinancialReport(without, BOOK, '2026-01-01', '2026-03-31'));
+  const unmarked = { ...statements, cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [] } };
+  const none = renderToStaticMarkup(React.createElement(ReportView, { report: parseFinancialReport(structuredClone(unmarked), BOOK, '2026-01-01', '2026-03-31') }));
+  assert.match(none, /data-cash-flow="unmarked"/); assert.match(none, /No account is marked as a bank account or cash on hand yet/); assert.doesNotMatch(none, /Cash at the end/);
 });

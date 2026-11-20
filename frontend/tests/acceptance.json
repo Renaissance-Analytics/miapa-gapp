@@ -1077,6 +1077,16 @@
           "tests": [
             "component-palette.test.mjs#the report view shows the income statement and balance sheet with exact totals from the books"
           ]
+        },
+        {
+          "id": "A07-PALETTE.cash-flow",
+          "kind": "negative",
+          "given": "A report whose cash flow reconciles, ones whose totals, movements or accounts do not add up or carry wrong flags or extra fields, one without a cash flow, and one for books with no marked account",
+          "when": "Parse and render them",
+          "then": "Only the reconciling report is accepted and shows opening cash, each movement, received, paid, the change and closing cash without disturbing the other statements; every inconsistent report is refused; the unmarked book says there is no cash flow to show.",
+          "tests": [
+            "component-palette.test.mjs#the cash flow is shown only when it reconciles, and an unmarked book says why there is none"
+          ]
         }
       ]
     },
