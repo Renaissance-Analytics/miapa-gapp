@@ -1057,6 +1057,26 @@
           "tests": [
             "component-palette.test.mjs#the statement list says what each statement needs and the reconciliation shows exact figures and the difference"
           ]
+        },
+        {
+          "id": "A07-PALETTE.report-definition",
+          "kind": "negative",
+          "given": "Report definitions naming an exact book and a real date range, and ones with missing, malformed, impossible or reversed dates, supplied totals or statements, a comparison range, no props, or the component twice",
+          "when": "Validate and render them",
+          "then": "Only the exact definitions are accepted unchanged and render one loading view with no figure; every other definition is refused.",
+          "tests": [
+            "component-palette.test.mjs#a report definition holds only its book and a real date range, never figures"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.report-figures",
+          "kind": "positive",
+          "given": "A report with income, an expense, one bank asset, equity and two pending entries, and one with no income and a loss",
+          "when": "Render each",
+          "then": "Show the dated income statement and balance sheet with every account, all eight totals as exact figures with markup inert and the pending note; a loss is labelled Net loss with a minus sign and the empty section says so.",
+          "tests": [
+            "component-palette.test.mjs#the report view shows the income statement and balance sheet with exact totals from the books"
+          ]
         }
       ]
     },

@@ -61,7 +61,7 @@ class UiCompositionTests(TestCase):
         catalog = self.call(lease, 'maipa_ui_catalog', {})
         self.assertEqual(catalog['revision'], 0)
         self.assertEqual([item['type'] for item in catalog['components']],
-                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Books', 'Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation', 'Maipa.Workflow'])
+                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Books', 'Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation', 'Maipa.Report', 'Maipa.Workflow'])
         self.assertNotIn('synthetic-private-provider-handle', json.dumps(catalog))
         presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Review', 'schema': SCHEMA})
         self.assertEqual(presented['composition'], {'title': 'Review', 'schema': SCHEMA})
@@ -115,6 +115,30 @@ class UiCompositionTests(TestCase):
             self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 1, 'title': 'Rejected', 'schema': {'id': 'x', 'type': kind, 'props': props}}))
         self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 1, 'title': 'Rejected', 'schema': {'id': 'x', 'type': 'Maipa.Reconciliation'}}))
         self.assertEqual(self.snapshot(lease)['composition']['schema'], schema)
+
+    def test_report_view_accepts_only_an_exact_book_and_a_real_date_range(self):
+        lease = self.lease()
+        book = '7ca83106-36ad-444e-bf05-75e8bba58852'
+        schema = {'id': 'results', 'type': 'Maipa.Stack', 'children': [
+            {'id': 'heading', 'type': 'Maipa.Heading', 'props': {'text': 'First quarter'}},
+            {'id': 'quarter', 'type': 'Maipa.Report', 'props': {'book_id': book, 'from': '2026-01-01', 'to': '2026-03-31'}}]}
+        presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Results', 'schema': schema})
+        self.assertEqual((presented['revision'], presented['composition']['schema']), (1, schema))
+        one_day = {'id': 'day', 'type': 'Maipa.Report', 'props': {'book_id': book, 'from': '2024-02-29', 'to': '2024-02-29'}}
+        self.assertEqual(self.call(lease, 'maipa_ui_update', {'revision': 1, 'title': 'One day', 'schema': one_day})['composition']['schema'], one_day)
+        good = {'book_id': book, 'from': '2026-01-01', 'to': '2026-03-31'}
+        for props in (
+            {}, {'book_id': book}, {'book_id': book, 'from': '2026-01-01'}, good | {'book_id': 'books'}, good | {'book_id': book.upper()},
+            good | {'from': '2026-04-01'}, good | {'to': '2026-02-30'}, good | {'from': '2026-1-1'}, good | {'from': '01/01/2026'},
+            good | {'from': 20260101}, good | {'to': None}, good | {'to': '2026-03-31T00:00:00'}, good | {'to': ' 2026-03-31'},
+            good | {'net_income': '350.50'}, good | {'income_statement': {'net_income': '999999.00'}}, good | {'user_id': str(self.other.pk)},
+            good | {'compare_from': '2025-01-01', 'compare_to': '2025-03-31'},
+        ):
+            self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': {'id': 'x', 'type': 'Maipa.Report', 'props': props}}))
+        self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': {'id': 'x', 'type': 'Maipa.Report'}}))
+        twice = {'id': 'twice', 'type': 'Maipa.Stack', 'children': [{'id': 'a', 'type': 'Maipa.Report', 'props': good}, {'id': 'b', 'type': 'Maipa.Report', 'props': good}]}
+        self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': twice}))
+        self.assertEqual(self.snapshot(lease)['composition']['schema'], one_day)
 
     def test_invalid_schema_and_stale_updates_cannot_change_controlled_state(self):
         lease = self.lease()

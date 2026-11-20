@@ -4,7 +4,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
-import { AccountsTable, ActivityTable, JournalTable, ReconciliationView, StatementsTable } from '../.test-build/LedgerViews.js';
+import { AccountsTable, ActivityTable, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
 import { parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
@@ -153,4 +153,42 @@ test('the statement list says what each statement needs and the reconciliation s
   assert.match(off, /Unexplained difference of −49\.00 USD: the books are lower than the bank\./);
   assert.match(off, /Recorded as reviewed on 2026-11-19 as of 2026-03-31, but the figures have changed since\./);
   assert.doesNotMatch(off, /agrees with your books/);
+});
+
+const row = (id, code, name, category, amount) => ({ id, code, name, category, amount });
+const statements = { book_id: BOOK, currency: 'USD', revision: 7, from: '2026-01-01', to: '2026-03-31', pending_count: 2,
+  income_statement: { income: [row(STATEMENT, '4000', 'Sales <i>income</i>', 'income', '1250.5000')], expenses: [row(RENT, '6300', 'Rent', 'expense', '900.0000')],
+    total_income: '1250.5000', total_expenses: '900.0000', net_income: '350.5000' },
+  balance_sheet: { as_of: '2026-03-31', assets: [{ ...row(CASH, '1000', 'Checking', 'asset', '1350.5000'), cash: true }], liabilities: [], equity: [row(BOOK, '3000', 'Owner equity', 'equity', '1000.0000')],
+    total_assets: '1350.5000', total_liabilities: '0.0000', total_equity: '1000.0000', earnings_to_date: '350.5000', total_liabilities_and_equity: '1350.5000' } };
+
+test('a report definition holds only its book and a real date range, never figures', () => {
+  const good = { book_id: BOOK, from: '2026-01-01', to: '2026-03-31' };
+  const stack = { id: 'results', type: 'Maipa.Stack', children: [{ id: 'quarter', type: 'Maipa.Report', props: good }] };
+  assert.deepEqual(compositionSchema(stack), stack);
+  assert.deepEqual(compositionSchema({ id: 'day', type: 'Maipa.Report', props: { ...good, from: '2024-02-29', to: '2024-02-29' } }).props.from, '2024-02-29');
+  for (const props of [undefined, {}, { book_id: BOOK }, { ...good, book_id: 'books' }, { ...good, from: '2026-04-01' }, { ...good, to: '2026-02-30' }, { ...good, from: '2026-1-1' },
+    { ...good, from: 20260101 }, { ...good, to: '2026-03-31T00:00:00' }, { ...good, net_income: '350.50' }, { ...good, income_statement: {} }, { ...good, compare_from: '2025-01-01', compare_to: '2025-03-31' }])
+    assert.throws(() => compositionSchema({ id: 'bad', type: 'Maipa.Report', ...(props ? { props } : {}) }), undefined, JSON.stringify(props));
+  assert.throws(() => compositionSchema({ id: 'twice', type: 'Maipa.Stack', children: [{ id: 'a', type: 'Maipa.Report', props: good }, { id: 'b', type: 'Maipa.Report', props: good }] }));
+  const html = renderToStaticMarkup(React.createElement(AgentSurface, { userId: '1', ui: { composition: { title: 'Results', schema: compositionSchema(stack) } } }));
+  assert.match(html, /aria-label="Financial statements"[^>]*aria-busy="true"/); assert.doesNotMatch(html, /350/);
+});
+
+test('the report view shows the income statement and balance sheet with exact totals from the books', () => {
+  const html = renderToStaticMarkup(React.createElement(ReportView, { report: statements }));
+  assert.match(html, /data-report-from="2026-01-01"/); assert.match(html, /data-report-to="2026-03-31"/);
+  assert.match(html, /data-net-income="350\.5000"/); assert.match(html, /data-total-assets="1350\.5000"/); assert.match(html, /data-book-revision="7"/);
+  assert.match(html, /Income statement · 2026-01-01 to 2026-03-31 · USD/); assert.match(html, /Balance sheet · as of 2026-03-31 · USD/);
+  assert.match(html, /4000 · Sales &lt;i&gt;income&lt;\/i&gt;/); assert.doesNotMatch(html, /<i>income/);
+  for (const text of ['Total income', 'Total expenses', 'Net income', 'Total assets', 'Total liabilities', 'Earnings to date', 'Total equity', 'Total liabilities and equity',
+    '1,250.50', '900.00', '350.50', '1,350.50', '1,000.00', '1000 · Checking', '3000 · Owner equity', '6300 · Rent'])
+    assert.equal(html.includes(text), true, text);
+  assert.match(html, /2 pending entries are not included\./);
+  const loss = structuredClone(statements);
+  Object.assign(loss.income_statement, { income: [], total_income: '0.0000', net_income: '-900.0000' }); loss.pending_count = 0;
+  Object.assign(loss.balance_sheet, { assets: [{ ...loss.balance_sheet.assets[0], amount: '100.0000' }], total_assets: '100.0000', earnings_to_date: '-900.0000', total_liabilities_and_equity: '100.0000' });
+  const lost = renderToStaticMarkup(React.createElement(ReportView, { report: loss }));
+  assert.match(lost, /data-net-income="-900\.0000"/); assert.match(lost, /Net loss/); assert.match(lost, /−900\.00/);
+  assert.match(lost, /No income in this period\./); assert.doesNotMatch(lost, /pending/);
 });

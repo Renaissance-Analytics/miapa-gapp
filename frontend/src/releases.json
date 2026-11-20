@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-75",
+    "label": "Development update 75",
+    "cards": [
+      {
+        "title": "See your income statement and balance sheet beside the chat",
+        "description": "Ask Maipa to show your results for any dates. The income statement and balance sheet open beside the conversation and always read the current posted figures from your books."
+      },
+      {
+        "title": "Keep a report as a pinned view",
+        "description": "Ask Maipa to keep a report, such as this year’s results, and it is pinned for you. A pinned view remembers only the books and the dates, so it shows current figures each time you open it."
+      }
+    ]
+  },
+  {
     "id": "development-74",
     "label": "Development update 74",
     "cards": [
@@ -198,16 +212,6 @@
       {
         "title": "Compare two periods",
         "description": "Ask Maipa how one period compares with another, for example March against February. It reads both periods from your posted entries and reports the exact change in income, expenses, profit and balances."
-      }
-    ]
-  },
-  {
-    "id": "development-55",
-    "label": "Development update 55",
-    "cards": [
-      {
-        "title": "Income statement and balance sheet",
-        "description": "Bookkeeping now shows an income statement and a balance sheet built from your posted entries. Ask Maipa for any date range, for example your profit in March; it reads exact figures from your books instead of estimating them."
       }
     ]
   }
