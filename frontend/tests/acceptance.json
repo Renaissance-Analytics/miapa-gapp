@@ -2265,6 +2265,16 @@
           "tests": [
             "approvals.test.mjs#balance and reconciliation cards show the exact figures and say when approving will fail"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.discard-card",
+          "kind": "negative",
+          "given": "A pending discard request with the draft lines read by the server, the same request once the entry is no longer a draft, and an unknown operation name",
+          "when": "Parse and render them",
+          "then": "The discard is accepted with its title and lines with markup inert, saying nothing was posted and the statement line becomes pending; a stale one says approving will fail; the unknown operation is refused.",
+          "tests": [
+            "approvals.test.mjs#a discard card shows the draft lines and says nothing was posted"
+          ]
         }
       ]
     }

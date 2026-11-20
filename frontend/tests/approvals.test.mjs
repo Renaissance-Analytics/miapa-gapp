@@ -289,3 +289,18 @@ test('balance and reconciliation cards show the exact figures and say when appro
   for (const item of [balances, record]) assert.match(approvalContent({ ...item, detail: null }), /can no longer be found\. Approving will fail/);
   assert.deepEqual([approvalMessage(balances).proposal.title, approvalMessage(record).proposal.title], ["Add a statement's balances", 'Record a bank reconciliation']);
 });
+
+test('a discard card shows the draft lines and says nothing was posted', () => {
+  const discard = { ...post, operation: 'journal.discard', summary: 'Discard the wrong rent draft', payload: { book_id: id(2), journal_id: id(3) },
+    detail: { date: '2026-03-05', description: 'Synthetic <b>rent</b>', currency: 'USD', current: true,
+      lines: [{ account: '6100 Bank fees', debit: '900.0000', credit: '0.0000' }, { account: '1000 Checking', debit: '0.0000', credit: '900.0000' }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [discard], recent: [] }, '1').pending[0].operation, 'journal.discard');
+  assert.equal(approvalMessage(discard).proposal.title, 'Discard a draft entry');
+  const content = approvalContent(discard);
+  assert.match(content, /\| 6100 Bank fees \| 900\.0000 \| 0\.0000 \|/); assert.equal(content.includes('2026-03-05 · Synthetic  b rent /b  · USD'), true); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /This draft was never posted, so no amounts change\. If it came from a statement line, that line becomes pending again\./);
+  assert.doesNotMatch(content, /exact opposite/);
+  const gone = approvalContent({ ...discard, detail: { ...discard.detail, current: false } });
+  assert.match(gone, /no longer a draft, so there is nothing to discard\. Approving will fail\./); assert.doesNotMatch(gone, /never posted/);
+  assert.throws(() => parseApprovalList({ actor_id: '1', pending: [{ ...discard, operation: 'journal.delete' }], recent: [] }, '1'));
+});

@@ -75,6 +75,12 @@ def _check_post(user, payload):
                                  payload_hash=payload['payload_hash']).exists(), 'ledger_review_conflict')
 
 
+def _check_discard(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    ledger.discard_check(book, payload['journal_id'])
+
+
 def _check_reverse(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     original = book.journals.filter(pk=_identity(payload['journal_id']), state='posted').first()
@@ -189,6 +195,8 @@ OPERATIONS = {
     'journal.reverse': (('book_id', 'journal_id', 'date'), _check_reverse,
         lambda user, p: ledger.reverse_journal(user, p['book_id'], p['journal_id'],
                                                {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
+    'journal.discard': (('book_id', 'journal_id'), _check_discard,
+        lambda user, p: ledger.discard_journal(user, p['book_id'], p['journal_id'], {'expected_revision': _revision(p['book_id'])})),
     'opening.balance': (('book_id', 'balances', 'control'), _check_opening,
         lambda user, p: ledger.post_opening(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                             'balances': p['balances'], 'control': p['control']})),
@@ -214,6 +222,14 @@ def _detail(row):
             journal = Journal.objects.select_related('book').get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])
             return {'date': journal.date.isoformat(), 'description': journal.description, 'currency': journal.book.currency,
                     'reference': journal.source_reference, 'current': journal.payload_hash == row.payload['payload_hash'],
+                    'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
+                               'credit': ledger.money(line.credit_units)}
+                              for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'journal.discard':
+            from backend.maipa.ledger.models import Journal
+            journal = Journal.objects.select_related('book').get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])
+            return {'date': journal.date.isoformat(), 'description': journal.description, 'currency': journal.book.currency,
+                    'current': journal.state == 'draft',
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}

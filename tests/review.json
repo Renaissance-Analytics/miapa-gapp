@@ -8250,6 +8250,46 @@
       "decision": "aligned",
       "reason": "Exact bridge figures for the month, year and unpaid-bill day and the identity in every range asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L03-DISCARD-DRAFT.approved",
+      "test": "tests.test_discard_draft.DiscardDraftTests.test_an_approved_discard_removes_the_draft_from_working_views_and_frees_its_statement_line",
+      "scenario_sha256": "3333d36be2523760074c00ffff76496a79ca09769a701d2bbcbad2175dfb2be5",
+      "source_sha256": "0c1eed7c23397d612e706b888ab39d40877d7c52e2bb3ac7619b371e341c86ba",
+      "expected_observation": "The draft leaves the journal list, pending totals and account activity, its statement line is pending again, the books advance one revision with a journal.discard event, the entry and its lines stay stored as voided, the integrity check is clean and the repeat changes nothing.",
+      "decision": "aligned",
+      "reason": "Exact detail, views, stored state, event and idempotent repeat asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L03-DISCARD-DRAFT.corrected-entry",
+      "test": "tests.test_discard_draft.DiscardDraftTests.test_a_freed_statement_line_can_get_a_corrected_entry_that_posts",
+      "scenario_sha256": "98cd62c917aafd76b4da62e365de137b214f90145fefa965de018cc2d815e8a6",
+      "source_sha256": "0c1eed7c23397d612e706b888ab39d40877d7c52e2bb3ac7619b371e341c86ba",
+      "expected_observation": "The line accepts the new entry, which posts; the statements show only the corrected account and the journal list only the corrected entry.",
+      "decision": "aligned",
+      "reason": "New entry identity, posted status and report figures asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L03-DISCARD-DRAFT.no-longer-usable",
+      "test": "tests.test_discard_draft.DiscardDraftTests.test_a_discarded_draft_can_no_longer_be_posted_matched_or_block_closing_the_period",
+      "scenario_sha256": "f4cf702c13840a7a8b31e278b349fbefb64c0c412c1e73d8cda0f66b0712ffe2",
+      "source_sha256": "0c1eed7c23397d612e706b888ab39d40877d7c52e2bb3ac7619b371e341c86ba",
+      "expected_observation": "The stale post fails and the entry stays voided, direct confirmation and matching are refused, and the period then closes.",
+      "decision": "aligned",
+      "reason": "Each refusal, the failed stale approval and the successful close asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "L03-DISCARD-DRAFT.refusals",
+      "test": "tests.test_discard_draft.DiscardDraftTests.test_posted_missing_foreign_and_repeated_discards_are_refused",
+      "scenario_sha256": "175e7f7fe0eb2654f72cbe7926d428cab12570f2ece5ad90498188ac64f33902",
+      "source_sha256": "0c1eed7c23397d612e706b888ab39d40877d7c52e2bb3ac7619b371e341c86ba",
+      "expected_observation": "Posted, missing, malformed, padded and foreign requests are refused; the second approval fails as no longer a draft and a further request is refused; one entry is posted and one voided.",
+      "decision": "aligned",
+      "reason": "Exact refusal codes and final stored states asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

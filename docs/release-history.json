@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-59",
+    "label": "Development update 59",
+    "cards": [
+      {
+        "title": "Maipa can show your accounts and entries",
+        "description": "Ask Maipa to show your chart of accounts, your journal entries or the history of one account. It opens them beside the chat, read straight from your books, so the figures are always the real ones."
+      }
+    ]
+  },
+  {
     "id": "development-58",
     "label": "Development update 58",
     "cards": [

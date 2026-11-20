@@ -75,8 +75,9 @@ class Journal(AppendOnly):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('book', 'operation_id'), name='ledger_journal_operation'),
                        models.UniqueConstraint(fields=('book', 'sequence'), name='ledger_journal_sequence'),
-                       models.UniqueConstraint(fields=('book', 'source_kind', 'source_reference'), name='ledger_journal_source'),
-                       models.CheckConstraint(condition=models.Q(state__in=('draft', 'posted')), name='ledger_journal_state'),
+                       # A discarded draft keeps its record but no longer holds its source: the line or reference can get a corrected entry.
+                       models.UniqueConstraint(fields=('book', 'source_kind', 'source_reference'), condition=~models.Q(state='voided'), name='ledger_journal_live_source'),
+                       models.CheckConstraint(condition=models.Q(state__in=('draft', 'posted', 'voided')), name='ledger_journal_states'),
                        models.CheckConstraint(condition=models.Q(total_units__gt=0, total_units__lte=999999999999999999), name='ledger_journal_total')]
 
 
