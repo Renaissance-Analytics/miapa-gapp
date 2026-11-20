@@ -1,4 +1,5 @@
 """Application-owned UI tools. Models supply schemas, never actor/path/code authority."""
+from datetime import date
 from functools import wraps
 from uuid import UUID
 import json
@@ -60,6 +61,7 @@ def _lookup(actor, account_id, identity):
     return saved
 
 
+ISO_DAY = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')
 LEDGER_VIEWS = {'Maipa.Accounts': ('book_id',), 'Maipa.Journal': ('book_id', 'show'), 'Maipa.AccountActivity': ('book_id', 'account_id'),
                 'Maipa.Statements': ('book_id',), 'Maipa.Reconciliation': ('book_id', 'import_id')}
 
@@ -80,6 +82,7 @@ def _components(role):
         ('Maipa.AccountActivity', 'Read-only posted entries and running balance for one account, loaded from the scoped books service. Props: book_id and account_id from maipa_books_read.'),
         ('Maipa.Statements', 'Read-only list of imported bank statements with bank account, stated balances, dates, whether each can be reconciled and any recorded reconciliation, loaded from the scoped books service. Props: book_id.'),
         ('Maipa.Reconciliation', 'Read-only bank reconciliation of one statement: bank closing balance against the books, lines not yet posted, entries the bank has not shown and the exact difference, loaded live. Props: book_id and import_id from maipa_books_reconcile. No figures are supplied.'),
+        ('Maipa.Report', 'Read-only income statement for a date range and balance sheet as of its end date, from posted entries only, loaded live from the scoped books service. Props: book_id, from and to (YYYY-MM-DD, from not after to, inside the book period). No rows or totals are supplied.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':
@@ -138,6 +141,13 @@ def validate_schema(value, role):
                     raise ValueError('Invalid ledger reference')
             if item['props'].get('show', 'all') not in ('all', 'posted', 'pending') or item['type'] in controls:
                 raise ValueError('Invalid ledger view')
+            controls.add(item['type'])
+        elif item['type'] == 'Maipa.Report':
+            _object(item, ('id', 'type', 'props')); _object(item['props'], ('book_id', 'from', 'to'))
+            identity, days = item['props']['book_id'], [item['props']['from'], item['props']['to']]
+            if (type(identity) is not str or str(UUID(identity)) != identity or item['type'] in controls or
+                    any(type(day) is not str or not ISO_DAY.fullmatch(day) or date.fromisoformat(day).isoformat() != day for day in days) or days[0] > days[1]):
+                raise ValueError('Invalid report reference')
             controls.add(item['type'])
         elif item['type'] == 'Maipa.Workflow':
             _object(item,('id','type','props'));_object(item['props'],('draft_id',))

@@ -225,6 +225,15 @@ for line in sys.stdin:
                         {'id': 'bank-statements', 'type': 'Maipa.Statements', 'props': {'book_id': book_id}},
                         {'id': 'bank-reconciliation', 'type': 'Maipa.Reconciliation',
                          'props': {'book_id': book_id, 'import_id': listed['statements'][0]['id']}}]}})
+            elif 'show the financial statements' in text:
+                books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
+                book = json.loads(callback('maipa_books_read', {'book_id': books['books'][0]['id']})['content'][0]['text'])['book']
+                schema = {'id': 'period-results', 'type': 'Maipa.Report',
+                          'props': {'book_id': book['id'], 'from': book['period_start'], 'to': book['period_end']}}
+                callback('maipa_ui_update' if catalog['composition'] else 'maipa_ui_present', {'revision': revision, 'title': 'Results for the period', 'schema': schema})
+                views = callback('maipa_views_list', {})
+                callback('maipa_views_save', {'views_id': views['views_id'], 'expected_revision': views['revision'],
+                    'title': 'Results for the period', 'schema': schema})
             elif 'show the ledger views' in text:
                 books = json.loads(callback('maipa_books_list', {})['content'][0]['text'])
                 book = json.loads(callback('maipa_books_read', {'book_id': books['books'][0]['id']})['content'][0]['text'])['book']

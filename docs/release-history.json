@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-55",
+    "label": "Development update 55",
+    "cards": [
+      {
+        "title": "Income statement and balance sheet",
+        "description": "Bookkeeping now shows an income statement and a balance sheet built from your posted entries. Ask Maipa for any date range, for example your profit in March; it reads exact figures from your books instead of estimating them."
+      }
+    ]
+  },
+  {
     "id": "development-54",
     "label": "Development update 54",
     "cards": [

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readLedger, readReconciliation, readStatements, type AccountActivity, type LedgerSnapshot,
+import { displayMoney, displaySigned, readAccountActivity, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type FinancialReport, type LedgerSnapshot, type ReportRow,
   type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
@@ -164,4 +164,41 @@ export function LedgerReconciliation({ userId, bookId, importId }: { userId: str
     {live.value && (live.value.report ? <ReconciliationView report={live.value.report} />
       : <Callout color="blue" data-reconciliation-blocked={live.value.item.id}>{live.value.item.filename} cannot be reconciled yet. {statementState(live.value.item)}.</Callout>)}
   </Frame>;
+}
+
+const lines = (rows: ReportRow[], empty: string) => rows.length
+  ? rows.map(item => <Table.Row key={item.id} data-account-code={item.code}><Table.Cell>{item.code} · {item.name}</Table.Cell><Table.Cell>{displaySigned(item.amount)}</Table.Cell></Table.Row>)
+  : [<Table.Row key={empty}><Table.Cell>{empty}</Table.Cell><Table.Cell /></Table.Row>];
+const total = (label: string, amount: string) => <Table.Row key={label} data-report-total={label}><Table.Cell><strong>{label}</strong></Table.Cell>
+  <Table.Cell><strong>{displaySigned(amount)}</strong></Table.Cell></Table.Row>;
+
+export function ReportView({ report }: { report: FinancialReport }) {
+  const i = report.income_statement, b = report.balance_sheet;
+  return <div data-report-from={report.from} data-report-to={report.to} data-net-income={i.net_income} data-total-assets={b.total_assets} data-book-revision={report.revision}>
+    <p>Income statement · {report.from} to {report.to} · {report.currency}</p>
+    <Table aria-label="Income statement">
+      {head(['Account', 'Amount'])}
+      <Table.Body>
+        {lines(i.income, 'No income in this period.')}{total('Total income', i.total_income)}
+        {lines(i.expenses, 'No expenses in this period.')}{total('Total expenses', i.total_expenses)}
+        {total(i.net_income.startsWith('-') ? 'Net loss' : 'Net income', i.net_income)}
+      </Table.Body>
+    </Table>
+    <p>Balance sheet · as of {b.as_of} · {report.currency}</p>
+    <Table aria-label="Balance sheet">
+      {head(['Account', 'Amount'])}
+      <Table.Body>
+        {lines(b.assets, 'No asset balances.')}{total('Total assets', b.total_assets)}
+        {lines(b.liabilities, 'No liability balances.')}{total('Total liabilities', b.total_liabilities)}
+        {lines(b.equity, 'No equity balances.')}{total('Total equity', b.total_equity)}{total('Earnings to date', b.earnings_to_date)}
+        {total('Total liabilities and equity', b.total_liabilities_and_equity)}
+      </Table.Body>
+    </Table>
+    {report.pending_count > 0 && <p>{report.pending_count} pending {report.pending_count === 1 ? 'entry is' : 'entries are'} not included.</p>}
+  </div>;
+}
+
+export function LedgerReport({ userId, bookId, from, to }: { userId: string; bookId: string; from: string; to: string }) {
+  const live = useLive(signal => readFinancialReport(userId, bookId, from, to, signal), `${userId}:${bookId}:${from}:${to}:report`);
+  return <Frame label="Financial statements" phase={live.phase} reload={live.reload}>{live.value && <ReportView report={live.value} />}</Frame>;
 }

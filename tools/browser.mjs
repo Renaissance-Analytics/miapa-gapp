@@ -68,7 +68,7 @@ const recordProgress = () => {
   // Closed fixture metadata survives an outer watchdog without DOM/user data.
   try { writeFileSync('artifacts/ci/browser-progress.json', JSON.stringify({
     phase: progressPhases.has(phase) ? phase : 'unknown',
-    completed_cases: Number.isInteger(passed.length) && passed.length <= 54 ? passed.length : 0,
+    completed_cases: Number.isInteger(passed.length) && passed.length <= 55 ? passed.length : 0,
     cleanup_verified: cleanupVerified === true,
     cleanup_checkpoint: cleanupCheckpoints.has(cleanupCheckpoint) ? cleanupCheckpoint : 'not_started',
     stop_status: Number.isInteger(stopStatus) ? stopStatus : null,
@@ -1507,6 +1507,26 @@ try {
     await until(async()=>{const m=(await chatState()).messages;return m.some(x=>x.role==='user'&&x.text.startsWith('I approved and Maipa completed: '+label));},label+' outcome sent');
     await agentIdle(label+' agent replied');
   };
+  // The agent composes the income statement and balance sheet and pins them as a saved view; the figures are the books' own and the saved view holds none.
+  await agentIdle('agent idle before report view');
+  await typeChat('Show the financial statements');await click('Send');
+  await until(()=>evaluate("!!document.querySelector('section[aria-label=\"Financial statements\"] [data-net-income]')"),'agent report view loaded');
+  const reportBook=(await readBooks()).book;
+  const liveReport=await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/report/?from=${reportBook.period_start}&to=${reportBook.period_end}',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`);
+  const shownReport=await evaluate("(()=>{const r=document.querySelector('section[aria-label=\"Financial statements\"]');const d=r.querySelector('[data-net-income]').dataset;return {from:d.reportFrom,to:d.reportTo,net:d.netIncome,assets:d.totalAssets,revision:d.bookRevision,tables:['Income statement','Balance sheet'].map(l=>!!r.querySelector('[aria-label=\"'+l+'\"]')),accounts:r.querySelectorAll('[data-account-code]').length,totals:[...r.querySelectorAll('[data-report-total]')].map(t=>t.dataset.reportTotal)};})()");
+  const reportRowCount=['income','expenses'].reduce((n,k)=>n+liveReport.income_statement[k].length,0)+['assets','liabilities','equity'].reduce((n,k)=>n+liveReport.balance_sheet[k].length,0);
+  assert.deepEqual(shownReport,{from:reportBook.period_start,to:reportBook.period_end,net:liveReport.income_statement.net_income,assets:liveReport.balance_sheet.total_assets,revision:String(liveReport.revision),tables:[true,true],accounts:reportRowCount,
+    totals:['Total income','Total expenses',liveReport.income_statement.net_income.startsWith('-')?'Net loss':'Net income','Total assets','Total liabilities','Total equity','Earnings to date','Total liabilities and equity']});
+  assert.equal(reportRowCount>=2,true);assert.notEqual(liveReport.income_statement.net_income,'0.0000');
+  assert.equal(liveReport.balance_sheet.total_assets,liveReport.balance_sheet.total_liabilities_and_equity);
+  await agentIdle('agent idle after report view');
+  const savedReport=(await evaluate("fetch('/api/workspace/views/').then(r=>r.json())")).views.filter(v=>v.title==='Results for the period');
+  assert.equal(savedReport.length,1);assert.equal(savedReport[0].pinned,true);assert.equal(savedReport[0].available,true);
+  assert.deepEqual(savedReport[0].schema,{id:'period-results',type:'Maipa.Report',props:{book_id:bookId,from:reportBook.period_start,to:reportBook.period_end}});
+  await typeChat('Dismiss this view');await click('Send');
+  await until(()=>evaluate("!document.querySelector('section[aria-label=\"Financial statements\"]')"),'agent report view dismissed');
+  await agentIdle('agent idle after dismissing report view');
+  record('agent-composed-report-view');
   const importedBefore=(await evaluate(`(async()=>{const s=await(await fetch('/api/session/')).json();return (await fetch('/api/books/'+${JSON.stringify(bookId)}+'/imports/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();})()`)).rows.length;
   const chatStatement=join(profile,'synthetic-chat-statement.csv');
   const bookYear=postedBook.book.period_start.slice(0,4);

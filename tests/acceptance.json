@@ -2966,6 +2966,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_statement_and_reconciliation_views_accept_only_exact_references"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.report-view",
+          "kind": "negative",
+          "given": "Report schemas naming an exact book and a real date range, and ones with a missing, malformed, impossible or reversed date, another id form, supplied totals or statements, a comparison range, another user, no props, or the component twice",
+          "when": "Present or update the composition",
+          "then": "The exact schemas, including a one-day leap-day range, are saved unchanged; every other schema is refused and the saved composition does not change.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_report_view_accepts_only_an_exact_book_and_a_real_date_range"
+          ]
         }
       ]
     },
@@ -4004,6 +4014,16 @@
           "tests": [
             "tests.test_personal_views.PersonalViewsTests.test_strict_json_revision_and_collection_limits_never_partially_save",
             "tests.test_personal_views.PersonalViewsTests.test_storage_failure_rolls_back_the_reserved_revision_without_claiming_a_saved_view"
+          ]
+        },
+        {
+          "id": "A07-PERSONAL-VIEWS.finance-view",
+          "kind": "negative",
+          "given": "A personal view made of a report and a chart of accounts for one book and date range, then updates that add totals or rows, an impossible or reversed date, or drop the dates",
+          "when": "Save the view, then try each update",
+          "then": "The view is saved pinned and available with exactly its book and dates and no figure; every such update is refused, the collection is unchanged and another user sees no views.",
+          "tests": [
+            "tests.test_personal_views.PersonalViewsTests.test_a_saved_finance_view_keeps_only_its_book_and_date_range_and_never_figures"
           ]
         }
       ]

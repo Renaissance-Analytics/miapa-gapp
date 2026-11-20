@@ -85,6 +85,24 @@ class PersonalViewsTests(TestCase):
                 self.assertEqual(response.status_code,400)
         self.assertEqual(self.state(),first)
 
+    def test_a_saved_finance_view_keeps_only_its_book_and_date_range_and_never_figures(self):
+        book='7ca83106-36ad-444e-bf05-75e8bba58852'
+        schema={'id':'quarter','type':'Maipa.Stack','children':[
+            {'id':'results','type':'Maipa.Report','props':{'book_id':book,'from':'2026-01-01','to':'2026-03-31'}},
+            {'id':'chart','type':'Maipa.Accounts','props':{'book_id':book}}]}
+        first=self.state();saved=self.change(first,title='First quarter results',schema=schema)
+        self.assertEqual(saved.status_code,200);current=saved.json();view=current['views'][0]
+        self.assertEqual((view['title'],view['schema'],view['pinned'],view['available']),('First quarter results',schema,True,True))
+        self.assertNotIn('350.50',saved.content.decode())
+        report=schema['children'][0]
+        for props in ({**report['props'],'net_income':'350.50'},{**report['props'],'to':'2026-02-30'},{**report['props'],'from':'2026-04-01'},
+                      {'book_id':book},{**report['props'],'rows':[{'code':'4000','amount':'999999'}]}):
+            with self.subTest(props=props):
+                self.assertEqual(self.change(current,'update',id=view['id'],title='Changed',schema={**report,'props':props}).status_code,400)
+        self.assertEqual(self.state(),current)
+        foreign=Client();foreign.force_login(self.other)
+        self.assertEqual(self.state(foreign)['views'],[])
+
     def test_live_role_revocation_cannot_reuse_personal_view_authority(self):
         first=self.state();self.assertEqual(self.create(first).status_code,200)
         Membership.objects.filter(user=self.owner).update(role='viewer')

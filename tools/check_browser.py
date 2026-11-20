@@ -380,7 +380,7 @@ def main():
             save_progress('resume')
             from backend.maipa.workspace.personal_views import read_personal_views
             expected_views = read_personal_views(owner)
-            assert len(expected_views['views']) == 2
+            assert len(expected_views['views']) == 3 and expected_views['views'][-1]['schema']['type'] == 'Maipa.Report'
             resumed = run_browser(base_data | {'layout_resume': True, 'username': owner.username,
                 'password': password, 'user_id': str(owner.pk), 'expected_points': 3500, 'expected_views': expected_views})
             if (resumed.get('cleanup') is not True or resumed.get('checks') != 4
