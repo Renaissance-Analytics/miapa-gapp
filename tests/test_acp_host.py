@@ -88,7 +88,7 @@ class AcpHostTests(unittest.TestCase):
         async def case(client, owner):
             result = await client.initialize(owner)
             self.assertEqual(result["protocolVersion"], 1)
-            self.assertEqual(result["agentInfo"]["version"], "0.41.2")
+            self.assertEqual(result["agentInfo"]["version"], "0.44.0")
             self.assertEqual(result["authMethods"], [])
             self.assertEqual(await client.shutdown(owner), {"verified": True, "survivors": 0, "sessions": 0})
         self.run_host(case, real_entry=True)

@@ -16,14 +16,14 @@
     "test": "tsc -p tsconfig.test.json && node --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@particle-academy/agent-integrations": "0.59.0",
+    "@particle-academy/agent-integrations": "0.67.0",
     "@particle-academy/fancy-app-update": "0.8.0",
     "@particle-academy/fancy-auto-common": "0.2.0",
     "@particle-academy/fancy-doc-commons": "0.4.0",
     "@particle-academy/fancy-flow": "0.84.0",
     "@particle-academy/fancy-screens": "0.7.1",
     "@particle-academy/fancy-whats-new": "0.1.1",
-    "@particle-academy/react-fancy": "6.25.0",
+    "@particle-academy/react-fancy": "6.29.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "tailwindcss": "4.3.5",

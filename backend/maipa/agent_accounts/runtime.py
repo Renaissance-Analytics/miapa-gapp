@@ -13,7 +13,7 @@ from backend.maipa.workspace.models import Membership
 from .models import AgentAccount
 
 PACKAGE = "@particle-academy/prism-acp"
-VERSION = "0.41.2"
+VERSION = "0.44.0"
 
 
 class TransportUnavailable(Exception):
