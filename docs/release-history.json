@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-58",
+    "label": "Development update 58",
+    "cards": [
+      {
+        "title": "Start your books with opening balances",
+        "description": "Tell Maipa what you already had on the first day of your books, such as your bank balance, equipment and amounts owed. It prepares one opening entry for you to approve, checks your figures against the totals from your records, and shows exactly what goes to opening balance equity."
+      }
+    ]
+  },
+  {
     "id": "development-57",
     "label": "Development update 57",
     "cards": [

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-78",
+    "label": "Development update 78",
+    "cards": [
+      {
+        "title": "Why cash and profit differ",
+        "description": "The cash flow now explains the gap between your profit and the change in your bank balance: what you have earned or owe but not yet received or paid, and cash moved by things like equipment, loans and owner money. Comparing two periods also shows the difference in cash."
+      }
+    ]
+  },
+  {
     "id": "development-77",
     "label": "Development update 77",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Maipa can show your accounts and entries",
         "description": "Ask Maipa to show your chart of accounts, your journal entries or the history of one account. It opens them beside the chat, read straight from your books, so the figures are always the real ones."
-      }
-    ]
-  },
-  {
-    "id": "development-58",
-    "label": "Development update 58",
-    "cards": [
-      {
-        "title": "Start your books with opening balances",
-        "description": "Tell Maipa what you already had on the first day of your books, such as your bank balance, equipment and amounts owed. It prepares one opening entry for you to approve, checks your figures against the totals from your records, and shows exactly what goes to opening balance equity."
       }
     ]
   }

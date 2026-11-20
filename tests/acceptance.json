@@ -7821,6 +7821,16 @@
           "tests": [
             "tests.test_cash_flow.CashFlowTests.test_http_and_the_agent_tool_return_the_same_cash_flow"
           ]
+        },
+        {
+          "id": "C04-CASH-FLOW.bridge",
+          "kind": "positive",
+          "given": "Books with a loss month containing an unpaid bill and an equipment purchase part paid and part owed, read for the month, the year, single days and other ranges",
+          "when": "Read each report",
+          "then": "The bridge starts at the income statement net income, adds back income and expenses not yet received or paid and the cash moved by other accounts, and ends exactly at the change in cash in every range; a day with only an unpaid bill bridges its loss to no change in cash.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_the_bridge_explains_exactly_why_cash_changed_by_a_different_amount_than_profit"
+          ]
         }
       ]
     }

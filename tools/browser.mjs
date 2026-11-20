@@ -1521,6 +1521,8 @@ try {
   assert.equal(liveReport.balance_sheet.total_assets,liveReport.balance_sheet.total_liabilities_and_equity);
   const shownCash=await evaluate("(()=>{const t=document.querySelector('section[aria-label=\"Financial statements\"] [data-cash-flow]');return {state:t.dataset.cashFlow,net:t.dataset.netCash,closing:t.dataset.closingCash,accounts:[...t.querySelectorAll('[data-cash-account]')].map(r=>r.dataset.cashAccount),movements:[...t.querySelectorAll('[data-cash-movement]')].map(r=>r.dataset.cashMovement)};})()");
   assert.deepEqual(shownCash,{state:'shown',net:liveReport.cash_flow.net_change,closing:liveReport.cash_flow.closing_cash,accounts:liveReport.cash_flow.accounts.map(a=>a.code),movements:liveReport.cash_flow.movements.map(m=>m.code)});
+  assert.equal(await evaluate("document.querySelector('section[aria-label=\"Financial statements\"] [data-cash-bridge]').dataset.cashBridge"),liveReport.cash_flow.bridge.net_change);
+  assert.equal(liveReport.cash_flow.bridge.net_income,liveReport.income_statement.net_income);
   assert.equal(liveReport.cash_flow.accounts.length,1);assert.equal(liveReport.cash_flow.movements.length>=1,true);assert.notEqual(liveReport.cash_flow.net_change,'0.0000');
   await agentIdle('agent idle after report view');
   const savedReport=(await evaluate("fetch('/api/workspace/views/').then(r=>r.json())")).views.filter(v=>v.title==='Results for the period');

@@ -159,7 +159,8 @@ const row = (id, code, name, category, amount) => ({ id, code, name, category, a
 const statements = { book_id: BOOK, currency: 'USD', revision: 7, from: '2026-01-01', to: '2026-03-31', pending_count: 2,
   cash_flow: { accounts: [{ id: CASH, code: '1000', name: 'Checking', category: 'asset', cash: true, opening: '1000.0000', closing: '1350.5000' }],
     opening_cash: '1000.0000', closing_cash: '1350.5000', net_change: '350.5000', received: '1250.5000', paid: '-900.0000',
-    movements: [{ id: STATEMENT, code: '4000', name: 'Sales <i>income</i>', category: 'income', cash: false, amount: '1250.5000' }, { id: RENT, code: '6300', name: 'Rent', category: 'expense', cash: false, amount: '-900.0000' }] },
+    movements: [{ id: STATEMENT, code: '4000', name: 'Sales <i>income</i>', category: 'income', cash: false, amount: '1250.5000' }, { id: RENT, code: '6300', name: 'Rent', category: 'expense', cash: false, amount: '-900.0000' }],
+    bridge: { net_income: '350.5000', not_in_cash: '0.0000', other_accounts: '0.0000', net_change: '350.5000' } },
   income_statement: { income: [row(STATEMENT, '4000', 'Sales <i>income</i>', 'income', '1250.5000')], expenses: [row(RENT, '6300', 'Rent', 'expense', '900.0000')],
     total_income: '1250.5000', total_expenses: '900.0000', net_income: '350.5000' },
   balance_sheet: { as_of: '2026-03-31', assets: [{ ...row(CASH, '1000', 'Checking', 'asset', '1350.5000'), cash: true }], liabilities: [], equity: [row(BOOK, '3000', 'Owner equity', 'equity', '1000.0000')],
@@ -203,17 +204,22 @@ test('the cash flow is shown only when it reconciles, and an unmarked book says 
   assert.match(html, /data-net-cash="350\.5000"/); assert.match(html, /data-closing-cash="1350\.5000"/);
   for (const text of ['Cash at the start', 'Cash received', 'Cash paid', 'Change in cash', 'Cash at the end', '1000 · Checking at the end', '−900.00', '1,350.50'])
     assert.equal(html.includes(text), true, text);
+  assert.match(html, /data-cash-bridge="350\.5000"/); assert.match(html, /Why cash changed differently from profit/);
+  for (const text of ['Income and expenses not yet received or paid', 'Cash moved by other accounts']) assert.equal(html.includes(text), true, text);
   assert.equal(html.split('data-cash-movement=').length, 3); assert.equal(html.split('data-cash-account=').length, 2);
   assert.equal(html.split('data-account-code=').length, 5);   // The two statements keep their four account rows.
   const flow = statements.cash_flow;
   for (const change of [{ net_change: '350.0000' }, { closing_cash: '1350.0000' }, { opening_cash: '999.0000' }, { received: '1250.0000' }, { paid: '-899.0000' },
     { movements: [flow.movements[0]] }, { movements: [...flow.movements, flow.movements[0]] }, { movements: [{ ...flow.movements[0], cash: true }, flow.movements[1]] },
     { movements: [{ ...flow.movements[0], amount: '0.0000' }, flow.movements[1]] }, { accounts: [] }, { accounts: [{ ...flow.accounts[0], cash: false }] },
-    { accounts: [{ ...flow.accounts[0], closing: '1.0000' }] }, { accounts: [{ ...flow.accounts[0], balance: '1' }] }, { note: 'x' }])
+    { accounts: [{ ...flow.accounts[0], closing: '1.0000' }] }, { accounts: [{ ...flow.accounts[0], balance: '1' }] }, { note: 'x' },
+    { bridge: { ...flow.bridge, net_income: '350.0000', not_in_cash: '0.5000' } }, { bridge: { ...flow.bridge, other_accounts: '1.0000' } },
+    { bridge: { ...flow.bridge, net_change: '0.0000', not_in_cash: '-350.5000' } }, { bridge: { ...flow.bridge, note: 'x' } }, { bridge: undefined }])
     assert.throws(() => parseFinancialReport({ ...structuredClone(statements), cash_flow: { ...flow, ...change } }, BOOK, '2026-01-01', '2026-03-31'), undefined, JSON.stringify(change));
   const { cash_flow: _, ...without } = statements;
   assert.throws(() => parseFinancialReport(without, BOOK, '2026-01-01', '2026-03-31'));
-  const unmarked = { ...statements, cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [] } };
+  const unmarked = { ...statements, cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [],
+    bridge: { net_income: '350.5000', not_in_cash: '-350.5000', other_accounts: '0.0000', net_change: '0.0000' } } };
   const none = renderToStaticMarkup(React.createElement(ReportView, { report: parseFinancialReport(structuredClone(unmarked), BOOK, '2026-01-01', '2026-03-31') }));
-  assert.match(none, /data-cash-flow="unmarked"/); assert.match(none, /No account is marked as a bank account or cash on hand yet/); assert.doesNotMatch(none, /Cash at the end/);
+  assert.match(none, /data-cash-flow="unmarked"/); assert.match(none, /No account is marked as a bank account or cash on hand yet/); assert.doesNotMatch(none, /Cash at the end/); assert.doesNotMatch(none, /data-cash-bridge/);
 });

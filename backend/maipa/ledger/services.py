@@ -817,9 +817,6 @@ def _statements(book, accounts, start, end):
     equity, total_equity = section('equity', to_date, -1)
     # Income and expense accounts are not closed into equity, so earnings to date complete the equation.
     earnings = -sum(units for pk, units in to_date.items() if accounts[pk].category in ('income', 'expense'))
-    totals = {'total_income': total_income, 'total_expenses': total_expenses, 'net_income': total_income - total_expenses,
-              'total_assets': total_assets, 'total_liabilities': total_liabilities, 'total_equity': total_equity,
-              'earnings_to_date': earnings}
     # Cash flow: an entry that touches a bank or cash account moves cash by exactly the opposite of its
     # other lines, because the entry balances. Transfers between cash accounts and entries without cash move none.
     cash = sorted((a for a in accounts.values() if a.cash), key=lambda a: a.code)
@@ -839,6 +836,14 @@ def _statements(book, accounts, start, end):
                  'received': money(sum(units for _, units in movements if units > 0)),
                  'paid': money(sum(units for _, units in movements if units < 0)),
                  'movements': [{**account_value(a), 'amount': money(units)} for a, units in movements]}
+    # Bridge from profit to cash: income and expenses that have not moved cash yet, then cash moved by other accounts.
+    net_income = total_income - total_expenses
+    earned_in_cash = sum(units for a, units in movements if a.category in ('income', 'expense'))
+    cash_flow['bridge'] = {'net_income': money(net_income), 'not_in_cash': money(earned_in_cash - net_income),
+                           'other_accounts': money(change - earned_in_cash), 'net_change': money(change)}
+    totals = {'total_income': total_income, 'total_expenses': total_expenses, 'net_income': net_income,
+              'total_assets': total_assets, 'total_liabilities': total_liabilities, 'total_equity': total_equity,
+              'earnings_to_date': earnings, 'net_cash_change': change}
     return {'from': start.isoformat(), 'to': end.isoformat(), 'cash_flow': cash_flow,
             'income_statement': {'income': income, 'expenses': expenses, 'total_income': money(total_income),
                                  'total_expenses': money(total_expenses), 'net_income': money(total_income - total_expenses)},
@@ -854,7 +859,7 @@ def financial_report(user, book_id, value):
     """Income statement and cash flow for a date range and balance sheet as of its end, from posted entries only.
 
     With compare_from and compare_to, also the same statements for that second range and the exact
-    change in each total: the requested range minus the compared range.
+    change in each total, including the change in cash: the requested range minus the compared range.
     """
     _, book = owned(user, book_id)
     require(type(value) is dict)
@@ -866,7 +871,6 @@ def financial_report(user, book_id, value):
               'pending_count': book.journals.filter(state='draft').count()}
     if compared:
         other, other_totals = _statements(book, accounts, day(value['compare_from']), day(value['compare_to']))
-        other.pop('cash_flow')              # The comparison covers the income statement and balance sheet only.
         result['comparison'] = {**other, 'change': {key: money(totals[key] - other_totals[key]) for key in totals}}
     return result
 
