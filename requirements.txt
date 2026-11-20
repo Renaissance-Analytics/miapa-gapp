@@ -7,3 +7,5 @@ tzdata==2026.6 ; sys_platform == "win32" --hash=sha256:0a10eec6e13ef16b627fabed9
 fancy-flow==0.30.1 --hash=sha256:9af8a7fd51f41226d9e170d4a6dbe0012d45a897eb388dd0f5eaf9c2411e8f6b
 fancy-holy-sheet==0.13.3 --hash=sha256:583bf4882c2d653d7cadc625c92b3bcc94efc4e90be00b09236c84375df6fa35
 fancy-fine-print==0.1.0 --hash=sha256:d93afdc0002c86b1a75aae6aa278e4bbeccbb84e99bb5eb17141e662e52ecc51
+psycopg==3.3.9 --hash=sha256:d2d7d04a1ce6dab4f5b27316bea3b52585cafa2f2d631e5b09dd69823f5c26f6
+psycopg-binary==3.3.9 --hash=sha256:417c3fe0ac2079a82a8c72ba214a65c66c22036a5d2d8c24c77c5708a58938b9

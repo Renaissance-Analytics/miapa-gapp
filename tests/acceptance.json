@@ -7945,6 +7945,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K01-DATABASE-CHOICE",
+      "risk": "An install that switches database because of ambient hosting variables, or falls back silently from a broken PostgreSQL configuration, would run on an empty or wrong database and appear to have lost its records.",
+      "scenarios": [
+        {
+          "id": "K01-DATABASE-CHOICE.default",
+          "kind": "negative",
+          "given": "No settings, complete ambient PostgreSQL variables, an empty or sqlite choice, and a database name without the opt-in",
+          "when": "Resolve the database configuration",
+          "then": "Every case resolves to the install's own SQLite file with immediate transactions; ambient variables alone never select PostgreSQL.",
+          "tests": [
+            "tests.test_database_settings.DatabaseSettingsTests.test_sqlite_stays_the_database_even_when_postgresql_variables_are_present"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-CHOICE.opt-in",
+          "kind": "positive",
+          "given": "The explicit postgres choice, the install's own database name and complete connection variables",
+          "when": "Resolve the database configuration",
+          "then": "PostgreSQL is selected with exactly that name and those connection values, never the ambient default database or URL.",
+          "tests": [
+            "tests.test_database_settings.DatabaseSettingsTests.test_an_explicit_opt_in_with_its_own_database_name_selects_postgresql"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-CHOICE.refusals",
+          "kind": "negative",
+          "given": "The postgres choice with a missing name or connection variable, unknown choices, reserved or malformed names, and bad ports",
+          "when": "Resolve the database configuration",
+          "then": "Each is refused with a configuration error that contains no connection value; none falls back to SQLite.",
+          "tests": [
+            "tests.test_database_settings.DatabaseSettingsTests.test_a_half_configured_or_unknown_choice_is_refused_instead_of_falling_back"
+          ]
+        }
+      ]
     }
   ]
 }

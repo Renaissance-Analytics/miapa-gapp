@@ -46,10 +46,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = "backend.maipa.urls"
 ASGI_APPLICATION = "backend.maipa.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-# Reserve short atomic transactions before reads so concurrent app writers queue.
-# Supported Django SQLite option; preserve the normal timeout and autocommit.
-DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATA_ROOT / "maipa.sqlite3",
-                         "OPTIONS": {"transaction_mode": "IMMEDIATE"}}}
+# SQLite by default; PostgreSQL only when this install opts in explicitly. See backend/maipa/database.py.
+from backend.maipa.database import database_config  # noqa: E402
+DATABASES = database_config(os.environ, DATA_ROOT)
 USE_TZ = True
 TIME_ZONE = "UTC"
 LANGUAGE_CODE = "en-us"
