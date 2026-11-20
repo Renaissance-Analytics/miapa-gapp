@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-56",
+    "label": "Development update 56",
+    "cards": [
+      {
+        "title": "Compare two periods",
+        "description": "Ask Maipa how one period compares with another, for example March against February. It reads both periods from your posted entries and reports the exact change in income, expenses, profit and balances."
+      }
+    ]
+  },
+  {
     "id": "development-55",
     "label": "Development update 55",
     "cards": [

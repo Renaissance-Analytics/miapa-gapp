@@ -7,7 +7,7 @@ import {
 } from "@particle-academy/prism-acp";
 
 const packageVersion = JSON.parse(readFileSync(new URL("./node_modules/@particle-academy/prism-acp/package.json", import.meta.url), "utf8")).version;
-if (packageVersion !== "0.41.2") throw new Error("Unexpected ACP runtime");
+if (packageVersion !== "0.44.0") throw new Error("Unexpected ACP runtime");
 if (JSON.stringify(CODEX_NATIVE_TOOLS_NONE.cliVersions) !== '["0.163.0"]'
     || JSON.stringify(CODEX_NATIVE_TOOLS_NONE.models) !== '["gpt-5.3-codex"]') throw Error('Unexpected provider policy');
 
@@ -59,7 +59,7 @@ export function validateProfile(value) {
 export function serveProfile(value, { input, output, constructors = {}, uiMcp, account }) {
   const profile = validateProfile(value);
   // Only the trusted bootstrap supplies this application-owned stdio adapter.
-  // Exact published0.41.2 supports restricted host-user subscription reuse.
+  // Exact published0.44.0 supports restricted host-user subscription reuse.
   if (profile.ui_tools !== Boolean(uiMcp)) throw new Error('UI transport unavailable');
   const drivers = [];
   let closing = false, shutdownPromise;

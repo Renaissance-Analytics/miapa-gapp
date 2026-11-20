@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-76",
+    "label": "Development update 76",
+    "cards": [
+      {
+        "title": "Maipa’s building blocks are up to date",
+        "description": "The published components Maipa is built from, including the one that connects your Claude or Codex account, were updated to their latest releases. Nothing changes in how you work."
+      }
+    ]
+  },
+  {
     "id": "development-75",
     "label": "Development update 75",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Maipa can check your books are sound",
         "description": "Ask Maipa whether your books are sound. It rechecks every entry: each one balances, nothing was altered after it was saved, posted entries have their posting record and reversals match their original. It reports anything it finds and changes nothing."
-      }
-    ]
-  },
-  {
-    "id": "development-56",
-    "label": "Development update 56",
-    "cards": [
-      {
-        "title": "Compare two periods",
-        "description": "Ask Maipa how one period compares with another, for example March against February. It reads both periods from your posted entries and reports the exact change in income, expenses, profit and balances."
       }
     ]
   }

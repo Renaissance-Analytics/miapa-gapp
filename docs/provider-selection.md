@@ -5,7 +5,7 @@ accounts already signed in on this machine, as Genie does. Bind the chosen
 machine identity explicitly to the current Maipa user; ask for a provider login
 only when that account actually needs one. This supersedes the earlier separate
 private-login default. Native adapters run in explicit host mode as the local
-OS user, using published Prism0.41.2 subscription mode and the CLI's own sign-in.
+OS user, using published Prism0.44.0 subscription mode and the CLI's own sign-in.
 Maipa does not read/copy credentials or share them into a container. The host
 worker has verified job-based lifetime containment, without OS file isolation.
 Only the supplied authorized UI tools are available to the model under the
