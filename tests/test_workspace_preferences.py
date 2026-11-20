@@ -4,7 +4,7 @@ import json
 import threading
 
 from django.contrib.auth import get_user_model
-from django.db import connections
+from django.db import DataError, connections
 from django.db import IntegrityError, transaction
 from django.test import Client, TestCase, TransactionTestCase
 
@@ -139,7 +139,8 @@ class WorkspacePreferencesTests(TestCase):
         from backend.maipa.workspace.models import WorkspacePreferences
         initial = self.state()
         for changes in ({'theme': 'arbitrary'}, {'active_view': 'unknown-view'}, {'revision': 2_000_000_000}):
-            with self.assertRaises(IntegrityError), transaction.atomic():
+            # PostgreSQL refuses an over-long value as a data error before any constraint; SQLite reports the constraint.
+            with self.assertRaises((IntegrityError, DataError)), transaction.atomic():
                 WorkspacePreferences.objects.filter(user=self.owner).update(**changes)
         self.assertEqual(self.state(), initial)
 

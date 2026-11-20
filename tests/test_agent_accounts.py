@@ -5,7 +5,7 @@ from unittest.mock import patch
 import uuid
 
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError, transaction
+from django.db import DataError, IntegrityError, transaction
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
@@ -50,7 +50,8 @@ class AgentAccountTests(TestCase):
             with transaction.atomic():
                 AgentAccount.objects.create(owner=self.user, provider="codex", label="Duplicate")
         for provider in ('../untrusted', '', 'codex\n', 'UPPER', '8starts-with-digit', 'x' * 65):
-            with self.assertRaises(IntegrityError):
+            # PostgreSQL refuses an over-long value as a data error before any constraint; SQLite reports the constraint.
+            with self.assertRaises((IntegrityError, DataError)):
                 with transaction.atomic():
                     AgentAccount.objects.create(owner=self.user, provider=provider, label="Invalid")
 
