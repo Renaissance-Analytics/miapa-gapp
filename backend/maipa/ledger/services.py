@@ -118,7 +118,7 @@ def entry_value(row):
 
 
 def snapshot(row):
-    page = list(row.journals.order_by('-sequence')[:101])
+    page = list(row.journals.exclude(state='voided').order_by('-sequence')[:101])
     return {'id': str(row.pk), 'entity_id': str(row.entity_id), 'currency': row.currency,
             'period_start': row.period_start.isoformat(), 'period_end': row.period_end.isoformat(),
             'closed_through': row.closed_through.isoformat() if row.closed_through else None,
@@ -217,7 +217,7 @@ def propose_journal(user, book_id, value, _kind=None):
     request_hash = digest(value)
     existing = book.journals.filter(operation_id=operation).first()
     if existing:
-        require(existing.request_hash == request_hash, 'ledger_operation_conflict')
+        require(existing.request_hash == request_hash and existing.state != 'voided', 'ledger_operation_conflict')
         return entry_value(existing)
     dated = day(value['date'])
     require(book.period_start <= dated <= book.period_end, 'ledger_date_outside_period')
@@ -259,7 +259,7 @@ def propose_journal(user, book_id, value, _kind=None):
             moved_out = sum(right for account, _, _, right in lines if account.pk == bank)
             require((moved_in, moved_out) == ((row.amount_units, 0) if row.amount_units > 0 else (0, -row.amount_units)),
                     'import_account_mismatch')
-    require(not book.journals.filter(source_kind=value['source']['kind'], source_reference=reference).exists(),
+    require(not book.journals.exclude(state='voided').filter(source_kind=value['source']['kind'], source_reference=reference).exists(),
             'ledger_source_exists')
     # A line already settled by a match cannot also get an entry of its own.
     require(value['source']['kind'] != 'csv' or (str(row_id) not in _settled(book) and str(row_id) not in _duplicates(book)),
@@ -285,7 +285,7 @@ def journal_preview(user, book_id):
     _, book = owned(user, book_id)
     values = {a.pk: {**account_value(a), 'draft': [0, 0], 'posted': [0, 0]} for a in book.accounts.order_by('code')}
     # Python integers avoid SQLite SUM overflow and floating aggregate coercion.
-    for line in JournalLine.objects.filter(journal__book=book).select_related('journal').iterator(chunk_size=1000):
+    for line in JournalLine.objects.filter(journal__book=book).exclude(journal__state='voided').select_related('journal').iterator(chunk_size=1000):
         amounts = values[line.account_id][line.journal.state]
         amounts[0] += line.debit_units; amounts[1] += line.credit_units
     result = []
@@ -617,7 +617,7 @@ def _reversed(book):
 def _settled(book):
     """Each settled line's entry: the entry it produced, or the entry it was matched to. Reversed entries settle nothing."""
     undone = _reversed(book)
-    cited = {journal.source_reference: (journal, 'entry') for journal in book.journals.filter(source_kind='csv')
+    cited = {journal.source_reference: (journal, 'entry') for journal in book.journals.exclude(state='voided').filter(source_kind='csv')
              if str(journal.pk) not in undone}
     for match in SourceRowMatch.objects.filter(journal__book=book).select_related('journal').order_by('created_at'):
         if str(match.journal_id) not in undone:
@@ -691,7 +691,7 @@ def match_check(book, row_id, journal_id):
         row = None
     require(row is not None, 'import_row_not_found')
     try:
-        journal = book.journals.filter(pk=identity(journal_id)).first()
+        journal = book.journals.exclude(state='voided').filter(pk=identity(journal_id)).first()
     except (LedgerError, ValueError):
         journal = None
     require(journal is not None and journal.source_kind != 'reversal', 'ledger_not_found')
@@ -758,7 +758,7 @@ def match_candidates(user, book_id):
     entries = []
     undone = _reversed(book)
     journals = [(journal, list(journal.lines.all()), _taken(book, journal))
-                for journal in book.journals.exclude(source_kind='reversal').order_by('sequence')[:2000] if str(journal.pk) not in undone]
+                for journal in book.journals.exclude(source_kind='reversal').exclude(state='voided').order_by('sequence')[:2000] if str(journal.pk) not in undone]
     for row in pending:
         if str(row.pk) in paired:
             continue
@@ -936,6 +936,31 @@ def reverse_journal(user, book_id, journal_id, value):
                                                             'payload_hash': entry['payload_hash'], 'confirm': True})
 
 
+def discard_check(book, journal_id):
+    """A draft entry of this book that can be discarded. Read-only."""
+    try:
+        row = book.journals.filter(pk=identity(journal_id)).first()
+    except (LedgerError, ValueError):
+        row = None
+    require(row is not None, 'ledger_not_found')
+    require(row.state == 'draft', 'ledger_not_draft')
+    return row
+
+
+@guarded
+@transaction.atomic
+def discard_journal(user, book_id, journal_id, value):
+    """Discard a draft entry. It never posted, so no amounts change; the record stays, and its statement line or reference is free again."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision',))
+    row = discard_check(book, journal_id)
+    advance(book, value['expected_revision'])
+    require(Journal.objects.filter(pk=row.pk, state='draft').update(state='voided') == 1, 'ledger_not_draft')
+    event(book, user, 'journal.discard', row.pk, row.payload_hash)
+    return {'journal_id': str(row.pk), 'state': 'discarded'}
+
+
 @guarded
 @transaction.atomic
 def verify_book(user, book_id):
@@ -1084,7 +1109,7 @@ def account_activity(user, book_id, account_id):
     sign = 1 if account.category in NORMAL_DEBIT else -1
     posted, pending = [], []
     balance = debit_total = credit_total = 0
-    lines = (JournalLine.objects.filter(journal__book=book, account=account).select_related('journal')
+    lines = (JournalLine.objects.filter(journal__book=book, account=account).exclude(journal__state='voided').select_related('journal')
              .order_by('journal__date', 'journal__sequence', 'position'))
     for line in lines.iterator(chunk_size=1000):
         journal = line.journal

@@ -7833,6 +7833,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "L03-DISCARD-DRAFT",
+      "risk": "A draft that cannot be removed lingers in working views, blocks its statement line and the period close; a discard that deletes records, touches posted entries or runs without approval would damage the books.",
+      "scenarios": [
+        {
+          "id": "L03-DISCARD-DRAFT.approved",
+          "kind": "positive",
+          "given": "A draft entry proposed from a statement line and a discard request showing its real lines",
+          "when": "The person approves the discard, and approves the same request again",
+          "then": "The draft leaves the journal list, pending totals and account activity, its statement line is pending again, the books advance one revision with a journal.discard event, the entry and its lines stay stored as voided, the integrity check is clean and the repeat changes nothing.",
+          "tests": [
+            "tests.test_discard_draft.DiscardDraftTests.test_an_approved_discard_removes_the_draft_from_working_views_and_frees_its_statement_line"
+          ]
+        },
+        {
+          "id": "L03-DISCARD-DRAFT.corrected-entry",
+          "kind": "positive",
+          "given": "A draft from a statement line booked to the wrong account, then discarded",
+          "when": "Propose a corrected entry from the same line and approve posting it",
+          "then": "The line accepts the new entry, which posts; the statements show only the corrected account and the journal list only the corrected entry.",
+          "tests": [
+            "tests.test_discard_draft.DiscardDraftTests.test_a_freed_statement_line_can_get_a_corrected_entry_that_posts"
+          ]
+        },
+        {
+          "id": "L03-DISCARD-DRAFT.no-longer-usable",
+          "kind": "negative",
+          "given": "A draft with a waiting post request that blocks closing the period, then discarded",
+          "when": "Approve the stale post request, confirm it directly, match a line to it, and close the period",
+          "then": "The stale post fails and the entry stays voided, direct confirmation and matching are refused, and the period then closes.",
+          "tests": [
+            "tests.test_discard_draft.DiscardDraftTests.test_a_discarded_draft_can_no_longer_be_posted_matched_or_block_closing_the_period"
+          ]
+        },
+        {
+          "id": "L03-DISCARD-DRAFT.refusals",
+          "kind": "negative",
+          "given": "A posted entry, an unknown or malformed id, extra payload fields, another user, and two requests for the same draft",
+          "when": "Request or approve each discard",
+          "then": "Posted, missing, malformed, padded and foreign requests are refused; the second approval fails as no longer a draft and a further request is refused; one entry is posted and one voided.",
+          "tests": [
+            "tests.test_discard_draft.DiscardDraftTests.test_posted_missing_foreign_and_repeated_discards_are_refused"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -262,6 +262,7 @@ def _tools():
         'statement.match {book_id,row_id,journal_id} to settle a pending statement row with an entry that already records the same movement on that row\'s bank account (the second side of a transfer), so it is not booked twice; no amounts change; '
         'statement.duplicate {book_id,row_id,of_row_id} to settle a pending statement row that repeats a row of ANOTHER statement of the same bank account (same date and amount), so it is not booked again; two rows of one statement are never duplicates; '
         'journal.post {book_id,journal_id,payload_hash} for a draft entry you proposed; '
+        'journal.discard {book_id,journal_id} to discard a DRAFT entry that should not be posted (wrong, or the person declined it); nothing was posted so no amounts change, the record is kept, and a statement row it came from becomes pending again so you can propose the corrected entry; '
         'journal.reverse {book_id,journal_id,date} to undo a POSTED entry by posting its exact opposite on that date (each entry reverses once; the original is kept); '
         'opening.balance {book_id,balances,control} to record starting balances on the first day of the book period: balances is a list of {account_id,debit,credit} with exactly one side above zero per account (not 3900), and control is {debit,credit}, the totals of those figures as stated in the source records; any difference between debits and credits goes to 3900 Opening balance equity and is shown to the person; one opening entry per book, reverse it to correct it; '
         'period.close {book_id,through} to lock the books through a date (no drafts may remain on or before it); '
@@ -270,7 +271,7 @@ def _tools():
         'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
         'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
-            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':

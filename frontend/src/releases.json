@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-79",
+    "label": "Development update 79",
+    "cards": [
+      {
+        "title": "Discard a draft entry",
+        "description": "A draft entry you do not want no longer lingers in your books. Ask Maipa to discard it, or Maipa will ask when you decline one. After you approve, the draft is set aside, nothing is posted, and the statement line it came from is free for the corrected entry."
+      }
+    ]
+  },
+  {
     "id": "development-78",
     "label": "Development update 78",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Mark your bank and cash accounts",
         "description": "Your books now know which accounts are bank accounts or cash on hand. Checking is marked for you; ask Maipa to mark a savings or cash account and approve it in one click. No amounts change."
-      }
-    ]
-  },
-  {
-    "id": "development-59",
-    "label": "Development update 59",
-    "cards": [
-      {
-        "title": "Maipa can show your accounts and entries",
-        "description": "Ask Maipa to show your chart of accounts, your journal entries or the history of one account. It opens them beside the chat, read straight from your books, so the figures are always the real ones."
       }
     ]
   }
