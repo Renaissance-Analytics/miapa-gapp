@@ -8190,6 +8190,56 @@
       "decision": "aligned",
       "reason": "Exact saved definition, pinned and available flags, each refused update and the unchanged collection asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C04-CASH-FLOW.attribution",
+      "test": "tests.test_cash_flow.CashFlowTests.test_cash_movements_are_attributed_exactly_to_the_other_accounts_of_each_posted_entry",
+      "scenario_sha256": "804adf2ed9385306aae10340073a44e02bf567e0e09e11367e9e237245f68bc4",
+      "source_sha256": "c3c3596f3de65b7fb9ecf3bf8af4f61e969bd2fc8c6d004d35e8b14fec1298ea",
+      "expected_observation": "Each cash account shows its opening and closing balance; cash moved is attributed exactly to the other accounts of each posted entry, the transfer, the unpaid bill and the draft move none, and received and paid are the positive and negative totals.",
+      "decision": "aligned",
+      "reason": "Exact per-account figures for both ranges asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C04-CASH-FLOW.reconciles",
+      "test": "tests.test_cash_flow.CashFlowTests.test_every_range_reconciles_opening_plus_movements_to_closing_and_to_the_balance_sheet",
+      "scenario_sha256": "9d943ce2af3a86595a0fa047a447aa1b59d2bcba0feceb51e759f3d43f8489d3",
+      "source_sha256": "c3c3596f3de65b7fb9ecf3bf8af4f61e969bd2fc8c6d004d35e8b14fec1298ea",
+      "expected_observation": "In every range the movements sum to the net change, opening plus the change equals closing, received plus paid equals the change, the accounts sum to closing cash and closing cash equals the marked accounts on the balance sheet; a repeated read is identical.",
+      "decision": "aligned",
+      "reason": "Each identity asserted in exact units for every range.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C04-CASH-FLOW.reversal-and-unmarked",
+      "test": "tests.test_cash_flow.CashFlowTests.test_reversals_cancel_and_books_without_a_marked_account_report_no_cash",
+      "scenario_sha256": "428ff595d1380fd4825a53108ec658955e8367ac997686d77a73fc06291d79c3",
+      "source_sha256": "c3c3596f3de65b7fb9ecf3bf8af4f61e969bd2fc8c6d004d35e8b14fec1298ea",
+      "expected_observation": "The reversed pair nets to no movement over the month and to equal and opposite amounts on its two days; with no marked account the cash flow is empty and all zero rather than guessed.",
+      "decision": "aligned",
+      "reason": "Exact empty structure and day figures asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C04-CASH-FLOW.scope",
+      "test": "tests.test_cash_flow.CashFlowTests.test_comparisons_keep_their_shape_and_foreign_readers_and_bad_ranges_are_refused",
+      "scenario_sha256": "46ffce630375d4c84ffde16e4ade10e03de5f4d4a4a991c244becd8dc23e730e",
+      "source_sha256": "c3c3596f3de65b7fb9ecf3bf8af4f61e969bd2fc8c6d004d35e8b14fec1298ea",
+      "expected_observation": "The requested range carries its cash flow and the comparison keeps its existing shape; every bad range and the foreign reader are refused.",
+      "decision": "aligned",
+      "reason": "Comparison keys and each refusal asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C04-CASH-FLOW.surfaces",
+      "test": "tests.test_cash_flow.CashFlowTests.test_http_and_the_agent_tool_return_the_same_cash_flow",
+      "scenario_sha256": "8be91a1546fac1bfd6078870b19dff0389b32a07530006c72f75c25dbef1456e",
+      "source_sha256": "c3c3596f3de65b7fb9ecf3bf8af4f61e969bd2fc8c6d004d35e8b14fec1298ea",
+      "expected_observation": "Both return the service cash flow, with the exact net change.",
+      "decision": "aligned",
+      "reason": "HTTP body equality and the tool figure asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

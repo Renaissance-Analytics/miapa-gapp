@@ -172,8 +172,11 @@ const lines = (rows: ReportRow[], empty: string) => rows.length
 const total = (label: string, amount: string) => <Table.Row key={label} data-report-total={label}><Table.Cell><strong>{label}</strong></Table.Cell>
   <Table.Cell><strong>{displaySigned(amount)}</strong></Table.Cell></Table.Row>;
 
+const cashLine = (label: string, amount: string, strong = false) => <Table.Row key={label} data-cash-total={label}>
+  <Table.Cell>{strong ? <strong>{label}</strong> : label}</Table.Cell><Table.Cell>{strong ? <strong>{displaySigned(amount)}</strong> : displaySigned(amount)}</Table.Cell></Table.Row>;
+
 export function ReportView({ report }: { report: FinancialReport }) {
-  const i = report.income_statement, b = report.balance_sheet;
+  const i = report.income_statement, b = report.balance_sheet, c = report.cash_flow;
   return <div data-report-from={report.from} data-report-to={report.to} data-net-income={i.net_income} data-total-assets={b.total_assets} data-book-revision={report.revision}>
     <p>Income statement · {report.from} to {report.to} · {report.currency}</p>
     <Table aria-label="Income statement">
@@ -194,6 +197,19 @@ export function ReportView({ report }: { report: FinancialReport }) {
         {total('Total liabilities and equity', b.total_liabilities_and_equity)}
       </Table.Body>
     </Table>
+    <p>Cash flow · {report.from} to {report.to} · {report.currency}</p>
+    {c.accounts.length === 0 ? <Callout color="blue" data-cash-flow="unmarked">No account is marked as a bank account or cash on hand yet, so there is no cash flow to show.</Callout>
+      : <Table aria-label="Cash flow" data-cash-flow="shown" data-net-cash={c.net_change} data-closing-cash={c.closing_cash}>
+        {head(['Bank and cash', 'Amount'])}
+        <Table.Body>
+          {cashLine('Cash at the start', c.opening_cash, true)}
+          {c.movements.map(item => <Table.Row key={item.id} data-cash-movement={item.code}><Table.Cell>{item.code} · {item.name}</Table.Cell><Table.Cell>{displaySigned(item.amount)}</Table.Cell></Table.Row>)}
+          {c.movements.length === 0 && <Table.Row><Table.Cell>No cash moved in this period.</Table.Cell><Table.Cell /></Table.Row>}
+          {cashLine('Cash received', c.received)}{cashLine('Cash paid', c.paid)}{cashLine('Change in cash', c.net_change, true)}
+          {c.accounts.map(item => <Table.Row key={item.id} data-cash-account={item.code}><Table.Cell>{item.code} · {item.name} at the end</Table.Cell><Table.Cell>{displaySigned(item.closing)}</Table.Cell></Table.Row>)}
+          {cashLine('Cash at the end', c.closing_cash, true)}
+        </Table.Body>
+      </Table>}
     {report.pending_count > 0 && <p>{report.pending_count} pending {report.pending_count === 1 ? 'entry is' : 'entries are'} not included.</p>}
   </div>;
 }

@@ -7767,6 +7767,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C04-CASH-FLOW",
+      "risk": "A cash flow that does not reconcile to the bank and cash balances, counts transfers or unpaid bills as cash, or includes drafts would misstate where money went.",
+      "scenarios": [
+        {
+          "id": "C04-CASH-FLOW.attribution",
+          "kind": "positive",
+          "given": "Books with two marked cash accounts, an owner contribution, sales, a transfer between the cash accounts, a paid expense, a purchase part paid and part owed, an unpaid bill, a draft and a later payment",
+          "when": "Read the report for March and for the year",
+          "then": "Each cash account shows its opening and closing balance; cash moved is attributed exactly to the other accounts of each posted entry, the transfer, the unpaid bill and the draft move none, and received and paid are the positive and negative totals.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_cash_movements_are_attributed_exactly_to_the_other_accounts_of_each_posted_entry"
+          ]
+        },
+        {
+          "id": "C04-CASH-FLOW.reconciles",
+          "kind": "positive",
+          "given": "The same books and five different date ranges including a single day",
+          "when": "Read each report",
+          "then": "In every range the movements sum to the net change, opening plus the change equals closing, received plus paid equals the change, the accounts sum to closing cash and closing cash equals the marked accounts on the balance sheet; a repeated read is identical.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_every_range_reconciles_opening_plus_movements_to_closing_and_to_the_balance_sheet"
+          ]
+        },
+        {
+          "id": "C04-CASH-FLOW.reversal-and-unmarked",
+          "kind": "negative",
+          "given": "A paid expense reversed the next day, then the only cash account unmarked and a sale posted",
+          "when": "Read the month, each day, and the month again",
+          "then": "The reversed pair nets to no movement over the month and to equal and opposite amounts on its two days; with no marked account the cash flow is empty and all zero rather than guessed.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_reversals_cancel_and_books_without_a_marked_account_report_no_cash"
+          ]
+        },
+        {
+          "id": "C04-CASH-FLOW.scope",
+          "kind": "negative",
+          "given": "A comparison request, reversed, out-of-period and malformed ranges, and a user who does not own the books",
+          "when": "Read the report",
+          "then": "The requested range carries its cash flow and the comparison keeps its existing shape; every bad range and the foreign reader are refused.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_comparisons_keep_their_shape_and_foreign_readers_and_bad_ranges_are_refused"
+          ]
+        },
+        {
+          "id": "C04-CASH-FLOW.surfaces",
+          "kind": "positive",
+          "given": "The same books read over HTTP as the owner and through the agent report tool",
+          "when": "Request March",
+          "then": "Both return the service cash flow, with the exact net change.",
+          "tests": [
+            "tests.test_cash_flow.CashFlowTests.test_http_and_the_agent_tool_return_the_same_cash_flow"
+          ]
+        }
+      ]
     }
   ]
 }

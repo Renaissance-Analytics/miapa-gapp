@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-57",
+    "label": "Development update 57",
+    "cards": [
+      {
+        "title": "Maipa can check your books are sound",
+        "description": "Ask Maipa whether your books are sound. It rechecks every entry: each one balances, nothing was altered after it was saved, posted entries have their posting record and reversals match their original. It reports anything it finds and changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-56",
     "label": "Development update 56",
     "cards": [

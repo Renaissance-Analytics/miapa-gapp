@@ -16,7 +16,9 @@ export interface StatementImport {id:string;book_id:string;filename:string;sha25
 /** Largest statement accepted by the server, in UTF-8 bytes. */
 export const MAX_STATEMENT_BYTES=524_288;
 export interface ReportRow extends LedgerAccount {amount:string}
-export interface FinancialReport {book_id:string;currency:string;revision:number;from:string;to:string;pending_count:number;
+export interface CashAccount extends LedgerAccount {opening:string;closing:string}
+export interface CashFlow {accounts:CashAccount[];opening_cash:string;closing_cash:string;net_change:string;received:string;paid:string;movements:ReportRow[]}
+export interface FinancialReport {book_id:string;currency:string;revision:number;from:string;to:string;pending_count:number;cash_flow:CashFlow;
  income_statement:{income:ReportRow[];expenses:ReportRow[];total_income:string;total_expenses:string;net_income:string};
  balance_sheet:{as_of:string;assets:ReportRow[];liabilities:ReportRow[];equity:ReportRow[];total_assets:string;total_liabilities:string;total_equity:string;earnings_to_date:string;total_liabilities_and_equity:string}}
 export interface JournalInput {operation_id:string;expected_revision:number;date:string;description:string;source:{kind:'manual';reference:string};evidence:string[];lines:LedgerLine[]}
@@ -61,9 +63,21 @@ export function parseSourceRows(v:unknown,bookId:string):SourceRows{
  return v as unknown as SourceRows;
 }
 const reportRows=(v:unknown,category:string):v is ReportRow[]=>Array.isArray(v)&&v.length<=1000&&v.every(r=>object(r)&&exact(r,['id','code','name','category','amount',...('cash' in r?['cash']:[])])&&account({id:r.id,code:r.code,name:r.name,category:r.category,...('cash' in r?{cash:r.cash}:{})})&&r.category===category&&signed(r.amount));
-/** A report is accepted only for this book and range, and only when the balance sheet balances. */
+/** Cash flow is accepted only when opening plus the movements equals closing, account by account and in total. */
+function cashFlowOk(v:unknown):v is CashFlow{
+ if(!object(v)||!exact(v,['accounts','opening_cash','closing_cash','net_change','received','paid','movements'])||![v.opening_cash,v.closing_cash,v.net_change,v.received,v.paid].every(signed))return false;
+ const row=(r:unknown,extra:string[]):r is Record<string,unknown>=>object(r)&&exact(r,['id','code','name','category','cash',...extra])&&account({id:r.id,code:r.code,name:r.name,category:r.category,cash:r.cash});
+ if(!Array.isArray(v.accounts)||v.accounts.length>1000||!v.accounts.every(a=>row(a,['opening','closing'])&&a.category==='asset'&&a.cash===true&&signed(a.opening)&&signed(a.closing)))return false;
+ if(!Array.isArray(v.movements)||v.movements.length>1000||!v.movements.every(m=>row(m,['amount'])&&m.cash===false&&signed(m.amount)&&m.amount!=='0.0000'))return false;
+ const sum=(values:unknown[])=>values.reduce<bigint>((n,x)=>n+units(x as string),0n),moved=v.movements.map(m=>(m as ReportRow).amount);
+ const net=units(v.net_change as string),flag=new Set([...v.accounts,...v.movements].map(r=>(r as LedgerAccount).id)).size===v.accounts.length+v.movements.length;
+ return flag&&sum(moved)===net&&units(v.opening_cash as string)+net===units(v.closing_cash as string)&&units(v.received as string)+units(v.paid as string)===net
+  &&sum(moved.filter(x=>!x.startsWith('-')))===units(v.received as string)&&sum(v.accounts.map(a=>(a as CashAccount).closing))===units(v.closing_cash as string)
+  &&sum(v.accounts.map(a=>(a as CashAccount).opening))===units(v.opening_cash as string);
+}
+/** A report is accepted only for this book and range, and only when the balance sheet balances and the cash flow reconciles. */
 export function parseFinancialReport(v:unknown,bookId:string,from:string,to:string):FinancialReport{
- if(!object(v)||!exact(v,['book_id','currency','revision','from','to','income_statement','balance_sheet','pending_count'])||v.book_id!==bookId||v.from!==from||v.to!==to||!currency(v.currency)||!integer(v.revision)||!integer(v.pending_count))throw unavailable();
+ if(!object(v)||!exact(v,['book_id','currency','revision','from','to','income_statement','balance_sheet','cash_flow','pending_count'])||!cashFlowOk(v.cash_flow)||v.book_id!==bookId||v.from!==from||v.to!==to||!currency(v.currency)||!integer(v.revision)||!integer(v.pending_count))throw unavailable();
  const i=v.income_statement,b=v.balance_sheet;
  if(!object(i)||!exact(i,['income','expenses','total_income','total_expenses','net_income'])||!reportRows(i.income,'income')||!reportRows(i.expenses,'expense')||![i.total_income,i.total_expenses,i.net_income].every(signed))throw unavailable();
  if(!object(b)||!exact(b,['as_of','assets','liabilities','equity','total_assets','total_liabilities','total_equity','earnings_to_date','total_liabilities_and_equity'])||b.as_of!==to||!reportRows(b.assets,'asset')||!reportRows(b.liabilities,'liability')||!reportRows(b.equity,'equity')||![b.total_assets,b.total_liabilities,b.total_equity,b.earnings_to_date,b.total_liabilities_and_equity].every(signed)||b.total_assets!==b.total_liabilities_and_equity)throw unavailable();

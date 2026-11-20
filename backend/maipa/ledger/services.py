@@ -796,12 +796,14 @@ def _statements(book, accounts, start, end):
     require(book.period_start <= start <= end <= book.period_end, 'ledger_date_outside_period')
     in_range = dict.fromkeys(accounts, 0)   # debit minus credit inside the range
     to_date = dict.fromkeys(accounts, 0)    # debit minus credit up to the end date
+    entries = {}                            # lines of each entry inside the range, for the cash flow
     lines = JournalLine.objects.filter(journal__book=book, journal__state='posted', journal__date__lte=end).select_related('journal')
     for line in lines.iterator(chunk_size=1000):
         net = line.debit_units - line.credit_units
         to_date[line.account_id] += net
         if line.journal.date >= start:
             in_range[line.account_id] += net
+            entries.setdefault(line.journal_id, []).append((line.account_id, net))
 
     def section(category, source, sign):
         rows = [(a, sign * source[pk]) for pk, a in accounts.items() if a.category == category and source[pk] != 0]
@@ -818,7 +820,26 @@ def _statements(book, accounts, start, end):
     totals = {'total_income': total_income, 'total_expenses': total_expenses, 'net_income': total_income - total_expenses,
               'total_assets': total_assets, 'total_liabilities': total_liabilities, 'total_equity': total_equity,
               'earnings_to_date': earnings}
-    return {'from': start.isoformat(), 'to': end.isoformat(),
+    # Cash flow: an entry that touches a bank or cash account moves cash by exactly the opposite of its
+    # other lines, because the entry balances. Transfers between cash accounts and entries without cash move none.
+    cash = sorted((a for a in accounts.values() if a.cash), key=lambda a: a.code)
+    cash_ids = {a.pk for a in cash}
+    moved = dict.fromkeys(accounts, 0)
+    for parts in entries.values():
+        if any(pk in cash_ids for pk, _ in parts):
+            for pk, net in parts:
+                if pk not in cash_ids:
+                    moved[pk] -= net
+    movements = sorted(((accounts[pk], units) for pk, units in moved.items() if units != 0), key=lambda item: item[0].code)
+    closing = sum(to_date[a.pk] for a in cash)
+    change = sum(in_range[a.pk] for a in cash)
+    require(change == sum(units for _, units in movements), 'ledger_invariant_failed')
+    cash_flow = {'accounts': [{**account_value(a), 'opening': money(to_date[a.pk] - in_range[a.pk]), 'closing': money(to_date[a.pk])} for a in cash],
+                 'opening_cash': money(closing - change), 'closing_cash': money(closing), 'net_change': money(change),
+                 'received': money(sum(units for _, units in movements if units > 0)),
+                 'paid': money(sum(units for _, units in movements if units < 0)),
+                 'movements': [{**account_value(a), 'amount': money(units)} for a, units in movements]}
+    return {'from': start.isoformat(), 'to': end.isoformat(), 'cash_flow': cash_flow,
             'income_statement': {'income': income, 'expenses': expenses, 'total_income': money(total_income),
                                  'total_expenses': money(total_expenses), 'net_income': money(total_income - total_expenses)},
             'balance_sheet': {'as_of': end.isoformat(), 'assets': assets, 'liabilities': liabilities, 'equity': equity,
@@ -830,7 +851,7 @@ def _statements(book, accounts, start, end):
 @guarded
 @transaction.atomic
 def financial_report(user, book_id, value):
-    """Income statement for a date range and balance sheet as of its end, from posted entries only.
+    """Income statement and cash flow for a date range and balance sheet as of its end, from posted entries only.
 
     With compare_from and compare_to, also the same statements for that second range and the exact
     change in each total: the requested range minus the compared range.
@@ -845,6 +866,7 @@ def financial_report(user, book_id, value):
               'pending_count': book.journals.filter(state='draft').count()}
     if compared:
         other, other_totals = _statements(book, accounts, day(value['compare_from']), day(value['compare_to']))
+        other.pop('cash_flow')              # The comparison covers the income statement and balance sheet only.
         result['comparison'] = {**other, 'change': {key: money(totals[key] - other_totals[key]) for key in totals}}
     return result
 
