@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-60",
+    "label": "Development update 60",
+    "cards": [
+      {
+        "title": "Mark your bank and cash accounts",
+        "description": "Your books now know which accounts are bank accounts or cash on hand. Checking is marked for you; ask Maipa to mark a savings or cash account and approve it in one click. No amounts change."
+      }
+    ]
+  },
+  {
     "id": "development-59",
     "label": "Development update 59",
     "cards": [

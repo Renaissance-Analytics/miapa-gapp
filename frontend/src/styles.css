@@ -297,3 +297,4 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .approvals { display: grid; gap: 8px; padding: 10px 0; border-top: 1px solid var(--border); }
 .approval-group { display: grid; gap: 6px; }
 .approval-batch-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chat-archived{margin:0;padding:.25rem .75rem;font-size:.8rem;opacity:.75;text-align:center}

@@ -87,6 +87,26 @@ def conversation(request):
         return error('invalid_request', 400)
 
 
+def earlier(request):
+    _, denied = authorize(request, 'agent.transport.check')
+    if denied is not None:
+        return denied
+    if request.headers.get('X-Maipa-Agent-Actor') != str(request.user.pk):
+        return error('actor_changed', 409)
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    try:
+        if set(request.GET) != {'offset'} or not request.GET['offset'].isascii() or not request.GET['offset'].isdigit() or len(request.GET['offset']) > 7:
+            raise ValueError('Invalid request')
+        response = JsonResponse(chat.earlier(request.user, int(request.GET['offset'])))
+        response['Cache-Control'] = 'no-store'
+        return response
+    except chat.ChatUnavailable:
+        return error('conversation_unavailable', 503)
+    except ValueError:
+        return error('invalid_request', 400)
+
+
 def stream(request):
     denied = _guard(request)
     if denied is not None:

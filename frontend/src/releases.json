@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-80",
+    "label": "Development update 80",
+    "cards": [
+      {
+        "title": "Long conversations keep working",
+        "description": "A conversation used to stop accepting messages once it grew very long. Now the oldest messages move to a stored archive and you can keep talking to Maipa. Nothing is deleted. A line above the conversation says how many earlier messages are stored; viewing them in the app is not available yet."
+      }
+    ]
+  },
+  {
     "id": "development-79",
     "label": "Development update 79",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Statements belong to a bank account",
         "description": "When you import a bank statement, Maipa now records which bank account it is from. Entries made from its rows must move that account by the exact amount, in the right direction, so money in can never be booked as money out."
-      }
-    ]
-  },
-  {
-    "id": "development-60",
-    "label": "Development update 60",
-    "cards": [
-      {
-        "title": "Mark your bank and cash accounts",
-        "description": "Your books now know which accounts are bank accounts or cash on hand. Checking is marked for you; ask Maipa to mark a savings or cash account and approve it in one click. No amounts change."
       }
     ]
   }
