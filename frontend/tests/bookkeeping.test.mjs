@@ -92,13 +92,13 @@ test('books carry an optional close date and reject a malformed one', () => {
 test('financial statements are accepted only for this book and range and only when they balance', async () => {
   const row = (n, code, name, category, amount) => ({ id: id(n), code, name, category, amount });
   const report = { book_id: id(1), currency: 'USD', revision: 3, from: '2026-03-01', to: '2026-03-31', pending_count: 1,
-    cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [] },
+    cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [], bridge: { net_income: '350.3000', not_in_cash: '-350.3000', other_accounts: '0.0000', net_change: '0.0000' } },
     income_statement: { income: [row(20, '4000', 'Sales', 'income', '1250.5000')], expenses: [row(21, '6200', 'Office expenses', 'expense', '900.2000')],
       total_income: '1250.5000', total_expenses: '900.2000', net_income: '350.3000' },
     balance_sheet: { as_of: '2026-03-31', assets: [row(22, '1000', 'Checking', 'asset', '350.3000')], liabilities: [], equity: [],
       total_assets: '350.3000', total_liabilities: '0.0000', total_equity: '0.0000', earnings_to_date: '350.3000', total_liabilities_and_equity: '350.3000' } };
   assert.deepEqual(parseFinancialReport(structuredClone(report), id(1), '2026-03-01', '2026-03-31'), report);
-  const loss = structuredClone(report); loss.income_statement.net_income = '-12.5000';
+  const loss = structuredClone(report); loss.income_statement.net_income = '-12.5000'; Object.assign(loss.cash_flow.bridge, { net_income: '-12.5000', not_in_cash: '12.5000' });
   assert.equal(parseFinancialReport(loss, id(1), '2026-03-01', '2026-03-31').income_statement.net_income, '-12.5000');
   const unbalanced = structuredClone(report); unbalanced.balance_sheet.total_liabilities_and_equity = '350.0000';
   const wrongCategory = structuredClone(report); wrongCategory.income_statement.income[0].category = 'expense';
@@ -128,7 +128,7 @@ test('accounts may carry a bank-or-cash flag only as a boolean and only on asset
 test('report and activity rows accept the server bank-or-cash flag and still refuse unknown fields', () => {
   const row = (n, code, name, category, amount, extra = {}) => ({ id: id(n), code, name, category, cash: false, amount, ...extra });
   const report = { book_id: id(1), currency: 'USD', revision: 3, from: '2026-03-01', to: '2026-03-31', pending_count: 0,
-    cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [] },
+    cash_flow: { accounts: [], opening_cash: '0.0000', closing_cash: '0.0000', net_change: '0.0000', received: '0.0000', paid: '0.0000', movements: [], bridge: { net_income: '350.3000', not_in_cash: '-350.3000', other_accounts: '0.0000', net_change: '0.0000' } },
     income_statement: { income: [row(20, '4000', 'Sales', 'income', '350.3000')], expenses: [], total_income: '350.3000', total_expenses: '0.0000', net_income: '350.3000' },
     balance_sheet: { as_of: '2026-03-31', assets: [row(22, '1000', 'Checking', 'asset', '350.3000', { cash: true })], liabilities: [], equity: [],
       total_assets: '350.3000', total_liabilities: '0.0000', total_equity: '0.0000', earnings_to_date: '350.3000', total_liabilities_and_equity: '350.3000' } };

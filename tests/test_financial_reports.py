@@ -90,12 +90,14 @@ class FinancialReportTests(TestCase):
         march, february = self.report('2026-03-01', '2026-03-31'), self.report('2026-02-01', '2026-02-28')
         self.assertEqual({key: both[key] for key in march}, march)
         other = both['comparison']
-        self.assertEqual(set(other), {'from', 'to', 'income_statement', 'balance_sheet', 'change'})
+        self.assertEqual(set(other), {'from', 'to', 'income_statement', 'balance_sheet', 'cash_flow', 'change'})
+        self.assertEqual(other['cash_flow'], february['cash_flow'])
         self.assertEqual((other['from'], other['to']), ('2026-02-01', '2026-02-28'))
         self.assertEqual((other['income_statement'], other['balance_sheet']), (february['income_statement'], february['balance_sheet']))
         self.assertEqual((other['income_statement']['net_income'], other['balance_sheet']['total_assets']), ('1250.5000', '6250.5000'))
         self.assertEqual(other['change'], {'total_income': '-1250.5000', 'total_expenses': '900.3000', 'net_income': '-2150.8000',
-            'total_assets': '-900.1000', 'total_liabilities': '0.2000', 'total_equity': '0.0000', 'earnings_to_date': '-900.3000'})
+            'total_assets': '-900.1000', 'total_liabilities': '0.2000', 'total_equity': '0.0000', 'earnings_to_date': '-900.3000',
+            'net_cash_change': '-2150.6000'})
         same = self.compare('2026-03-01', '2026-03-31', '2026-03-01', '2026-03-31')['comparison']['change']
         self.assertEqual(set(same.values()), {'0.0000'})
 

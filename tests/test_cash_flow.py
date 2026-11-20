@@ -63,7 +63,7 @@ class CashFlowTests(TestCase):
     def test_cash_movements_are_attributed_exactly_to_the_other_accounts_of_each_posted_entry(self):
         self.story()
         march = self.flow('2026-03-01', '2026-03-31')
-        self.assertEqual(set(march), {'accounts', 'opening_cash', 'closing_cash', 'net_change', 'received', 'paid', 'movements'})
+        self.assertEqual(set(march), {'accounts', 'opening_cash', 'closing_cash', 'net_change', 'received', 'paid', 'movements', 'bridge'})
         self.assertEqual([(a['code'], a['name'], a['opening'], a['closing']) for a in march['accounts']],
                          [('1000', 'Checking', '6250.5000', '4320.4000'), ('1010', 'Savings', '0.0000', '400.0000')])
         self.assertEqual((march['opening_cash'], march['closing_cash'], march['net_change']), ('6250.5000', '4720.4000', '-1530.1000'))
@@ -94,6 +94,23 @@ class CashFlowTests(TestCase):
         again = services.financial_report(self.user, self.book['id'], {'from': '2026-03-01', 'to': '2026-03-31'})
         self.assertEqual(again, services.financial_report(self.user, self.book['id'], {'from': '2026-03-01', 'to': '2026-03-31'}))
 
+    def test_the_bridge_explains_exactly_why_cash_changed_by_a_different_amount_than_profit(self):
+        self.story()
+        units = lambda value: int(value.replace('.', ''))
+        march = services.financial_report(self.user, self.book['id'], {'from': '2026-03-01', 'to': '2026-03-31'})
+        # A loss of 830.30; the 0.20 bill is not paid yet; 700.00 more went on equipment less what is still owed for it.
+        self.assertEqual(march['cash_flow']['bridge'], {'net_income': '-830.3000', 'not_in_cash': '0.2000', 'other_accounts': '-700.0000', 'net_change': '-1530.1000'})
+        year = services.financial_report(self.user, self.book['id'], {'from': '2026-01-01', 'to': '2026-12-31'})
+        self.assertEqual(year['cash_flow']['bridge'], {'net_income': '420.2000', 'not_in_cash': '0.2000', 'other_accounts': '4200.0000', 'net_change': '4620.4000'})
+        for start, end in (('2026-01-01', '2026-01-31'), ('2026-02-01', '2026-03-09'), ('2026-03-10', '2026-03-10'), ('2026-03-20', '2026-03-20'), ('2026-04-01', '2026-12-31')):
+            report = services.financial_report(self.user, self.book['id'], {'from': start, 'to': end})
+            bridge = report['cash_flow']['bridge']
+            self.assertEqual(bridge['net_income'], report['income_statement']['net_income'], (start, end))
+            self.assertEqual(bridge['net_change'], report['cash_flow']['net_change'], (start, end))
+            self.assertEqual(units(bridge['net_income']) + units(bridge['not_in_cash']) + units(bridge['other_accounts']), units(bridge['net_change']), (start, end))
+        unpaid = services.financial_report(self.user, self.book['id'], {'from': '2026-03-20', 'to': '2026-03-20'})['cash_flow']['bridge']
+        self.assertEqual(unpaid, {'net_income': '-0.2000', 'not_in_cash': '0.2000', 'other_accounts': '0.0000', 'net_change': '0.0000'})
+
     def test_reversals_cancel_and_books_without_a_marked_account_report_no_cash(self):
         paid = self.entry('2026-03-03', [('6200', '900', '0'), ('1000', '0', '900')])
         services.reverse_journal(self.user, self.book['id'], paid['id'], {'expected_revision': self.revision(), 'date': '2026-03-04'})
@@ -103,13 +120,16 @@ class CashFlowTests(TestCase):
         services.set_account_cash(self.user, self.book['id'], self.accounts['1000'], {'expected_revision': self.revision(), 'cash': False})
         self.entry('2026-03-15', [('1000', '70', '0'), ('4000', '0', '70')])
         self.assertEqual(self.flow('2026-03-01', '2026-03-31'),
-                         {'accounts': [], 'opening_cash': '0.0000', 'closing_cash': '0.0000', 'net_change': '0.0000', 'received': '0.0000', 'paid': '0.0000', 'movements': []})
+                         {'accounts': [], 'opening_cash': '0.0000', 'closing_cash': '0.0000', 'net_change': '0.0000', 'received': '0.0000', 'paid': '0.0000', 'movements': [],
+                          'bridge': {'net_income': '70.0000', 'not_in_cash': '-70.0000', 'other_accounts': '0.0000', 'net_change': '0.0000'}})
 
     def test_comparisons_keep_their_shape_and_foreign_readers_and_bad_ranges_are_refused(self):
         self.story()
         both = services.financial_report(self.user, self.book['id'], {'from': '2026-03-01', 'to': '2026-03-31', 'compare_from': '2026-02-01', 'compare_to': '2026-02-28'})
         self.assertEqual(both['cash_flow'], self.flow('2026-03-01', '2026-03-31'))
-        self.assertEqual(set(both['comparison']), {'from', 'to', 'income_statement', 'balance_sheet', 'change'})
+        self.assertEqual(set(both['comparison']), {'from', 'to', 'income_statement', 'balance_sheet', 'cash_flow', 'change'})
+        self.assertEqual(both['comparison']['cash_flow'], self.flow('2026-02-01', '2026-02-28'))
+        self.assertEqual((both['comparison']['cash_flow']['net_change'], both['comparison']['change']['net_cash_change']), ('1250.5000', '-2780.6000'))
         for start, end in (('2026-03-31', '2026-03-01'), ('2025-12-31', '2026-03-01'), ('March', '2026-03-31')):
             with self.assertRaises(services.LedgerError):
                 self.flow(start, end)

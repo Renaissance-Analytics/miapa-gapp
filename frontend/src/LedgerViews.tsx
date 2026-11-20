@@ -210,6 +210,15 @@ export function ReportView({ report }: { report: FinancialReport }) {
           {cashLine('Cash at the end', c.closing_cash, true)}
         </Table.Body>
       </Table>}
+    {c.accounts.length > 0 && <Table aria-label="From profit to cash" data-cash-bridge={c.bridge.net_change}>
+      {head(['Why cash changed differently from profit', 'Amount'])}
+      <Table.Body>
+        {cashLine(c.bridge.net_income.startsWith('-') ? 'Net loss' : 'Net income', c.bridge.net_income)}
+        {cashLine('Income and expenses not yet received or paid', c.bridge.not_in_cash)}
+        {cashLine('Cash moved by other accounts', c.bridge.other_accounts)}
+        {cashLine('Change in cash', c.bridge.net_change, true)}
+      </Table.Body>
+    </Table>}
     {report.pending_count > 0 && <p>{report.pending_count} pending {report.pending_count === 1 ? 'entry is' : 'entries are'} not included.</p>}
   </div>;
 }
