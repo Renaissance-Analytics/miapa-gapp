@@ -7879,6 +7879,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "P04-CONVERSATION-ARCHIVE",
+      "risk": "A persistent conversation that refuses messages once it is long leaves the person unable to work and silently drops approval outcomes; trimming it carelessly would lose or reorder the transcript or expose it to another user.",
+      "scenarios": [
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.rollover",
+          "kind": "positive",
+          "given": "A conversation holding 126 finished messages, the former hard limit",
+          "when": "Send the next message",
+          "then": "It is accepted and queued; the newest 60 earlier messages stay in order, the oldest 66 are stored in one archive segment in order, the state reports 66 archived, and archive plus transcript is every message once.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_a_full_conversation_accepts_the_next_message_and_archives_the_oldest_in_order"
+          ]
+        },
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.untouched",
+          "kind": "negative",
+          "given": "A conversation of 98 finished messages and another user with no conversation",
+          "when": "Send the next message",
+          "then": "Nothing is archived, the transcript is unchanged apart from the new message, and the other user sees no messages.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_a_short_conversation_is_left_alone_and_reports_no_archive"
+          ]
+        },
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.size",
+          "kind": "positive",
+          "given": "Twelve very large finished messages that exceed the size budget",
+          "when": "Send the next message",
+          "then": "The oldest are archived until the kept ones fit the size budget, at least two of the newest remain in order, and the archive holds exactly the rest.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_large_messages_are_archived_by_size_and_the_newest_are_always_kept"
+          ]
+        },
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.read-back",
+          "kind": "positive",
+          "given": "Two successive rollovers, another user, and malformed offsets",
+          "when": "Read earlier messages page by page",
+          "then": "Segments are stored at consecutive positions; pages return up to 50 archived messages counted back from the newest with the next offset, ending at the oldest; the other user gets nothing; malformed offsets are refused.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_repeated_rollovers_append_segments_and_earlier_messages_can_be_read_back_newest_first"
+          ]
+        },
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.no-rerun",
+          "kind": "negative",
+          "given": "A rolled-over conversation, the request id of an archived message, and a turn in progress",
+          "when": "Resend the archived request, and send during the turn",
+          "then": "The archived request is refused rather than run again, and a send during a running turn is refused with the transcript and archive unchanged.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_an_archived_request_is_not_run_again_and_an_unfinished_turn_is_never_archived"
+          ]
+        },
+        {
+          "id": "P04-CONVERSATION-ARCHIVE.http",
+          "kind": "negative",
+          "given": "The owner, a request without the actor header, malformed queries, a POST, and another signed-in user",
+          "when": "Read earlier messages over HTTP",
+          "then": "The owner receives exactly the service page uncached and the chat state reports the archived count; malformed queries get 400, a missing actor 409, POST 405, and the other user an empty archive.",
+          "tests": [
+            "tests.test_conversation_archive.ConversationArchiveTests.test_http_reads_earlier_messages_only_for_their_owner"
+          ]
+        }
+      ]
     }
   ]
 }

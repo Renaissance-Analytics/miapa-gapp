@@ -778,6 +778,16 @@
           "tests": [
             "agent-chat.test.mjs#reconnect reads current owned state starts only a stopped worker and preserves conflicts without retry"
           ]
+        },
+        {
+          "id": "A01-CHAT-CLIENT.archived-count",
+          "kind": "negative",
+          "given": "Chat states without an archive, with zero, with 66 archived messages, and with malformed counts",
+          "when": "Parse them and word the note",
+          "then": "Only a positive whole count is kept on the state; none and zero carry no count; malformed counts are refused; the note says how many earlier messages are stored and not shown, in singular and plural.",
+          "tests": [
+            "agent-chat.test.mjs#a long conversation reports how many earlier messages are stored, and only as a sane count"
+          ]
         }
       ]
     },

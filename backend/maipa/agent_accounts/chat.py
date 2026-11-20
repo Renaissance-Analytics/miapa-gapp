@@ -9,7 +9,7 @@ from django.db.models import F
 from django.utils import timezone
 
 from backend.maipa.workspace.models import Membership
-from .models import AgentAccount, ChatSelection, Conversation
+from .models import AgentAccount, ChatSelection, Conversation, ConversationArchive
 from .providers import descriptor, registrations
 from .ui import UiUnavailable, ui_snapshot
 from .references import _binding, ReferenceUnavailable
@@ -93,7 +93,7 @@ def _state(actor, row, *, refresh_stale_ui=False):
         'available': bool(item and item['available'])}
     extra = {'connection': connection, 'providers': registrations(), 'failure': read_failure(row.failure) if row else None}
     if row is None:
-        return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'ui': None, **extra}
+        return {'id': None, 'revision': 0, 'phase': 'offline', 'messages': [], 'archived': 0, 'ui': None, **extra}
     ui = None
     if row.ui_id:
         try:
@@ -107,7 +107,54 @@ def _state(actor, row, *, refresh_stale_ui=False):
     # Connect must not invite a second consumer while cleanup is in progress.
     phase = 'stopping' if row.worker and row.phase == 'unavailable' else row.phase
     return {'id': str(row.pk), 'revision': row.revision, 'phase': phase,
-            'messages': row.messages, 'ui': ui, **extra}
+            'messages': row.messages, 'archived': _archived(row), 'ui': ui, **extra}
+
+
+ARCHIVE_AT, ARCHIVE_AT_BYTES = 100, 131072     # A transcript this long, or this large, is trimmed before the next message.
+KEEP, KEEP_BYTES = 60, 65536                   # What stays in the live transcript afterwards; at least two messages.
+
+
+def _size(messages):
+    return len(json.dumps(messages).encode())
+
+
+def _archived(row):
+    return sum(ConversationArchive.objects.filter(conversation=row).values_list('count', flat=True))
+
+
+def _archive_older(row, text):
+    """Move the oldest finished messages to the archive, in order, so a long conversation keeps accepting messages.
+
+    Called only while no turn is running. Nothing is deleted: archive plus live transcript is every message once.
+    """
+    if len(row.messages) < ARCHIVE_AT and _size(row.messages) + len(text.encode()) <= ARCHIVE_AT_BYTES:
+        return
+    keep = len(row.messages)
+    while keep > KEEP or (keep > 2 and _size(row.messages[-keep:]) > KEEP_BYTES):
+        keep -= 1
+    moved = row.messages[:len(row.messages) - keep]
+    if not moved or any(message.get('state') in ('queued', 'streaming') for message in moved):
+        return
+    ConversationArchive.objects.create(conversation=row, user_id=row.user_id, position=_archived(row), count=len(moved), messages=moved)
+    row.messages = row.messages[len(moved):]
+
+
+def earlier(actor, offset):
+    """Archived messages of the actor's own conversation: up to 50, counted back from the newest archived one."""
+    if type(offset) is not int or not 0 <= offset <= 1_000_000:
+        raise ValueError('Invalid offset')
+    authority(actor)
+    account = _account(actor)
+    row = _conversation(actor, account) if account else None
+    if row is None:
+        return {'total': 0, 'messages': [], 'next': None}
+    segments = list(ConversationArchive.objects.filter(conversation=row, user_id=actor.pk).order_by('position'))
+    total = sum(segment.count for segment in segments)
+    end = max(total - offset, 0)
+    start = max(end - 50, 0)
+    messages = [message for segment in segments if segment.position < end and segment.position + segment.count > start
+                for index, message in enumerate(segment.messages, segment.position) if start <= index < end]
+    return {'total': total, 'messages': messages, 'next': offset + 50 if start > 0 else None}
 
 
 def _conversation(actor, account, *, create=False):
@@ -206,6 +253,7 @@ def send(actor, revision, request_id, text, *, session_key=None, selection_revis
         if (failure and failure['kind'] == 'rate_limit'
                 and failure.get('resets_at_ms', 0) > int(timezone.now().timestamp() * 1000)):
             raise ChatCooldown('Provider usage limit active')
+        _archive_older(row, text)
         if len(row.messages) >= 126 or len(json.dumps(row.messages).encode()) + len(text.encode()) > 196608:
             raise ChatUnavailable('Conversation storage limit reached')
         row.messages.append({'id': request_id, 'role': 'user', 'text': text, 'state': 'queued'})

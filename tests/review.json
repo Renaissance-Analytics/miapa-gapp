@@ -8290,6 +8290,66 @@
       "decision": "aligned",
       "reason": "Exact refusal codes and final stored states asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.rollover",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_a_full_conversation_accepts_the_next_message_and_archives_the_oldest_in_order",
+      "scenario_sha256": "af5975777f4534f33187fd7b88770ce8d52f346e1ca2cb477f845e24bf7b0c8a",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "It is accepted and queued; the newest 60 earlier messages stay in order, the oldest 66 are stored in one archive segment in order, the state reports 66 archived, and archive plus transcript is every message once.",
+      "decision": "aligned",
+      "reason": "Exact counts, order, stored segment and completeness asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.untouched",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_a_short_conversation_is_left_alone_and_reports_no_archive",
+      "scenario_sha256": "0e6ebe6899905d3bcf2232323d6fa5ee299a67e3088b82992872cf64fc1df089",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "Nothing is archived, the transcript is unchanged apart from the new message, and the other user sees no messages.",
+      "decision": "aligned",
+      "reason": "Exact transcript, zero archive count and isolation asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.size",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_large_messages_are_archived_by_size_and_the_newest_are_always_kept",
+      "scenario_sha256": "e3eba3847e5b0c1cd4588b96ee9e18a9e49af41b75430b1f49a16a84db84d05b",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "The oldest are archived until the kept ones fit the size budget, at least two of the newest remain in order, and the archive holds exactly the rest.",
+      "decision": "aligned",
+      "reason": "Kept suffix, size bound and archived prefix asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.read-back",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_repeated_rollovers_append_segments_and_earlier_messages_can_be_read_back_newest_first",
+      "scenario_sha256": "99b1abc013bbd5a219d0c09eab20c1842fcf46e5215ab145ce4b3dd7407c85d8",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "Segments are stored at consecutive positions; pages return up to 50 archived messages counted back from the newest with the next offset, ending at the oldest; the other user gets nothing; malformed offsets are refused.",
+      "decision": "aligned",
+      "reason": "Segment positions, page contents, next offsets, isolation and refusals asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.no-rerun",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_an_archived_request_is_not_run_again_and_an_unfinished_turn_is_never_archived",
+      "scenario_sha256": "1cb45673eeaf135d77d0e7f7b881e12546bdb53c61f68d065d03db58eb64f72e",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "The archived request is refused rather than run again, and a send during a running turn is refused with the transcript and archive unchanged.",
+      "decision": "aligned",
+      "reason": "Both refusals and the unchanged stored state asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "P04-CONVERSATION-ARCHIVE.http",
+      "test": "tests.test_conversation_archive.ConversationArchiveTests.test_http_reads_earlier_messages_only_for_their_owner",
+      "scenario_sha256": "8812eecf853fdb0350f7920ff75e52e87052e04043b84f845285f8b0563610a9",
+      "source_sha256": "a4d6266b62e2e8621f336a8d25f1cd9a17754f82301854a4099f17db252c7b40",
+      "expected_observation": "The owner receives exactly the service page uncached and the chat state reports the archived count; malformed queries get 400, a missing actor 409, POST 405, and the other user an empty archive.",
+      "decision": "aligned",
+      "reason": "Status codes, body equality, cache header and isolation asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

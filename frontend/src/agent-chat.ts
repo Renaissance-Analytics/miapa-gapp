@@ -10,7 +10,7 @@ export interface Composition { account_id: string; id: string; revision: number;
 export interface ProviderChoice { id: string; label: string; available: boolean }
 export interface ChatConnection { revision: number; account_id: string | null; provider: string | null; label: string | null; available: boolean }
 export interface ModelState { currentModelId: string | null; availableModels: { modelId: string; name: string }[] }
-export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; ui: Composition | null; failure?: TurnFailure | null; activity?: NativeFormActivity; workflow_activity?: WorkflowActivity;
+export interface ChatState { id: string | null; revision: number; phase: ChatPhase; messages: ChatMessage[]; archived?: number; ui: Composition | null; failure?: TurnFailure | null; activity?: NativeFormActivity; workflow_activity?: WorkflowActivity;
   connection: ChatConnection; providers: ProviderChoice[]; login?: { url: string; code?: string; accepts_code?: boolean }; models?: ModelState; }
 export const emptyChat = (): ChatState => ({ id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] });
@@ -98,10 +98,11 @@ export function compositionSchema(input: unknown): ScreenSchema {
 }
 
 export function parseChatState(v: unknown): ChatState {
-  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'ui', 'login', 'connection', 'providers', 'models', 'failure', 'activity','workflow_activity'])
+  if (!object(v) || !closed(v, ['id', 'revision', 'phase', 'messages', 'archived', 'ui', 'login', 'connection', 'providers', 'models', 'failure', 'activity','workflow_activity'])
     || (v.id !== null && !identifier(v.id)) || !Number.isSafeInteger(v.revision) || Number(v.revision) < 0
     || !['offline', 'connecting', 'sign_in', 'ready', 'thinking', 'stopping', 'unavailable'].includes(String(v.phase))
-    || !Array.isArray(v.messages) || v.messages.length > 128) return fail();
+    || !Array.isArray(v.messages) || v.messages.length > 128
+    || ('archived' in v && (!Number.isSafeInteger(v.archived) || Number(v.archived) < 0 || Number(v.archived) > 10_000_000))) return fail();
   const c = v.connection;
   if (!object(c) || !closed(c, ['revision', 'account_id', 'provider', 'label', 'available'])
     || !Number.isSafeInteger(c.revision) || Number(c.revision) < 0 || typeof c.available !== 'boolean'
@@ -178,7 +179,7 @@ export function parseChatState(v: unknown): ChatState {
     if (!ui || !['ready','thinking'].includes(String(v.phase))) return fail();
     workflow_activity=parseWorkflowActivity(v.workflow_activity,ui.id);
   }
-  return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ui,
+  return { id: v.id as string | null, revision: Number(v.revision), phase: v.phase as ChatPhase, messages, ...(Number(v.archived) > 0 ? { archived: Number(v.archived) } : {}), ui,
     connection, providers, ...(login ? { login } : {}), ...(models ? { models } : {}), ...(activity ? {activity} : {}), ...(workflow_activity?{workflow_activity}:{}), ...('failure' in v ? {failure} : {}) };
 }
 

@@ -82,6 +82,7 @@ urlpatterns = [
     path("api/agent/accounts/", agent_accounts.accounts, name="agent-accounts"),
     path('api/agent/chat/', chat_views.conversation, name='agent-chat'),
     path('api/agent/chat/stream/', chat_views.stream, name='agent-chat-stream'),
+    path('api/agent/chat/earlier/', chat_views.earlier, name='agent-chat-earlier'),
     path('api/agent/accounts/<uuid:account_id>/ui/<uuid:identity>/', agent_ui, name='agent-ui-composition'),
     path('api/agent/accounts/<uuid:account_id>/ui/<uuid:identity>/forms/<slug:component_id>/',agent_form,name='agent-shared-form'),
     path("api/agent/accounts/<uuid:account_id>/transport-checks/", agent_accounts.transport_checks, name="agent-transport-checks"),

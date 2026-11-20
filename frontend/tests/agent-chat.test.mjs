@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { parseChatState, readEventStream, reconnectChat, newerChat } from '../.test-build/agent-chat.js';
+import { earlierNote } from '../.test-build/AgentWorkspace.js';
 
 const state = { id: null, revision: 0, phase: 'offline', messages: [], ui: null,
   connection: { revision: 0, account_id: 'owned', provider: 'independent-acp', label: 'Independent ACP', available: true },
@@ -123,4 +124,15 @@ test('server composition preserves authored handles and rejects executable props
   assert.throws(() => parseChatState({ ...state, ui: { ...ui, account_id: 'foreign' } }));
   assert.throws(() => parseChatState({ ...state, ui: { ...ui, composition: { ...ui.composition,
     schema: { id: 'x', type: 'iframe', props: { src: 'https://foreign.invalid' } } } } }));
+});
+
+test('a long conversation reports how many earlier messages are stored, and only as a sane count', () => {
+  const base = { id: null, revision: 0, phase: 'offline', messages: [], ui: null, connection: { revision: 0, account_id: null, provider: null, label: null, available: false }, providers: [] };
+  const plain = parseChatState(structuredClone(base));
+  assert.equal('archived' in plain, false);
+  assert.equal('archived' in parseChatState({ ...structuredClone(base), archived: 0 }), false);
+  assert.equal(parseChatState({ ...structuredClone(base), archived: 66 }).archived, 66);
+  for (const bad of [-1, 1.5, '66', null, 10_000_001, [66]]) assert.throws(() => parseChatState({ ...structuredClone(base), archived: bad }), undefined, String(bad));
+  assert.equal(earlierNote(66), '66 earlier messages are stored with your records and not shown here.');
+  assert.equal(earlierNote(1), '1 earlier message is stored with your records and not shown here.');
 });

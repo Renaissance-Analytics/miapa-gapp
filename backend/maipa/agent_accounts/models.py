@@ -1,6 +1,8 @@
 """Server-owned account metadata, never provider credentials or login state."""
 import uuid
 
+from django.utils import timezone
+
 from django.conf import settings
 from django.db import models
 from django.core.validators import RegexValidator
@@ -223,3 +225,26 @@ class Conversation(models.Model):
     worker = models.UUIDField(null=True, default=None, editable=False)
     heartbeat = models.DateTimeField(null=True, editable=False)
     ui = models.ForeignKey(UiComposition, null=True, on_delete=models.PROTECT)
+
+
+class ConversationArchive(models.Model):
+    """Older messages of a conversation, moved out of the live transcript in order. Written once, never edited."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    conversation = models.ForeignKey(Conversation, related_name='archives', on_delete=models.PROTECT, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    position = models.PositiveIntegerField(editable=False)   # How many messages were archived before this segment.
+    count = models.PositiveIntegerField(editable=False)
+    messages = models.JSONField(editable=False)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('conversation', 'position'), name='agent_conversation_archive_position'),
+                       models.CheckConstraint(condition=models.Q(count__gt=0), name='agent_conversation_archive_count')]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValueError('Archived messages are append-only')
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValueError('Archived messages are append-only')

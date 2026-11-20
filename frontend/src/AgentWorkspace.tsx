@@ -28,6 +28,9 @@ const GUIDED_SETUP_REQUEST = 'Please walk me through my account setup, explainin
 const phaseLabels = { offline: 'Connect your agent to begin', connecting: 'Connecting…', sign_in: 'Sign in to your provider',
   ready: 'Ready', thinking: 'Maipa is working…', stopping: 'Stopping…', unavailable: 'Connection needs attention' };
 
+/** Long conversations keep only recent messages on screen; older ones are stored, not deleted. */
+export const earlierNote = (count: number) => `${count} earlier ${count === 1 ? 'message is' : 'messages are'} stored with your records and not shown here.`;
+
 export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeCommit }: { userId: string; headerHost:HTMLDivElement|null; layout: LayoutState;
   onResize: (value: number) => void; onResizeCommit: (value: number) => void }) {
   const [state, setState] = useState<ChatState>(emptyChat);
@@ -257,6 +260,7 @@ export function AgentWorkspace({ userId, headerHost, layout, onResize, onResizeC
               ? 'Maipa is your connected AI agent. Send a message (or use “Ask Maipa to guide me”) and it will explain each setup step and record your answers. You confirm the final save.'
               : 'Connect an agent provider below so Maipa can guide you through setup in this conversation. Until then, you can answer each setup step in the panel yourself.'
               : 'Ask Maipa. The tools and records you need will open alongside our conversation.'}</p></div>}
+          {!!state.archived && <p className="chat-archived" role="note" data-chat-archived={state.archived}>{earlierNote(state.archived)}</p>}
           {!!state.messages.length && <VirtualList className="chat-transcript" height="100%" items={state.messages}
             followTail={follow} onFollowChange={setFollow} onUnseenChange={setUnseen} estimateRowHeight={100} overscan={8}
             role="log" aria-label="Conversation with Maipa" aria-live="polite" aria-relevant="additions text"
