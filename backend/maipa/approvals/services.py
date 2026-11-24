@@ -243,7 +243,6 @@ def _detail(row):
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
         if row.operation in ('schedule.create', 'schedule.stop'):
-            from backend.maipa.ledger.models import Book
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             if row.operation == 'schedule.stop':
                 saved = book.schedules.get(pk=row.payload['schedule_id'])
