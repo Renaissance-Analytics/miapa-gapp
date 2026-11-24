@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import groups as ledger_groups, services as ledger
+from backend.maipa.ledger import groups as ledger_groups, plans as ledger_plans, services as ledger
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -128,6 +128,16 @@ def _check_restricted(user, payload):
     ledger.restricted_change(book, payload['account_id'], payload['restricted'])
 
 
+def _plan_book(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    return book
+
+
+def _check_plan_add(user, payload):
+    ledger_plans.plan_check(_plan_book(user, payload), {key: value for key, value in payload.items() if key != 'book_id'})
+
+
 def _check_match(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -239,6 +249,10 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'plan.add': (('book_id', 'description', 'amount', 'date'), _check_plan_add,
+        lambda user, p: ledger_plans.add_item(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'plan.remove': (('book_id', 'item_id'), lambda user, p: ledger_plans.remove_check(user, p['book_id'], p['item_id']),
+        lambda user, p: ledger_plans.remove_item(user, p['book_id'], p['item_id'])),
     'group.create': (('name', 'book_ids'), lambda user, p: ledger_groups.group_check(user, p), lambda user, p: ledger_groups.create_group(user, p)),
     'group.eliminate': (('group_id', 'account_ids'), lambda user, p: ledger_groups.eliminate_check(user, p),
         lambda user, p: ledger_groups.set_eliminations(user, p)),
@@ -260,7 +274,8 @@ OPERATIONS = {
 }
 # Fields an operation accepts but does not require.
 OPTIONAL = {'statement.import': ('account_id', 'opening_balance', 'closing_balance'), 'schedule.create': ('ends',),
-            'workflow.schedule': ('weekday', 'day', 'seed')}
+            'workflow.schedule': ('weekday', 'day', 'seed'),
+            'plan.add': ('every', 'until', 'scenario')}
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
                  ValueError, TypeError, KeyError, IntegrityError, Book.DoesNotExist)
 
@@ -280,6 +295,11 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('plan.add', 'plan.remove'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            if row.operation == 'plan.remove':
+                return ledger_plans.describe_remove(book, row.payload['item_id'])
+            return ledger_plans.describe(book, {key: value for key, value in row.payload.items() if key != 'book_id'})
         if row.operation == 'group.create':
             return ledger_groups.describe(row.user, row.payload)
         if row.operation == 'group.eliminate':

@@ -149,7 +149,7 @@ class CashForecastTests(TestCase):
         broker, _, _ = BookkeepingPostingTests.broker(self)
         tool = lambda arguments: broker.call('maipa_books_forecast', {'book_id': self.book['id'], **arguments})
         revision = self.revision()
-        self.assertEqual(json.loads(tool({'from': '2026-03-02'})['content'][0]['text']), self.forecast())
+        self.assertEqual(json.loads(tool({'from': '2026-03-02'})['content'][0]['text']), {**self.forecast(), 'plan': None, 'plan_items': [], 'scenarios': []})
         for bad in ({}, {'from': 'soon'}, {'from': '2026-03-02', 'weeks': 26}, {'from': '2026-03-02', 'restricted': True}):
             self.assertTrue(tool(bad)['isError'], bad)
         self.assertEqual(self.revision(), revision)

@@ -418,3 +418,22 @@ test('a restricted cash card says the money stays in the books but is left out o
   assert.match(approvalContent({ ...aside, detail: { ...detail, restricted: true } }), /can no longer be changed as asked\. Approving will fail/);
   assert.match(approvalContent({ ...aside, detail: null }), /can no longer be changed as asked\. Approving will fail/);
 });
+
+test('a cash plan card says what is planned, when, and that the books do not change', () => {
+  const detail = { books: 'Synthetic <b>Co</b>', currency: 'USD', description: 'Payroll <i>run</i>', amount: '-1200.0000', date: '2026-03-27', every: 'month', until: '2026-05-31', scenario: null, current: true };
+  const plan = { ...post, operation: 'plan.add', summary: 'Plan monthly payroll', payload: { book_id: id(2), description: 'Payroll run', amount: '-1200', date: '2026-03-27', every: 'month', until: '2026-05-31' }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [plan], recent: [] }, '1').pending[0].operation, 'plan.add');
+  assert.equal(approvalMessage(plan).proposal.title, 'Add to your cash plan');
+  const content = approvalContent(plan);
+  assert.match(content, /Plan: Payroll .*run.* · money out 1200\.0000 USD on 2026-03-27, then every month until 2026-05-31\./); assert.doesNotMatch(content, /<b>|<i>/);
+  assert.match(content, /This is a plan for the Synthetic .*Co.* books, not an entry\. It appears in the cash forecast only; your books, balances and statements do not change\./);
+  assert.doesNotMatch(content, /what-if/);
+  const what = approvalContent({ ...plan, detail: { ...detail, description: 'Big invoice', amount: '2000.0000', every: null, until: null, scenario: 'Win the tender' } });
+  assert.match(what, /Plan: Big invoice · money in 2000\.0000 USD on 2026-03-27\./); assert.match(what, /Part of the what-if "Win the tender": counted only when you ask about that scenario\./);
+  assert.match(approvalContent({ ...plan, detail: { ...detail, every: 'week', until: null } }), /on 2026-03-27, then every week\./);
+  assert.match(approvalContent({ ...plan, detail: null }), /can no longer be added as asked\. Approving will fail/);
+  const remove = { ...post, operation: 'plan.remove', summary: 'Payroll moves to an agency', payload: { book_id: id(2), item_id: id(5) }, detail };
+  assert.equal(approvalMessage(remove).proposal.title, 'Remove from your cash plan');
+  assert.match(approvalContent(remove), /Stop planning: Payroll .*run.* · money out 1200\.0000 USD on 2026-03-27, then every month until 2026-05-31\.[\s\S]*Your books, balances and statements do not change\./);
+  assert.match(approvalContent({ ...remove, detail: null }), /could not be found\. Approving will fail\./);
+});
