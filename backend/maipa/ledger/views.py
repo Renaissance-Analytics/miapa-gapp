@@ -100,6 +100,15 @@ def reconciliation(request, book_id):
 
 
 @endpoint
+def close_review(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if set(request.GET) != {'through'}:
+        return error('invalid_ledger_request', 400)
+    return JsonResponse(services.close_review(request.user, str(book_id), {'through': request.GET['through']}))
+
+
+@endpoint
 def integrity(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')

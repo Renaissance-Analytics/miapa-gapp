@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-81",
+    "label": "Development update 81",
+    "cards": [
+      {
+        "title": "A month-end checklist before you close",
+        "description": "Ask Maipa whether a month is ready to close. It checks for draft entries, statement lines without a posted entry, bank statements that are not reconciled, and the soundness of every entry, and tells you exactly what is outstanding. Closing the books stays your decision."
+      }
+    ]
+  },
+  {
     "id": "development-80",
     "label": "Development update 80",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Attach an Excel statement",
         "description": "You can now attach a bank statement saved as an Excel file (.xlsx) in the chat, not only a CSV. It needs one sheet with the headings date, description and amount. Maipa keeps your original file and tells you exactly which row to fix if something is wrong."
-      }
-    ]
-  },
-  {
-    "id": "development-61",
-    "label": "Development update 61",
-    "cards": [
-      {
-        "title": "Statements belong to a bank account",
-        "description": "When you import a bank statement, Maipa now records which bank account it is from. Entries made from its rows must move that account by the exact amount, in the right direction, so money in can never be booked as money out."
       }
     ]
   }

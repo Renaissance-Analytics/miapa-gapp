@@ -3,7 +3,7 @@
 Proposals have no posting side effect. Posting requires a separate exact-payload
 human confirmation under fresh authority; it is never inferred from a draft.
 """
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from functools import wraps
 import csv
@@ -893,6 +893,70 @@ def check_period_change(book, action, through):
     target = day(through)
     require(book.period_start <= target < book.closed_through, 'ledger_period_reopen_invalid')
     return target
+
+
+def _month_ends(start, end):
+    """The last day of each calendar month touched by the period, with the period end for its final month."""
+    months, year, month = [], start.year, start.month
+    while (year, month) <= (end.year, end.month) and len(months) < 120:
+        following = date(year + (month == 12), month % 12 + 1, 1)
+        months.append((f'{year:04d}-{month:02d}', min(following - timedelta(days=1), end)))
+        year, month = following.year, following.month
+    return months
+
+
+@guarded
+@transaction.atomic
+def close_review(user, book_id, value):
+    """What stands between the books and closing them through a date. Read-only; nothing is changed or decided.
+
+    Four checks, each with its outstanding items: draft entries dated on or before the date; statement lines
+    up to the date with no posted entry; bank statements ending in the period being closed that are not
+    reconciled as they stand today; and the integrity of every stored entry. `can_close` is the hard rule
+    the close itself enforces; `ready` also requires every check to be clear.
+    """
+    user, book = owned(user, book_id)
+    fields(value, ('through',))
+    through = day(value['through'])
+    require(book.period_start <= through <= book.period_end, 'ledger_date_outside_period')
+    blocking = None
+    try:
+        check_period_change(book, 'close', value['through'])
+    except LedgerError as refused:
+        blocking = refused.code
+    drafts = [{'journal_id': str(j.pk), 'sequence': j.sequence, 'date': j.date.isoformat(), 'description': j.description, 'amount': money(j.total_units)}
+              for j in book.journals.filter(state='draft', date__lte=through).order_by('date', 'sequence')]
+    lines = [{'row_id': r['id'], 'date': r['date'], 'description': r['description'], 'amount': r['amount'], 'status': r['status']}
+             for r in source_rows(user, book_id)['rows'] if r['status'] in ('pending', 'proposed') and r['date'] <= through.isoformat()]
+    open_statements = []
+    for statement in book.imports.select_related('account').order_by('created_at')[:500]:
+        dates = sorted(statement.rows.values_list('date', flat=True))
+        if not dates or dates[-1] > through or (book.closed_through is not None and dates[-1] <= book.closed_through):
+            continue
+        if statement.account is None:
+            state = 'needs_account'
+        elif statement.closing_units is None or statement.opening_units is None:
+            state = 'needs_balances'
+        else:
+            found = _reconcile(book, statement)
+            recorded = _recorded(book, statement, found['figures'])
+            if recorded is not None:
+                state = None if recorded['unchanged'] else 'changed'
+            else:
+                state = 'not_recorded' if found['adjusted_books'] == found['adjusted_bank'] else 'difference'
+        if state is not None:
+            open_statements.append({'import_id': str(statement.pk), 'filename': statement.filename, 'last_date': dates[-1].isoformat(),
+                                    'account': f'{statement.account.code} {statement.account.name}' if statement.account else None, 'state': state})
+    findings = verify_book(user, book_id)['findings']
+    checks = [{'key': key, 'ok': not items, 'count': len(items), 'items': items[:50]}
+              for key, items in (('drafts', drafts), ('statement_lines', lines), ('reconciliations', open_statements), ('integrity', findings))]
+    return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'through': through.isoformat(),
+            'period_start': book.period_start.isoformat(), 'period_end': book.period_end.isoformat(),
+            'closed_through': book.closed_through.isoformat() if book.closed_through else None,
+            'calendar': [{'month': month, 'ends': ends.isoformat(), 'state': 'closed' if book.closed_through and ends <= book.closed_through else 'open'}
+                         for month, ends in _month_ends(book.period_start, book.period_end)],
+            'checks': checks, 'can_close': blocking is None, 'blocking': blocking,
+            'ready': blocking is None and all(item['ok'] for item in checks)}
 
 
 @guarded
