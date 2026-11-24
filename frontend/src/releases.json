@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-88",
+    "label": "Development update 88",
+    "cards": [
+      {
+        "title": "See your released statements",
+        "description": "Ask Maipa to show your released statements. A panel beside the chat lists each release with its period and key figures, and says whether it still matches the books, is out of date, or was replaced by a newer release."
+      }
+    ]
+  },
+  {
     "id": "development-87",
     "label": "Development update 87",
     "cards": [
@@ -194,20 +204,6 @@
       {
         "title": "Tie an earlier statement to its bank account",
         "description": "A statement imported before Maipa recorded bank accounts can now be tied to its account afterwards, with your approval. Its lines can then be matched, marked as repeats and reconciled like any other. No entries or amounts change."
-      }
-    ]
-  },
-  {
-    "id": "development-68",
-    "label": "Development update 68",
-    "cards": [
-      {
-        "title": "Processor payouts in one entry",
-        "description": "A payout from a payment processor can now be recorded as one entry: the net amount into your bank, the fees as an expense, and the full sale as income. Before, an entry had to total exactly the bank line."
-      },
-      {
-        "title": "Reversed entries free their statement line",
-        "description": "If an entry made from a statement line is reversed, the line now shows as needing an entry again, and Maipa can match it to the corrected entry. Before, it stayed marked as posted."
       }
     ]
   }

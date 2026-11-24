@@ -64,7 +64,7 @@ def _lookup(actor, account_id, identity):
 
 ISO_DAY = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}')
 LEDGER_VIEWS = {'Maipa.Accounts': ('book_id',), 'Maipa.Journal': ('book_id', 'show'), 'Maipa.AccountActivity': ('book_id', 'account_id'),
-                'Maipa.Statements': ('book_id',), 'Maipa.Reconciliation': ('book_id', 'import_id')}
+                'Maipa.Statements': ('book_id',), 'Maipa.Reconciliation': ('book_id', 'import_id'), 'Maipa.Releases': ('book_id',)}
 
 
 def _components(role):
@@ -85,6 +85,7 @@ def _components(role):
         ('Maipa.Reconciliation', 'Read-only bank reconciliation of one statement: bank closing balance against the books, lines not yet posted, entries the bank has not shown and the exact difference, loaded live. Props: book_id and import_id from maipa_books_reconcile. No figures are supplied.'),
         ('Maipa.Report', 'Read-only income statement and cash flow for a date range and balance sheet as of its end date, from posted entries only, loaded live from the scoped books service. Props: book_id, from and to (YYYY-MM-DD, from not after to, inside the book period). No rows or totals are supplied.'),
         ('Maipa.CloseReview', 'Read-only month-end close checklist for closing the books through a date, loaded live from the same service as maipa_books_close_review: the calendar of closed and open months and each check with its outstanding items. Props: book_id and through (YYYY-MM-DD). No results are supplied.'),
+        ('Maipa.Releases', 'Read-only list of the released statements of a book, loaded live from the same service as maipa_books_releases: each release with its number, title, period, key figures and whether it still matches the books, is out of date, or was replaced by a newer release. Props: book_id. Never put figures in props.'),
         ('Maipa.Workflow', 'Shared saved workflow editor. Props: draft_id, the UUID of an owned authoring draft. Loads current saved graph through authorized services; no graph, actor or authority props.'),
     ]
     if role == 'administrator':

@@ -207,3 +207,29 @@ export async function readCloseReview(user:string,bookId:string,through:string,s
  if(!uuid(bookId)||!day(through))throw unavailable();
  return parseCloseReview(await request(user,`/api/books/${bookId}/close-review/?through=${through}`,signal,undefined,fetcher),bookId,through);
 }
+
+export interface ReleaseTotals {total_income:string;total_expenses:string;net_income:string;total_assets:string;total_liabilities:string;total_equity:string;earnings_to_date:string;closing_cash:string}
+export interface ReleaseItem {id:string;number:number;title:string;from:string;to:string;released_at:string;figures_hash:string;totals:ReleaseTotals;unchanged:boolean;latest:boolean}
+export interface ReleaseList {book_id:string;currency:string;revision:number;closed_through:string|null;releases:ReleaseItem[]}
+const RELEASE_TOTALS=['total_income','total_expenses','net_income','total_assets','total_liabilities','total_equity','earnings_to_date','closing_cash'];
+/** Released statements are accepted only for this book, numbered newest first, with one latest release per period. */
+export function parseReleases(v:unknown,bookId:string):ReleaseList{
+ if(!object(v)||!exact(v,['book_id','currency','revision','closed_through','releases'])||v.book_id!==bookId||!currency(v.currency)||!integer(v.revision)
+  ||(v.closed_through!==null&&!day(v.closed_through))||!Array.isArray(v.releases)||v.releases.length>500)throw unavailable();
+ const periods=new Set<string>();let previous=Infinity;
+ for(const r of v.releases){
+  if(!object(r)||!exact(r,['id','number','title','from','to','released_at','figures_hash','totals','unchanged','latest'])||!uuid(r.id)||!integer(r.number)||r.number<1||r.number>=previous
+   ||typeof r.title!=='string'||!r.title||r.title.length>120||!day(r.from)||!day(r.to)||r.from>r.to||typeof r.released_at!=='string'||r.released_at.length>40||!Number.isFinite(Date.parse(r.released_at))
+   ||typeof r.figures_hash!=='string'||!/^[a-f0-9]{64}$/.test(r.figures_hash)||typeof r.unchanged!=='boolean'||typeof r.latest!=='boolean'
+   ||!object(r.totals)||!exact(r.totals,RELEASE_TOTALS)||!RELEASE_TOTALS.every(key=>signed((r.totals as Record<string,unknown>)[key])))throw unavailable();
+  const period=`${r.from}:${r.to}`;
+  // Newest first: the first release seen for a period is its latest one, and no other is.
+  if(r.latest!==!periods.has(period))throw unavailable();
+  periods.add(period);previous=r.number;
+ }
+ return v as unknown as ReleaseList;
+}
+export async function readReleases(user:string,bookId:string,signal:AbortSignal,fetcher:typeof fetch=fetch){
+ if(!uuid(bookId))throw unavailable();
+ return parseReleases(await request(user,`/api/books/${bookId}/releases/`,signal,undefined,fetcher),bookId);
+}

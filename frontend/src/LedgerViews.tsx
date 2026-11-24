@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CloseReview, type FinancialReport, type LedgerSnapshot, type ReportRow,
+import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readReleases, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CloseReview, type ReleaseList, type FinancialReport, type LedgerSnapshot, type ReportRow,
   type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
@@ -265,4 +265,26 @@ export function CloseReviewView({ review }: { review: CloseReview }) {
 export function LedgerCloseReview({ userId, bookId, through }: { userId: string; bookId: string; through: string }) {
   const live = useLive(signal => readCloseReview(userId, bookId, through, signal), `${userId}:${bookId}:${through}:close-review`);
   return <Frame label="Close review" phase={live.phase} reload={live.reload}>{live.value && <CloseReviewView review={live.value} />}</Frame>;
+}
+
+export function ReleasesView({ list }: { list: ReleaseList }) {
+  if (!list.releases.length) return <div data-release-count="0" data-book-revision={list.revision}>
+    <Callout color="blue">No statements have been released yet. {list.closed_through ? `The books are closed through ${list.closed_through}; ask Maipa to release the statements for a closed period.`
+      : 'Statements can be released once a period is closed.'}</Callout></div>;
+  return <div data-release-count={list.releases.length} data-book-revision={list.revision}>
+    <p>{list.currency}{list.closed_through ? ` · Closed through ${list.closed_through}` : ' · No period is closed now'}</p>
+    <Table aria-label="Released statements">{head(['Release', 'Period', 'Released', 'Net income', 'Assets', 'Cash at the end', 'Status'])}
+      <Table.Body>{list.releases.map(item => {
+        const state = !item.latest ? 'replaced' : item.unchanged ? 'current' : 'changed';
+        return <Table.Row key={item.id} data-release-id={item.id} data-release-number={item.number} data-release-state={state}>
+          <Table.Cell>No. {item.number} · {item.title}</Table.Cell><Table.Cell>{item.from} to {item.to}</Table.Cell><Table.Cell>{item.released_at.slice(0, 10)}</Table.Cell>
+          <Table.Cell>{displaySigned(item.totals.net_income)}</Table.Cell><Table.Cell>{displaySigned(item.totals.total_assets)}</Table.Cell><Table.Cell>{displaySigned(item.totals.closing_cash)}</Table.Cell>
+          <Table.Cell>{state === 'replaced' ? 'Replaced by a newer release' : state === 'current' ? 'Matches the books' : 'Out of date: the books have changed'}</Table.Cell></Table.Row>; })}</Table.Body></Table>
+    {list.releases.some(item => item.latest && !item.unchanged) && <Callout color="amber">A release no longer matches the books. Its figures are kept as released; ask Maipa what changed, or to release the period again.</Callout>}
+  </div>;
+}
+
+export function LedgerReleases({ userId, bookId }: { userId: string; bookId: string }) {
+  const live = useLive(signal => readReleases(userId, bookId, signal), `${userId}:${bookId}:releases`);
+  return <Frame label="Released statements" phase={live.phase} reload={live.reload}>{live.value && <ReleasesView list={live.value} />}</Frame>;
 }

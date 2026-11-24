@@ -3006,6 +3006,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_close_review_view_accepts_only_an_exact_book_and_a_real_date"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.releases-view",
+          "kind": "negative",
+          "given": "A released statements view naming one book, and views with missing, malformed, foreign-looking or extra props, or two such views",
+          "when": "Present or update the composition",
+          "then": "Only the exact book reference is accepted; every other form is refused and the saved composition is unchanged.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_released_statements_view_accepts_only_an_exact_book"
+          ]
         }
       ]
     },
@@ -8365,6 +8375,16 @@
           "then": "The tool results equal the service results; unknown releases and release arguments return an error; no release is made.",
           "tests": [
             "tests.test_report_release.ReportReleaseTests.test_the_agent_tool_reads_releases_and_cannot_make_one"
+          ]
+        },
+        {
+          "id": "C05-REPORT-RELEASE.panel-endpoint",
+          "kind": "negative",
+          "given": "A saved release, its owner signed in, malformed queries, a request without the actor header and a write attempt",
+          "when": "Read the releases endpoint",
+          "then": "The owner gets exactly the service result for the list and for one release; malformed and unknown queries are refused, the missing header conflicts, writing is not allowed, and nothing changes.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_the_panel_endpoint_reads_releases_for_the_owner_only_and_changes_nothing"
           ]
         }
       ]

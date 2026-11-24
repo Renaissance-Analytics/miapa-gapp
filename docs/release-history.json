@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-68",
+    "label": "Development update 68",
+    "cards": [
+      {
+        "title": "Processor payouts in one entry",
+        "description": "A payout from a payment processor can now be recorded as one entry: the net amount into your bank, the fees as an expense, and the full sale as income. Before, an entry had to total exactly the bank line."
+      },
+      {
+        "title": "Reversed entries free their statement line",
+        "description": "If an entry made from a statement line is reversed, the line now shows as needing an entry again, and Maipa can match it to the corrected entry. Before, it stayed marked as posted."
+      }
+    ]
+  },
+  {
     "id": "development-67",
     "label": "Development update 67",
     "cards": [

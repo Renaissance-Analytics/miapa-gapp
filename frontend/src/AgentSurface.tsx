@@ -9,7 +9,7 @@ import type {SettingsControls} from './agent-settings.js';
 import type { Composition } from './agent-chat.js';
 import { CHAT_PROSE } from './content-policy.js';
 import { ClientTable, type ClientColumn } from './ClientTable.js';
-import { LedgerAccounts, LedgerActivity, LedgerJournal, LedgerCloseReview, LedgerReconciliation, LedgerReport, LedgerStatements, type JournalFilter } from './LedgerViews.js';
+import { LedgerAccounts, LedgerActivity, LedgerJournal, LedgerCloseReview, LedgerReleases, LedgerReconciliation, LedgerReport, LedgerStatements, type JournalFilter } from './LedgerViews.js';
 import type { FormBinding, NativeFormActivity } from './shared-form.js';
 import type {WorkflowActivity} from './shared-workflow.js';
 import type {WorkflowConnection} from './workflow-permissions.js';
@@ -47,6 +47,7 @@ registerSchemaComponents({
   'Maipa.Statements': ({ book_id }) => <LedgerStatements userId={useContext(Principal)} bookId={String(book_id)} />,
   'Maipa.Reconciliation': ({ book_id, import_id }) => <LedgerReconciliation userId={useContext(Principal)} bookId={String(book_id)} importId={String(import_id)} />,
   'Maipa.Report': ({ book_id, from, to }) => <LedgerReport userId={useContext(Principal)} bookId={String(book_id)} from={String(from)} to={String(to)} />,
+  'Maipa.Releases': ({ book_id }) => <LedgerReleases userId={useContext(Principal)} bookId={String(book_id)} />,
   'Maipa.CloseReview': ({ book_id, through }) => <LedgerCloseReview userId={useContext(Principal)} bookId={String(book_id)} through={String(through)} />,
   'Maipa.Workflow': ({draft_id}) => {
     const userId=useContext(Principal),draftId=String(draft_id);

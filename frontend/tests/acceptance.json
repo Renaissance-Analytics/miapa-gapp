@@ -1117,6 +1117,26 @@
           "tests": [
             "component-palette.test.mjs#a close review is accepted only when it is consistent, and shows each check with its items"
           ]
+        },
+        {
+          "id": "A07-PALETTE.releases-definition",
+          "kind": "negative",
+          "given": "A released statements definition naming one book, and definitions with missing, malformed or extra props, or two of them",
+          "when": "Validate and render it",
+          "then": "Only the exact book reference is accepted; figures and other props are refused; the panel renders loading with its label.",
+          "tests": [
+            "component-palette.test.mjs#a released statements definition holds only its book, never figures"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.releases-figures",
+          "kind": "negative",
+          "given": "A list with a release that is out of date, one that matches and one replaced, an empty list, and inconsistent lists",
+          "when": "Parse and render them",
+          "then": "Each release shows its number, title, period, date, figures and its state in words; an out-of-date release adds a warning; an empty list explains what is needed; markup is inert; a wrong book, extra or bad fields, wrong order, repeated numbers and impossible latest flags are refused.",
+          "tests": [
+            "component-palette.test.mjs#released statements are accepted only when consistent, and each says whether it still matches the books"
+          ]
         }
       ]
     },

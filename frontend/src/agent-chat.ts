@@ -56,9 +56,9 @@ export function compositionSchema(input: unknown): ScreenSchema {
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || controls.has(v.type)) return fail();
       controls.add(v.type); return {id:v.id,type:v.type,props:{book_id:v.props.book_id}};
     }
-    if (['Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation'].includes(String(v.type))) {
+    if (['Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation', 'Maipa.Releases'].includes(String(v.type))) {
       const kind = String(v.type);
-      const keys = v.type === 'Maipa.Accounts' || v.type === 'Maipa.Statements' ? ['book_id'] : v.type === 'Maipa.Journal' ? ['book_id', 'show']
+      const keys = v.type === 'Maipa.Accounts' || v.type === 'Maipa.Statements' || v.type === 'Maipa.Releases' ? ['book_id'] : v.type === 'Maipa.Journal' ? ['book_id', 'show']
         : v.type === 'Maipa.Reconciliation' ? ['book_id', 'import_id'] : ['book_id', 'account_id'];
       const exact = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
       if (!object(v.props) || !closed(v.props, keys) || !exact(v.props.book_id) || controls.has(kind)
