@@ -103,3 +103,12 @@ returns usable cash before the start date and for each of the next 13 weeks. It 
 entries dated in a week, drafts awaiting approval, and recurring entries not yet drafted (a drafted occurrence counts
 once, as its draft). Unposted items dated before the start are late and land in week 1. Entries that move no usable
 cash, such as an unpaid bill, are not items. Nothing outside the books is forecast, and the agent is told to say so.
+
+## Cash plan and scenarios
+
+`plan.add {book_id, description, amount, date[, every][, until][, scenario]}` adds cash the person expects but has not
+booked; `plan.remove {book_id, item_id}` removes it. A planned item is not an entry: it changes no balance, no book
+revision and no statement. `maipa_books_forecast` keeps its books-only weeks exactly as they are and adds `plan_items`,
+`scenarios` and `plan`: the same 13 weeks with the approved plan on top (`planned_in`, `planned_out`, `closing`,
+`items`, its own `lowest`). Items with a scenario name count only when that scenario is passed, on top of the plan.
+Repeats fall every 7 days, or on the same day of each month with month ends clamped, up to `until`.

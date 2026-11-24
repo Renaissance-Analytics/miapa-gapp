@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-93",
+    "label": "Development update 93",
+    "cards": [
+      {
+        "title": "Plan ahead and try what-ifs",
+        "description": "Tell Maipa about cash you expect or intend, such as an invoice you are waiting on, payroll, or a purchase, and approve adding it to your cash plan. The 13-week look ahead then shows your books and your plan side by side. Give a what-if its own name, like hiring someone, and ask how cash looks with it. Plans never change your books or statements."
+      }
+    ]
+  },
+  {
     "id": "development-92",
     "label": "Development update 92",
     "cards": [
@@ -190,16 +200,6 @@
       {
         "title": "Update cards are a slim banner",
         "description": "The update card is now a wide, short banner in line with the conversation, so it takes much less room until you dismiss it."
-      }
-    ]
-  },
-  {
-    "id": "development-73",
-    "label": "Development update 73",
-    "cards": [
-      {
-        "title": "What's new no longer covers the chat",
-        "description": "These update cards now sit in their own strip under the header instead of floating over the page, so they no longer hide the Connect button, the message box or the Account menu. Dismiss them and the strip disappears."
       }
     ]
   }

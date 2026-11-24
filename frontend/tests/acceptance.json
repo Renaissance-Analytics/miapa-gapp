@@ -2395,6 +2395,16 @@
           "tests": [
             "approvals.test.mjs#a restricted cash card says the money stays in the books but is left out of usable cash"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.cash-plan-cards",
+          "kind": "negative",
+          "given": "Requests to add repeating, one-off and what-if planned items and to remove one, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The card says what is planned, whether money comes in or goes out, the amount, date, repeat and end; a what-if says it counts only when asked about; it says the item is a plan, not an entry, and that books, balances and statements do not change; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a cash plan card says what is planned, when, and that the books do not change"
+          ]
         }
       ]
     }

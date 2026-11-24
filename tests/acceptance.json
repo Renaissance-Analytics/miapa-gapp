@@ -8572,6 +8572,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "F02-CASH-PLAN",
+      "risk": "A plan that leaks into the books or statements, changes the books-only forecast, counts a what-if nobody asked for, repeats on the wrong dates, or is added without approval would mix intentions with records.",
+      "scenarios": [
+        {
+          "id": "F02-CASH-PLAN.beside-the-books",
+          "kind": "positive",
+          "given": "Books with known movements, and requests to plan a one-off receipt, a monthly payment with an end date and a weekly payment with an end date",
+          "when": "Read the forecast before, read a card, approve the plans, read the forecast and the statements, and approve again",
+          "then": "With no plans there is no plan track; the card shows the exact item; approval changes no entry and no book revision; the books-only weeks are identical; the plan track adds each planned occurrence once on its date and carries its own closings and lowest week; the statements are unchanged; the repeat changes nothing.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_approved_plans_run_beside_the_books_forecast_and_repeat_on_their_dates"
+          ]
+        },
+        {
+          "id": "F02-CASH-PLAN.scenario",
+          "kind": "negative",
+          "given": "A planned receipt and a monthly cost that belongs to a named what-if",
+          "when": "Read the forecast without a scenario, with that scenario, and with an unknown one",
+          "then": "Without the scenario its items are not counted but the scenario is listed; with it they sit on top of the plan on their dates and are marked; an unknown scenario is refused.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_a_scenario_is_counted_only_when_asked_for_and_sits_on_top_of_the_plan"
+          ]
+        },
+        {
+          "id": "F02-CASH-PLAN.remove",
+          "kind": "negative",
+          "given": "A planned item and a request to remove it",
+          "when": "Read the forecast before approval, approve, read again and ask to remove it again",
+          "then": "The item counts until removal is approved; afterwards there is no plan track and a second removal is refused.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_a_planned_item_is_removed_only_by_approval"
+          ]
+        },
+        {
+          "id": "F02-CASH-PLAN.refusals",
+          "kind": "negative",
+          "given": "Zero, malformed and non-text amounts, dates outside the book period, bad repeats and end dates, bad names, padded requests, another person, malformed forecast requests, and more items than allowed",
+          "when": "Request them",
+          "then": "Each is refused with its code where one applies and nothing is saved; a request past the limit fails at approval.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_malformed_plans_other_people_and_too_many_items_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "F02-CASH-PLAN.agent-tool",
+          "kind": "positive",
+          "given": "A planned item, a scenario item and the agent tools",
+          "when": "Read the forecast through the tool with and without the scenario, and pass an unknown scenario or plan arguments",
+          "then": "The tool results equal the service results; the other forms return an error; no planned item is added or removed.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_the_agent_tool_returns_the_plan_and_a_scenario_and_cannot_change_a_plan"
+          ]
+        }
+      ]
     }
   ]
 }

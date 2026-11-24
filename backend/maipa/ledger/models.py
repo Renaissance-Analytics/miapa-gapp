@@ -248,3 +248,23 @@ class EntityGroupElimination(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('group', 'account'), name='ledger_group_elimination')]
+
+
+class CashPlanItem(models.Model):
+    """Cash the person expects in or out but has not booked. A plan, never an entry: it reaches the forecast and nothing else."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='plan_items', on_delete=models.PROTECT)
+    description = models.CharField(max_length=200)
+    amount_units = models.BigIntegerField()
+    date = models.DateField()
+    every = models.CharField(max_length=5, null=True)
+    until = models.DateField(null=True)
+    scenario = models.CharField(max_length=60, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+    removed_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=~models.Q(amount_units=0), name='ledger_plan_amount'),
+                       models.CheckConstraint(condition=models.Q(every__isnull=True) | models.Q(every__in=('week', 'month')), name='ledger_plan_every'),
+                       models.CheckConstraint(condition=models.Q(until__isnull=True) | models.Q(until__gte=models.F('date')), name='ledger_plan_until')]
