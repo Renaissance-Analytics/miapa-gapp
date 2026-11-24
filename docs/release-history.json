@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-64",
+    "label": "Development update 64",
+    "cards": [
+      {
+        "title": "Larger statement files are accepted",
+        "description": "Statement files larger than about 64 KB were being refused, although the limit shown is 512 KB. CSV and Excel statements up to the full 512 KB now upload, both in the chat and in Bookkeeping."
+      }
+    ]
+  },
+  {
     "id": "development-63",
     "label": "Development update 63",
     "cards": [

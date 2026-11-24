@@ -8189,6 +8189,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C02-ACCRUALS",
+      "risk": "An accrual posted without its reversal double-counts a cost in the next month; a reversal posted alone, into a closed month, or without approval changes the books unseen.",
+      "scenarios": [
+        {
+          "id": "C02-ACCRUALS.posted-together",
+          "kind": "positive",
+          "given": "A request to accrue 1,200.00 of March expense to payables, reversing on April 1",
+          "when": "Read its card, approve it, and approve it again",
+          "then": "The card shows the lines and both dates; approval posts the accrual on March 31 and its linked reversal on April 1; March shows the expense, April its opposite, the two months together nothing; integrity is clean and the repeat changes nothing.",
+          "tests": [
+            "tests.test_accruals.AccrualTests.test_one_approval_posts_the_accrual_and_its_reversal_so_it_counts_only_in_its_month"
+          ]
+        },
+        {
+          "id": "C02-ACCRUALS.refusals",
+          "kind": "negative",
+          "given": "A reversal date on or before the entry, an entry or reversal outside the period or in a closed month, unbalanced, single-line, malformed and padded requests, and another user",
+          "when": "Request the accrual",
+          "then": "Each is refused with its code where one applies and nothing is saved.",
+          "tests": [
+            "tests.test_accruals.AccrualTests.test_dates_lines_and_requesters_are_checked_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "C02-ACCRUALS.closed-after-request",
+          "kind": "negative",
+          "given": "Accrual requests whose entry month, or only whose reversal month, is closed after they were made",
+          "when": "Approve them",
+          "then": "Each approval fails and neither the accrual nor its reversal is posted.",
+          "tests": [
+            "tests.test_accruals.AccrualTests.test_a_close_after_the_request_makes_the_approval_fail_with_nothing_posted"
+          ]
+        }
+      ]
     }
   ]
 }

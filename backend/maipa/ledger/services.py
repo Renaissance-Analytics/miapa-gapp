@@ -226,7 +226,7 @@ def propose_journal(user, book_id, value, _kind=None):
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
     # Reversal, opening and recurring entries are only ever built by their own services.
-    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening', 'schedule') and value['source']['kind'] == _kind))
+    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening', 'schedule', 'accrual') and value['source']['kind'] == _kind))
     reference = text(value['source']['reference'], 256)
     require(type(value['evidence']) is list and 1 <= len(value['evidence']) <= 20)
     for item in value['evidence']:
@@ -958,6 +958,36 @@ def close_review(user, book_id, value):
                          for month, ends in _month_ends(book.period_start, book.period_end)],
             'checks': checks, 'can_close': blocking is None, 'blocking': blocking,
             'ready': blocking is None and all(item['ok'] for item in checks)}
+
+
+def accrual_check(book, value):
+    """An adjusting entry and the later date its exact opposite posts on, both in open months of the period. Read-only."""
+    fields(value, ('date', 'description', 'lines', 'reverse_on'))
+    dated, reverse_on = day(value['date']), day(value['reverse_on'])
+    require(book.period_start <= dated <= book.period_end and book.period_start <= reverse_on <= book.period_end, 'ledger_date_outside_period')
+    require(reverse_on > dated, 'accrual_reverse_not_after')
+    require(not closed(book, dated) and not closed(book, reverse_on), 'ledger_period_closed')
+    checked = schedule_check(book, {'description': value['description'], 'lines': value['lines'], 'day': 1, 'starts': value['date']})
+    return {'date': dated, 'reverse_on': reverse_on, 'description': checked['description'], 'lines': checked['lines'], 'total': checked['total']}
+
+
+@guarded
+@transaction.atomic
+def post_accrual(user, book_id, value):
+    """Post an approved accrual and its reversal together. If either cannot post, neither does."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    expected = value.get('expected_revision') if type(value) is dict else None
+    checked = accrual_check(book, {key: item for key, item in value.items() if key != 'expected_revision'})
+    require(book.revision == expected, 'ledger_revision_conflict')
+    reference = f'accrual-{uuid.uuid4()}'
+    made = propose_journal(user, book_id, {
+        'operation_id': str(uuid.uuid4()), 'expected_revision': expected, 'date': checked['date'].isoformat(), 'description': checked['description'],
+        'source': {'kind': 'accrual', 'reference': reference}, 'evidence': [f'Accrual approved together with its reversal on {checked["reverse_on"].isoformat()}'],
+        'lines': checked['lines']}, _kind='accrual')
+    confirm_own_journal(user, book_id, made['id'], {'expected_revision': expected + 1, 'payload_hash': made['payload_hash'], 'confirm': True})
+    reversed_entry = reverse_journal(user, book_id, made['id'], {'expected_revision': expected + 2, 'date': checked['reverse_on'].isoformat()})
+    return {'journal_id': made['id'], 'reversal_id': reversed_entry['journal_id'], 'date': checked['date'].isoformat(), 'reverse_on': checked['reverse_on'].isoformat()}
 
 
 MAX_SCHEDULES = 50

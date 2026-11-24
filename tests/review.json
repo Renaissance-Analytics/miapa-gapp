@@ -8570,6 +8570,36 @@
       "decision": "aligned",
       "reason": "Tool results, draft states and errors asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-ACCRUALS.posted-together",
+      "test": "tests.test_accruals.AccrualTests.test_one_approval_posts_the_accrual_and_its_reversal_so_it_counts_only_in_its_month",
+      "scenario_sha256": "476a09e1aa87a66356330334afebfe9218d0e9d1ef1e8c29549120e8518180f6",
+      "source_sha256": "230c1804be4fa85e852406b936fbdebf86771e47ea15e7873f7bde5ddeb04625",
+      "expected_observation": "The card shows the lines and both dates; approval posts the accrual on March 31 and its linked reversal on April 1; March shows the expense, April its opposite, the two months together nothing; integrity is clean and the repeat changes nothing.",
+      "decision": "aligned",
+      "reason": "Exact card, entries, report figures and idempotent repeat asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-ACCRUALS.refusals",
+      "test": "tests.test_accruals.AccrualTests.test_dates_lines_and_requesters_are_checked_before_anything_is_saved",
+      "scenario_sha256": "94ef0bb112ff02b12142152fdd9b25ace01d678121a8bfce9244397eb1c2b0ab",
+      "source_sha256": "230c1804be4fa85e852406b936fbdebf86771e47ea15e7873f7bde5ddeb04625",
+      "expected_observation": "Each is refused with its code where one applies and nothing is saved.",
+      "decision": "aligned",
+      "reason": "Each refusal and the unchanged counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-ACCRUALS.closed-after-request",
+      "test": "tests.test_accruals.AccrualTests.test_a_close_after_the_request_makes_the_approval_fail_with_nothing_posted",
+      "scenario_sha256": "63079e4a7d6d71132b64594dc7200c20430ed457c0bd157ef6a326c4a87771d5",
+      "source_sha256": "230c1804be4fa85e852406b936fbdebf86771e47ea15e7873f7bde5ddeb04625",
+      "expected_observation": "Each approval fails and neither the accrual nor its reversal is posted.",
+      "decision": "aligned",
+      "reason": "Failed states and zero entries asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }
