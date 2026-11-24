@@ -1133,7 +1133,7 @@
           "kind": "negative",
           "given": "A list with a release that is out of date, one that matches and one replaced, an empty list, and inconsistent lists",
           "when": "Parse and render them",
-          "then": "Each release shows its number, title, period, date, figures and its state in words; an out-of-date release adds a warning; an empty list explains what is needed; markup is inert; a wrong book, extra or bad fields, wrong order, repeated numbers and impossible latest flags are refused.",
+          "then": "Each release shows its number, title, period, date, figures and its state in words; each release is its own block with a two-column figures table whose amounts do not wrap; an out-of-date release adds a warning before the list; an empty list explains what is needed; markup is inert; a wrong book, extra or bad fields, wrong order, repeated numbers and impossible latest flags are refused.",
           "tests": [
             "component-palette.test.mjs#released statements are accepted only when consistent, and each says whether it still matches the books"
           ]

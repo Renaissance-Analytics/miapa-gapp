@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-89",
+    "label": "Development update 89",
+    "cards": [
+      {
+        "title": "Fix: released statements are readable in the side panel",
+        "description": "The released statements panel squeezed seven columns into the narrow panel, so amounts broke across lines. Each release is now its own block with its period, status and figures listed one per line."
+      }
+    ]
+  },
+  {
     "id": "development-88",
     "label": "Development update 88",
     "cards": [
@@ -194,16 +204,6 @@
       {
         "title": "Maipa can reconcile a bank statement",
         "description": "Ask Maipa whether your books agree with a bank statement. It compares the statement's closing balance with your books, lists the statement lines not yet posted and the entries the bank has not shown, and tells you the exact difference if any remains. It only reports; it changes nothing."
-      }
-    ]
-  },
-  {
-    "id": "development-69",
-    "label": "Development update 69",
-    "cards": [
-      {
-        "title": "Tie an earlier statement to its bank account",
-        "description": "A statement imported before Maipa recorded bank accounts can now be tied to its account afterwards, with your approval. Its lines can then be matched, marked as repeats and reconciled like any other. No entries or amounts change."
       }
     ]
   }

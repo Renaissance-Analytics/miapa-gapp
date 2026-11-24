@@ -306,6 +306,12 @@ test('released statements are accepted only when consistent, and each says wheth
     'Out of date: the books have changed', 'Replaced by a newer release', 'A release no longer matches the books. Its figures are kept as released; ask Maipa what changed, or to release the period again.'])
     assert.equal(html.includes(text), true, text);
   assert.doesNotMatch(html, /<b>statements/);
+  // Each release is its own block with a two-column figures table, so amounts are never squeezed into narrow columns.
+  assert.equal(html.split('class="release-item"').length, 4); assert.equal(html.split('aria-label="Figures of release ').length, 4);
+  assert.doesNotMatch(html, /<th[^>]*>(Period|Released|Status)<\/th>/);
+  for (const text of ['Income', 'Expenses', 'Liabilities', '5,000.00', '250.00', 'Released 2026-04-02']) assert.equal(html.includes(text), true, text);
+  assert.match(html, /class="[^"]*figure[^"]*"[^>]*>3,850\.00</);
+  assert.ok(html.indexOf('A release no longer matches the books.') < html.indexOf('class="release-item"'));   // The warning comes before the list.
   const calm = renderToStaticMarkup(React.createElement(ReleasesView, { list: { ...releaseList, releases: releaseList.releases.slice(1) } }));
   assert.doesNotMatch(calm, /no longer matches the books/);
   const none = renderToStaticMarkup(React.createElement(ReleasesView, { list: { ...releaseList, releases: [] } }));
