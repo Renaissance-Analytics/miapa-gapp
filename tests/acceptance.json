@@ -8035,6 +8035,16 @@
           "tests": [
             "tests.test_database_copy.DatabaseCopyTests.test_the_command_reports_counts_only_and_fails_loudly_on_refusal_or_difference"
           ]
+        },
+        {
+          "id": "K01-DATABASE-COPY.export-file",
+          "kind": "negative",
+          "given": "A populated database, an existing file at the export path, then a source the copy refuses, and relative, missing-folder and wrongly named paths",
+          "when": "Export to a SQLite file",
+          "then": "The file is replaced by a complete database holding every row that passes its integrity check, with no temporary file or extra database left; a refused export keeps the previous file byte for byte; invalid paths are refused.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_an_export_writes_a_complete_sqlite_file_and_never_leaves_a_partial_one"
+          ]
         }
       ]
     }

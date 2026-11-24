@@ -7,9 +7,13 @@ connection settings.
 """
 import hashlib
 import json
+import os
+import uuid
+from pathlib import Path
 
 from django.apps import apps
 from django.core import serializers
+from django.core.management import call_command
 from django.core.management.color import no_style
 from django.db import connections, transaction
 
@@ -99,3 +103,37 @@ def copy(source, target):
         if differences:
             raise CopyRefused('copy_not_identical')     # Rolls the target back.
     return {label: value['rows'] for label, value in digest(target).items()}
+
+
+def export_to_sqlite(source, path):
+    """Write every record of `source` into a new SQLite database file at `path`, verified identical.
+
+    The file is built under a temporary name beside it and moved into place only after the copy has been
+    verified, so `path` is either the previous file or a complete, current one. This is how an install that
+    keeps its records in another database produces the file its backup is made from.
+    """
+    source, path = _alias(source), Path(path)
+    if not path.is_absolute() or not path.parent.is_dir() or path.suffix != '.sqlite3':
+        raise CopyRefused('invalid_export_path')
+    alias = 'export_file'
+    if alias in connections.settings:
+        raise CopyRefused('export_in_progress')
+    temporary = path.with_name(f'{path.name}.export-{uuid.uuid4().hex}')
+    defaults = connections.configure_settings({'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': str(temporary)}})['default']
+    connections.settings[alias] = defaults
+    try:
+        call_command('migrate', database=alias, interactive=False, verbosity=0)
+        counts = copy(source, alias)
+        connections[alias].close()
+        os.replace(temporary, path)
+        return counts
+    finally:
+        try:
+            connections[alias].close()
+        finally:
+            del connections.settings[alias]
+            if hasattr(connections._connections, alias):
+                delattr(connections._connections, alias)
+            for leftover in (temporary, Path(str(temporary) + '-journal'), Path(str(temporary) + '-wal'), Path(str(temporary) + '-shm')):
+                if leftover.exists():
+                    leftover.unlink()
