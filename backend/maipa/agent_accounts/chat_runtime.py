@@ -20,7 +20,7 @@ from django.utils import timezone
 from backend.maipa.acp import AcpClient, AcpError, AcpTurnError
 from backend.maipa.worker_capsule import WorkerCapsule
 from backend.maipa.windows_sandbox import WindowsHostWorker, SandboxUnavailable
-from . import chat
+from . import action_reference, chat
 from .models import AgentAccount, Conversation, ProviderProfile, SessionReference, UiComposition
 from .profiles import lease_profile, provision_profile, ProfileUnavailable
 from .provider_runtime import ensure_codex, ensure_claude
@@ -89,6 +89,7 @@ Interpret natural replies: a greeting or unrelated message is not an answer; ans
 Record only what the person actually told you with maipa_setup_record at the returned setup_id and revision, using exact choice values. Never guess or fill in answers.
 If an answer is rejected, explain why and ask again. When the step is review, summarize the draft and request setup.confirm with maipa_action_request; the person approves it and the server saves it. You cannot approve it yourself.
 '''
+INSTRUCTIONS += action_reference.instructions()
 
 
 def start(actor, row, session_key):

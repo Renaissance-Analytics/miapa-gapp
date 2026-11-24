@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-87",
+    "label": "Development update 87",
+    "cards": [
+      {
+        "title": "Fix: Maipa can ask for every kind of change again",
+        "description": "Over the last few updates, Maipa's list of the changes it can ask you to approve had grown too long and its end was cut off. Maipa could no longer see how to ask for opening balances, closing or reopening a period, confirming account setup, or releasing statements, and had to guess. The list is now short and complete, and a refused request tells Maipa what was expected."
+      }
+    ]
+  },
+  {
     "id": "development-86",
     "label": "Development update 86",
     "cards": [
@@ -198,16 +208,6 @@
       {
         "title": "Reversed entries free their statement line",
         "description": "If an entry made from a statement line is reversed, the line now shows as needing an entry again, and Maipa can match it to the corrected entry. Before, it stayed marked as posted."
-      }
-    ]
-  },
-  {
-    "id": "development-67",
-    "label": "Development update 67",
-    "cards": [
-      {
-        "title": "Overlapping statements are not booked twice",
-        "description": "If two statements of the same account overlap, the repeated lines are no longer booked a second time. Maipa asks you to approve marking each repeat, showing both lines side by side. Two identical lines on one statement stay two transactions."
       }
     ]
   }
