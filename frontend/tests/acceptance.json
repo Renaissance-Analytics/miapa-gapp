@@ -2315,6 +2315,16 @@
           "tests": [
             "approvals.test.mjs#a recurring entry card shows the lines, the day and that each month still needs approval"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.accrual-card",
+          "kind": "negative",
+          "given": "An accrual request with its lines and dates, and one no longer valid",
+          "when": "Parse and render its card",
+          "then": "The card has its title, the exact lines with markup inert, and says the entry posts on one date and its exact opposite on the other; the invalid one says approving will fail.",
+          "tests": [
+            "approvals.test.mjs#an accrual card shows the lines and both dates"
+          ]
         }
       ]
     }

@@ -93,6 +93,12 @@ def _check_schedule_stop(user, payload):
     ledger.stop_check(book, payload['schedule_id'])
 
 
+def _check_accrual(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    ledger.accrual_check(book, {key: value for key, value in payload.items() if key != 'book_id'})
+
+
 def _check_reverse(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     original = book.journals.filter(pk=_identity(payload['journal_id']), state='posted').first()
@@ -209,6 +215,9 @@ OPERATIONS = {
                                                {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
     'journal.discard': (('book_id', 'journal_id'), _check_discard,
         lambda user, p: ledger.discard_journal(user, p['book_id'], p['journal_id'], {'expected_revision': _revision(p['book_id'])})),
+    'accrual.post': (('book_id', 'date', 'description', 'lines', 'reverse_on'), _check_accrual,
+        lambda user, p: ledger.post_accrual(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                            **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.create': (('book_id', 'description', 'lines', 'day', 'starts'), _check_schedule_create,
         lambda user, p: ledger.create_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
@@ -242,6 +251,13 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'accrual.post':
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            checked = ledger.accrual_check(book, {key: value for key, value in row.payload.items() if key != 'book_id'})
+            names = {str(a.pk): f'{a.code} {a.name}' for a in book.accounts.all()}
+            return {'books': book.entity.name, 'currency': book.currency, 'description': checked['description'], 'date': checked['date'].isoformat(),
+                    'reverse_on': checked['reverse_on'].isoformat(), 'total': ledger.money(checked['total']),
+                    'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in checked['lines']]}
         if row.operation in ('schedule.create', 'schedule.stop'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             if row.operation == 'schedule.stop':

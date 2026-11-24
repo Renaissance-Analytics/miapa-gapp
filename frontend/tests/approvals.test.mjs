@@ -325,3 +325,15 @@ test('a recurring entry card shows the lines, the day and that each month still 
   assert.match(approvalContent({ ...stop, detail: { ...stop.detail, active: false } }), /already stopped\. Approving will fail\./);
   assert.match(approvalContent({ ...create, detail: null }), /can no longer be set up as asked\. Approving will fail/);
 });
+
+test('an accrual card shows the lines and both dates', () => {
+  const accrual = { ...post, operation: 'accrual.post', summary: 'Accrue March utilities', payload: { book_id: id(2), date: '2026-03-31', description: 'Utilities', lines: [], reverse_on: '2026-04-01' },
+    detail: { books: 'Synthetic Co', currency: 'USD', description: 'March <i>utilities</i>', date: '2026-03-31', reverse_on: '2026-04-01', total: '1200.0000',
+      lines: [{ account: '6200 Office expenses', debit: '1200.0000', credit: '0.0000' }, { account: '2000 Accounts payable', debit: '0.0000', credit: '1200.0000' }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [accrual], recent: [] }, '1').pending[0].operation, 'accrual.post');
+  assert.equal(approvalMessage(accrual).proposal.title, 'Post an accrual and its reversal');
+  const content = approvalContent(accrual);
+  assert.match(content, /\| 2000 Accounts payable \| 0\.0000 \| 1200\.0000 \|/); assert.doesNotMatch(content, /<i>/);
+  assert.match(content, /This posts the entry on 2026-03-31 and its exact opposite on 2026-04-01, so it counts only in the period it belongs to\./);
+  assert.match(approvalContent({ ...accrual, detail: null }), /can no longer be posted as asked\. Approving will fail/);
+});
