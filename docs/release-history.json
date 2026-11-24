@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-63",
+    "label": "Development update 63",
+    "cards": [
+      {
+        "title": "Approval cards show the whole request",
+        "description": "A long description on an approval card is no longer cut off part-way, so you can read everything Maipa is asking you to approve. Maipa is also told to keep its own working notes out of its replies."
+      }
+    ]
+  },
+  {
     "id": "development-62",
     "label": "Development update 62",
     "cards": [

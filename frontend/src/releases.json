@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-83",
+    "label": "Development update 83",
+    "cards": [
+      {
+        "title": "Recurring entries",
+        "description": "Tell Maipa about an entry that repeats every month, such as rent or a subscription, and approve it once. When a month comes due, Maipa drafts that month's entry and asks you to approve posting it. Nothing posts by itself, and the same month is never entered twice."
+      }
+    ]
+  },
+  {
     "id": "development-82",
     "label": "Development update 82",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Larger statement files are accepted",
         "description": "Statement files larger than about 64 KB were being refused, although the limit shown is 512 KB. CSV and Excel statements up to the full 512 KB now upload, both in the chat and in Bookkeeping."
-      }
-    ]
-  },
-  {
-    "id": "development-63",
-    "label": "Development update 63",
-    "cards": [
-      {
-        "title": "Approval cards show the whole request",
-        "description": "A long description on an approval card is no longer cut off part-way, so you can read everything Maipa is asking you to approve. Maipa is also told to keep its own working notes out of its replies."
       }
     ]
   }

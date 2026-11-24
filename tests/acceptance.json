@@ -8133,6 +8133,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C02-RECURRING-ENTRIES",
+      "risk": "A recurring entry that posts by itself, drafts the same month twice, writes into a closed month, or runs after being stopped would put unapproved or duplicate entries in the books.",
+      "scenarios": [
+        {
+          "id": "C02-RECURRING-ENTRIES.template",
+          "kind": "positive",
+          "given": "A request for a monthly rent entry on day 31 from mid-January to June",
+          "when": "Read its card, approve it, and list it through several dates",
+          "then": "The card shows the exact lines and range; approval saves the template with one event and nothing else; the due dates fall on each month's last day from the first full occurrence, stop at the end date, and include none before the start.",
+          "tests": [
+            "tests.test_recurring_entries.RecurringEntryTests.test_an_approved_template_lists_its_due_dates_with_month_ends_clamped"
+          ]
+        },
+        {
+          "id": "C02-RECURRING-ENTRIES.drafts-once",
+          "kind": "positive",
+          "given": "An approved monthly template",
+          "when": "Prepare the due entries twice, approve posting one, discard another, and prepare again",
+          "then": "Each due month becomes exactly one draft tagged with its template and date; repeating creates none; posting still needs approval; a discarded month can be drafted once more.",
+          "tests": [
+            "tests.test_recurring_entries.RecurringEntryTests.test_preparing_due_entries_makes_each_draft_once_and_posting_still_needs_approval"
+          ]
+        },
+        {
+          "id": "C02-RECURRING-ENTRIES.closed-and-stopped",
+          "kind": "negative",
+          "given": "An approved template, books closed through February, then the template stopped",
+          "when": "List and prepare due entries, and ask to stop it again",
+          "then": "Closed months are never due; once stopped nothing is due or drafted and there is no next date; stopping again is refused.",
+          "tests": [
+            "tests.test_recurring_entries.RecurringEntryTests.test_closed_months_are_skipped_and_a_stopped_template_makes_nothing_new"
+          ]
+        },
+        {
+          "id": "C02-RECURRING-ENTRIES.refusals",
+          "kind": "negative",
+          "given": "Unbalanced, single-line, foreign-account, two-sided, bad-day, out-of-period, reversed-range, malformed and padded templates, another user, an unknown template, and malformed read or prepare requests",
+          "when": "Request or read them",
+          "then": "Each is refused with its code where one applies, and no template or request is saved.",
+          "tests": [
+            "tests.test_recurring_entries.RecurringEntryTests.test_unbalanced_foreign_or_malformed_templates_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "C02-RECURRING-ENTRIES.agent-tools",
+          "kind": "positive",
+          "given": "An approved template and the agent tools",
+          "when": "List and prepare through the tools, and call prepare with bad arguments",
+          "then": "The list equals the service result; prepare makes drafts only; bad arguments return an error.",
+          "tests": [
+            "tests.test_recurring_entries.RecurringEntryTests.test_the_agent_tools_list_and_prepare_but_never_post"
+          ]
+        }
+      ]
     }
   ]
 }

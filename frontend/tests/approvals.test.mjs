@@ -304,3 +304,24 @@ test('a discard card shows the draft lines and says nothing was posted', () => {
   assert.match(gone, /no longer a draft, so there is nothing to discard\. Approving will fail\./); assert.doesNotMatch(gone, /never posted/);
   assert.throws(() => parseApprovalList({ actor_id: '1', pending: [{ ...discard, operation: 'journal.delete' }], recent: [] }, '1'));
 });
+
+test('a recurring entry card shows the lines, the day and that each month still needs approval', () => {
+  const create = { ...post, operation: 'schedule.create', summary: 'Rent every month', payload: { book_id: id(2), description: 'Office rent', lines: [], day: 31, starts: '2026-01-15', ends: '2026-06-30' },
+    detail: { books: 'Synthetic <b>Co</b>', currency: 'USD', description: 'Office rent', day: 31, starts: '2026-01-15', ends: '2026-06-30', total: '900.0000',
+      lines: [{ account: '6200 Office expenses', debit: '900.0000', credit: '0.0000' }, { account: '1000 Checking', debit: '0.0000', credit: '900.0000' }] } };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [create], recent: [] }, '1').pending[0].operation, 'schedule.create');
+  assert.equal(approvalMessage(create).proposal.title, 'Set up a recurring entry');
+  const content = approvalContent(create);
+  assert.match(content, /\| 6200 Office expenses \| 900\.0000 \| 0\.0000 \|/);
+  assert.equal(content.includes('Office rent · 900.0000 USD · on day 31 of each month (the last day in shorter months) from 2026-01-15 to 2026-06-30'), true);
+  assert.match(content, /Nothing posts by itself: each month Maipa drafts the entry and asks you to approve posting it\./);
+  assert.doesNotMatch(content, /<b>/);
+  const open = approvalContent({ ...create, detail: { ...create.detail, ends: null } });
+  assert.equal(open.includes('from 2026-01-15 until the end of the books\' period'), true);
+  const stop = { ...post, operation: 'schedule.stop', summary: 'Stop rent', payload: { book_id: id(2), schedule_id: id(4) },
+    detail: { books: 'Synthetic Co', description: 'Office rent', day: 31, starts: '2026-01-15', ends: null, active: true } };
+  assert.equal(approvalMessage(stop).proposal.title, 'Stop a recurring entry');
+  assert.match(approvalContent(stop), /Stop drafting Office rent on day 31 of each month\. Drafts and posted entries it already made are not changed\./);
+  assert.match(approvalContent({ ...stop, detail: { ...stop.detail, active: false } }), /already stopped\. Approving will fail\./);
+  assert.match(approvalContent({ ...create, detail: null }), /can no longer be set up as asked\. Approving will fail/);
+});
