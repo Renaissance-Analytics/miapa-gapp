@@ -15,8 +15,8 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'report.release', 'group.create', 'group.eliminate', 'group.remove', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
-const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'account.restricted', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'report.release', 'group.create', 'group.eliminate', 'group.remove', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account', 'account.restricted': 'Set cash aside',
   'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'accrual.post': 'Post an accrual and its reversal', 'workflow.schedule': 'Run a workflow on a schedule', 'workflow.unschedule': 'Stop a scheduled workflow', 'report.release': 'Release statements', 'group.create': 'Group businesses together', 'group.eliminate': 'Leave out dealings between businesses', 'group.remove': 'Remove a group', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
@@ -230,6 +230,12 @@ export function approvalContent(item: ApprovalRequest): string {
         `| Repeats | ${cell(of.statement)} | ${cell(of.date)} | ${cell(of.description)} | ${cell(of.amount)} |`,
         '', 'The line is settled as a repeat and gets no entry, so the movement is counted once. If these were two separate transactions, reject this.');
     } else lines.push('', 'These lines can no longer be found. Approving will fail; ask Maipa to check again.');
+  } else if (item.operation === 'account.restricted') {
+    if (d && typeof d.restricted === 'boolean' && d.restricted !== p.restricted) {
+      lines.push('', p.restricted === true
+        ? `Set ${cell(d.account)} in the ${cell(d.books)} books aside as restricted (balance ${cell(d.balance)} ${cell(d.currency)}). It stays in your books and reports, but is left out of usable cash and the cash forecast.`
+        : `Release ${cell(d.account)} in the ${cell(d.books)} books (balance ${cell(d.balance)} ${cell(d.currency)}). It counts as usable cash again.`, '', 'No entry or balance changes.');
+    } else lines.push('', 'This account can no longer be changed as asked. Approving will fail; ask Maipa to prepare it again.');
   } else if (item.operation === 'account.cash') {
     lines.push('', d ? `${cell(d.account)} in ${cell(d.books)} books will ${p.cash === true ? 'count' : 'no longer count'} as a bank account or cash on hand. No amounts change.`
       : 'This account can no longer be found. Approving will fail; ask Maipa to check again.');

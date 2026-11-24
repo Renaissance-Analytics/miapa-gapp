@@ -191,7 +191,95 @@ def cash_change(book, account_id, cash):
     require(account is not None, 'ledger_account_not_found')
     require(account.category == 'asset', 'ledger_cash_account_invalid')
     require(account.cash is not cash, 'ledger_cash_unchanged')
+    require(cash or not account.restricted, 'ledger_account_restricted')
     return account
+
+
+def restricted_change(book, account_id, restricted):
+    """The bank or cash account whose set-aside mark would change. Read-only."""
+    require(type(restricted) is bool)
+    account = book.accounts.filter(pk=identity(account_id)).first()
+    require(account is not None, 'ledger_account_not_found')
+    require(account.cash, 'ledger_restricted_needs_cash')
+    require(account.restricted is not restricted, 'ledger_restricted_unchanged')
+    return account
+
+
+@guarded
+@transaction.atomic
+def set_account_restricted(user, book_id, account_id, value):
+    """Set a bank or cash account aside as restricted, or release it. No amounts change."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'restricted'))
+    account = restricted_change(book, account_id, value['restricted'])
+    advance(book, value['expected_revision'])
+    Account.objects.filter(pk=account.pk).update(restricted=value['restricted'])
+    event(book, user, 'account.restricted', account.pk, digest({'account': str(account.pk), 'restricted': value['restricted']}))
+    return {'account_id': str(account.pk), 'restricted': value['restricted'], 'revision': book.revision}
+
+
+FORECAST_WEEKS = 13
+
+
+@guarded
+@transaction.atomic
+def cash_forecast(user, book_id, value):
+    """Usable cash for the 13 weeks from a date, from what the books already hold and nothing else. Read-only.
+
+    Usable cash is the balance of bank and cash accounts not set aside as restricted. Opening is their posted balance
+    before the start date. Each week then carries the cash effect of posted entries dated in it, of drafts awaiting
+    approval, and of recurring entries not yet drafted. Anything of those dated before the start and still unposted
+    is late and lands in the first week. Sales not yet invoiced, bills not yet entered and plans are not in the books,
+    so they are not in the forecast.
+    """
+    _, book = owned(user, book_id)
+    fields(value, ('from',))
+    start = day(value['from'])
+    require(book.period_start <= start <= book.period_end, 'ledger_date_outside_period')
+    through = start + timedelta(days=7 * FORECAST_WEEKS - 1)
+    cash = sorted(book.accounts.filter(cash=True), key=lambda account: account.code)
+    usable = {account.pk for account in cash if not account.restricted}
+    balances = dict.fromkeys((account.pk for account in cash), 0)
+    items = []        # (date, description, units, source) for usable cash only
+    for journal in book.journals.filter(state__in=('posted', 'draft')).prefetch_related('lines').order_by('date', 'sequence'):
+        moved = 0
+        for line in journal.lines.all():
+            if line.account_id in balances:
+                net = line.debit_units - line.credit_units
+                if journal.state == 'posted' and journal.date < start:
+                    balances[line.account_id] += net
+                elif line.account_id in usable:
+                    moved += net
+        if moved and (journal.state == 'draft' or start <= journal.date <= through) and journal.date <= through:
+            items.append((journal.date, journal.description, moved, journal.state))
+    made = _made(book)
+    for row in book.schedules.order_by('created_at')[:MAX_SCHEDULES * 4]:
+        moved = sum(units(line['debit']) - units(line['credit']) for line in row.lines if uuid.UUID(line['account_id']) in usable)
+        if moved:
+            items.extend((when, row.description, moved, 'recurring') for when in _due(book, row, min(through, book.period_end), made))
+    opening = sum(balances[pk] for pk in usable)
+    weeks, running, position = [], opening, 0
+    items.sort(key=lambda item: (item[0], item[1]))
+    for number in range(1, FORECAST_WEEKS + 1):
+        first, last = start + timedelta(days=7 * (number - 1)), start + timedelta(days=7 * number - 1)
+        mine = []
+        while position < len(items) and items[position][0] <= last:
+            mine.append(items[position]); position += 1
+        received, paid = sum(item[2] for item in mine if item[2] > 0), -sum(item[2] for item in mine if item[2] < 0)
+        running += received - paid
+        weeks.append({'week': number, 'start': first.isoformat(), 'end': last.isoformat(), 'in': money(received), 'out': money(paid),
+                      'net': money(received - paid), 'closing': money(running),
+                      'items': [{'date': when.isoformat(), 'description': description, 'amount': money(moved), 'source': source}
+                                for when, description, moved, source in mine[:100]]})
+    lowest = min(weeks, key=lambda week: (balance_units(week['closing']), week['week']))
+    return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'from': start.isoformat(), 'through': through.isoformat(),
+            'period_end': book.period_end.isoformat(),
+            'cash_accounts': [{'id': str(account.pk), 'code': account.code, 'name': account.name, 'restricted': account.restricted,
+                               'balance': money(balances[account.pk])} for account in cash],
+            'opening_usable': money(opening), 'restricted_cash': money(sum(balances[account.pk] for account in cash if account.restricted)),
+            'weeks': weeks, 'closing_usable': money(running), 'lowest': {'week': lowest['week'], 'closing': lowest['closing']},
+            'sources': {source: sum(1 for item in items if item[3] == source) for source in ('posted', 'draft', 'recurring')}}
 
 
 @guarded

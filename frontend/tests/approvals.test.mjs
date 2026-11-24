@@ -403,3 +403,18 @@ test('an elimination card lists each account by business and says nothing in the
   assert.match(approvalContent({ ...mark, detail: { ...detail, accounts: [] } }), /Stop leaving any accounts out of the consolidated totals of Family companies\. No entry or balance changes\./);
   assert.match(approvalContent({ ...mark, detail: null }), /can no longer be set as asked\. Approving will fail/);
 });
+
+test('a restricted cash card says the money stays in the books but is left out of usable cash', () => {
+  const detail = { books: 'Synthetic <b>Co</b>', account: '1050 Tax savings', restricted: false, balance: '1000.0000', currency: 'USD' };
+  const aside = { ...post, operation: 'account.restricted', summary: 'Keep the tax savings out of usable cash', payload: { book_id: id(2), account_id: id(3), restricted: true }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [aside], recent: [] }, '1').pending[0].operation, 'account.restricted');
+  assert.equal(approvalMessage(aside).proposal.title, 'Set cash aside');
+  const content = approvalContent(aside);
+  assert.match(content, /Set 1050 Tax savings in the Synthetic .*Co.* books aside as restricted \(balance 1000\.0000 USD\)\. It stays in your books and reports, but is left out of usable cash and the cash forecast\./);
+  assert.match(content, /No entry or balance changes\./); assert.doesNotMatch(content, /<b>/);
+  const release = { ...aside, payload: { ...aside.payload, restricted: false }, detail: { ...detail, restricted: true } };
+  assert.match(approvalContent(release), /Release 1050 Tax savings in the Synthetic .*Co.* books \(balance 1000\.0000 USD\)\. It counts as usable cash again\./);
+  // Already in the asked state, or gone: approving would fail, and the card says so.
+  assert.match(approvalContent({ ...aside, detail: { ...detail, restricted: true } }), /can no longer be changed as asked\. Approving will fail/);
+  assert.match(approvalContent({ ...aside, detail: null }), /can no longer be changed as asked\. Approving will fail/);
+});

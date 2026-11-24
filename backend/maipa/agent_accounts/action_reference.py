@@ -14,6 +14,8 @@ OPERATIONS = (
      ''),
     ('account.cash', '{book_id,account_id,cash}',
      "to mark (true) or unmark (false) an ASSET account as a bank account or cash on hand; maipa_books_read shows each account's cash flag"),
+    ('account.restricted', '{book_id,account_id,restricted}',
+     'to set a bank or cash account aside (true) as restricted, for money that is in the books but not free to spend such as tax set aside or deposits held for others, or to release it (false); restricted accounts are left out of usable cash and the cash forecast; only when the person says so'),
     ('statement.import', '{book_id,filename,content[,account_id][,opening_balance,closing_balance]}',
      '(CSV text with columns date,description,amount[,reference]); give account_id, the marked bank or cash account the statement is from, whenever it is a bank statement; give both balances when the statement prints them, and the import is then refused unless the rows add up from one to the other'),
     ('statement.account', '{book_id,import_id,account_id}',

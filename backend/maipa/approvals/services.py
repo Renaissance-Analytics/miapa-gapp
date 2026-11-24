@@ -122,6 +122,12 @@ def _check_cash(user, payload):
     ledger.cash_change(book, payload['account_id'], payload['cash'])
 
 
+def _check_restricted(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'approval_denied')
+    ledger.restricted_change(book, payload['account_id'], payload['restricted'])
+
+
 def _check_match(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     require(book.created_by_id == user.pk, 'approval_denied')
@@ -195,6 +201,9 @@ OPERATIONS = {
     'account.cash': (('book_id', 'account_id', 'cash'), _check_cash,
         lambda user, p: ledger.set_account_cash(user, p['book_id'], p['account_id'],
                                                 {'expected_revision': _revision(p['book_id']), 'cash': p['cash']})),
+    'account.restricted': (('book_id', 'account_id', 'restricted'), _check_restricted,
+        lambda user, p: ledger.set_account_restricted(user, p['book_id'], p['account_id'],
+                                                      {'expected_revision': _revision(p['book_id']), 'restricted': p['restricted']})),
     'statement.import': (('book_id', 'filename', 'content'), _check_import,
         lambda user, p: ledger.import_statement(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
             'filename': p['filename'], 'content': p['content'],
@@ -366,6 +375,12 @@ def _detail(row):
                     'entry': {'sequence': journal.sequence, 'date': journal.date.isoformat(), 'description': journal.description, 'state': journal.state},
                     'lines': [{'account': f'{item.account.code} {item.account.name}', 'debit': ledger.money(item.debit_units),
                                'credit': ledger.money(item.credit_units)} for item in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'account.restricted':
+            from backend.maipa.ledger.models import Account, JournalLine
+            account = Account.objects.select_related('book__entity').get(pk=row.payload['account_id'], book_id=row.payload['book_id'])
+            balance = sum(line.debit_units - line.credit_units for line in JournalLine.objects.filter(account=account, journal__state='posted'))
+            return {'books': account.book.entity.name, 'account': f'{account.code} {account.name}', 'restricted': account.restricted,
+                    'balance': ledger.money(balance), 'currency': account.book.currency}
         if row.operation == 'account.cash':
             from backend.maipa.ledger.models import Account
             account = Account.objects.select_related('book__entity').get(pk=row.payload['account_id'], book_id=row.payload['book_id'])
