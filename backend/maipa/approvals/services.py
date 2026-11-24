@@ -81,6 +81,18 @@ def _check_discard(user, payload):
     ledger.discard_check(book, payload['journal_id'])
 
 
+def _check_schedule_create(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    ledger.schedule_check(book, {key: value for key, value in payload.items() if key != 'book_id'})
+
+
+def _check_schedule_stop(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    ledger.stop_check(book, payload['schedule_id'])
+
+
 def _check_reverse(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     original = book.journals.filter(pk=_identity(payload['journal_id']), state='posted').first()
@@ -197,6 +209,11 @@ OPERATIONS = {
                                                {'expected_revision': _revision(p['book_id']), 'date': p['date']})),
     'journal.discard': (('book_id', 'journal_id'), _check_discard,
         lambda user, p: ledger.discard_journal(user, p['book_id'], p['journal_id'], {'expected_revision': _revision(p['book_id'])})),
+    'schedule.create': (('book_id', 'description', 'lines', 'day', 'starts'), _check_schedule_create,
+        lambda user, p: ledger.create_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                               **{k: v for k, v in p.items() if k != 'book_id'}})),
+    'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
+        lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
     'opening.balance': (('book_id', 'balances', 'control'), _check_opening,
         lambda user, p: ledger.post_opening(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                             'balances': p['balances'], 'control': p['control']})),
@@ -205,7 +222,7 @@ OPERATIONS = {
     'setup.confirm': (('setup_id', 'revision'), _check_setup, _run_setup),
 }
 # Fields an operation accepts but does not require.
-OPTIONAL = {'statement.import': ('account_id', 'opening_balance', 'closing_balance')}
+OPTIONAL = {'statement.import': ('account_id', 'opening_balance', 'closing_balance'), 'schedule.create': ('ends',)}
 DOMAIN_ERRORS = (ledger.LedgerError, intake.ScopeDenied, intake.NotFound, intake.RevisionConflict, InvalidFact,
                  ValueError, TypeError, KeyError, IntegrityError, Book.DoesNotExist)
 
@@ -225,6 +242,18 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('schedule.create', 'schedule.stop'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            if row.operation == 'schedule.stop':
+                saved = book.schedules.get(pk=row.payload['schedule_id'])
+                return {'books': book.entity.name, 'description': saved.description, 'day': saved.day, 'starts': saved.starts.isoformat(),
+                        'ends': saved.ends.isoformat() if saved.ends else None, 'active': saved.stopped_at is None}
+            checked = ledger.schedule_check(book, {key: value for key, value in row.payload.items() if key != 'book_id'})
+            names = {str(a.pk): f'{a.code} {a.name}' for a in book.accounts.all()}
+            return {'books': book.entity.name, 'currency': book.currency, 'description': checked['description'], 'day': checked['day'],
+                    'starts': checked['starts'].isoformat(), 'ends': checked['ends'].isoformat() if checked['ends'] else None,
+                    'total': ledger.money(checked['total']),
+                    'lines': [{'account': names[l['account_id']], 'debit': l['debit'], 'credit': l['credit']} for l in checked['lines']]}
         if row.operation == 'journal.discard':
             from backend.maipa.ledger.models import Journal
             journal = Journal.objects.select_related('book').get(pk=row.payload['journal_id'], book_id=row.payload['book_id'])

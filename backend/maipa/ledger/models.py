@@ -179,3 +179,22 @@ class SourceRow(AppendOnly):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('source_import', 'row_number'), name='ledger_import_row_once'),
                        models.CheckConstraint(condition=~models.Q(amount_units=0), name='ledger_import_row_nonzero')]
+
+
+class RecurringEntry(models.Model):
+    """A template the person approved: the same balanced entry, drafted once for each month on a day. It never posts by itself."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='schedules', on_delete=models.PROTECT)
+    description = models.CharField(max_length=500)
+    lines = models.JSONField()
+    day = models.PositiveSmallIntegerField()
+    starts = models.DateField()
+    ends = models.DateField(null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+    stopped_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(day__gte=1, day__lte=31), name='ledger_schedule_day'),
+                       models.CheckConstraint(condition=models.Q(ends__isnull=True) | models.Q(ends__gte=models.F('starts')), name='ledger_schedule_range')]
+

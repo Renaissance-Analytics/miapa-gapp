@@ -6,7 +6,7 @@
     "tools/browser.mjs": "891069659def59f6a2917a993e61eb9522a59c82854f8164453effe6402c3e8b",
     "tools/check_browser.py": "fc480ca6821653d6229b5879280c2642c8277d4976c770936bd0340605a94844",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "c1ecbabc73a1a00e55cdfd78ebfd6b4b3788819f6d3c6e655d6488747c73fbd5"
+    "tests/fixtures/agent_chat_peer.py": "5f4bff288ae939dca4ff5abe3a83b9b73def3218589c5a58607de8df4a68af25"
   },
   "cases": [
     {
@@ -389,5 +389,6 @@
   "cash_flow_review": "The agent-composed-report-view case gains assertions comparing the rendered cash flow with the owner-bound report API. No action, prior assertion or deadline changed.",
   "cash_bridge_review": "The agent-composed-report-view case gains two assertions: the rendered profit-to-cash bridge ends at the API change in cash, and the bridge starts from the income statement net income. No action, prior assertion or deadline changed.",
   "select_readiness_review": "The select() helper read the control once and asserted immediately. It failed intermittently with \"Selectable recorded option\" on the loaded workstation and once on an idle CI machine (admin_users). It now waits, within the same shared until budget, for the control to be enabled and to list the wanted option, as click() already waits for a visible enabled button. A missing or permanently disabled option still fails with the same message after the budget. No case, assertion, native key action or deadline changed; no scenario is retried.",
-  "close_review_tool_review": "The finite peer exact startup catalog adds the read-only maipa_books_close_review tool. No browser action, assertion or deadline changed."
+  "close_review_tool_review": "The finite peer exact startup catalog adds the read-only maipa_books_close_review tool. No browser action, assertion or deadline changed.",
+  "recurring_tools_review": "The finite peer exact startup catalog adds maipa_books_schedules (read-only) and maipa_books_prepare_due (drafts only). No browser action, assertion or deadline changed."
 }

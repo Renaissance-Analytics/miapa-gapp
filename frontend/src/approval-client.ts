@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'schedule.create', 'schedule.stop', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -120,6 +120,16 @@ export function approvalContent(item: ApprovalRequest): string {
     if (item.operation === 'journal.discard') lines.push('', d.current === false ? 'This entry is no longer a draft, so there is nothing to discard. Approving will fail.'
       : 'This draft was never posted, so no amounts change. If it came from a statement line, that line becomes pending again.');
     else if (d.current === false) lines.push('', 'This entry changed after Maipa asked. Approving will fail; ask Maipa to prepare it again.');
+  } else if (item.operation === 'schedule.create') {
+    if (d && Array.isArray(d.lines)) {
+      lines.push('', `${cell(d.description)} · ${cell(d.total)} ${cell(d.currency)} · on day ${cell(d.day)} of each month (the last day in shorter months) from ${cell(d.starts)} `
+        + (d.ends ? `to ${cell(d.ends)}` : "until the end of the books' period"), '', '| Account | Debit | Credit |', '|---|---:|---:|',
+        ...d.lines.filter(object).map(l => `| ${cell(l.account)} | ${cell(l.debit)} | ${cell(l.credit)} |`),
+        '', 'Nothing posts by itself: each month Maipa drafts the entry and asks you to approve posting it.');
+    } else lines.push('', 'This recurring entry can no longer be set up as asked. Approving will fail; ask Maipa to prepare it again.');
+  } else if (item.operation === 'schedule.stop') {
+    lines.push('', d?.active === false ? `${cell(d?.description)} is already stopped. Approving will fail.`
+      : `Stop drafting ${cell(d?.description)} on day ${cell(d?.day)} of each month. Drafts and posted entries it already made are not changed.`);
   } else if (item.operation === 'opening.balance') {
     if (d && Array.isArray(d.lines)) {
       const rows = d.lines.filter(object);

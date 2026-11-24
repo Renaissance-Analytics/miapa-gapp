@@ -16,9 +16,10 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.db.models import F
+from django.utils import timezone
 
 from backend.maipa.intake import services as intake
-from .models import (Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, Reconciliation, SourceImport, SourceRow,
+from .models import (Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, Reconciliation, RecurringEntry, SourceImport, SourceRow,
                      SourceRowMatch)
 
 MAX_UNITS = 999999999999999999
@@ -224,8 +225,8 @@ def propose_journal(user, book_id, value, _kind=None):
     require(not closed(book, dated), 'ledger_period_closed')
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
-    # Reversal and opening entries are only ever built by their own services.
-    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening') and value['source']['kind'] == _kind))
+    # Reversal, opening and recurring entries are only ever built by their own services.
+    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening', 'schedule') and value['source']['kind'] == _kind))
     reference = text(value['source']['reference'], 256)
     require(type(value['evidence']) is list and 1 <= len(value['evidence']) <= 20)
     for item in value['evidence']:
@@ -957,6 +958,146 @@ def close_review(user, book_id, value):
                          for month, ends in _month_ends(book.period_start, book.period_end)],
             'checks': checks, 'can_close': blocking is None, 'blocking': blocking,
             'ready': blocking is None and all(item['ok'] for item in checks)}
+
+
+MAX_SCHEDULES = 50
+
+
+def schedule_check(book, value):
+    """A balanced template of this book's accounts, a day of the month and a range inside the period. Read-only."""
+    fields(value, ('description', 'lines', 'day', 'starts', *(('ends',) if 'ends' in value else ())))
+    description = text(value['description'], 500)
+    require(type(value['day']) is int and 1 <= value['day'] <= 31)
+    starts = day(value['starts'])
+    ends = day(value['ends']) if 'ends' in value else None
+    require(book.period_start <= starts <= book.period_end and (ends is None or ends <= book.period_end), 'ledger_date_outside_period')
+    require(ends is None or ends >= starts, 'schedule_ends_before_start')
+    require(type(value['lines']) is list and 2 <= len(value['lines']) <= 100)
+    lines, debit, credit = [], 0, 0
+    for line in value['lines']:
+        fields(line, ('account_id', 'debit', 'credit'))
+        account = book.accounts.filter(pk=identity(line['account_id'])).first()
+        require(account is not None, 'ledger_account_not_found')
+        left, right = units(line['debit']), units(line['credit'])
+        require((left > 0 and right == 0) or (right > 0 and left == 0))
+        debit += left; credit += right
+        lines.append({'account_id': str(account.pk), 'debit': money(left), 'credit': money(right)})
+    require(0 < debit == credit <= MAX_UNITS, 'ledger_unbalanced')
+    require(book.schedules.filter(stopped_at__isnull=True).count() < MAX_SCHEDULES, 'schedule_limit')
+    return {'description': description, 'lines': lines, 'day': value['day'], 'starts': starts, 'ends': ends, 'total': debit}
+
+
+def schedule_value(row):
+    total = sum(units(line['debit']) for line in row.lines)
+    return {'id': str(row.pk), 'description': row.description, 'day': row.day, 'starts': row.starts.isoformat(),
+            'ends': row.ends.isoformat() if row.ends else None, 'active': row.stopped_at is None, 'total': money(total), 'lines': row.lines}
+
+
+@guarded
+@transaction.atomic
+def create_schedule(user, book_id, value):
+    """Save an approved recurring entry. Nothing is drafted or posted here."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    expected = value.get('expected_revision') if type(value) is dict else None
+    checked = schedule_check(book, {key: item for key, item in value.items() if key != 'expected_revision'})
+    advance(book, expected)
+    row = RecurringEntry.objects.create(book=book, description=checked['description'], lines=checked['lines'], day=checked['day'],
+                                        starts=checked['starts'], ends=checked['ends'], created_by=user)
+    event(book, user, 'schedule.create', row.pk, digest(schedule_value(row)))
+    return schedule_value(row)
+
+
+def stop_check(book, schedule_id):
+    try:
+        row = book.schedules.filter(pk=identity(schedule_id)).first()
+    except (LedgerError, ValueError):
+        row = None
+    require(row is not None, 'schedule_not_found')
+    require(row.stopped_at is None, 'schedule_not_active')
+    return row
+
+
+@guarded
+@transaction.atomic
+def stop_schedule(user, book_id, value):
+    """Stop a recurring entry. Drafts and posted entries it made are not touched."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    fields(value, ('expected_revision', 'schedule_id'))
+    row = stop_check(book, value['schedule_id'])
+    advance(book, value['expected_revision'])
+    require(RecurringEntry.objects.filter(pk=row.pk, stopped_at__isnull=True).update(stopped_at=timezone.now()) == 1, 'schedule_not_active')
+    row.refresh_from_db()
+    event(book, user, 'schedule.stop', row.pk, digest(schedule_value(row)))
+    return schedule_value(row)
+
+
+def _occurrences(row, through):
+    """The template's dates on or before `through`: its day in each month, moved back to the month's last day when shorter."""
+    found, year, month = [], row.starts.year, row.starts.month
+    last = min(through, row.ends) if row.ends else through
+    while len(found) < 400:
+        following = date(year + (month == 12), month % 12 + 1, 1)
+        when = min(date(year, month, 1) + timedelta(days=row.day - 1), following - timedelta(days=1))
+        if when > last:
+            break
+        if when >= row.starts:
+            found.append(when)
+        year, month = following.year, following.month
+    return found
+
+
+def _made(book):
+    """Occurrences that already have a draft or posted entry (discarded drafts do not count)."""
+    return set(book.journals.filter(source_kind='schedule').exclude(state='voided').values_list('source_reference', flat=True))
+
+
+def _due(book, row, through, made):
+    if row.stopped_at is not None:
+        return []
+    return [when for when in _occurrences(row, through)
+            if not closed(book, when) and book.period_start <= when <= book.period_end and f'{row.pk}:{when.isoformat()}' not in made]
+
+
+@guarded
+@transaction.atomic
+def schedules(user, book_id, value):
+    """Every recurring entry of the book with the occurrences due on or before a date that have no entry yet. Read-only."""
+    _, book = owned(user, book_id)
+    fields(value, ('through',))
+    through = day(value['through'])
+    require(book.period_start <= through <= book.period_end, 'ledger_date_outside_period')
+    made, listed = _made(book), []
+    for row in book.schedules.order_by('created_at')[:MAX_SCHEDULES * 4]:
+        due = _due(book, row, through, made)
+        later = [when for when in _occurrences(row, book.period_end) if when > through] if row.stopped_at is None else []
+        listed.append({**schedule_value(row), 'due': [when.isoformat() for when in due[:24]],
+                       'next': later[0].isoformat() if later else None})
+    return {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision, 'through': through.isoformat(), 'schedules': listed}
+
+
+@guarded
+@transaction.atomic
+def prepare_due(user, book_id, value):
+    """Draft every due occurrence on or before a date, once each. Drafts are proposals: posting each one needs approval."""
+    user, book = owned(user, book_id, True)
+    fields(value, ('through',))
+    through = day(value['through'])
+    require(book.period_start <= through <= book.period_end, 'ledger_date_outside_period')
+    made, drafts = _made(book), []
+    for row in book.schedules.filter(stopped_at__isnull=True).order_by('created_at'):
+        for when in _due(book, row, through, made)[:24]:
+            reference = f'{row.pk}:{when.isoformat()}'
+            # One operation per attempt: a discarded draft keeps its id, so the next draft of the same date needs a new one.
+            attempt = book.journals.filter(source_kind='schedule', source_reference=reference).count()
+            book.refresh_from_db()
+            drafts.append(propose_journal(user, book_id, {
+                'operation_id': str(uuid.uuid5(row.pk, f'{reference}:{attempt}')), 'expected_revision': book.revision, 'date': when.isoformat(),
+                'description': row.description, 'source': {'kind': 'schedule', 'reference': reference},
+                'evidence': [f'Recurring entry approved on {row.created_at.date().isoformat()}, due {when.isoformat()}'], 'lines': row.lines}, _kind='schedule'))
+    drafts.sort(key=lambda item: (item['date'], item['sequence']))
+    return {'book_id': str(book.pk), 'through': through.isoformat(), 'drafts': drafts}
 
 
 @guarded

@@ -2305,6 +2305,16 @@
           "tests": [
             "approvals.test.mjs#a discard card shows the draft lines and says nothing was posted"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.recurring-cards",
+          "kind": "negative",
+          "given": "Requests to set up and to stop a recurring entry, with and without an end date, already stopped, and no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The set-up card shows the lines, amount, day and range and says nothing posts by itself; the stop card says existing entries are kept; stale and invalid requests say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a recurring entry card shows the lines, the day and that each month still needs approval"
+          ]
         }
       ]
     }
