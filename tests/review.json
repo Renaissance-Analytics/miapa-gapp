@@ -8600,6 +8600,96 @@
       "decision": "aligned",
       "reason": "Failed states and zero entries asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.once-per-slot",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_an_approved_schedule_starts_one_run_per_slot_with_the_pinned_version_and_seed",
+      "scenario_sha256": "2466c0f48751bbc7b6c0198a4c09613776c23191bed5d97bdbeab19138d084f3",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The card names the workflow, version, timing and first run; approval saves the schedule and starts nothing; each slot starts exactly one run as the owner with the approved input and version, also after a newer version is published; the run completes with the input in its output; repeating the approval changes nothing.",
+      "decision": "aligned",
+      "reason": "Exact card, saved fields, dispatch keys, version and output asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.slots",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_missed_slots_are_not_made_up_and_week_and_month_slots_fall_on_their_day",
+      "scenario_sha256": "98930e4da92ee1344380313b585eb14e994044038da5c55f6cb9ad02cd93a4e3",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "Only the latest missed slot runs; the weekly slot falls on its weekday and the monthly one on the last day of a shorter month; the list shows each schedule with its next time, last slot and result.",
+      "decision": "aligned",
+      "reason": "Exact slot keys and listing asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.access-revoked",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_slot_does_not_run_without_the_owners_current_access_and_is_not_made_up_later",
+      "scenario_sha256": "1e15f8db24da70028a8122ebf99cec4016f72868db5211cc9a248d13caef1313",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "No run starts for that slot, then or after access returns; the schedule records no access; the next slot runs once access is back.",
+      "decision": "aligned",
+      "reason": "Counts, recorded result and run count asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.stop",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_stopped_schedule_starts_nothing_and_stopping_needs_its_own_approval",
+      "scenario_sha256": "a7b3c24f12842c63a12f46c0016df0537373d153e0c3bd34c8f63e5253920af0",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The schedule runs until the stop is approved, starts nothing afterwards, and a second stop is refused.",
+      "decision": "aligned",
+      "reason": "Stop card, result, run count and refusal code asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.refusals",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_unpublished_foreign_malformed_and_excess_schedules_are_refused_before_anything_is_saved",
+      "scenario_sha256": "b05f5acce0ed0176d7347b4cdf2d23b87f150ab188cbbf152db069a70d05cd57",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "Each is refused with its code and nothing is saved; another person cannot stop or see the schedule; a request past the limit fails at approval.",
+      "decision": "aligned",
+      "reason": "Each refusal code and the unchanged counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.slot-key",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_person_cannot_use_a_schedule_slot_key_and_a_refused_slot_is_recorded",
+      "scenario_sha256": "1abdc1efdd7b1ee67fc7731c39f5815fd7551245e7144b17df12a67453a3491c",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The person's run is refused and none exists; the refused slot is recorded and not tried again.",
+      "decision": "aligned",
+      "reason": "Refusal, recorded result and counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.worker",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_worker_checks_schedules_at_most_every_few_seconds_and_keeps_working_runs",
+      "scenario_sha256": "9c0d03f9a506bdcbe4b8db276467a93e5657ad65e8f9ece22fdc8cd12e8ae866",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The check starts the due run and the step advances it; schedules are not rechecked within fifteen seconds and are rechecked after; the serving worker checks schedules before each queue pass.",
+      "decision": "aligned",
+      "reason": "Dispatch key, worker counts and check counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.agent-list",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_agent_workflow_list_shows_the_schedules_and_each_published_version",
+      "scenario_sha256": "63537ec4182d852f94eae3aef15130cf6dcf1c6f724373927bdb293199c778b2",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The owner sees the schedule and the published version of the draft; the other person sees neither.",
+      "decision": "aligned",
+      "reason": "Summary contents for both people asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "C02-SCHEDULED-RUNS.worker",
+      "test": "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_serving_worker_starts_due_runs_before_each_queue_pass",
+      "scenario_sha256": "9c0d03f9a506bdcbe4b8db276467a93e5657ad65e8f9ece22fdc8cd12e8ae866",
+      "source_sha256": "a9af8db4f5f090266ec2c8b85c67854a3829dd17630cb83c2362f81d661e109a",
+      "expected_observation": "The check starts the due run and the step advances it; schedules are not rechecked within fifteen seconds and are rechecked after; the serving worker checks schedules before each queue pass.",
+      "decision": "aligned",
+      "reason": "Order of the schedule check and the queue pass in the real serving loop asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]
 }

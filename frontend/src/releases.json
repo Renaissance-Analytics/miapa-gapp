@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-85",
+    "label": "Development update 85",
+    "cards": [
+      {
+        "title": "Workflows on a schedule",
+        "description": "Ask Maipa to run a published workflow every day, every week or every month at an hour you choose. You approve the schedule once; Maipa then starts each run by itself, once per time, and stops if your access is removed. Workflows still cannot change your books."
+      }
+    ]
+  },
+  {
     "id": "development-84",
     "label": "Development update 84",
     "cards": [
@@ -198,20 +208,6 @@
       {
         "title": "Transfers between your accounts are booked once",
         "description": "When you move money between two of your bank accounts, it appears on both statements. Maipa now books it as one entry and matches the second statement line to it, so a transfer is never counted twice or mistaken for income."
-      }
-    ]
-  },
-  {
-    "id": "development-65",
-    "label": "Development update 65",
-    "cards": [
-      {
-        "title": "Attach a PDF statement",
-        "description": "You can attach a bank statement as a PDF. Maipa reads its text and works out the transactions, then asks you to approve them. The card shows every row and the statement's opening and closing balance."
-      },
-      {
-        "title": "PDF rows must add up",
-        "description": "A PDF import is refused unless the rows add up exactly from the opening balance to the closing balance, and every amount actually appears in the document. A scanned PDF without text cannot be read."
       }
     ]
   }

@@ -7,6 +7,7 @@ as human commands. Process death rolls back the entire deterministic node.
 from contextlib import contextmanager
 import logging
 from threading import Event, Thread, RLock
+from time import monotonic
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,13 +16,15 @@ from django.db.models import F
 
 from backend.maipa.storage import InstallationLease, StorageUnavailable
 from backend.maipa.workspace.models import Installation, Membership
-from . import services
+from . import schedules, services
 from .errors import Conflict, InvalidWorkflow, Unavailable
 from .models import WorkflowRun
 
 logger=logging.getLogger(__name__)
 _ACTIVE=None
 _STATUS_LOCK=RLock()
+_DUE_AT=0.0
+SCHEDULE_SECONDS=15
 
 
 @transaction.atomic
@@ -63,6 +66,14 @@ def process_job(run_id, expected_step):
     return 'blocked'
 
 
+def _start_due():
+    """Scheduled slots become ordinary queued runs; checked at most every few seconds."""
+    global _DUE_AT
+    if monotonic()<_DUE_AT: return
+    _DUE_AT=monotonic()+SCHEDULE_SECONDS
+    schedules.run_due()
+
+
 def work_once(*,limit=1):
     if type(limit) is not int or not 1<=limit<=100: raise ValueError('Invalid worker limit')
     observed=list(WorkflowRun.objects.filter(status__in=('queued','running')).order_by('created_at','id')
@@ -83,6 +94,7 @@ class _ServingWorker:
         try:
             while not self.stop.is_set():
                 self.guard.revalidate(self.root)
+                _start_due()
                 work_once(limit=1)
                 self.ready.set()
                 if self.stop.wait(self.poll_seconds): break

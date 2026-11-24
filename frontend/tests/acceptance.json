@@ -2325,6 +2325,16 @@
           "tests": [
             "approvals.test.mjs#an accrual card shows the lines and both dates"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.workflow-schedule-cards",
+          "kind": "negative",
+          "given": "Requests to schedule and to stop a workflow: daily, weekly, monthly, no longer valid, already stopped and not found",
+          "when": "Parse and render their cards",
+          "then": "The schedule card names the workflow, version, timetable in UTC and first run, and says runs start by themselves once per time, keep the approved version, stop when access is removed and cannot change the books; the stop card says started runs are not changed; invalid, stopped and missing ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a scheduled workflow card says what starts, when, and that it runs by itself"
+          ]
         }
       ]
     }
