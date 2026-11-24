@@ -3016,6 +3016,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_released_statements_view_accepts_only_an_exact_book"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.forecast-view",
+          "kind": "negative",
+          "given": "A forecast view naming one book and start date, the same with a scenario name, and views with missing, malformed or extra props, or two such views",
+          "when": "Present or update the composition",
+          "then": "Only an exact book, a real date and an optional well-formed scenario name are accepted; every other form is refused and the saved composition is unchanged.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_forecast_view_accepts_only_an_exact_book_a_real_date_and_an_optional_scenario_name"
+          ]
         }
       ]
     },
@@ -8625,6 +8635,16 @@
           "then": "The tool results equal the service results; the other forms return an error; no planned item is added or removed.",
           "tests": [
             "tests.test_cash_plan.CashPlanTests.test_the_agent_tool_returns_the_plan_and_a_scenario_and_cannot_change_a_plan"
+          ]
+        },
+        {
+          "id": "F02-CASH-PLAN.panel-endpoint",
+          "kind": "negative",
+          "given": "A planned item, a scenario item, their owner signed in, malformed and unknown queries, a request without the actor header and a write attempt",
+          "when": "Read the forecast endpoint",
+          "then": "The owner gets exactly the service result with and without the scenario; missing, malformed, out-of-period and unknown-scenario queries are refused; the missing header conflicts; writing is not allowed; nothing changes.",
+          "tests": [
+            "tests.test_cash_plan.CashPlanTests.test_the_panel_endpoint_reads_the_forecast_for_the_owner_only_and_changes_nothing"
           ]
         }
       ]

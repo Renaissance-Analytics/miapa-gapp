@@ -4,8 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
-import { AccountsTable, ActivityTable, CloseReviewView, ReleasesView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
-import { parseCloseReview, parseReleases, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
+import { AccountsTable, ActivityTable, CloseReviewView, ForecastView, ReleasesView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
+import { parseCloseReview, parseForecast, parseReleases, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
   const schema = compositionSchema({ id: 'overview', type: 'Maipa.Stack', children: [
@@ -324,4 +324,73 @@ test('released statements are accepted only when consistent, and each says wheth
     twoLatest: change(c => { c.releases[2].latest = true; }), noLatest: change(c => { c.releases[1].latest = false; }), reversedRange: change(c => { c.releases[0].from = '2026-04-01'; }),
     emptyTitle: change(c => { c.releases[0].title = ''; }), badHash: change(c => { c.releases[0].figures_hash = 'xyz'; }), badFlag: change(c => { c.releases[0].unchanged = 'yes'; }) }))
     assert.throws(() => parseReleases(bad, BOOK), undefined, name);
+});
+
+const START = Date.UTC(2026, 2, 2);
+const isoDay = offset => new Date(START + offset * 86400000).toISOString().slice(0, 10);
+const BOOK_CLOSINGS = ['3100.0000', '2850.0000', '3250.0000', '3250.0000', '2350.0000', '2350.0000', '2350.0000', '2350.0000', '2350.0000', '1450.0000', '1450.0000', '1450.0000', '1450.0000'];
+const PLAN_CLOSINGS = ['3100.0000', '2850.0000', '5250.0000', '5250.0000', '3550.0000', '3550.0000', '3550.0000', '3550.0000', '2750.0000', '1850.0000', '1850.0000', '1850.0000', '-150.0000'];
+const bookItems = { 1: [{ date: '2026-03-05', description: 'Office <b>rent</b>', amount: '-900.0000', source: 'recurring' }], 2: [{ date: '2026-03-12', description: 'Supplier payment', amount: '-250.0000', source: 'draft' }],
+  3: [{ date: '2026-03-20', description: 'Client receipt', amount: '400.0000', source: 'posted' }] };
+const planItems = { 3: [{ date: '2026-03-18', description: 'Big client invoice', amount: '2000.0000', scenario: null }], 5: [{ date: '2026-04-01', description: 'Assistant salary', amount: '-800.0000', scenario: 'Hire an assistant' }] };
+const forecast = { book_id: BOOK, currency: 'USD', revision: 12, from: isoDay(0), through: isoDay(90), period_end: '2026-12-31',
+  cash_accounts: [{ id: CASH, code: '1000', name: 'Checking', restricted: false, balance: '4000.0000' }, { id: RENT, code: '1050', name: 'Tax savings', restricted: true, balance: '1000.0000' }],
+  opening_usable: '4000.0000', restricted_cash: '1000.0000',
+  weeks: BOOK_CLOSINGS.map((closing, n) => ({ week: n + 1, start: isoDay(n * 7), end: isoDay(n * 7 + 6), in: '0.0000', out: '0.0000', net: '0.0000', closing, items: bookItems[n + 1] ?? [] })),
+  closing_usable: '1450.0000', lowest: { week: 10, closing: '1450.0000' }, sources: { posted: 1, draft: 1, recurring: 1 },
+  plan: { scenario: 'Hire an assistant', opening_usable: '4000.0000', closing_usable: '-150.0000', lowest: { week: 13, closing: '-150.0000' },
+    weeks: PLAN_CLOSINGS.map((closing, n) => ({ week: n + 1, start: isoDay(n * 7), end: isoDay(n * 7 + 6), planned_in: '0.0000', planned_out: '0.0000', closing, items: planItems[n + 1] ?? [] })) },
+  plan_items: [{ id: STATEMENT, description: 'Big client invoice', amount: '2000.0000', date: '2026-03-18', every: null, until: null, scenario: null },
+    { id: RENT, description: 'Assistant salary', amount: '-800.0000', date: '2026-04-01', every: 'month', until: '2026-06-30', scenario: 'Hire an assistant' }],
+  scenarios: [{ name: 'Hire an assistant', items: 1 }] };
+
+test('a forecast definition holds only its book, a real start date and an optional scenario name, never figures', () => {
+  const good = { book_id: BOOK, from: '2026-03-02' };
+  const one = { id: 'cash-ahead', type: 'Maipa.Forecast', props: good };
+  assert.deepEqual(compositionSchema(one), one);
+  const named = { id: 'cash-ahead', type: 'Maipa.Forecast', props: { ...good, scenario: 'Hire an assistant' } };
+  assert.deepEqual(compositionSchema(named), named);
+  for (const props of [undefined, {}, { book_id: BOOK }, { ...good, book_id: 'books' }, { ...good, from: '2026-02-30' }, { ...good, from: '2026-3-2' }, { ...good, from: 20260302 },
+    { ...good, scenario: '' }, { ...good, scenario: ' padded ' }, { ...good, scenario: 'x'.repeat(61) }, { ...good, scenario: 5 }, { ...good, weeks: [] }, { ...good, opening_usable: '1' }])
+    assert.throws(() => compositionSchema({ id: 'bad', type: 'Maipa.Forecast', ...(props ? { props } : {}) }), undefined, JSON.stringify(props));
+  assert.throws(() => compositionSchema({ id: 'twice', type: 'Maipa.Stack', children: [{ id: 'a', type: 'Maipa.Forecast', props: good }, { id: 'b', type: 'Maipa.Forecast', props: good }] }));
+  const html = renderToStaticMarkup(React.createElement(AgentSurface, { userId: '1', ui: { composition: { title: 'Cash ahead', schema: compositionSchema(named) } } }));
+  assert.match(html, /aria-label="Cash forecast"[^>]*aria-busy="true"/);
+});
+
+test('a forecast is accepted only when consistent, and shows the books beside the plan with the lowest week', () => {
+  assert.deepEqual(parseForecast(structuredClone(forecast), BOOK, '2026-03-02', 'Hire an assistant'), forecast);
+  const html = renderToStaticMarkup(React.createElement(ForecastView, { forecast }));
+  assert.match(html, /data-forecast-from="2026-03-02" data-forecast-plan="true" data-forecast-scenario="Hire an assistant"/);
+  for (const text of ['13 weeks from 2026-03-02 to 2026-05-31', 'Usable cash at the start', '4,000.00', 'Set aside, not counted as usable', '1,000.00', 'From the books',
+    'With plan and &quot;Hire an assistant&quot;', ', usable cash goes below zero in the week of 2026-05-25.', '−150.00', '5,250.00', 'Lowest from the books',
+    'Office &lt;b&gt;rent&lt;/b&gt;', 'Recurring, not drafted yet', 'Awaiting your approval', 'Posted', 'Planned', 'What-if &quot;Hire an assistant&quot;',
+    'Assistant salary', ', then every month until 2026-06-30', 'Sales not yet invoiced and bills not yet entered are not included; planned items are your own expectations, not records'])
+    assert.equal(html.includes(text), true, text);
+  assert.doesNotMatch(html, /<b>rent/);
+  assert.equal(html.split('data-week="').length, 14); assert.match(html, /data-week="10" data-lowest="true" data-plan-lowest="false"/); assert.match(html, /data-week="13" data-lowest="false" data-plan-lowest="true"/);
+  assert.equal(html.split('class="nowrap"').length >= 14 || html.split('nowrap').length >= 14, true);   // Week dates stay on one line.
+  assert.equal(html.split('data-week-items=').length, 5);                               // Weeks 1, 2, 3 and 5 have something moving.
+  assert.equal(html.split('scope="col"').length, 4);                                            // Three narrow columns, so amounts are never squeezed.
+  // Books only: no plan column, a calm message, and an invitation to plan.
+  const plain = { ...forecast, plan: null, plan_items: [], scenarios: [] };
+  const calm = renderToStaticMarkup(React.createElement(ForecastView, { forecast: parseForecast(structuredClone(plain), BOOK, '2026-03-02', null) }));
+  assert.match(calm, /Usable cash stays above zero in all 13 weeks\./); assert.equal(calm.split('scope="col"').length, 3); assert.match(calm, /Nothing is planned\. Tell Maipa about cash you expect or intend/);
+  assert.doesNotMatch(calm, /planned items are your own expectations/);
+  // The books themselves going below zero is the loudest message.
+  const short = { ...plain, weeks: plain.weeks.map(w => w.week === 13 ? { ...w, closing: '-50.0000' } : w), closing_usable: '-50.0000', lowest: { week: 13, closing: '-50.0000' } };
+  assert.match(renderToStaticMarkup(React.createElement(ForecastView, { forecast: parseForecast(structuredClone(short), BOOK, '2026-03-02', null) })),
+    /On what is in your books, usable cash goes below zero in the week of 2026-05-25\./);
+  const quiet = { ...plain, weeks: plain.weeks.map(w => ({ ...w, items: [] })) };
+  assert.match(renderToStaticMarkup(React.createElement(ForecastView, { forecast: quiet })), /Nothing in your books or plan moves usable cash in these weeks\./);
+  const change = (edit) => { const copy = structuredClone(forecast); edit(copy); return copy; };
+  for (const [name, bad] of Object.entries({
+    otherBook: change(c => { c.book_id = RENT; }), otherStart: change(c => { c.from = '2026-03-09'; }), twelveWeeks: change(c => { c.weeks.pop(); }), misnumbered: change(c => { c.weeks[4].week = 7; }),
+    badAmount: change(c => { c.weeks[0].closing = '3100'; }), badSource: change(c => { c.weeks[0].items[0].source = 'guess'; }), closingDisagrees: change(c => { c.closing_usable = '1.0000'; }),
+    lowestInvented: change(c => { c.lowest = { week: 2, closing: '0.0000' }; }), otherScenario: change(c => { c.plan.scenario = 'Open a shop'; }), planWeeksShifted: change(c => { c.plan.weeks[3].start = '2026-01-01'; }),
+    foreignScenarioItem: change(c => { c.plan.weeks[4].items[0].scenario = 'Open a shop'; }), planClosingDisagrees: change(c => { c.plan.closing_usable = '9.0000'; }),
+    untilWithoutRepeat: change(c => { c.plan_items[0].until = '2026-04-01'; }), extraKey: change(c => { c.guess = true; }), emptyScenarioName: change(c => { c.scenarios[0].name = ''; }) }))
+    assert.throws(() => parseForecast(bad, BOOK, '2026-03-02', 'Hire an assistant'), undefined, name);
+  assert.throws(() => parseForecast(structuredClone(forecast), BOOK, '2026-03-02', null));                    // A scenario nobody asked for.
+  assert.throws(() => parseForecast(structuredClone(plain), BOOK, '2026-03-02', 'Hire an assistant'));        // An asked scenario with no plan track.
 });

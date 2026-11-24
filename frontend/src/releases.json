@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-94",
+    "label": "Development update 94",
+    "cards": [
+      {
+        "title": "See your cash ahead beside the chat",
+        "description": "Ask Maipa to show your cash forecast. A panel lists usable cash for each of the next 13 weeks from your books and, if you have a cash plan, with the plan or a what-if beside it. It marks the lowest week, warns when cash goes below zero, and lists what moves each week and what you have planned."
+      }
+    ]
+  },
+  {
     "id": "development-93",
     "label": "Development update 93",
     "cards": [
@@ -190,16 +200,6 @@
       {
         "title": "Keep a report as a pinned view",
         "description": "Ask Maipa to keep a report, such as this year’s results, and it is pinned for you. A pinned view remembers only the books and the dates, so it shows current figures each time you open it."
-      }
-    ]
-  },
-  {
-    "id": "development-74",
-    "label": "Development update 74",
-    "cards": [
-      {
-        "title": "Update cards are a slim banner",
-        "description": "The update card is now a wide, short banner in line with the conversation, so it takes much less room until you dismiss it."
       }
     ]
   }

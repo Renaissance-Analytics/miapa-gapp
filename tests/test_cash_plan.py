@@ -134,3 +134,20 @@ class CashPlanTests(TestCase):
         for bad in ({'from': '2026-03-02', 'scenario': 'Unknown'}, {'from': '2026-03-02', 'description': 'New plan', 'amount': '5'}, {'scenario': 'Hire an assistant'}):
             self.assertTrue(tool(bad)['isError'], bad)
         self.assertEqual(CashPlanItem.objects.count(), 2)
+
+    def test_the_panel_endpoint_reads_the_forecast_for_the_owner_only_and_changes_nothing(self):
+        self.planned()
+        self.planned(description='Assistant salary', amount='-800', date='2026-04-01', every='month', scenario='Hire an assistant')
+        self.client.force_login(self.user)
+        actor = {'HTTP_X_MAIPA_AGENT_ACTOR': str(self.user.pk)}
+        url = f"/api/books/{self.book['id']}/forecast/"
+        revision = self.revision()
+        answer = self.client.get(url + '?from=2026-03-02', secure=True, **actor)
+        self.assertEqual((answer.status_code, answer.json()), (200, self.forecast()))
+        what_if = self.client.get(url, {'from': '2026-03-02', 'scenario': 'Hire an assistant'}, secure=True, **actor)
+        self.assertEqual((what_if.status_code, what_if.json()), (200, self.forecast('Hire an assistant')))
+        for bad in ('', '?from=soon', '?from=2026-03-02&weeks=26', '?scenario=Hire+an+assistant', '?from=2025-12-29', '?from=2026-03-02&scenario=Unknown'):
+            self.assertEqual(self.client.get(url + bad, secure=True, **actor).status_code, 400, bad)
+        self.assertEqual(self.client.get(url + '?from=2026-03-02', secure=True).status_code, 409)
+        self.assertEqual(self.client.post(url + '?from=2026-03-02', data='{}', content_type='application/json', secure=True, **actor).status_code, 405)
+        self.assertEqual((self.revision(), CashPlanItem.objects.count()), (revision, 2))

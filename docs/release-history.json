@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-74",
+    "label": "Development update 74",
+    "cards": [
+      {
+        "title": "Update cards are a slim banner",
+        "description": "The update card is now a wide, short banner in line with the conversation, so it takes much less room until you dismiss it."
+      }
+    ]
+  },
+  {
     "id": "development-73",
     "label": "Development update 73",
     "cards": [

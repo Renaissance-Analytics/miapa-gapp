@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Badge, Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readReleases, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CloseReview, type ReleaseList, type FinancialReport, type LedgerSnapshot, type ReportRow,
+import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readForecast, readReleases, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CashForecast, type CloseReview, type ReleaseList, type FinancialReport, type LedgerSnapshot, type ReportRow,
   type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
@@ -294,4 +294,45 @@ export function ReleasesView({ list }: { list: ReleaseList }) {
 export function LedgerReleases({ userId, bookId }: { userId: string; bookId: string }) {
   const live = useLive(signal => readReleases(userId, bookId, signal), `${userId}:${bookId}:releases`);
   return <Frame label="Released statements" phase={live.phase} reload={live.reload}>{live.value && <ReleasesView list={live.value} />}</Frame>;
+}
+
+const SOURCES = { posted: 'Posted', draft: 'Awaiting your approval', recurring: 'Recurring, not drafted yet' } as const;
+const below = (value: string) => value.startsWith('-');
+
+export function ForecastView({ forecast }: { forecast: CashForecast }) {
+  const plan = forecast.plan;
+  const planLabel = plan?.scenario ? `With plan and "${plan.scenario}"` : 'With your plan';
+  const weekOf = (number: number) => forecast.weeks[number - 1].start;
+  return <div data-forecast-from={forecast.from} data-forecast-plan={String(plan !== null)} data-forecast-scenario={plan?.scenario ?? ''} data-book-revision={forecast.revision}>
+    <p>13 weeks from {forecast.from} to {forecast.through} · {forecast.currency}</p>
+    <p>Usable cash at the start: <strong className="figure">{displaySigned(forecast.opening_usable)}</strong></p>
+    {forecast.restricted_cash !== '0.0000' && <p>Set aside, not counted as usable: <span className="figure">{displaySigned(forecast.restricted_cash)}</span></p>}
+    {below(forecast.lowest.closing) ? <Callout color="red">On what is in your books, usable cash goes below zero in the week of {weekOf(forecast.lowest.week)}.</Callout>
+      : plan && below(plan.lowest.closing) ? <Callout color="amber">{planLabel}, usable cash goes below zero in the week of {weekOf(plan.lowest.week)}.</Callout>
+      : <Callout color="green">Usable cash stays above zero in all 13 weeks{plan ? ', also with your plan' : ''}.</Callout>}
+    <Table aria-label="Usable cash by week">{head(plan ? ['Week of', 'From the books', planLabel] : ['Week of', 'From the books'])}
+      <Table.Body>{forecast.weeks.map((week, index) => <Table.Row key={week.week} data-week={week.week}
+        data-lowest={String(week.week === forecast.lowest.week)} data-plan-lowest={String(plan !== null && week.week === plan.lowest.week)}>
+        <Table.Cell className="nowrap">{week.start}</Table.Cell><Table.Cell className="figure">{displaySigned(week.closing)}</Table.Cell>
+        {plan && <Table.Cell className="figure">{displaySigned(plan.weeks[index].closing)}</Table.Cell>}</Table.Row>)}</Table.Body></Table>
+    <p>Lowest from the books: <span className="figure">{displaySigned(forecast.lowest.closing)}</span> in the week of {weekOf(forecast.lowest.week)}.
+      {plan && <> {planLabel}: <span className="figure">{displaySigned(plan.lowest.closing)}</span> in the week of {weekOf(plan.lowest.week)}.</>}</p>
+    <section aria-label="What moves each week"><p><strong>What moves</strong></p>
+      {forecast.weeks.every((week, index) => !week.items.length && !(plan && plan.weeks[index].items.length)) ? <p>Nothing in your books or plan moves usable cash in these weeks.</p>
+        : forecast.weeks.map((week, index) => (week.items.length || (plan && plan.weeks[index].items.length)) ? <div key={week.week} className="forecast-week" data-week-items={week.week}>
+          <p>Week of {week.start}</p>
+          <ul>{week.items.map((item, n) => <li key={`b${n}`} data-item-source={item.source}>{item.date} · {item.description} · <span className="figure">{displaySigned(item.amount)}</span> · {SOURCES[item.source]}</li>)}
+            {plan && plan.weeks[index].items.map((item, n) => <li key={`p${n}`} data-item-source={item.scenario ? 'scenario' : 'planned'}>{item.date} · {item.description} · <span className="figure">{displaySigned(item.amount)}</span> · {item.scenario ? `What-if "${item.scenario}"` : 'Planned'}</li>)}</ul>
+        </div> : null)}</section>
+    <section aria-label="Your cash plan"><p><strong>Your cash plan</strong></p>
+      {forecast.plan_items.length ? <ul>{forecast.plan_items.map(item => <li key={item.id} data-plan-item={item.id}>{item.description} · <span className="figure">{displaySigned(item.amount)}</span> · {item.date}
+        {item.every === 'week' ? ', then every week' : item.every === 'month' ? ', then every month' : ''}{item.until ? ` until ${item.until}` : ''}{item.scenario ? ` · what-if "${item.scenario}"` : ''}</li>)}</ul>
+        : <p>Nothing is planned. Tell Maipa about cash you expect or intend and it will ask you to add it.</p>}</section>
+    <p className="forecast-note">Figures from the books use posted entries, entries awaiting your approval and recurring entries. Sales not yet invoiced and bills not yet entered are not included{plan ? '; planned items are your own expectations, not records' : ''}.</p>
+  </div>;
+}
+
+export function LedgerForecast({ userId, bookId, from, scenario }: { userId: string; bookId: string; from: string; scenario: string | null }) {
+  const live = useLive(signal => readForecast(userId, bookId, from, scenario, signal), `${userId}:${bookId}:${from}:${scenario ?? ''}:forecast`);
+  return <Frame label="Cash forecast" phase={live.phase} reload={live.reload}>{live.value && <ForecastView forecast={live.value} />}</Frame>;
 }

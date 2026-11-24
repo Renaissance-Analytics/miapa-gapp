@@ -100,6 +100,16 @@ def reconciliation(request, book_id):
 
 
 @endpoint
+def forecast(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if not {'from'} <= set(request.GET) <= {'from', 'scenario'}:
+        return error('invalid_ledger_request', 400)
+    from . import plans
+    return JsonResponse(plans.forecast(request.user, str(book_id), {key: request.GET[key] for key in request.GET}))
+
+
+@endpoint
 def releases(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')
