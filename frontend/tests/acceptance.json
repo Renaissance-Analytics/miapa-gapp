@@ -2335,6 +2335,16 @@
           "tests": [
             "approvals.test.mjs#a scheduled workflow card says what starts, when, and that it runs by itself"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.report-release-card",
+          "kind": "negative",
+          "given": "A request to release statements with its totals, one no longer valid and one without totals",
+          "when": "Parse and render its card",
+          "then": "The card shows the books, title, range, release number and each key figure, and says the statements are kept as they stand, no entry changes and the release is never rewritten; the invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a statement release card shows the period, the key figures and that the release is kept as it is"
+          ]
         }
       ]
     }

@@ -279,12 +279,13 @@ def _tools():
         'journal.reverse {book_id,journal_id,date} to undo a POSTED entry by posting its exact opposite on that date (each entry reverses once; the original is kept); '
         'opening.balance {book_id,balances,control} to record starting balances on the first day of the book period: balances is a list of {account_id,debit,credit} with exactly one side above zero per account (not 3900), and control is {debit,credit}, the totals of those figures as stated in the source records; any difference between debits and credits goes to 3900 Opening balance equity and is shown to the person; one opening entry per book, reverse it to correct it; '
         'period.close {book_id,through} to lock the books through a date (no drafts may remain on or before it); '
+        'report.release {book_id,from,to,title} to release the statements of a range whose end date is in a closed month: the income statement, balance sheet and cash flow are kept exactly as approved and numbered; if the books later change, the release is shown as out of date and a new release can be requested; '
         'period.reopen {book_id,through} to move the lock back to an earlier date, or through null to reopen fully; '
         'setup.confirm {setup_id,revision} when account setup is at the review step. '
         'Nothing changes until the person approves in the app. Write a short plain summary of what will change (amounts, accounts). '
         'Use one batch_id (a UUID you choose) for related requests so they can be approved together. You cannot approve.',
         'inputSchema': {'type': 'object', 'additionalProperties': False, 'required': ['operation', 'payload', 'summary'], 'properties': {
-            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
+            'operation': {'type': 'string', 'enum': ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'report.release', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm']},
             'payload': {'type': 'object'}, 'summary': {'type': 'string', 'minLength': 1, 'maxLength': 500},
             'batch_id': {'type': 'string', 'format': 'uuid'}}}})
     definitions.append({'name': 'maipa_attachment_read', 'description':

@@ -64,3 +64,12 @@ The agent reads a bounded preview with `maipa_attachment_read`, and may request
 `statement.import` with `{book_id, attachment_id}`; the server binds that exact
 file's name and content into the request before the person approves it. Files
 are private to their owner. Other file types are refused before sending.
+
+## Released statements
+
+`report.release {book_id, from, to, title}` records the income statement, balance sheet and cash flow of a range whose
+end date is in a closed month, exactly as they stand when the person approves. Releases are numbered per book and are
+append-only. `maipa_books_releases` lists them and marks each `unchanged` (the books still give the same figures) and
+`latest` (no newer release of the same range); with `release_id` it returns the kept statements and each total that
+differs today. A release is refused for an open period, for books with integrity findings, and when the latest release
+of the same range already has the same figures.

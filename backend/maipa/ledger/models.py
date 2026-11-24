@@ -198,3 +198,22 @@ class RecurringEntry(models.Model):
         constraints = [models.CheckConstraint(condition=models.Q(day__gte=1, day__lte=31), name='ledger_schedule_day'),
                        models.CheckConstraint(condition=models.Q(ends__isnull=True) | models.Q(ends__gte=models.F('starts')), name='ledger_schedule_range')]
 
+
+class ReportRelease(AppendOnly):
+    """Statements for a closed period as the person approved releasing them. Kept exactly; later changes to the books are shown against it."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='releases', on_delete=models.PROTECT)
+    number = models.PositiveIntegerField()
+    title = models.CharField(max_length=120)
+    period_from = models.DateField()
+    period_to = models.DateField()
+    statements = models.JSONField()
+    totals = models.JSONField()
+    figures_hash = models.CharField(max_length=64)
+    book_revision = models.PositiveIntegerField()
+    released_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('book', 'number'), name='ledger_release_number'),
+                       models.CheckConstraint(condition=models.Q(period_to__gte=models.F('period_from')), name='ledger_release_range')]

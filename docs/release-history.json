@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-66",
+    "label": "Development update 66",
+    "cards": [
+      {
+        "title": "Transfers between your accounts are booked once",
+        "description": "When you move money between two of your bank accounts, it appears on both statements. Maipa now books it as one entry and matches the second statement line to it, so a transfer is never counted twice or mistaken for income."
+      }
+    ]
+  },
+  {
     "id": "development-65",
     "label": "Development update 65",
     "cards": [

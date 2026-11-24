@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'report.release', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'accrual.post': 'Post an accrual and its reversal', 'workflow.schedule': 'Run a workflow on a schedule', 'workflow.unschedule': 'Stop a scheduled workflow', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'accrual.post': 'Post an accrual and its reversal', 'workflow.schedule': 'Run a workflow on a schedule', 'workflow.unschedule': 'Stop a scheduled workflow', 'report.release': 'Release statements', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -163,6 +163,15 @@ export function approvalContent(item: ApprovalRequest): string {
       lines.push('', `Your figures total ${cell(d.control_debit)} in debits and ${cell(d.control_credit)} in credits.`
         + (offset ? ` The difference goes to ${cell(offset.account)} so the entry balances.` : ' They balance, so nothing goes to opening balance equity.'));
     } else lines.push('', 'These opening balances can no longer be recorded as asked. Approving will fail; ask Maipa to prepare them again.');
+  } else if (item.operation === 'report.release') {
+    const totals = d && object(d.totals) ? d.totals : null;
+    if (d && totals && d.current === true) {
+      lines.push('', `${cell(d.books)} · ${cell(d.title)} · ${cell(d.from)} to ${cell(d.to)} · ${cell(d.currency)} · release ${cell(d.number)}`, '', '| Figure | Amount |', '|---|---:|',
+        `| Income | ${cell(totals.total_income)} |`, `| Expenses | ${cell(totals.total_expenses)} |`, `| Net income | ${cell(totals.net_income)} |`,
+        `| Assets | ${cell(totals.total_assets)} |`, `| Liabilities | ${cell(totals.total_liabilities)} |`, `| Equity | ${cell(totals.total_equity)} |`,
+        `| Earnings to date | ${cell(totals.earnings_to_date)} |`, `| Cash at the end | ${cell(totals.closing_cash)} |`,
+        '', 'The income statement, balance sheet and cash flow are kept exactly as they stand now. No entry changes. If the books change later, this release is shown as out of date; it is never rewritten.');
+    } else lines.push('', 'These statements can no longer be released as asked. Approving will fail; ask Maipa to prepare the release again.');
   } else if (item.operation === 'period.close') {
     lines.push('', `Close ${cell(d?.books)} books through ${cell(p.through)}. Entries on or before that date can no longer be added, posted or reversed into. Posted history is not changed.`);
   } else if (item.operation === 'period.reopen') {
