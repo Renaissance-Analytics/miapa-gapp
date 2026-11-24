@@ -2365,6 +2365,16 @@
           "tests": [
             "approvals.test.mjs#a statement release card shows the period, the key figures and that the release is kept as it is"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.group-cards",
+          "kind": "negative",
+          "given": "Requests to group businesses and to remove a group, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The card names each business and the currency and says no entry changes and that amounts between the businesses are not removed yet; the removal card says the books are not touched; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a group card names the businesses and says combined figures are not eliminated"
+          ]
         }
       ]
     }

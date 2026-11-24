@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-70",
+    "label": "Development update 70",
+    "cards": [
+      {
+        "title": "Maipa can reconcile a bank statement",
+        "description": "Ask Maipa whether your books agree with a bank statement. It compares the statement's closing balance with your books, lists the statement lines not yet posted and the entries the bank has not shown, and tells you the exact difference if any remains. It only reports; it changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-69",
     "label": "Development update 69",
     "cards": [

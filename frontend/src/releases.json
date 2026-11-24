@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-90",
+    "label": "Development update 90",
+    "cards": [
+      {
+        "title": "See several businesses together",
+        "description": "If you keep books for more than one business in the same currency, ask Maipa to group them. Maipa can then report income, expenses, assets, liabilities and cash for each business side by side with the total. Amounts the businesses owe each other, or sell to each other, are not removed from the total yet, and Maipa says so."
+      }
+    ]
+  },
+  {
     "id": "development-89",
     "label": "Development update 89",
     "cards": [
@@ -194,16 +204,6 @@
       {
         "title": "Add balances to an earlier statement",
         "description": "A statement imported without its opening and closing balance can have them added, so it can be reconciled. They are accepted only if the statement's lines add up from one to the other."
-      }
-    ]
-  },
-  {
-    "id": "development-70",
-    "label": "Development update 70",
-    "cards": [
-      {
-        "title": "Maipa can reconcile a bank statement",
-        "description": "Ask Maipa whether your books agree with a bank statement. It compares the statement's closing balance with your books, lists the statement lines not yet posted and the entries the bank has not shown, and tells you the exact difference if any remains. It only reports; it changes nothing."
       }
     ]
   }

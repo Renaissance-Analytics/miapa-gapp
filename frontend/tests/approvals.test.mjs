@@ -372,3 +372,19 @@ test('a statement release card shows the period, the key figures and that the re
   assert.match(approvalContent({ ...release, detail: null }), /can no longer be released as asked\. Approving will fail/);
   assert.match(approvalContent({ ...release, detail: { ...detail, totals: null } }), /can no longer be released as asked/);
 });
+
+test('a group card names the businesses and says combined figures are not eliminated', () => {
+  const detail = { name: 'Family <b>companies</b>', currency: 'USD', books: ['Synthetic Holding', 'Synthetic <i>Shop</i>'], current: true };
+  const group = { ...post, operation: 'group.create', summary: 'Group the holding company and the shop', payload: { name: 'Family companies', book_ids: [id(2), id(3)] }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [group], recent: [] }, '1').pending[0].operation, 'group.create');
+  assert.equal(approvalMessage(group).proposal.title, 'Group businesses together');
+  const content = approvalContent(group);
+  assert.match(content, /Read these 2 sets of books together as Family .*companies.* \(USD\):/); assert.match(content, /- Synthetic Holding\n- Synthetic .*Shop/);
+  assert.doesNotMatch(content, /<b>|<i>/);
+  assert.match(content, /No entry or balance changes\. Combined figures add the businesses up; amounts they owe each other, or sell to each other, are not removed yet\./);
+  assert.match(approvalContent({ ...group, detail: null }), /can no longer be made as asked\. Approving will fail/);
+  const remove = { ...post, operation: 'group.remove', summary: 'Remove the group', payload: { group_id: id(4) }, detail };
+  assert.equal(approvalMessage(remove).proposal.title, 'Remove a group');
+  assert.match(approvalContent(remove), /Remove the group Family .*companies.* \(USD\):[\s\S]*The books and their entries are not touched\./);
+  assert.match(approvalContent({ ...remove, detail: null }), /could not be found\. Approving will fail\./);
+});

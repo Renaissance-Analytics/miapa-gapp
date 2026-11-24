@@ -81,3 +81,11 @@ each operation and its exact payload fields; the rules of each operation are app
 come from `backend/maipa/agent_accounts/action_reference.py`. Tests require every server operation to appear with
 exactly the fields the server enforces and every tool description to stay under 3,500 characters. A request with the
 wrong payload shape is refused with `expected_payload`, the fields that were expected.
+
+## Entity groups
+
+`group.create {name, book_ids}` saves a named group of two or more of the person's own books in one currency;
+`group.remove {group_id}` removes it. Neither changes a book. `maipa_books_groups` lists groups and, with a group and a
+date range, returns the combined income statement, balance sheet and cash totals: every row and total carries one
+amount per member book and their sum. Accounts combine only when code and name agree. `eliminated` is always false:
+balances and sales between the members are not removed, and the agent is told to say so.

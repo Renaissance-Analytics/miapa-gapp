@@ -217,3 +217,22 @@ class ReportRelease(AppendOnly):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('book', 'number'), name='ledger_release_number'),
                        models.CheckConstraint(condition=models.Q(period_to__gte=models.F('period_from')), name='ledger_release_range')]
+
+
+class EntityGroup(models.Model):
+    """Books the person asked to read together. Grouping changes no book; removing a group only hides it."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    name = models.CharField(max_length=120)
+    created_at = models.DateTimeField(default=timezone.now)
+    removed_at = models.DateTimeField(null=True)
+
+
+class EntityGroupBook(models.Model):
+    group = models.ForeignKey(EntityGroup, related_name='members', on_delete=models.PROTECT)
+    book = models.ForeignKey(Book, related_name='+', on_delete=models.PROTECT)
+    position = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('group', 'book'), name='ledger_group_book'),
+                       models.UniqueConstraint(fields=('group', 'position'), name='ledger_group_position')]
