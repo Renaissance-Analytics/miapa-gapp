@@ -236,3 +236,12 @@ class EntityGroupBook(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=('group', 'book'), name='ledger_group_book'),
                        models.UniqueConstraint(fields=('group', 'position'), name='ledger_group_position')]
+
+
+class EntityGroupElimination(models.Model):
+    """An account of a member book the person approved as holding dealings with other members of the group."""
+    group = models.ForeignKey(EntityGroup, related_name='eliminations', on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('group', 'account'), name='ledger_group_elimination')]

@@ -48,6 +48,8 @@ OPERATIONS = (
      'to lock the books through a date (no drafts may remain on or before it)'),
     ('group.create', '{name,book_ids}',
      'to save a named group of two or more of the person\'s books in the same currency so they can be read together; it changes no book'),
+    ('group.eliminate', '{group_id,account_ids}',
+     'to set which accounts of the member books hold dealings between the grouped businesses (amounts they owe each other, loans, investments in each other, sales and charges between them); account_ids is the complete list and replaces the earlier one, an empty list clears it. Those accounts are left out of the consolidated totals. Ask the person which accounts these are; never guess'),
     ('group.remove', '{group_id}',
      'to remove a group (ids from maipa_books_groups); the books and their entries are not touched'),
     ('report.release', '{book_id,from,to,title}',

@@ -8480,6 +8480,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C03-ELIMINATIONS",
+      "risk": "Consolidated totals that remove accounts nobody approved, hide a dealing recorded by one business only, change a book, or are called eliminated when they do not cancel out would misstate the group.",
+      "scenarios": [
+        {
+          "id": "C03-ELIMINATIONS.cancel-out",
+          "kind": "positive",
+          "given": "Two grouped businesses with a loan and a management fee recorded by both, in accounts created for dealings between them",
+          "when": "Read the report, request the four accounts for removal, read its card, approve it, read the report, and approve an empty list",
+          "then": "Before approval nothing is consolidated; the card lists each account by business and kind; after approval the side-by-side figures are unchanged, the consolidated totals leave out exactly the approved amounts, both differences are zero and the report is eliminated; no entry changes; an empty list clears it.",
+          "tests": [
+            "tests.test_entity_groups.GroupEliminationTests.test_approved_accounts_are_removed_from_the_totals_and_the_report_is_eliminated_when_they_cancel"
+          ]
+        },
+        {
+          "id": "C03-ELIMINATIONS.one-sided",
+          "kind": "negative",
+          "given": "The same accounts approved, but the fee recorded by one business only",
+          "when": "Read the report for the range with the fee and for an earlier range",
+          "then": "With the fee the differences equal the unrecorded amount and the report is not eliminated; for the earlier range the loan cancels and it is.",
+          "tests": [
+            "tests.test_entity_groups.GroupEliminationTests.test_dealings_recorded_on_one_side_only_are_shown_as_a_difference_and_not_called_eliminated"
+          ]
+        },
+        {
+          "id": "C03-ELIMINATIONS.refusals",
+          "kind": "negative",
+          "given": "Accounts of a book outside the group, of another person and unknown accounts, a repeated account, malformed and oversized lists, another person, an unknown group and a padded request",
+          "when": "Request them",
+          "then": "Each is refused with its code where one applies, no request is saved and nothing is consolidated.",
+          "tests": [
+            "tests.test_entity_groups.GroupEliminationTests.test_accounts_outside_the_group_repeats_and_other_people_are_refused_and_nothing_is_marked"
+          ]
+        }
+      ]
     }
   ]
 }

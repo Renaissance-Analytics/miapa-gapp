@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-71",
+    "label": "Development update 71",
+    "cards": [
+      {
+        "title": "Record a bank reconciliation",
+        "description": "When a statement agrees with your books, you can approve recording that you reviewed it. Maipa keeps the figures as they stood and tells you if later changes alter them. A statement with any difference cannot be recorded."
+      },
+      {
+        "title": "Add balances to an earlier statement",
+        "description": "A statement imported without its opening and closing balance can have them added, so it can be reconciled. They are accepted only if the statement's lines add up from one to the other."
+      }
+    ]
+  },
+  {
     "id": "development-70",
     "label": "Development update 70",
     "cards": [

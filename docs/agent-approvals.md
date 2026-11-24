@@ -87,5 +87,10 @@ wrong payload shape is refused with `expected_payload`, the fields that were exp
 `group.create {name, book_ids}` saves a named group of two or more of the person's own books in one currency;
 `group.remove {group_id}` removes it. Neither changes a book. `maipa_books_groups` lists groups and, with a group and a
 date range, returns the combined income statement, balance sheet and cash totals: every row and total carries one
-amount per member book and their sum. Accounts combine only when code and name agree. `eliminated` is always false:
-balances and sales between the members are not removed, and the agent is told to say so.
+amount per member book and their sum. Accounts combine only when code and name agree.
+
+`group.eliminate {group_id, account_ids}` sets the complete list of member-book accounts that hold dealings between
+the members (an empty list clears it). The report then carries `consolidated`: the totals without those accounts, each
+removed amount, and `income_difference` and `balance_difference`. `eliminated` is true only when accounts are approved
+and both differences are zero; a dealing recorded by one member only shows up as a difference, never as a silent
+adjustment. The side-by-side figures are never changed.

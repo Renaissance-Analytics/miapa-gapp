@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-91",
+    "label": "Development update 91",
+    "cards": [
+      {
+        "title": "Consolidated totals for grouped businesses",
+        "description": "Tell Maipa which accounts hold dealings between your grouped businesses, such as loans or charges to each other, and approve the list once. Combined reports then add consolidated totals without those accounts. If one business recorded something the other did not, Maipa shows the difference instead of calling the figures consolidated."
+      }
+    ]
+  },
+  {
     "id": "development-90",
     "label": "Development update 90",
     "cards": [
@@ -190,20 +200,6 @@
       {
         "title": "See your statements and reconciliation beside the chat",
         "description": "Ask Maipa to show your bank statements or a reconciliation. The list says what each statement still needs before it can be reconciled, and the reconciliation shows bank against books, the open items and the exact difference, read live from your books."
-      }
-    ]
-  },
-  {
-    "id": "development-71",
-    "label": "Development update 71",
-    "cards": [
-      {
-        "title": "Record a bank reconciliation",
-        "description": "When a statement agrees with your books, you can approve recording that you reviewed it. Maipa keeps the figures as they stood and tells you if later changes alter them. A statement with any difference cannot be recorded."
-      },
-      {
-        "title": "Add balances to an earlier statement",
-        "description": "A statement imported without its opening and closing balance can have them added, so it can be reconciled. They are accepted only if the statement's lines add up from one to the other."
       }
     ]
   }

@@ -231,6 +231,8 @@ OPERATIONS = {
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
     'group.create': (('name', 'book_ids'), lambda user, p: ledger_groups.group_check(user, p), lambda user, p: ledger_groups.create_group(user, p)),
+    'group.eliminate': (('group_id', 'account_ids'), lambda user, p: ledger_groups.eliminate_check(user, p),
+        lambda user, p: ledger_groups.set_eliminations(user, p)),
     'group.remove': (('group_id',), lambda user, p: ledger_groups.remove_check(user, p['group_id']),
         lambda user, p: ledger_groups.remove_group(user, p['group_id'])),
     'report.release': (('book_id', 'from', 'to', 'title'), _check_release,
@@ -271,6 +273,8 @@ def _detail(row):
                               for line in journal.lines.select_related('account').order_by('position')]}
         if row.operation == 'group.create':
             return ledger_groups.describe(row.user, row.payload)
+        if row.operation == 'group.eliminate':
+            return ledger_groups.describe_eliminate(row.user, row.payload)
         if row.operation == 'group.remove':
             return ledger_groups.describe_remove(row.user, row.payload['group_id'])
         if row.operation == 'report.release':
