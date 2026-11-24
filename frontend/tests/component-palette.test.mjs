@@ -4,8 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
-import { AccountsTable, ActivityTable, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
-import { parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
+import { AccountsTable, ActivityTable, CloseReviewView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
+import { parseCloseReview, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
   const schema = compositionSchema({ id: 'overview', type: 'Maipa.Stack', children: [
@@ -222,4 +222,61 @@ test('the cash flow is shown only when it reconciles, and an unmarked book says 
     bridge: { net_income: '350.5000', not_in_cash: '-350.5000', other_accounts: '0.0000', net_change: '0.0000' } } };
   const none = renderToStaticMarkup(React.createElement(ReportView, { report: parseFinancialReport(structuredClone(unmarked), BOOK, '2026-01-01', '2026-03-31') }));
   assert.match(none, /data-cash-flow="unmarked"/); assert.match(none, /No account is marked as a bank account or cash on hand yet/); assert.doesNotMatch(none, /Cash at the end/); assert.doesNotMatch(none, /data-cash-bridge/);
+});
+
+const closeReview = { book_id: BOOK, currency: 'USD', revision: 64, through: '2026-06-30', period_start: '2026-01-01', period_end: '2026-06-30', closed_through: '2026-02-28',
+  calendar: [['01', '2026-01-31', 'closed'], ['02', '2026-02-28', 'closed'], ['03', '2026-03-31', 'open'], ['04', '2026-04-30', 'open'], ['05', '2026-05-31', 'open'], ['06', '2026-06-30', 'open']]
+    .map(([m, ends, state]) => ({ month: `2026-${m}`, ends, state })),
+  checks: [
+    { key: 'drafts', ok: false, count: 1, items: [{ journal_id: RENT, sequence: 21, date: '2026-06-10', description: 'Office <b>supplies</b>', amount: '120.0000' }] },
+    { key: 'statement_lines', ok: false, count: 2, items: [{ row_id: CASH, date: '2026-06-03', description: 'Card fee', amount: '-10.0000', status: 'pending' },
+      { row_id: STATEMENT, date: '2026-06-05', description: 'Client payment', amount: '1250.5000', status: 'proposed' }] },
+    { key: 'reconciliations', ok: false, count: 1, items: [{ import_id: STATEMENT, filename: 'june.csv', last_date: '2026-06-05', account: '1000 Checking', state: 'needs_balances' }] },
+    { key: 'integrity', ok: true, count: 0, items: [] }],
+  can_close: false, blocking: 'ledger_period_has_drafts', ready: false };
+
+test('a close review definition holds only its book and a real date, never results', () => {
+  const good = { book_id: BOOK, through: '2026-06-30' };
+  const one = { id: 'june-close', type: 'Maipa.CloseReview', props: good };
+  assert.deepEqual(compositionSchema(one), one);
+  for (const props of [undefined, {}, { book_id: BOOK }, { ...good, book_id: 'books' }, { ...good, through: '2026-02-30' }, { ...good, through: '2026-6-30' },
+    { ...good, through: 20260630 }, { ...good, ready: true }, { ...good, checks: [] }])
+    assert.throws(() => compositionSchema({ id: 'bad', type: 'Maipa.CloseReview', ...(props ? { props } : {}) }), undefined, JSON.stringify(props));
+  assert.throws(() => compositionSchema({ id: 'twice', type: 'Maipa.Stack', children: [{ id: 'a', type: 'Maipa.CloseReview', props: good }, { id: 'b', type: 'Maipa.CloseReview', props: good }] }));
+  const html = renderToStaticMarkup(React.createElement(AgentSurface, { userId: '1', ui: { composition: { title: 'Closing June', schema: compositionSchema(one) } } }));
+  assert.match(html, /aria-label="Close review"[^>]*aria-busy="true"/);
+});
+
+test('a close review is accepted only when it is consistent, and shows each check with its items', () => {
+  assert.deepEqual(parseCloseReview(structuredClone(closeReview), BOOK, '2026-06-30'), closeReview);
+  const html = renderToStaticMarkup(React.createElement(CloseReviewView, { review: closeReview }));
+  assert.match(html, /data-close-through="2026-06-30"/); assert.match(html, /data-close-ready="false"/); assert.match(html, /data-close-can="false"/);
+  assert.match(html, /Closing through 2026-06-30/); assert.match(html, /Closed through 2026-02-28/);
+  assert.equal(html.split('data-close-month=').length, 7); assert.equal(html.split('data-month-state="closed"').length, 3);
+  for (const text of ['Draft entries', 'Statement lines without an entry', 'Statements not reconciled', 'Entries pass the integrity check',
+    'A draft entry is dated in this period, so the books cannot be closed until it is posted or discarded.', 'Card fee', '−10.00', 'Client payment', '1,250.50',
+    'june.csv', 'Needs its opening and closing balance', '#21 Office &lt;b&gt;supplies&lt;/b&gt;', '120.00', 'Entry awaiting your review'])
+    assert.equal(html.includes(text), true, text);
+  assert.doesNotMatch(html, /<b>supplies/);
+  assert.equal(html.split('data-check-ok="false"').length, 4); assert.equal(html.split('data-check-ok="true"').length, 2);
+  // Integrity findings exactly as the server reports them, with and without an entry.
+  const damaged = { ...closeReview, checks: [...closeReview.checks.slice(0, 3), { key: 'integrity', ok: false, count: 2,
+    items: [{ code: 'journal_unbalanced', journal_id: RENT, sequence: 21 }, { code: 'event_history_incomplete', journal_id: null, sequence: null }] }] };
+  const findings = renderToStaticMarkup(React.createElement(CloseReviewView, { review: parseCloseReview(structuredClone(damaged), BOOK, '2026-06-30') }));
+  assert.match(findings, /2 findings: ask Maipa to explain them before closing\./); assert.equal(findings.split('data-check-ok="false"').length, 5);
+  const clear = { ...closeReview, closed_through: null, checks: closeReview.checks.map(c => ({ ...c, ok: true, count: 0, items: [] })), can_close: true, blocking: null, ready: true,
+    calendar: closeReview.calendar.map(m => ({ ...m, state: 'open' })) };
+  const ready = renderToStaticMarkup(React.createElement(CloseReviewView, { review: parseCloseReview(structuredClone(clear), BOOK, '2026-06-30') }));
+  assert.match(ready, /data-close-ready="true"/); assert.match(ready, /Nothing is outstanding\. Closing stays your decision\./); assert.doesNotMatch(ready, /Closed through/);
+  const closed = { ...clear, can_close: false, blocking: 'ledger_period_already_closed', ready: false };
+  assert.match(renderToStaticMarkup(React.createElement(CloseReviewView, { review: parseCloseReview(structuredClone(closed), BOOK, '2026-06-30') })), /already closed through this date or later/);
+  for (const change of [{ ready: true }, { can_close: true }, { blocking: 'something_else' }, { through: '2026-05-31' }, { book_id: RENT },
+    { checks: closeReview.checks.slice(1) }, { checks: [{ ...closeReview.checks[0], ok: true }, ...closeReview.checks.slice(1)] },
+    { checks: [{ ...closeReview.checks[0], count: 2 }, ...closeReview.checks.slice(1)] }, { checks: [...closeReview.checks.slice(0, 3), { ...closeReview.checks[3], key: 'other' }] },
+    { checks: [closeReview.checks[0], { ...closeReview.checks[1], items: [{ ...closeReview.checks[1].items[0], status: 'posted' }, closeReview.checks[1].items[1]] }, ...closeReview.checks.slice(2)] },
+    { checks: [...closeReview.checks.slice(0, 2), { ...closeReview.checks[2], items: [{ ...closeReview.checks[2].items[0], state: 'fine' }] }, closeReview.checks[3]] },
+    { calendar: [{ month: '2026-01', ends: '2026-01-31', state: 'paused' }] }, { note: 'x' },
+    { checks: [...closeReview.checks.slice(0, 3), { key: 'integrity', ok: false, count: 1, items: [{ code: 'journal_unbalanced', journal_id: RENT }] }] },
+    { checks: [...closeReview.checks.slice(0, 3), { key: 'integrity', ok: false, count: 1, items: [{ code: 'Bad Code', journal_id: null, sequence: null }] }] }])
+    assert.throws(() => parseCloseReview({ ...structuredClone(closeReview), ...structuredClone(change) }, BOOK, '2026-06-30'), undefined, JSON.stringify(change));
 });

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-62",
+    "label": "Development update 62",
+    "cards": [
+      {
+        "title": "Attach an Excel statement",
+        "description": "You can now attach a bank statement saved as an Excel file (.xlsx) in the chat, not only a CSV. It needs one sheet with the headings date, description and amount. Maipa keeps your original file and tells you exactly which row to fix if something is wrong."
+      }
+    ]
+  },
+  {
     "id": "development-61",
     "label": "Development update 61",
     "cards": [

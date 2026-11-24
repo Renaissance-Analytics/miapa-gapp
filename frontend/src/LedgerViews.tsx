@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type FinancialReport, type LedgerSnapshot, type ReportRow,
+import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CloseReview, type FinancialReport, type LedgerSnapshot, type ReportRow,
   type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
@@ -226,4 +226,43 @@ export function ReportView({ report }: { report: FinancialReport }) {
 export function LedgerReport({ userId, bookId, from, to }: { userId: string; bookId: string; from: string; to: string }) {
   const live = useLive(signal => readFinancialReport(userId, bookId, from, to, signal), `${userId}:${bookId}:${from}:${to}:report`);
   return <Frame label="Financial statements" phase={live.phase} reload={live.reload}>{live.value && <ReportView report={live.value} />}</Frame>;
+}
+
+const CHECK_TITLES = { drafts: 'Draft entries', statement_lines: 'Statement lines without an entry', reconciliations: 'Statements not reconciled', integrity: 'Entries pass the integrity check' } as const;
+const STATEMENT_STATES = { needs_account: 'Needs its bank account', needs_balances: 'Needs its opening and closing balance', not_recorded: 'Agrees, not yet recorded as reviewed',
+  difference: 'Has an unexplained difference', changed: 'Changed since it was recorded' } as const;
+const LINE_STATES = { pending: 'Needs an entry', proposed: 'Entry awaiting your review' } as const;
+const BLOCKS: Record<string, string> = { ledger_period_has_drafts: 'A draft entry is dated in this period, so the books cannot be closed until it is posted or discarded.',
+  ledger_period_already_closed: 'The books are already closed through this date or later.' };
+
+export function CloseReviewView({ review }: { review: CloseReview }) {
+  const [drafts, lines, statements, integrity] = review.checks;
+  return <div data-close-through={review.through} data-close-ready={String(review.ready)} data-close-can={String(review.can_close)} data-book-revision={review.revision}>
+    <p>Closing through {review.through} · {review.currency}{review.closed_through ? ` · Closed through ${review.closed_through}` : ''}</p>
+    <ol className="close-calendar" aria-label="Months of the book period">
+      {review.calendar.map(month => <li key={month.month} data-close-month={month.month} data-month-state={month.state}>{month.month} · {month.state === 'closed' ? 'Closed' : 'Open'}</li>)}
+    </ol>
+    {review.blocking ? <Callout color="amber">{BLOCKS[review.blocking]}</Callout>
+      : review.ready ? <Callout color="green">Nothing is outstanding. Closing stays your decision.</Callout>
+      : <Callout color="blue">The books can be closed, but some items are still open. Closing stays your decision.</Callout>}
+    {review.checks.map(check => <section key={check.key} data-check={check.key} data-check-ok={String(check.ok)} aria-label={CHECK_TITLES[check.key]}>
+      <p><strong>{CHECK_TITLES[check.key]}</strong> · {check.ok ? (check.key === 'integrity' ? 'No findings' : 'None') : `${check.count} open`}</p>
+      {check === drafts && !check.ok && <Table aria-label="Draft entries in this period">{head(['Date', 'Entry', 'Amount'])}
+        <Table.Body>{(check.items as CloseItemDraft[]).map(item => <Table.Row key={item.journal_id}><Table.Cell>{item.date}</Table.Cell>
+          <Table.Cell>#{item.sequence} {item.description}</Table.Cell><Table.Cell>{displayMoney(item.amount)}</Table.Cell></Table.Row>)}</Table.Body></Table>}
+      {check === lines && !check.ok && <Table aria-label="Statement lines without an entry">{head(['Date', 'Statement line', 'Amount', 'State'])}
+        <Table.Body>{(check.items as CloseItemLine[]).map(item => <Table.Row key={item.row_id}><Table.Cell>{item.date}</Table.Cell><Table.Cell>{item.description}</Table.Cell>
+          <Table.Cell>{displaySigned(item.amount)}</Table.Cell><Table.Cell>{LINE_STATES[item.status]}</Table.Cell></Table.Row>)}</Table.Body></Table>}
+      {check === statements && !check.ok && <Table aria-label="Statements not reconciled">{head(['Statement', 'Bank account', 'Last date', 'State'])}
+        <Table.Body>{(check.items as CloseItemStatement[]).map(item => <Table.Row key={item.import_id}><Table.Cell>{item.filename}</Table.Cell><Table.Cell>{item.account ?? '—'}</Table.Cell>
+          <Table.Cell>{item.last_date}</Table.Cell><Table.Cell>{STATEMENT_STATES[item.state]}</Table.Cell></Table.Row>)}</Table.Body></Table>}
+      {check === integrity && !check.ok && <p>{check.count} {check.count === 1 ? 'finding' : 'findings'}: ask Maipa to explain them before closing.</p>}
+      {check.count > check.items.length && <p>Showing the first {check.items.length} of {check.count}.</p>}
+    </section>)}
+  </div>;
+}
+
+export function LedgerCloseReview({ userId, bookId, through }: { userId: string; bookId: string; through: string }) {
+  const live = useLive(signal => readCloseReview(userId, bookId, through, signal), `${userId}:${bookId}:${through}:close-review`);
+  return <Frame label="Close review" phase={live.phase} reload={live.reload}>{live.value && <CloseReviewView review={live.value} />}</Frame>;
 }

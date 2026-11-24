@@ -172,3 +172,38 @@ export async function postJournal(user:string,b:LedgerBook,j:Journal,signal:Abor
  if(!object(v)||!exact(v,['state','journal_id','actor_id','payload_hash','revision','at'])||v.state!=='posted'||v.journal_id!==j.id||v.actor_id!==user||v.payload_hash!==j.payload_hash||v.revision!==b.revision+1||typeof v.at!=='string'||!Number.isFinite(Date.parse(v.at)))throw unavailable();
  return v;
 }
+
+export interface CloseItemDraft {journal_id:string;sequence:number;date:string;description:string;amount:string}
+export interface CloseItemLine {row_id:string;date:string;description:string;amount:string;status:'pending'|'proposed'}
+export interface CloseItemStatement {import_id:string;filename:string;last_date:string;account:string|null;state:'needs_account'|'needs_balances'|'not_recorded'|'difference'|'changed'}
+export interface CloseCheck {key:'drafts'|'statement_lines'|'reconciliations'|'integrity';ok:boolean;count:number;items:unknown[]}
+export interface CloseReview {book_id:string;currency:string;revision:number;through:string;period_start:string;period_end:string;closed_through:string|null;
+ calendar:{month:string;ends:string;state:'open'|'closed'}[];checks:CloseCheck[];can_close:boolean;blocking:string|null;ready:boolean}
+const CLOSE_KEYS=['drafts','statement_lines','reconciliations','integrity'];
+const BLOCKING=['ledger_period_has_drafts','ledger_period_already_closed'];
+const closeItem=(key:string,i:unknown):boolean=>{
+ if(!object(i))return false;
+ if(key==='drafts')return exact(i,['journal_id','sequence','date','description','amount'])&&uuid(i.journal_id)&&integer(i.sequence)&&day(i.date)&&typeof i.description==='string'&&i.description.length<=500&&amount(i.amount);
+ if(key==='statement_lines')return exact(i,['row_id','date','description','amount','status'])&&uuid(i.row_id)&&day(i.date)&&typeof i.description==='string'&&i.description.length<=500&&signed(i.amount)&&(i.status==='pending'||i.status==='proposed');
+ if(key==='reconciliations')return exact(i,['import_id','filename','last_date','account','state'])&&uuid(i.import_id)&&typeof i.filename==='string'&&i.filename.length<=255&&day(i.last_date)&&(i.account===null||(typeof i.account==='string'&&i.account.length<=300))
+  &&['needs_account','needs_balances','not_recorded','difference','changed'].includes(String(i.state));
+ // An integrity finding, as verify_book reports it: the rule broken, and the entry when there is one.
+ return exact(i,['code','journal_id','sequence'])&&typeof i.code==='string'&&/^[a-z_]{1,64}$/.test(i.code)
+  &&((i.journal_id===null&&i.sequence===null)||(uuid(i.journal_id)&&integer(i.sequence)));
+};
+/** A close review is accepted only for this book and date, with the four checks in order and flags that agree with them. */
+export function parseCloseReview(v:unknown,bookId:string,through:string):CloseReview{
+ if(!object(v)||!exact(v,['book_id','currency','revision','through','period_start','period_end','closed_through','calendar','checks','can_close','blocking','ready'])
+  ||v.book_id!==bookId||v.through!==through||!currency(v.currency)||!integer(v.revision)||!day(v.period_start)||!day(v.period_end)||(v.closed_through!==null&&!day(v.closed_through))
+  ||typeof v.can_close!=='boolean'||typeof v.ready!=='boolean'||!Array.isArray(v.calendar)||v.calendar.length>120||!Array.isArray(v.checks)||v.checks.length!==4)throw unavailable();
+ if(!v.calendar.every(m=>object(m)&&exact(m,['month','ends','state'])&&typeof m.month==='string'&&/^[0-9]{4}-[0-9]{2}$/.test(m.month)&&day(m.ends)&&(m.state==='open'||m.state==='closed')))throw unavailable();
+ const checks=v.checks;
+ if(!checks.every((c,n)=>object(c)&&exact(c,['key','ok','count','items'])&&c.key===CLOSE_KEYS[n]&&typeof c.ok==='boolean'&&integer(c.count)&&Array.isArray(c.items)&&c.items.length<=50
+  &&c.ok===(c.count===0)&&c.items.length===Math.min(c.count,50)&&c.items.every(i=>closeItem(String(c.key),i))))throw unavailable();
+ if(v.can_close!==(v.blocking===null)||(v.blocking!==null&&!BLOCKING.includes(String(v.blocking)))||v.ready!==(v.can_close&&checks.every(c=>(c as CloseCheck).ok)))throw unavailable();
+ return v as unknown as CloseReview;
+}
+export async function readCloseReview(user:string,bookId:string,through:string,signal:AbortSignal,fetcher:typeof fetch=fetch){
+ if(!uuid(bookId)||!day(through))throw unavailable();
+ return parseCloseReview(await request(user,`/api/books/${bookId}/close-review/?through=${through}`,signal,undefined,fetcher),bookId,through);
+}

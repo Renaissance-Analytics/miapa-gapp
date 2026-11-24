@@ -2996,6 +2996,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_report_view_accepts_only_an_exact_book_and_a_real_date_range"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.close-review-view",
+          "kind": "negative",
+          "given": "A close review schema naming an exact book and a real date, and ones with missing, malformed or impossible values, supplied results, another user, no props, or the component twice",
+          "when": "Present or update the composition",
+          "then": "The exact schema is saved unchanged; every other schema is refused and the saved composition does not change.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_close_review_view_accepts_only_an_exact_book_and_a_real_date"
+          ]
         }
       ]
     },

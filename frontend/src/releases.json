@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-82",
+    "label": "Development update 82",
+    "cards": [
+      {
+        "title": "See the month-end checklist beside the chat",
+        "description": "Maipa can open the close checklist next to the conversation: which months are closed, and for the date you want to close, every draft, unposted statement line and unreconciled statement still open. It reads your books live and changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-81",
     "label": "Development update 81",
     "cards": [
@@ -202,16 +212,6 @@
       {
         "title": "Approval cards show the whole request",
         "description": "A long description on an approval card is no longer cut off part-way, so you can read everything Maipa is asking you to approve. Maipa is also told to keep its own working notes out of its replies."
-      }
-    ]
-  },
-  {
-    "id": "development-62",
-    "label": "Development update 62",
-    "cards": [
-      {
-        "title": "Attach an Excel statement",
-        "description": "You can now attach a bank statement saved as an Excel file (.xlsx) in the chat, not only a CSV. It needs one sheet with the headings date, description and amount. Maipa keeps your original file and tells you exactly which row to fix if something is wrong."
       }
     ]
   }
