@@ -1,12 +1,17 @@
 """Moving an install between databases: every record arrives exactly, or nothing does."""
 import io
+import sqlite3
+import tempfile
 import uuid
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import connections
 from django.test import TransactionTestCase
+from unittest.mock import patch
 
 from backend.maipa import datacopy
 from backend.maipa.approvals import services as approvals
@@ -123,3 +128,32 @@ class DatabaseCopyTests(TransactionTestCase):
         self.assertEqual(changed.getvalue().strip(), 'DIFFERENT ledger.Journal: source 1 rows, target 1 rows')
         with self.assertRaisesMessage(CommandError, 'refused: unknown_database'):
             call_command('copy_database', source='default', target='elsewhere', stdout=io.StringIO())
+
+    def test_an_export_writes_a_complete_sqlite_file_and_never_leaves_a_partial_one(self):
+        with tempfile.TemporaryDirectory(prefix='maipa-export-test-') as folder:
+            target = Path(folder).resolve() / 'maipa.sqlite3'
+            target.write_bytes(b'previous file')
+            before = set(connections.databases)
+            # The export registers its own short-lived database; the test framework must be told it is expected.
+            allowed = patch.object(DatabaseCopyTests, 'databases', frozenset(('default', 'copy_target', 'export_file')))
+            allowed.start(); self.addCleanup(allowed.stop)
+            counts = datacopy.export_to_sqlite('default', target)
+            self.assertEqual(counts, {label: value['rows'] for label, value in datacopy.digest('default').items()})
+            self.assertEqual((set(connections.databases), sorted(item.name for item in Path(folder).iterdir())), (before, ['maipa.sqlite3']))
+            with sqlite3.connect(target) as written:
+                self.assertEqual(written.execute('select count(*) from ledger_journalline').fetchone()[0], 2)
+                self.assertEqual(written.execute("select state from ledger_journal").fetchone()[0], 'posted')
+                self.assertEqual(written.execute('select count(*) from django_migrations').fetchone()[0] > 50, True)
+                self.assertEqual(written.execute('pragma integrity_check').fetchone()[0], 'ok')
+            written.close()
+            # A failed export keeps the previous file and removes its temporary one.
+            good = target.read_bytes()
+            self.user.user_permissions.add(Permission.objects.first())
+            with self.assertRaises(datacopy.CopyRefused) as refused:
+                datacopy.export_to_sqlite('default', target)
+            self.assertEqual((refused.exception.code, target.read_bytes() == good, sorted(item.name for item in Path(folder).iterdir()), set(connections.databases)),
+                             ('unsupported_permission_rows', True, ['maipa.sqlite3'], before))
+            for bad in ('relative.sqlite3', str(Path(folder) / 'missing-folder' / 'maipa.sqlite3'), str(Path(folder) / 'maipa.db')):
+                with self.assertRaises(datacopy.CopyRefused, msg=bad) as refused:
+                    datacopy.export_to_sqlite('default', bad)
+                self.assertEqual(refused.exception.code, 'invalid_export_path')
