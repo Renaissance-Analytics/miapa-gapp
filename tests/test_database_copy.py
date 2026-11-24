@@ -23,7 +23,6 @@ NOTE = {'id': 'review-note', 'type': 'Maipa.Note', 'props': {'text': 'Synthetic 
 
 class DatabaseCopyTests(TransactionTestCase):
     databases = {'default', 'copy_target'}
-    serialized_rollback = True
 
     def setUp(self):
         BootstrapState.objects.update_or_create(slot=1, defaults={'closed': True})

@@ -64,7 +64,9 @@ class WorkspaceLayoutTests(TestCase):
         WorkspaceLayout.objects.create(user=self.owner, installation=self.installation, split_basis_points=2800, revision=0)
         WorkspaceLayout.objects.create(user=self.other, installation=self.installation, split_basis_points=2800, revision=1)
         migration = import_module('backend.maipa.workspace.migrations.0006_chat_first_layout')
-        migration.update_untouched_default(apps, None)
+        from types import SimpleNamespace
+        from django.db import connection
+        migration.update_untouched_default(apps, SimpleNamespace(connection=connection))
         self.assertEqual(WorkspaceLayout.objects.get(user=self.owner).split_basis_points, 6000)
         chosen = WorkspaceLayout.objects.get(user=self.other)
         self.assertEqual((chosen.split_basis_points, chosen.revision), (2800, 1))
