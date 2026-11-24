@@ -260,12 +260,15 @@ async function fill(id, value) {
   await until(() => evaluate(`document.getElementById(${JSON.stringify(id)})?.value === ${JSON.stringify(value)}`), 'native input accepted');
 }
 async function select(id, value) {
-  const navigation = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
+  // Like click(): wait until the control is enabled and already lists the wanted option. The list is filled by a
+  // request that may still be in flight; reading it once, immediately, failed intermittently even on an idle machine.
+  let navigation = null;
+  await until(async () => { navigation = await evaluate(`(() => { const field=document.getElementById(${JSON.stringify(id)});
     if (!field || field.tagName!=='SELECT' || field.disabled) return null;
     field.scrollIntoView({block:'center'}); field.focus();
     const options=[...field.options].filter(o=>!o.disabled), target=options.findIndex(o=>o.value===${JSON.stringify(value)});
     return {target, last:options.length-1, current:options.findIndex(o=>o.value===field.value)}; })()`);
-  assert.ok(navigation && navigation.target >= 0, 'Selectable recorded option');
+    return !!navigation && navigation.target >= 0; }, 'Selectable recorded option');
   // Commit one native selection when choosing an endpoint or adjacent option.
   // Intermediate account changes immediately lock this authority-bound control.
   const {target, last, current} = navigation;
