@@ -8225,6 +8225,93 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C02-SCHEDULED-RUNS",
+      "risk": "A schedule that starts without approval, starts a time slot twice, keeps running for someone whose access was removed, runs an edited version nobody approved, or can be taken over by another person would act for the person unseen.",
+      "scenarios": [
+        {
+          "id": "C02-SCHEDULED-RUNS.once-per-slot",
+          "kind": "positive",
+          "given": "A request to start a published workflow every day at 09:00 UTC with an input",
+          "when": "Read its card, approve it, check for due runs before, at and after two slots, publish a newer version, and work a run",
+          "then": "The card names the workflow, version, timing and first run; approval saves the schedule and starts nothing; each slot starts exactly one run as the owner with the approved input and version, also after a newer version is published; the run completes with the input in its output; repeating the approval changes nothing.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_an_approved_schedule_starts_one_run_per_slot_with_the_pinned_version_and_seed"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.slots",
+          "kind": "positive",
+          "given": "Daily, weekly and monthly schedules, the worker stopped for three days, and a month shorter than the chosen day",
+          "when": "Check for due runs and list the schedules",
+          "then": "Only the latest missed slot runs; the weekly slot falls on its weekday and the monthly one on the last day of a shorter month; the list shows each schedule with its next time, last slot and result.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_missed_slots_are_not_made_up_and_week_and_month_slots_fall_on_their_day"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.access-revoked",
+          "kind": "negative",
+          "given": "An approved schedule whose owner is disabled, made a viewer, or deactivated",
+          "when": "A slot comes due, and access is restored during the same slot",
+          "then": "No run starts for that slot, then or after access returns; the schedule records no access; the next slot runs once access is back.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_slot_does_not_run_without_the_owners_current_access_and_is_not_made_up_later"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.stop",
+          "kind": "negative",
+          "given": "An approved schedule and a request to stop it",
+          "when": "A slot comes due before the stop is approved, the stop is approved, another slot comes due, and stopping is asked again",
+          "then": "The schedule runs until the stop is approved, starts nothing afterwards, and a second stop is refused.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_stopped_schedule_starts_nothing_and_stopping_needs_its_own_approval"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.refusals",
+          "kind": "negative",
+          "given": "Unpublished, foreign, unknown and wrong-version workflows, malformed timing and input, padded requests, another person, an unknown schedule, and more schedules than allowed",
+          "when": "Request, list or approve them",
+          "then": "Each is refused with its code and nothing is saved; another person cannot stop or see the schedule; a request past the limit fails at approval.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_unpublished_foreign_malformed_and_excess_schedules_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.slot-key",
+          "kind": "negative",
+          "given": "An approved schedule, a person starting a run with a slot key, and a slot whose start is refused",
+          "when": "Start the run and check for due runs twice",
+          "then": "The person's run is refused and none exists; the refused slot is recorded and not tried again.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_a_person_cannot_use_a_schedule_slot_key_and_a_refused_slot_is_recorded"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.worker",
+          "kind": "positive",
+          "given": "An approved schedule with a slot due and the worker",
+          "when": "The schedule check runs and the worker takes a step, the check is asked again within and after fifteen seconds, and the serving worker loops",
+          "then": "The check starts the due run and the step advances it; schedules are not rechecked within fifteen seconds and are rechecked after; the serving worker checks schedules before each queue pass.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_worker_checks_schedules_at_most_every_few_seconds_and_keeps_working_runs",
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_serving_worker_starts_due_runs_before_each_queue_pass"
+          ]
+        },
+        {
+          "id": "C02-SCHEDULED-RUNS.agent-list",
+          "kind": "positive",
+          "given": "An approved schedule and another person with none",
+          "when": "Read the schedule summary the agent workflow list returns",
+          "then": "The owner sees the schedule and the published version of the draft; the other person sees neither.",
+          "tests": [
+            "tests.test_workflow_schedules.WorkflowScheduleTests.test_the_agent_workflow_list_shows_the_schedules_and_each_published_version"
+          ]
+        }
+      ]
     }
   ]
 }

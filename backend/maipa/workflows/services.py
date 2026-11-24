@@ -129,8 +129,10 @@ def dispatch(user,definition_id,revision,seed,dispatch_key):
     return _run_value(run)
 
 
-def _dispatch_row(member,definition_id,revision,seed,dispatch_key,*,origin_kind):
+def _dispatch_row(member,definition_id,revision,seed,dispatch_key,*,origin_kind,scheduled=False):
     """Caller holds the authority transaction and supplies a trusted origin kind."""
+    # Slot keys belong to the schedule runner alone, so nobody can take or pre-empt a slot.
+    require(type(dispatch_key) is str and dispatch_key.startswith('schedule:') is scheduled)
     definition = _definition(member,definition_id); revision=_revision(revision)
     require(type(seed) is dict)
     seed,digest = bounded_json(seed)

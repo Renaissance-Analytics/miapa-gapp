@@ -238,3 +238,21 @@ edges are not claimed to be universally identical.
 The editor and actual in-app build, triage, update and run acceptance follow this
 foundation. Package verification, focused tests or this document alone do not
 constitute browser/provider acceptance or a delivered release.
+
+## Scheduled runs
+
+A person can approve a schedule (`workflow.schedule`) that starts one published version of their own workflow every
+day, week or month at a whole hour in UTC, and approve stopping it (`workflow.unschedule`). The agent requests both
+through the normal approval card; nothing is scheduled without that approval.
+
+- The serving worker checks schedules about every 15 seconds and turns a due time slot into an ordinary queued run.
+- The run's dispatch key is `schedule:<schedule id>:<slot>`, and that prefix is refused for every other caller, so a
+  slot starts at most one run.
+- Each slot is started under the owner's access as it is at that moment. Without an enabled administrator or preparer
+  membership the slot is recorded as `no_access` and is not made up later.
+- A slot whose workflow or version can no longer run is recorded as `unavailable` or `refused` and is not retried.
+- Only the latest due slot runs. Slots missed while the site was stopped, other than the latest, are skipped.
+- A schedule keeps the version that was approved. Publishing an edited workflow does not change it.
+- At most 20 active schedules per person.
+
+Scheduling adds no node kind: workflows still cannot read or change financial records.

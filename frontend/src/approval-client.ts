@@ -15,9 +15,9 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const text = (v: unknown, max: number): v is string => typeof v === 'string' && v.length <= max;
 const unavailable = () => Error('We could not confirm your pending approvals. Nothing was changed. Reload and review before trying again.');
-const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
+const OPERATIONS = ['books.create', 'account.create', 'account.cash', 'statement.import', 'statement.account', 'statement.balances', 'reconciliation.record', 'statement.match', 'statement.duplicate', 'journal.post', 'journal.reverse', 'journal.discard', 'accrual.post', 'schedule.create', 'schedule.stop', 'workflow.schedule', 'workflow.unschedule', 'opening.balance', 'period.close', 'period.reopen', 'setup.confirm'];
 const TITLES: Record<string, string> = { 'books.create': 'Create books', 'account.create': 'Add an account', 'account.cash': 'Mark a bank or cash account',
-  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'accrual.post': 'Post an accrual and its reversal', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
+  'statement.import': 'Import a bank statement', 'journal.post': 'Post a journal entry', 'statement.account': 'Tie a statement to its bank account', 'statement.balances': 'Add a statement\'s balances', 'reconciliation.record': 'Record a bank reconciliation', 'statement.match': 'Match a statement line to an entry', 'statement.duplicate': 'Mark a repeated statement line', 'journal.reverse': 'Reverse a posted entry', 'journal.discard': 'Discard a draft entry', 'accrual.post': 'Post an accrual and its reversal', 'workflow.schedule': 'Run a workflow on a schedule', 'workflow.unschedule': 'Stop a scheduled workflow', 'schedule.create': 'Set up a recurring entry', 'schedule.stop': 'Stop a recurring entry', 'opening.balance': 'Record opening balances', 'period.close': 'Close the books', 'period.reopen': 'Reopen the books', 'setup.confirm': 'Save your account setup' };
 
 function request(v: unknown): v is ApprovalRequest {
   return object(v) && exact(v, ['id', 'operation', 'summary', 'payload', 'payload_hash', 'batch_id', 'state', 'detail', 'result', 'error', 'created_at', 'decided_at'])
@@ -108,6 +108,13 @@ export async function decideApprovalBatch(user: string, items: ApprovalRequest[]
 }
 
 const cell = (v: unknown, limit = 200) => String(v ?? '').replace(/[|\\`*_<>\[\]]/g, ' ').slice(0, limit);
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+function timetable(d: Record<string, unknown>) {
+  const hour = typeof d.hour === 'number' && Number.isInteger(d.hour) && d.hour >= 0 && d.hour <= 23 ? `${String(d.hour).padStart(2, '0')}:00 UTC` : 'an unknown time';
+  if (d.every === 'week') return `every ${typeof d.weekday === 'number' && WEEKDAYS[d.weekday] ? WEEKDAYS[d.weekday] : 'week'} at ${hour}`;
+  if (d.every === 'month') return `on day ${cell(d.day)} of each month (the last day in shorter months) at ${hour}`;
+  return `every day at ${hour}`;
+}
 /** The approval card's body: the agent's summary plus facts the server read about the target. */
 export function approvalContent(item: ApprovalRequest): string {
   // The server accepts summaries up to 500 characters; show all of it.
@@ -126,6 +133,16 @@ export function approvalContent(item: ApprovalRequest): string {
         ...d.lines.filter(object).map(l => `| ${cell(l.account)} | ${cell(l.debit)} | ${cell(l.credit)} |`),
         '', `This posts the entry on ${cell(d.date)} and its exact opposite on ${cell(d.reverse_on)}, so it counts only in the period it belongs to.`);
     } else lines.push('', 'This accrual can no longer be posted as asked. Approving will fail; ask Maipa to prepare it again.');
+  } else if (item.operation === 'workflow.schedule') {
+    if (d && d.current === true) {
+      lines.push('', `Start ${cell(d.workflow)} (version ${cell(d.version)}) ${timetable(d)}.`, '', `First run: ${cell(d.next).replace('T', ' ').slice(0, 16)} UTC.`,
+        '', ...(object(d.input) && Object.keys(d.input).length ? ['Each run starts with this input:', '', '| Name | Value |', '|---|---|',
+          ...Object.entries(d.input).map(([name, item]) => `| ${cell(name)} | ${cell(typeof item === 'string' ? item : JSON.stringify(item), 2000)} |`)] : ['Each run starts with no input.']),
+        '', 'Maipa starts each run by itself while it is running, once per time. A time missed while Maipa was off starts once when it is back; earlier missed times are skipped. It keeps running this version even if the workflow is edited later, and stops if your access is removed. Workflows cannot change your books.');
+    } else lines.push('', 'This workflow can no longer be scheduled as asked. Approving will fail; ask Maipa to prepare it again.');
+  } else if (item.operation === 'workflow.unschedule') {
+    lines.push('', !d ? 'This schedule could not be found. Approving will fail.' : d.current === false ? `${cell(d.workflow)} is already stopped. Approving will fail.`
+      : `Stop starting ${cell(d.workflow)} ${timetable(d)}. Runs already started are not changed.`);
   } else if (item.operation === 'schedule.create') {
     if (d && Array.isArray(d.lines)) {
       lines.push('', `${cell(d.description)} · ${cell(d.total)} ${cell(d.currency)} · on day ${cell(d.day)} of each month (the last day in shorter months) from ${cell(d.starts)} `

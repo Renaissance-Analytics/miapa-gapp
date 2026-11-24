@@ -337,3 +337,24 @@ test('an accrual card shows the lines and both dates', () => {
   assert.match(content, /This posts the entry on 2026-03-31 and its exact opposite on 2026-04-01, so it counts only in the period it belongs to\./);
   assert.match(approvalContent({ ...accrual, detail: null }), /can no longer be posted as asked\. Approving will fail/);
 });
+
+test('a scheduled workflow card says what starts, when, and that it runs by itself', () => {
+  const detail = { workflow: 'Morning <b>summary</b>', version: 2, every: 'day', hour: 9, weekday: null, day: null, input: { name: 'Mon<i>day', count: 3 }, next: '2026-03-10T09:00:00+00:00', current: true };
+  const scheduled = { ...post, operation: 'workflow.schedule', summary: 'Run the summary daily', payload: { draft_id: id(2), definition_revision: 2, every: 'day', hour: 9 }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [scheduled], recent: [] }, '1').pending[0].operation, 'workflow.schedule');
+  assert.equal(approvalMessage(scheduled).proposal.title, 'Run a workflow on a schedule');
+  const content = approvalContent(scheduled);
+  assert.match(content, /Start Morning .*summary.* \(version 2\) every day at 09:00 UTC\./); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /First run: 2026-03-10 09:00 UTC\./);
+  assert.match(content, /Each run starts with this input:\n\n\| Name \| Value \|\n\|---\|---\|\n\| name \| Mon i day \|\n\| count \| 3 \|/); assert.doesNotMatch(content, /<i>/);
+  assert.match(approvalContent({ ...scheduled, detail: { ...detail, input: {} } }), /Each run starts with no input\./);
+  assert.match(content, /starts each run by itself while it is running, once per time\..*keeps running this version.*stops if your access is removed\. Workflows cannot change your books\./);
+  assert.match(approvalContent({ ...scheduled, detail: { ...detail, every: 'week', hour: 6, weekday: 0 } }), /every Monday at 06:00 UTC\./);
+  assert.match(approvalContent({ ...scheduled, detail: { ...detail, every: 'month', hour: 0, day: 31 } }), /on day 31 of each month \(the last day in shorter months\) at 00:00 UTC\./);
+  assert.match(approvalContent({ ...scheduled, detail: null }), /can no longer be scheduled as asked\. Approving will fail/);
+  const stop = { ...post, operation: 'workflow.unschedule', summary: 'Stop the daily run', payload: { schedule_id: id(3) }, detail: { ...detail, next: undefined } };
+  assert.equal(approvalMessage(stop).proposal.title, 'Stop a scheduled workflow');
+  assert.match(approvalContent(stop), /Stop starting Morning .*summary.* every day at 09:00 UTC\. Runs already started are not changed\./);
+  assert.match(approvalContent({ ...stop, detail: { ...detail, current: false } }), /is already stopped\. Approving will fail\./);
+  assert.match(approvalContent({ ...stop, detail: null }), /could not be found\. Approving will fail\./);
+});

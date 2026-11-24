@@ -204,3 +204,26 @@ class WorkflowSelection(models.Model):
     class Meta:
         constraints=[models.CheckConstraint(condition=models.Q(revision__lt=2_000_000_000),name='flow_selection_revision'),
             models.CheckConstraint(condition=models.Q(source__in=('human','agent')),name='flow_selection_source')]
+
+
+class RunSchedule(models.Model):
+    """An approved standing request to start one pinned published version at each time slot (UTC). Grants no authority."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    definition = models.ForeignKey(Definition, on_delete=models.PROTECT, editable=False)
+    version = models.ForeignKey(DefinitionVersion, on_delete=models.PROTECT, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False)
+    installation = models.ForeignKey('workspace.Installation', on_delete=models.PROTECT, editable=False)
+    every = models.CharField(max_length=8, editable=False)
+    hour = models.PositiveSmallIntegerField(editable=False)
+    weekday = models.PositiveSmallIntegerField(null=True, editable=False)
+    day = models.PositiveSmallIntegerField(null=True, editable=False)
+    seed = models.JSONField(editable=False)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    stopped_at = models.DateTimeField(null=True)
+    last_slot = models.CharField(max_length=13, null=True)
+    last_result = models.CharField(max_length=16, null=True)
+
+    class Meta:
+        indexes = [models.Index(fields=('stopped_at', 'created_at', 'id'), name='flow_schedule_active')]
+        constraints = [models.CheckConstraint(condition=models.Q(every__in=('day', 'week', 'month')), name='flow_schedule_every'),
+                       models.CheckConstraint(condition=models.Q(hour__lt=24), name='flow_schedule_hour')]
