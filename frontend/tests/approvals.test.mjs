@@ -388,3 +388,18 @@ test('a group card names the businesses and says combined figures are not elimin
   assert.match(approvalContent(remove), /Remove the group Family .*companies.* \(USD\):[\s\S]*The books and their entries are not touched\./);
   assert.match(approvalContent({ ...remove, detail: null }), /could not be found\. Approving will fail\./);
 });
+
+test('an elimination card lists each account by business and says nothing in the books changes', () => {
+  const detail = { name: 'Family companies', current: true, accounts: [{ business: 'Synthetic <b>Holding</b>', account: '1300 Due from Shop', category: 'asset' },
+    { business: 'Synthetic Shop', account: '2300 Due to Holding', category: 'liability' }] };
+  const mark = { ...post, operation: 'group.eliminate', summary: 'Remove dealings between the two businesses', payload: { group_id: id(4), account_ids: [id(5), id(6)] }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [mark], recent: [] }, '1').pending[0].operation, 'group.eliminate');
+  assert.equal(approvalMessage(mark).proposal.title, 'Leave out dealings between businesses');
+  const content = approvalContent(mark);
+  assert.match(content, /In the combined figures of Family companies, leave these accounts out of the consolidated totals:/);
+  assert.match(content, /\| Synthetic .*Holding.* \| 1300 Due from Shop \| asset \|/); assert.match(content, /\| Synthetic Shop \| 2300 Due to Holding \| liability \|/);
+  assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /No entry or balance changes in any business\. Maipa will say whether these accounts cancel out; if one business recorded something the other did not, the difference is shown\./);
+  assert.match(approvalContent({ ...mark, detail: { ...detail, accounts: [] } }), /Stop leaving any accounts out of the consolidated totals of Family companies\. No entry or balance changes\./);
+  assert.match(approvalContent({ ...mark, detail: null }), /can no longer be set as asked\. Approving will fail/);
+});

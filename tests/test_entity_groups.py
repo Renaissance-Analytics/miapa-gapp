@@ -72,7 +72,7 @@ class EntityGroupTests(TestCase):
         self.assertEqual(done['state'], 'approved')
         group = done['result']['group_id']
         self.assertEqual(groups.list_groups(self.user), {'groups': [{'id': group, 'name': 'Synthetic family of companies', 'currency': 'USD',
-            'books': [{'book_id': self.holding['id'], 'name': 'Synthetic Holding'}, {'book_id': self.shop['id'], 'name': 'Synthetic Shop'}]}]})
+            'books': [{'book_id': self.holding['id'], 'name': 'Synthetic Holding'}, {'book_id': self.shop['id'], 'name': 'Synthetic Shop'}], 'eliminated_accounts': 0}]})
         report = self.combined(group)
         self.assertEqual((report['group_id'], report['name'], report['currency'], report['from'], report['to'], report['eliminated']),
                          (group, 'Synthetic family of companies', 'USD', '2026-01-01', '2026-03-31', False))
@@ -173,3 +173,90 @@ class EntityGroupTests(TestCase):
                     {'group_id': str(uuid.uuid4()), 'from': '2026-01-01', 'to': '2026-03-31'}, {'name': 'New group', 'book_ids': []}, {'group_id': group, 'remove': True}):
             self.assertTrue(tool(bad)['isError'], bad)
         self.assertEqual(EntityGroup.objects.count(), 1)
+
+
+class GroupEliminationTests(TestCase):
+    """Dealings between grouped businesses are removed only for accounts the person approved, and only called eliminated when they cancel out."""
+    setUpTestData = classmethod(EntityGroupTests.setUpTestData.__func__)
+    setUp, entry, ask, approve, grouped, combined = (getattr(EntityGroupTests, name) for name in ("setUp", "entry", "ask", "approve", "grouped", "combined"))
+
+    def account(self, book, code, name, category):
+        ledger.create_account(self.user, book['id'], {'expected_revision': ledger.read_book(self.user, book['id'])['revision'], 'code': code, 'name': name, 'category': category})
+        return next(a['id'] for a in ledger.read_book(self.user, book['id'])['accounts'] if a['code'] == code)
+
+    def dealings(self, shop_records_fee=True):
+        self.due_from = self.account(self.holding, '1300', 'Due from Shop', 'asset')
+        self.fees_in = self.account(self.holding, '4100', 'Management fees', 'income')
+        self.due_to = self.account(self.shop, '2300', 'Due to Holding', 'liability')
+        self.fees_out = self.account(self.shop, '6400', 'Management fees paid', 'expense')
+        self.entry(self.holding, '2026-02-15', 'Loan to shop', (('1300', '500', '0'), ('1000', '0', '500')))
+        self.entry(self.shop, '2026-02-15', 'Loan from holding', (('1000', '500', '0'), ('2300', '0', '500')))
+        self.entry(self.holding, '2026-03-30', 'Management fee charged', (('1300', '200', '0'), ('4100', '0', '200')))
+        if shop_records_fee:
+            self.entry(self.shop, '2026-03-30', 'Management fee owed', (('6400', '200', '0'), ('2300', '0', '200')))
+
+    def mark(self, group, accounts, user=None):
+        return approvals.request_action(user or self.user, {'operation': 'group.eliminate', 'summary': 'Remove dealings between the two businesses',
+                                                            'payload': {'group_id': group, 'account_ids': accounts}})
+
+    def test_approved_accounts_are_removed_from_the_totals_and_the_report_is_eliminated_when_they_cancel(self):
+        self.dealings()
+        group = self.grouped()
+        before = self.combined(group)
+        self.assertEqual((before['eliminated'], before['consolidated']), (False, None))
+        item = self.mark(group, [self.due_from, self.fees_in, self.due_to, self.fees_out])
+        self.assertEqual(item['detail'], {'name': 'Synthetic family of companies', 'current': True, 'accounts': [
+            {'business': 'Synthetic Holding', 'account': '1300 Due from Shop', 'category': 'asset'}, {'business': 'Synthetic Holding', 'account': '4100 Management fees', 'category': 'income'},
+            {'business': 'Synthetic Shop', 'account': '2300 Due to Holding', 'category': 'liability'}, {'business': 'Synthetic Shop', 'account': '6400 Management fees paid', 'category': 'expense'}]})
+        self.assertEqual(self.combined(group)['consolidated'], None)                  # Nothing is removed until approved.
+        journals = Journal.objects.count()
+        done = self.approve(item)
+        self.assertEqual((done['state'], done['result']), ('approved', {'group_id': group, 'accounts': 4}))
+        report = self.combined(group)
+        # The side-by-side figures are unchanged; the consolidated totals leave the approved accounts out.
+        same = ('income_statement', 'balance_sheet', 'cash', 'books')
+        self.assertEqual({key: report[key] for key in same}, {key: before[key] for key in same})
+        self.assertEqual(report['income_statement']['total_income']['total'], '6450.5000')
+        self.assertEqual(report['balance_sheet']['total_assets']['total'], '6050.5000')
+        self.assertEqual(report['consolidated'], {
+            'removed': [{'book_id': self.holding['id'], 'business': 'Synthetic Holding', 'code': '1300', 'name': 'Due from Shop', 'category': 'asset', 'amount': '700.0000'},
+                        {'book_id': self.holding['id'], 'business': 'Synthetic Holding', 'code': '4100', 'name': 'Management fees', 'category': 'income', 'amount': '200.0000'},
+                        {'book_id': self.shop['id'], 'business': 'Synthetic Shop', 'code': '2300', 'name': 'Due to Holding', 'category': 'liability', 'amount': '700.0000'},
+                        {'book_id': self.shop['id'], 'business': 'Synthetic Shop', 'code': '6400', 'name': 'Management fees paid', 'category': 'expense', 'amount': '200.0000'}],
+            'total_income': '6250.5000', 'total_expenses': '1200.0000', 'net_income': '5050.5000',
+            'total_assets': '5350.5000', 'total_liabilities': '300.0000', 'total_equity': '0.0000', 'earnings_to_date': '5050.5000',
+            'income_difference': '0.0000', 'balance_difference': '0.0000'})
+        self.assertEqual(report['eliminated'], True)
+        self.assertEqual(Journal.objects.count(), journals)
+        # An empty list, approved, clears the marks.
+        self.approve(self.mark(group, []))
+        cleared = self.combined(group)
+        self.assertEqual((cleared['eliminated'], cleared['consolidated']), (False, None))
+
+    def test_dealings_recorded_on_one_side_only_are_shown_as_a_difference_and_not_called_eliminated(self):
+        self.dealings(shop_records_fee=False)
+        group = self.grouped()
+        self.approve(self.mark(group, [self.due_from, self.fees_in, self.due_to, self.fees_out]))
+        report = self.combined(group)
+        self.assertEqual((report['eliminated'], report['consolidated']['income_difference'], report['consolidated']['balance_difference']), (False, '200.0000', '200.0000'))
+        self.assertEqual([(row['code'], row['amount']) for row in report['consolidated']['removed']], [('1300', '700.0000'), ('4100', '200.0000'), ('2300', '500.0000'), ('6400', '0.0000')])
+        # Before the fee, the loan alone cancels out.
+        february = self.combined(group, end='2026-02-28')
+        self.assertEqual((february['eliminated'], february['consolidated']['balance_difference'], february['consolidated']['total_assets']), (True, '0.0000', '5000.0000'))
+
+    def test_accounts_outside_the_group_repeats_and_other_people_are_refused_and_nothing_is_marked(self):
+        self.dealings()
+        group = self.grouped()
+        outside = next(a['id'] for a in ledger.read_book(self.user, self.euro['id'])['accounts'] if a['code'] == '1000')
+        theirs = next(a['id'] for a in ledger.read_book(self.other, self.theirs['id'])['accounts'] if a['code'] == '1000')
+        for accounts, code in (([outside], 'group_account_outside'), ([theirs], 'group_account_outside'), ([str(uuid.uuid4())], 'group_account_outside'),
+                               ([self.due_from, self.due_from], 'group_account_repeated'), (['1300'], None), ('all', None), ([str(uuid.uuid4()) for _ in range(101)], None)):
+            with self.assertRaises(approvals.ApprovalError, msg=accounts) as refused:
+                self.mark(group, accounts)
+            if code:
+                self.assertEqual(refused.exception.code, code, accounts)
+        for call in (lambda: self.mark(group, [self.due_from], self.other), lambda: self.mark(str(uuid.uuid4()), [self.due_from]),
+                     lambda: approvals.request_action(self.user, {'operation': 'group.eliminate', 'summary': 'Padded', 'payload': {'group_id': group, 'account_ids': [], 'force': True}})):
+            with self.assertRaises(approvals.ApprovalError):
+                call()
+        self.assertEqual((ActionRequest.objects.filter(operation='group.eliminate').count(), self.combined(group)['consolidated']), (0, None))

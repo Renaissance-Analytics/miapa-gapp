@@ -2375,6 +2375,16 @@
           "tests": [
             "approvals.test.mjs#a group card names the businesses and says combined figures are not eliminated"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.elimination-card",
+          "kind": "negative",
+          "given": "A request to leave accounts out of a group's consolidated totals, one with an empty list and one no longer valid",
+          "when": "Parse and render its card",
+          "then": "The card lists each account with its business and kind and says no entry changes and that a one-sided dealing is shown as a difference; an empty list says nothing is left out any more; an invalid one says approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#an elimination card lists each account by business and says nothing in the books changes"
+          ]
         }
       ]
     }
