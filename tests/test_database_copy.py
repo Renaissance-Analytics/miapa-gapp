@@ -17,6 +17,7 @@ from backend.maipa.ledger.models import Journal, JournalLine, LedgerEvent
 from backend.maipa.workspace.models import BootstrapState, Installation, Membership, PersonalViews
 
 MARCH = 'date,description,amount\n2026-03-05,Synthetic rent,-900\n2026-03-20,Bank fee,-25.5\n'
+PHRASE = 'synthetic-' + uuid.uuid4().hex      # Generated per run; not a credential for anything.
 NOTE = {'id': 'review-note', 'type': 'Maipa.Note', 'props': {'text': 'Synthetic note with ünïcode and "quotes"'}}
 
 
@@ -27,7 +28,7 @@ class DatabaseCopyTests(TransactionTestCase):
     def setUp(self):
         BootstrapState.objects.update_or_create(slot=1, defaults={'closed': True})
         install = Installation.objects.create()
-        self.user = get_user_model().objects.create_user(username='copy-owner', password='synthetic-password-for-copy')
+        self.user = get_user_model().objects.create_user(username='copy-owner', password=PHRASE)
         self.other = get_user_model().objects.create_user(username='copy-other')
         Membership.objects.create(user=self.user, installation=install, role='administrator')
         Membership.objects.create(user=self.other, installation=install, role='preparer')
@@ -64,7 +65,7 @@ class DatabaseCopyTests(TransactionTestCase):
         self.assertEqual(PersonalViews.objects.using('copy_target').get().definitions[0]['schema'], NOTE)
         self.assertEqual(sorted(ActionRequest.objects.using('copy_target').values_list('state', flat=True)), ['approved', 'pending'])
         copied = get_user_model().objects.using('copy_target').get(username='copy-owner')
-        self.assertTrue(copied.check_password('synthetic-password-for-copy'))
+        self.assertTrue(copied.check_password(PHRASE))
         self.assertTrue(BootstrapState.objects.using('copy_target').get(slot=1).closed)
         # New rows after the copy get fresh ids instead of colliding with copied ones.
         added = get_user_model().objects.db_manager('copy_target').create_user(username='added-after-copy')
@@ -109,7 +110,7 @@ class DatabaseCopyTests(TransactionTestCase):
         text = out.getvalue()
         self.assertIn('auth.User: 2', text); self.assertIn('ledger.JournalLine: 2', text)
         self.assertIn('IDENTICAL: every model has the same rows in both databases', text)
-        for private in ('copy-owner', 'Synthetic rent', 'synthetic-password-for-copy', 'pbkdf2'):
+        for private in ('copy-owner', 'Synthetic rent', PHRASE, 'pbkdf2'):
             self.assertNotIn(private, text)
         again = io.StringIO()
         call_command('copy_database', source='default', target='copy_target', verify_only=True, stdout=again)
