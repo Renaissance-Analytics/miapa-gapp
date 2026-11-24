@@ -73,3 +73,11 @@ append-only. `maipa_books_releases` lists them and marks each `unchanged` (the b
 `latest` (no newer release of the same range); with `release_id` it returns the kept statements and each total that
 differs today. A release is refused for an open period, for books with integrity findings, and when the latest release
 of the same range already has the same figures.
+
+## Keeping the operation list whole
+
+Providers cut a tool description at about 4,000 characters. The `maipa_action_request` description therefore lists only
+each operation and its exact payload fields; the rules of each operation are appended to the agent instructions. Both
+come from `backend/maipa/agent_accounts/action_reference.py`. Tests require every server operation to appear with
+exactly the fields the server enforces and every tool description to stay under 3,500 characters. A request with the
+wrong payload shape is refused with `expected_payload`, the fields that were expected.
