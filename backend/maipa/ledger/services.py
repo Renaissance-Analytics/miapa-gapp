@@ -19,7 +19,7 @@ from django.db.models import F
 from django.utils import timezone
 
 from backend.maipa.intake import services as intake
-from .models import (Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, Reconciliation, RecurringEntry, SourceImport, SourceRow,
+from .models import (Account, Book, CATEGORIES, Journal, JournalLine, LedgerEvent, PostingReceipt, Reconciliation, RecurringEntry, ReportRelease, SourceImport, SourceRow,
                      SourceRowMatch)
 
 MAX_UNITS = 999999999999999999
@@ -873,6 +873,92 @@ def financial_report(user, book_id, value):
     if compared:
         other, other_totals = _statements(book, accounts, day(value['compare_from']), day(value['compare_to']))
         result['comparison'] = {**other, 'change': {key: money(totals[key] - other_totals[key]) for key in totals}}
+    return result
+
+
+RELEASE_TOTALS = ('total_income', 'total_expenses', 'net_income', 'total_assets', 'total_liabilities', 'total_equity', 'earnings_to_date', 'closing_cash')
+MAX_RELEASES = 500
+
+
+def _release_figures(book, start, end):
+    """The statements of a range with the totals and a hash of every figure (account codes and amounts, not names)."""
+    statements, units = _statements(book, {a.pk: a for a in book.accounts.all()}, start, end)
+    totals = {**{key: money(units[key]) for key in RELEASE_TOTALS if key in units}, 'closing_cash': statements['cash_flow']['closing_cash']}
+    rows = lambda items: [[item['code'], item.get('amount', item.get('closing'))] for item in items]
+    figures = digest({'from': statements['from'], 'to': statements['to'], 'currency': book.currency, 'totals': totals,
+        'income': rows(statements['income_statement']['income']), 'expenses': rows(statements['income_statement']['expenses']),
+        'assets': rows(statements['balance_sheet']['assets']), 'liabilities': rows(statements['balance_sheet']['liabilities']),
+        'equity': rows(statements['balance_sheet']['equity']), 'cash': rows(statements['cash_flow']['accounts']),
+        'movements': rows(statements['cash_flow']['movements']), 'opening_cash': statements['cash_flow']['opening_cash']})
+    return {**statements, 'currency': book.currency}, totals, figures
+
+
+def release_check(user, book, value):
+    """Statements can be released only for a range that ends in a closed month, from books with no integrity findings. Read-only."""
+    fields(value, ('from', 'to', 'title'))
+    start, end, title = day(value['from']), day(value['to']), text(value['title'], 120)
+    statements, totals, figures = _release_figures(book, start, end)
+    require(closed(book, end), 'report_period_not_closed')
+    require(not verify_book(user, str(book.pk))['findings'], 'report_integrity_findings')
+    previous = book.releases.filter(period_from=start, period_to=end).order_by('-number').first()
+    require(previous is None or previous.figures_hash != figures, 'report_already_released')
+    require(book.releases.count() < MAX_RELEASES, 'report_release_limit')
+    return {'from': start, 'to': end, 'title': title, 'statements': statements, 'totals': totals, 'figures': figures,
+            'number': (book.releases.order_by('-number').values_list('number', flat=True).first() or 0) + 1}
+
+
+@guarded
+@transaction.atomic
+def release_report(user, book_id, value):
+    """Record the approved release: the statements as they stand, kept exactly. No entry or amount changes."""
+    user, book = owned(user, book_id, True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    require(type(value) is dict)
+    checked = release_check(user, book, {key: item for key, item in value.items() if key != 'expected_revision'})
+    advance(book, value.get('expected_revision'))
+    row = ReportRelease.objects.create(book=book, number=checked['number'], title=checked['title'], period_from=checked['from'], period_to=checked['to'],
+        statements=checked['statements'], totals=checked['totals'], figures_hash=checked['figures'], book_revision=book.revision, released_by=user)
+    event(book, user, 'report.release', row.pk, checked['figures'])
+    return {'release_id': str(row.pk), 'number': row.number, 'figures_hash': row.figures_hash, 'revision': book.revision}
+
+
+@guarded
+@transaction.atomic
+def report_releases(user, book_id, value):
+    """Released statements, newest first, each marked unchanged (the books still give these figures) and latest (no newer
+    release of the same range). With release_id: that release's kept statements and every total that differs today. Read-only."""
+    user, book = owned(user, book_id)
+    require(type(value) is dict)
+    fields(value, ('release_id',) if 'release_id' in value else ())
+    rows = list(book.releases.order_by('-number')[:MAX_RELEASES])
+    today, newest = {}, {}
+    for row in rows:
+        key = (row.period_from, row.period_to)
+        newest.setdefault(key, row.number)
+        if key not in today:
+            try:
+                today[key] = _release_figures(book, *key)
+            except LedgerError:
+                today[key] = (None, {}, None)       # The book period no longer contains this range.
+
+    def shown(row):
+        key = (row.period_from, row.period_to)
+        return {'id': str(row.pk), 'number': row.number, 'title': row.title, 'from': row.period_from.isoformat(), 'to': row.period_to.isoformat(),
+                'released_at': row.created_at.isoformat(), 'figures_hash': row.figures_hash, 'totals': row.totals,
+                'unchanged': today[key][2] == row.figures_hash, 'latest': newest[key] == row.number}
+    result = {'book_id': str(book.pk), 'currency': book.currency, 'revision': book.revision,
+              'closed_through': book.closed_through.isoformat() if book.closed_through else None, 'releases': [shown(row) for row in rows]}
+    if 'release_id' in value:
+        try:
+            wanted = uuid.UUID(value['release_id']) if type(value['release_id']) is str else None
+        except ValueError:
+            wanted = None
+        row = next((item for item in rows if item.pk == wanted), None)
+        require(row is not None, 'report_release_not_found')
+        now = today[(row.period_from, row.period_to)][1]
+        result['release'] = {**shown(row), 'statements': row.statements,
+                             'changes': [{'total': key, 'released': row.totals[key], 'now': now.get(key)} for key in RELEASE_TOTALS
+                                         if key in row.totals and now.get(key) != row.totals[key]]}
     return result
 
 

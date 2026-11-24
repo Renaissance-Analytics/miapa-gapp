@@ -104,7 +104,7 @@ class BookkeepingPostingTests(TestCase):
     def test_agent_ledger_tools_have_proposal_and_read_but_no_confirmation_or_posting_tool(self):
         from backend.maipa.ledger.tools import tool_definitions
         definitions = tool_definitions()
-        self.assertEqual({t['name'] for t in definitions}, {'maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_journal_propose'})
+        self.assertEqual({t['name'] for t in definitions}, {'maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_books_releases', 'maipa_journal_propose'})
         schema = next(t for t in definitions if t['name'] == 'maipa_journal_propose')['inputSchema']
         self.assertFalse(schema['additionalProperties'])
         self.assertNotIn('confirm', json.dumps(schema))

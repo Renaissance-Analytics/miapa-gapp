@@ -8312,6 +8312,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C05-REPORT-RELEASE",
+      "risk": "Statements handed out for a period that is still open, released without approval, silently rewritten after the books change, or shown as current when they no longer match would mislead whoever relies on them.",
+      "scenarios": [
+        {
+          "id": "C05-REPORT-RELEASE.frozen",
+          "kind": "positive",
+          "given": "Books closed through March with posted income and expense, and a request to release the first quarter statements",
+          "when": "Read its card, approve it, list and read the release, try to edit or delete it, approve again, and request the same figures again",
+          "then": "The card shows the period, release number and key totals; approval saves release 1 with one event and one revision; the kept statements equal the report at that time and are marked unchanged and latest; the release cannot be edited or deleted; the repeat changes nothing and an identical second release is refused.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_an_approved_release_freezes_the_statements_of_a_closed_period"
+          ]
+        },
+        {
+          "id": "C05-REPORT-RELEASE.changed-later",
+          "kind": "negative",
+          "given": "A released first quarter, then the period reopened, a March bill posted and the period closed again",
+          "when": "List and read the release, release the quarter again, and release a different range",
+          "then": "The first release keeps its figures, is marked changed and lists each total that differs with both amounts; the new release is number 2 and latest while the first is no longer latest; a different range is its own latest release.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_a_later_change_to_the_books_is_shown_and_a_new_release_supersedes_the_old_one"
+          ]
+        },
+        {
+          "id": "C05-REPORT-RELEASE.refusals",
+          "kind": "negative",
+          "given": "An open period, a range ending after the close or outside the book period, malformed dates and titles, padded requests, another person, and unknown or malformed release reads",
+          "when": "Request or read them",
+          "then": "Each is refused with its code where one applies and no request or release is saved.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_open_periods_bad_ranges_and_other_people_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "C05-REPORT-RELEASE.reopened-after-request",
+          "kind": "negative",
+          "given": "A release request for a closed period that is then reopened",
+          "when": "Approve it",
+          "then": "The approval fails as not closed, nothing is released, and the card no longer shows figures.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_reopening_after_the_request_makes_the_approval_fail_with_nothing_released"
+          ]
+        },
+        {
+          "id": "C05-REPORT-RELEASE.agent-tool",
+          "kind": "positive",
+          "given": "A saved release and the agent tools",
+          "when": "List and read it through the tool, read an unknown release, and pass release arguments",
+          "then": "The tool results equal the service results; unknown releases and release arguments return an error; no release is made.",
+          "tests": [
+            "tests.test_report_release.ReportReleaseTests.test_the_agent_tool_reads_releases_and_cannot_make_one"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-86",
+    "label": "Development update 86",
+    "cards": [
+      {
+        "title": "Released statements",
+        "description": "Once a period is closed, ask Maipa to release its statements. You approve the key figures, and the income statement, balance sheet and cash flow are kept exactly as they stood. If the books change afterwards, Maipa says the release is out of date and what differs, and you can approve a new one."
+      }
+    ]
+  },
+  {
     "id": "development-85",
     "label": "Development update 85",
     "cards": [
@@ -198,16 +208,6 @@
       {
         "title": "Overlapping statements are not booked twice",
         "description": "If two statements of the same account overlap, the repeated lines are no longer booked a second time. Maipa asks you to approve marking each repeat, showing both lines side by side. Two identical lines on one statement stay two transactions."
-      }
-    ]
-  },
-  {
-    "id": "development-66",
-    "label": "Development update 66",
-    "cards": [
-      {
-        "title": "Transfers between your accounts are booked once",
-        "description": "When you move money between two of your bank accounts, it appears on both statements. Maipa now books it as one entry and matches the second statement line to it, so a transfer is never counted twice or mistaken for income."
       }
     ]
   }

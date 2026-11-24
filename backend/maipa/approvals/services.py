@@ -100,6 +100,12 @@ def _check_accrual(user, payload):
     ledger.accrual_check(book, {key: value for key, value in payload.items() if key != 'book_id'})
 
 
+def _check_release(user, payload):
+    _, book = ledger.owned(user, payload['book_id'], True)
+    require(book.created_by_id == user.pk, 'ledger_confirmation_denied')
+    ledger.release_check(user, book, {key: value for key, value in payload.items() if key != 'book_id'})
+
+
 def _check_reverse(user, payload):
     _, book = ledger.owned(user, payload['book_id'], True)
     original = book.journals.filter(pk=_identity(payload['journal_id']), state='posted').first()
@@ -224,6 +230,9 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'report.release': (('book_id', 'from', 'to', 'title'), _check_release,
+        lambda user, p: ledger.release_report(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
+                                              **{k: v for k, v in p.items() if k != 'book_id'}})),
     'workflow.schedule': (('draft_id', 'definition_revision', 'every', 'hour'), lambda user, p: flow_schedules.request_check(user, p),
         lambda user, p: flow_schedules.create(user, p)),
     'workflow.unschedule': (('schedule_id',), lambda user, p: flow_schedules.stop_check(user, p['schedule_id']),
@@ -257,6 +266,11 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'report.release':
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            checked = ledger.release_check(row.user, book, {key: value for key, value in row.payload.items() if key != 'book_id'})
+            return {'books': book.entity.name, 'currency': book.currency, 'title': checked['title'], 'from': checked['from'].isoformat(),
+                    'to': checked['to'].isoformat(), 'number': checked['number'], 'totals': checked['totals'], 'current': True}
         if row.operation == 'workflow.schedule':
             return flow_schedules.describe(row.user, row.payload)
         if row.operation == 'workflow.unschedule':

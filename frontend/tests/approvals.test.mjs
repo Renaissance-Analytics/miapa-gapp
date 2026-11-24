@@ -358,3 +358,17 @@ test('a scheduled workflow card says what starts, when, and that it runs by itse
   assert.match(approvalContent({ ...stop, detail: { ...detail, current: false } }), /is already stopped\. Approving will fail\./);
   assert.match(approvalContent({ ...stop, detail: null }), /could not be found\. Approving will fail\./);
 });
+
+test('a statement release card shows the period, the key figures and that the release is kept as it is', () => {
+  const detail = { books: 'Synthetic <b>Co</b>', currency: 'USD', title: 'First quarter statements', from: '2026-01-01', to: '2026-03-31', number: 2, current: true,
+    totals: { total_income: '5000.0000', total_expenses: '900.0000', net_income: '4100.0000', total_assets: '4100.0000', total_liabilities: '0.0000', total_equity: '0.0000', earnings_to_date: '4100.0000', closing_cash: '4100.0000' } };
+  const release = { ...post, operation: 'report.release', summary: 'Release the first quarter statements', payload: { book_id: id(2), from: '2026-01-01', to: '2026-03-31', title: 'First quarter statements' }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [release], recent: [] }, '1').pending[0].operation, 'report.release');
+  assert.equal(approvalMessage(release).proposal.title, 'Release statements');
+  const content = approvalContent(release);
+  assert.match(content, /First quarter statements · 2026-01-01 to 2026-03-31 · USD · release 2/); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /\| Net income \| 4100\.0000 \|/); assert.match(content, /\| Expenses \| 900\.0000 \|/); assert.match(content, /\| Cash at the end \| 4100\.0000 \|/);
+  assert.match(content, /kept exactly as they stand now\. No entry changes\. If the books change later, this release is shown as out of date; it is never rewritten\./);
+  assert.match(approvalContent({ ...release, detail: null }), /can no longer be released as asked\. Approving will fail/);
+  assert.match(approvalContent({ ...release, detail: { ...detail, totals: null } }), /can no longer be released as asked/);
+});
