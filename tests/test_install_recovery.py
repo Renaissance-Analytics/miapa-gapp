@@ -119,6 +119,27 @@ class InstallRecoveryTests(unittest.TestCase):
                 else:
                     self.assertEqual((folder / relative).stat().st_mode & 0o777, 0o600)
 
+    def test_an_install_holding_a_scoped_package_folder_is_backed_up_and_restored_exactly(self):
+        # A started agent worker keeps its runtime under artifacts, in a folder named like an npm scope.
+        scoped = self.data / 'artifacts' / '44444444-4444-4444-8444-444444444444' / 'code' / 'node_modules' / '@synthetic-scope' / 'runtime'
+        scoped.mkdir(parents=True)
+        (scoped / 'package.json').write_bytes(b'{"name":"@synthetic-scope/runtime"}')
+        (scoped / 'index.d.ts').write_bytes(b'export {};\n')
+        self.snapshot()
+        result = self.command('restore', self.backup, self.restored)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        copied = self.restored / scoped.relative_to(self.data)
+        self.assertEqual(((copied / 'package.json').read_bytes(), (copied / 'index.d.ts').read_bytes()),
+                         (b'{"name":"@synthetic-scope/runtime"}', b'export {};\n'))
+
+    def test_file_names_with_other_unusual_characters_still_refuse_the_backup(self):
+        from backend import install
+        for name in ('artifacts/x/a b.txt', 'artifacts/x/a%41.txt', 'artifacts/x/a:b', 'artifacts/x/a*b', 'artifacts/x/~a$b', 'artifacts/x/caf\u00e9.txt',
+                     '@scope/package.json', 'artifacts/../maipa.sqlite3', 'artifacts/x/con.txt', 'artifacts/x/trailing.'):
+            with self.assertRaises(Exception, msg=name):
+                install.allowed_name(name)
+        self.assertEqual(install.allowed_name('artifacts/x/node_modules/@scope/pkg/index.js'), 'artifacts/x/node_modules/@scope/pkg/index.js')
+
     def test_committed_wal_records_are_in_the_actual_database_snapshot(self):
         connection = sqlite3.connect(self.data / 'maipa.sqlite3')
         self.addCleanup(connection.close)

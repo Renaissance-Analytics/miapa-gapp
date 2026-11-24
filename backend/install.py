@@ -37,7 +37,7 @@ def configured(path):
 
 
 def allowed_name(name):
-    if not isinstance(name, str) or len(name) > 2048 or not re.fullmatch(r'[A-Za-z0-9_./-]+', name):
+    if not isinstance(name, str) or len(name) > 2048 or not re.fullmatch(r'[A-Za-z0-9_./@-]+', name):
         raise unavailable()
     parts = name.split('/')
     if (len(parts) > 32 or any(not part or part in {'.', '..'} or part.endswith('.') or

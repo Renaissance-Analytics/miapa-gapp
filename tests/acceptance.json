@@ -1839,6 +1839,26 @@
           "tests": [
             "tests.test_install_recovery.InstallRecoveryTests.test_unknown_durable_source_file_refuses_instead_of_omitting_it"
           ]
+        },
+        {
+          "id": "P05-RECOVERY.scoped-names",
+          "kind": "positive",
+          "given": "An install whose artifacts hold an agent runtime with a package folder named like an npm scope (beginning with @)",
+          "when": "Back it up and restore it",
+          "then": "Both succeed and the files inside the scoped folder are restored byte for byte.",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_an_install_holding_a_scoped_package_folder_is_backed_up_and_restored_exactly"
+          ]
+        },
+        {
+          "id": "P05-RECOVERY.unusual-names",
+          "kind": "negative",
+          "given": "File names with spaces, percent signs, colons, wildcards, tildes or dollar signs, non-ASCII letters, a scope folder at the root, parent traversal, device names and trailing dots",
+          "when": "Validate them for a backup",
+          "then": "Each is refused; a scope folder inside a known namespace is accepted.",
+          "tests": [
+            "tests.test_install_recovery.InstallRecoveryTests.test_file_names_with_other_unusual_characters_still_refuse_the_backup"
+          ]
         }
       ]
     },
