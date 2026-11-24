@@ -35,11 +35,14 @@ class Account(models.Model):
     category = models.CharField(max_length=9)
     # A bank account or cash on hand. Only the person's approval changes it.
     cash = models.BooleanField(default=False)
+    # Cash the person set aside (tax, deposits held for others): in the books, but not usable.
+    restricted = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('book', 'code'), name='ledger_account_code'),
                        models.CheckConstraint(condition=models.Q(category__in=CATEGORIES), name='ledger_account_category'),
-                       models.CheckConstraint(condition=models.Q(cash=False) | models.Q(category='asset'), name='ledger_account_cash_asset')]
+                       models.CheckConstraint(condition=models.Q(cash=False) | models.Q(category='asset'), name='ledger_account_cash_asset'),
+                       models.CheckConstraint(condition=models.Q(restricted=False) | models.Q(cash=True), name='ledger_account_restricted_cash')]
 
 
 class AppendOnly(models.Model):

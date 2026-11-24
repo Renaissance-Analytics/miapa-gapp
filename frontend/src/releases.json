@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-92",
+    "label": "Development update 92",
+    "cards": [
+      {
+        "title": "Usable cash and a 13-week look ahead",
+        "description": "Ask Maipa how your cash looks over the next 13 weeks. It starts from the cash you can actually use, week by week, using what is already in your books: posted entries, entries waiting for your approval and recurring entries. You can approve setting an account aside, such as tax savings, so it is not counted as usable. Planned sales and bills not yet entered are not included, and Maipa says so."
+      }
+    ]
+  },
+  {
     "id": "development-91",
     "label": "Development update 91",
     "cards": [
@@ -190,16 +200,6 @@
       {
         "title": "What's new no longer covers the chat",
         "description": "These update cards now sit in their own strip under the header instead of floating over the page, so they no longer hide the Connect button, the message box or the Account menu. Dismiss them and the strip disappears."
-      }
-    ]
-  },
-  {
-    "id": "development-72",
-    "label": "Development update 72",
-    "cards": [
-      {
-        "title": "See your statements and reconciliation beside the chat",
-        "description": "Ask Maipa to show your bank statements or a reconciliation. The list says what each statement still needs before it can be reconciled, and the reconciliation shows bank against books, the open items and the exact difference, read live from your books."
       }
     ]
   }

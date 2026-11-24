@@ -2385,6 +2385,16 @@
           "tests": [
             "approvals.test.mjs#an elimination card lists each account by business and says nothing in the books changes"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.restricted-cash-card",
+          "kind": "negative",
+          "given": "Requests to set a cash account aside and to release it, one already in the asked state and one no longer valid",
+          "when": "Parse and render its card",
+          "then": "The card names the account, books and balance and says the money stays in the books but is left out of usable cash, or counts again when released, and that no entry changes; requests that would fail say so; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a restricted cash card says the money stays in the books but is left out of usable cash"
+          ]
         }
       ]
     }

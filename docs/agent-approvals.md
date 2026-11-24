@@ -94,3 +94,12 @@ the members (an empty list clears it). The report then carries `consolidated`: t
 removed amount, and `income_difference` and `balance_difference`. `eliminated` is true only when accounts are approved
 and both differences are zero; a dealing recorded by one member only shows up as a difference, never as a silent
 adjustment. The side-by-side figures are never changed.
+
+## Usable cash and the 13-week forecast
+
+`account.restricted {book_id, account_id, restricted}` sets a bank or cash account aside, or releases it. A restricted
+account stays in the books and statements but is left out of usable cash. `maipa_books_forecast {book_id, from}`
+returns usable cash before the start date and for each of the next 13 weeks. It uses only what the books hold: posted
+entries dated in a week, drafts awaiting approval, and recurring entries not yet drafted (a drafted occurrence counts
+once, as its draft). Unposted items dated before the start are late and land in week 1. Entries that move no usable
+cash, such as an unpaid bill, are not items. Nothing outside the books is forecast, and the agent is told to say so.

@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-72",
+    "label": "Development update 72",
+    "cards": [
+      {
+        "title": "See your statements and reconciliation beside the chat",
+        "description": "Ask Maipa to show your bank statements or a reconciliation. The list says what each statement still needs before it can be reconciled, and the reconciliation shows bank against books, the open items and the exact difference, read live from your books."
+      }
+    ]
+  },
+  {
     "id": "development-71",
     "label": "Development update 71",
     "cards": [
