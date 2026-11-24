@@ -23,7 +23,10 @@ class DatabaseSettingsTests(SimpleTestCase):
     def test_an_explicit_opt_in_with_its_own_database_name_selects_postgresql(self):
         chosen = database_config({**AMBIENT, 'MAIPA_DATABASE': 'postgres', 'MAIPA_DATABASE_NAME': 'maipa_accept'}, ROOT)
         self.assertEqual(chosen, {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': 'maipa_accept', 'HOST': '127.0.0.1', 'PORT': '5999',
-                                              'USER': 'synthetic_role', 'PASSWORD': 'synthetic-not-a-secret', 'CONN_MAX_AGE': 0}})
+                                              'USER': 'synthetic_role', 'PASSWORD': 'synthetic-not-a-secret', 'CONN_MAX_AGE': 0},
+                                  # The earlier SQLite file stays reachable for the one-time copy and as the fallback.
+                                  'sqlite_file': SQLITE['default']})
+        self.assertEqual(set(database_config({**AMBIENT, 'MAIPA_DATABASE': 'postgres', 'MAIPA_DATABASE_NAME': 'maipa_accept'}, None)), {'default'})
         # The install's own name is used, never the ambient default database or URL.
         self.assertNotIn('shared_default', repr(chosen))
 

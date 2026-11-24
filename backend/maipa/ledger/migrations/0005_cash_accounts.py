@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 def mark_starter_checking(apps, schema_editor):
     """Books made before this flag existed: the unrenamed starter checking account is a bank account."""
-    apps.get_model('ledger', 'Account').objects.filter(code='1000', name='Checking', category='asset').update(cash=True)
+    apps.get_model('ledger', 'Account').objects.using(schema_editor.connection.alias).filter(code='1000', name='Checking', category='asset').update(cash=True)
 
 
 class Migration(migrations.Migration):

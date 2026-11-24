@@ -11,3 +11,5 @@ from .test_settings import *  # noqa: F403
 DATABASES = database_config({**{key: os.environ.get(key, '') for key in ('PGHOST', 'PGPORT', 'PGUSER', 'PGPASSWORD')},
                              'MAIPA_DATABASE': 'postgres', 'MAIPA_DATABASE_NAME': 'maipa_scratch'}, None)
 DATABASES['default']['TEST'] = {'NAME': 'test_maipa_scratch'}
+# A second empty database, used only by the database copy tests.
+DATABASES['copy_target'] = {**DATABASES['default'], 'NAME': 'maipa_scratch_copy', 'TEST': {'NAME': 'test_maipa_scratch_copy'}}
