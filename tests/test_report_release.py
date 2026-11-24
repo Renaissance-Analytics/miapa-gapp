@@ -156,3 +156,20 @@ class ReportReleaseTests(TestCase):
         self.assertTrue(tool({'release_id': str(uuid.uuid4())})['isError'])
         self.assertTrue(tool({'title': 'Release it', 'from': '2026-01-01', 'to': '2026-03-31'})['isError'])
         self.assertEqual(ReportRelease.objects.count(), 1)
+
+    def test_the_panel_endpoint_reads_releases_for_the_owner_only_and_changes_nothing(self):
+        self.period('close', '2026-03-31')
+        saved = self.approve(self.ask())['result']['release_id']
+        self.client.force_login(self.user)
+        actor = {'HTTP_X_MAIPA_AGENT_ACTOR': str(self.user.pk)}
+        url = f"/api/books/{self.book['id']}/releases/"
+        before = self.revision()
+        answer = self.client.get(url, secure=True, **actor)
+        self.assertEqual((answer.status_code, answer.json()), (200, self.listed()))
+        one = self.client.get(url + '?release=' + saved, secure=True, **actor)
+        self.assertEqual((one.status_code, one.json()), (200, self.listed(release_id=saved)))
+        for bad in ('?release=x', '?release=' + str(uuid.uuid4()), '?force=1', '?release=' + saved + '&force=1'):
+            self.assertEqual(self.client.get(url + bad, secure=True, **actor).status_code, 400, bad)
+        self.assertEqual(self.client.get(url, secure=True).status_code, 409)
+        self.assertEqual(self.client.post(url, data='{}', content_type='application/json', secure=True, **actor).status_code, 405)
+        self.assertEqual((self.revision(), ReportRelease.objects.count()), (before, 1))

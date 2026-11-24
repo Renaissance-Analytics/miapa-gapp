@@ -4,8 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
-import { AccountsTable, ActivityTable, CloseReviewView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
-import { parseCloseReview, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
+import { AccountsTable, ActivityTable, CloseReviewView, ReleasesView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
+import { parseCloseReview, parseReleases, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
   const schema = compositionSchema({ id: 'overview', type: 'Maipa.Stack', children: [
@@ -279,4 +279,43 @@ test('a close review is accepted only when it is consistent, and shows each chec
     { checks: [...closeReview.checks.slice(0, 3), { key: 'integrity', ok: false, count: 1, items: [{ code: 'journal_unbalanced', journal_id: RENT }] }] },
     { checks: [...closeReview.checks.slice(0, 3), { key: 'integrity', ok: false, count: 1, items: [{ code: 'Bad Code', journal_id: null, sequence: null }] }] }])
     assert.throws(() => parseCloseReview({ ...structuredClone(closeReview), ...structuredClone(change) }, BOOK, '2026-06-30'), undefined, JSON.stringify(change));
+});
+
+const TOTALS = { total_income: '5000.0000', total_expenses: '1150.0000', net_income: '3850.0000', total_assets: '4100.0000', total_liabilities: '250.0000', total_equity: '0.0000', earnings_to_date: '3850.0000', closing_cash: '4100.0000' };
+const releaseList = { book_id: BOOK, currency: 'USD', revision: 31, closed_through: '2026-03-31', releases: [
+  { id: STATEMENT, number: 3, title: 'March <b>statements</b>', from: '2026-03-01', to: '2026-03-31', released_at: '2026-04-03T10:00:00+00:00', figures_hash: 'c'.repeat(64), totals: { ...TOTALS, net_income: '-1150.0000' }, unchanged: false, latest: true },
+  { id: RENT, number: 2, title: 'First quarter, revised', from: '2026-01-01', to: '2026-03-31', released_at: '2026-04-02T10:00:00+00:00', figures_hash: 'b'.repeat(64), totals: TOTALS, unchanged: true, latest: true },
+  { id: CASH, number: 1, title: 'First quarter', from: '2026-01-01', to: '2026-03-31', released_at: '2026-04-01T10:00:00+00:00', figures_hash: 'a'.repeat(64), totals: { ...TOTALS, net_income: '4100.0000' }, unchanged: false, latest: false }] };
+
+test('a released statements definition holds only its book, never figures', () => {
+  const one = { id: 'releases', type: 'Maipa.Releases', props: { book_id: BOOK } };
+  assert.deepEqual(compositionSchema(one), one);
+  for (const props of [undefined, {}, { book_id: 'books' }, { book_id: BOOK, releases: [] }, { book_id: BOOK, unchanged: true }, { book_id: BOOK, release_id: RENT }])
+    assert.throws(() => compositionSchema({ id: 'bad', type: 'Maipa.Releases', ...(props ? { props } : {}) }), undefined, JSON.stringify(props));
+  assert.throws(() => compositionSchema({ id: 'twice', type: 'Maipa.Stack', children: [{ id: 'a', type: 'Maipa.Releases', props: { book_id: BOOK } }, { id: 'b', type: 'Maipa.Releases', props: { book_id: BOOK } }] }));
+  const html = renderToStaticMarkup(React.createElement(AgentSurface, { userId: '1', ui: { composition: { title: 'Released statements', schema: compositionSchema(one) } } }));
+  assert.match(html, /aria-label="Released statements"[^>]*aria-busy="true"/);
+});
+
+test('released statements are accepted only when consistent, and each says whether it still matches the books', () => {
+  assert.deepEqual(parseReleases(structuredClone(releaseList), BOOK), releaseList);
+  const html = renderToStaticMarkup(React.createElement(ReleasesView, { list: releaseList }));
+  assert.match(html, /data-release-count="3"/); assert.match(html, /Closed through 2026-03-31/);
+  for (const [number, state] of [[3, 'changed'], [2, 'current'], [1, 'replaced']]) assert.match(html, new RegExp(`data-release-number="${number}" data-release-state="${state}"`));
+  for (const text of ['No. 3 · March &lt;b&gt;statements&lt;/b&gt;', '2026-01-01 to 2026-03-31', '2026-04-02', '3,850.00', '−1,150.00', '4,100.00', 'Matches the books',
+    'Out of date: the books have changed', 'Replaced by a newer release', 'A release no longer matches the books. Its figures are kept as released; ask Maipa what changed, or to release the period again.'])
+    assert.equal(html.includes(text), true, text);
+  assert.doesNotMatch(html, /<b>statements/);
+  const calm = renderToStaticMarkup(React.createElement(ReleasesView, { list: { ...releaseList, releases: releaseList.releases.slice(1) } }));
+  assert.doesNotMatch(calm, /no longer matches the books/);
+  const none = renderToStaticMarkup(React.createElement(ReleasesView, { list: { ...releaseList, releases: [] } }));
+  assert.match(none, /data-release-count="0"/); assert.match(none, /No statements have been released yet\. The books are closed through 2026-03-31; ask Maipa to release the statements for a closed period\./);
+  assert.match(renderToStaticMarkup(React.createElement(ReleasesView, { list: { ...releaseList, closed_through: null, releases: [] } })), /Statements can be released once a period is closed\./);
+  const change = (edit) => { const copy = structuredClone(releaseList); edit(copy); return copy; };
+  for (const [name, bad] of Object.entries({
+    otherBook: change(c => { c.book_id = RENT; }), extraKey: change(c => { c.releases[0].statements = {}; }), badTotal: change(c => { c.releases[0].totals.net_income = '12'; }),
+    missingTotal: change(c => { delete c.releases[0].totals.closing_cash; }), wrongOrder: change(c => { c.releases.reverse(); }), repeatedNumber: change(c => { c.releases[1].number = 3; }),
+    twoLatest: change(c => { c.releases[2].latest = true; }), noLatest: change(c => { c.releases[1].latest = false; }), reversedRange: change(c => { c.releases[0].from = '2026-04-01'; }),
+    emptyTitle: change(c => { c.releases[0].title = ''; }), badHash: change(c => { c.releases[0].figures_hash = 'xyz'; }), badFlag: change(c => { c.releases[0].unchanged = 'yes'; }) }))
+    assert.throws(() => parseReleases(bad, BOOK), undefined, name);
 });

@@ -100,6 +100,15 @@ def reconciliation(request, book_id):
 
 
 @endpoint
+def releases(request, book_id):
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if set(request.GET) - {'release'}:
+        return error('invalid_ledger_request', 400)
+    return JsonResponse(services.report_releases(request.user, str(book_id), {'release_id': request.GET['release']} if 'release' in request.GET else {}))
+
+
+@endpoint
 def close_review(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')
