@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 def update_untouched_default(apps, schema_editor):
     # An explicit prior gesture is preserved, including a chosen 28 percent.
-    apps.get_model('workspace', 'WorkspaceLayout').objects.filter(revision=0, split_basis_points=2800).update(split_basis_points=6000)
+    apps.get_model('workspace', 'WorkspaceLayout').objects.using(schema_editor.connection.alias).filter(revision=0, split_basis_points=2800).update(split_basis_points=6000)
 
 
 class Migration(migrations.Migration):

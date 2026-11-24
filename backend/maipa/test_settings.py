@@ -16,4 +16,7 @@ _test_database = tempfile.TemporaryDirectory(prefix='maipa-test-database-')
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:",
     "TEST": {"NAME": str(Path(_test_database.name) / 'tests.sqlite3')},
     "OPTIONS": {"transaction_mode": "IMMEDIATE"}}}
+# A second empty database, used only by the database copy tests.
+DATABASES["copy_target"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:",
+    "TEST": {"NAME": str(Path(_test_database.name) / 'copy-target.sqlite3')}, "OPTIONS": {"transaction_mode": "IMMEDIATE"}}
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]

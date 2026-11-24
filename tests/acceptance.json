@@ -7981,6 +7981,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "K01-DATABASE-COPY",
+      "risk": "Moving an install to another database could silently lose, alter or duplicate records, overwrite a database that already holds data, or leave new records colliding with copied ids.",
+      "scenarios": [
+        {
+          "id": "K01-DATABASE-COPY.exact",
+          "kind": "positive",
+          "given": "An install with users, a client, books with a statement import and a posted entry, a decided and a pending approval request and a pinned view, and an empty migrated second database",
+          "when": "Copy the first database into the second",
+          "then": "Every model has the same row count and the same content hash in both, the source is unchanged, framework permission and content-type rows are not copied, the posted entry, password and setup closure read back from the copy, and a user created afterwards in the copy gets a fresh id.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_every_record_arrives_exactly_and_the_copy_keeps_working"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-COPY.occupied-target",
+          "kind": "negative",
+          "given": "A second database that already holds copied records, and a source that has gained a user since",
+          "when": "Copy again",
+          "then": "The copy is refused as target not empty and the second database is exactly as it was.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_a_target_that_already_holds_records_is_refused_and_left_alone"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-COPY.differences",
+          "kind": "negative",
+          "given": "Two databases after a copy, then one altered entry, one removed line and one changed user in the copy",
+          "when": "Compare them",
+          "then": "Exactly those three models are reported, with their row counts on each side and that their content differs.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_any_difference_between_the_two_databases_is_reported_by_model"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-COPY.refusals",
+          "kind": "negative",
+          "given": "The same database as source and target, unknown database names, and a source with user-permission rows",
+          "when": "Copy",
+          "then": "Each is refused with its code and nothing is written to the target.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_same_unknown_or_unsupported_sources_are_refused_before_anything_is_written"
+          ]
+        },
+        {
+          "id": "K01-DATABASE-COPY.command",
+          "kind": "positive",
+          "given": "The copy command run for a copy, a verification, a repeat copy, a verification after an alteration, and an unknown database",
+          "when": "Read its output and result",
+          "then": "It prints model names and row counts and the identical verdict, never a record value; the repeat, the difference and the unknown database each end in a command error naming the reason.",
+          "tests": [
+            "tests.test_database_copy.DatabaseCopyTests.test_the_command_reports_counts_only_and_fails_loudly_on_refusal_or_difference"
+          ]
+        }
+      ]
     }
   ]
 }

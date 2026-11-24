@@ -89,6 +89,8 @@ class CashAccountTests(TestCase):
         Account.objects.filter(book_id=renamed['id']).update(cash=False)
         Account.objects.filter(book_id=renamed['id'], code='1000').update(name='Petty float')
         migration = importlib.import_module('backend.maipa.ledger.migrations.0005_cash_accounts')
-        migration.mark_starter_checking(apps, None)
+        from types import SimpleNamespace
+        from django.db import connection
+        migration.mark_starter_checking(apps, SimpleNamespace(connection=connection))
         self.assertEqual([code for code, cash in self.flags().items() if cash], ['1000'])
         self.assertEqual(Account.objects.filter(book_id=renamed['id'], cash=True).count(), 0)

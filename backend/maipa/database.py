@@ -16,10 +16,11 @@ RESERVED = ('postgres', 'template0', 'template1')
 
 def database_config(environ, data_root):
     choice = environ.get('MAIPA_DATABASE', '')
+    # Reserve short atomic transactions before reads so concurrent app writers queue.
+    sqlite = None if data_root is None else {'ENGINE': 'django.db.backends.sqlite3', 'NAME': data_root / 'maipa.sqlite3',
+                                             'OPTIONS': {'transaction_mode': 'IMMEDIATE'}}
     if choice in ('', 'sqlite'):
-        # Reserve short atomic transactions before reads so concurrent app writers queue.
-        return {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': data_root / 'maipa.sqlite3',
-                            'OPTIONS': {'transaction_mode': 'IMMEDIATE'}}}
+        return {'default': sqlite}
     if choice != 'postgres':
         raise ImproperlyConfigured('MAIPA_DATABASE must be sqlite or postgres')
     name = environ.get('MAIPA_DATABASE_NAME', '')
@@ -32,5 +33,10 @@ def database_config(environ, data_root):
             raise ImproperlyConfigured(f'{key} is required when MAIPA_DATABASE is postgres')
     if not values['PGPORT'].isascii() or not values['PGPORT'].isdigit() or not 0 < int(values['PGPORT']) < 65536:
         raise ImproperlyConfigured('PGPORT must be a port number')
-    return {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': name, 'HOST': values['PGHOST'], 'PORT': values['PGPORT'],
-                        'USER': values['PGUSER'], 'PASSWORD': values['PGPASSWORD'], 'CONN_MAX_AGE': 0}}
+    chosen = {'default': {'ENGINE': 'django.db.backends.postgresql', 'NAME': name, 'HOST': values['PGHOST'], 'PORT': values['PGPORT'],
+                          'USER': values['PGUSER'], 'PASSWORD': values['PGPASSWORD'], 'CONN_MAX_AGE': 0}}
+    if sqlite is not None:
+        # The install's earlier SQLite file stays reachable under its own name, for the one-time copy and as the fallback.
+        # The application itself only ever uses 'default'.
+        chosen['sqlite_file'] = sqlite
+    return chosen

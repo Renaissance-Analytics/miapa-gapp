@@ -9,7 +9,8 @@ def initialize_bootstrap(apps, schema_editor):
     installation = apps.get_model('workspace', 'Installation')
     user_app, user_model = settings.AUTH_USER_MODEL.split('.')
     user = apps.get_model(user_app, user_model)
-    bootstrap.objects.create(slot=1, closed=installation.objects.exists() or user.objects.exists())
+    alias = schema_editor.connection.alias    # The database being migrated, which is not always the default one.
+    bootstrap.objects.using(alias).create(slot=1, closed=installation.objects.using(alias).exists() or user.objects.using(alias).exists())
 
 
 class Migration(migrations.Migration):
