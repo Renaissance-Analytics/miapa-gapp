@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-61",
+    "label": "Development update 61",
+    "cards": [
+      {
+        "title": "Statements belong to a bank account",
+        "description": "When you import a bank statement, Maipa now records which bank account it is from. Entries made from its rows must move that account by the exact amount, in the right direction, so money in can never be booked as money out."
+      }
+    ]
+  },
+  {
     "id": "development-60",
     "label": "Development update 60",
     "cards": [

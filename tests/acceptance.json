@@ -8067,6 +8067,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C01-CLOSE-REVIEW",
+      "risk": "Closing a period with drafts, unposted bank lines, unreconciled statements or damaged entries left unnoticed locks in wrong books; a review that changed records or decided the close itself would bypass the person.",
+      "scenarios": [
+        {
+          "id": "C01-CLOSE-REVIEW.ready",
+          "kind": "positive",
+          "given": "Books with an opening balance, a March statement fully posted and its reconciliation recorded",
+          "when": "Review closing through March 31, twice, and again after closing through February",
+          "then": "Every check is clear with no items, the close is allowed and ready, the calendar lists each month of the book period as open and later the closed ones as closed, and the review changes no revision or event.",
+          "tests": [
+            "tests.test_close_review.CloseReviewTests.test_books_with_everything_settled_are_ready_and_the_calendar_shows_each_month"
+          ]
+        },
+        {
+          "id": "C01-CLOSE-REVIEW.outstanding",
+          "kind": "negative",
+          "given": "A March statement with unposted lines, a draft dated in March and one in April, a statement with no bank account and an April statement",
+          "when": "Review closing through March 31",
+          "then": "The March draft, the four statement lines up to the date with their status, and the two statements ending in the period with their state are listed exactly; April items are not; the close is blocked by the draft and not ready.",
+          "tests": [
+            "tests.test_close_review.CloseReviewTests.test_each_outstanding_item_is_listed_under_its_check_with_exact_figures"
+          ]
+        },
+        {
+          "id": "C01-CLOSE-REVIEW.reconciliation-states",
+          "kind": "negative",
+          "given": "A recorded March reconciliation, then a statement of a second bank account without balances, a new unposted line on the first account, a reversal, and a statement with no account",
+          "when": "Review after each",
+          "then": "Statements are reported as needing balances, changed since recording, or needing an account as each applies, and an unchanged recorded reconciliation is not listed.",
+          "tests": [
+            "tests.test_close_review.CloseReviewTests.test_reconciliation_states_cover_missing_balances_unrecorded_and_changed_since_recording"
+          ]
+        },
+        {
+          "id": "C01-CLOSE-REVIEW.refusals",
+          "kind": "negative",
+          "given": "Books closed through March 31, dates already closed, outside the period, malformed or impossible, extra fields, another user and unknown books",
+          "when": "Review closing",
+          "then": "Closed dates report that the close is not allowed and why; a later date is allowed; invalid requests, the other user and unknown books are refused.",
+          "tests": [
+            "tests.test_close_review.CloseReviewTests.test_a_date_that_cannot_be_closed_says_why_and_bad_requests_and_foreign_readers_are_refused"
+          ]
+        },
+        {
+          "id": "C01-CLOSE-REVIEW.surfaces",
+          "kind": "positive",
+          "given": "The owner over HTTP, malformed queries, a missing actor, a POST, and the agent tool with good and bad arguments",
+          "when": "Request the review",
+          "then": "HTTP and the tool return exactly the service result; malformed queries get 400, a missing actor 409, POST 405, and bad tool arguments an error.",
+          "tests": [
+            "tests.test_close_review.CloseReviewTests.test_http_and_the_agent_tool_return_exactly_the_service_result"
+          ]
+        }
+      ]
     }
   ]
 }
