@@ -8,7 +8,7 @@ from django.db import DatabaseError, transaction
 from backend.maipa.agent_accounts import ui
 from . import services
 
-NAMES = frozenset(('maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_books_releases', 'maipa_journal_propose'))
+NAMES = frozenset(('maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_books_releases', 'maipa_books_groups', 'maipa_journal_propose'))
 
 
 def tool_definitions():
@@ -36,6 +36,8 @@ def tool_definitions():
         {'name': 'maipa_books_prepare_due', 'description': 'Draft every due recurring entry on or before a date, at most once per occurrence. Drafts are proposals that change no balance; posting each still needs the person to approve journal.post (request them together in one batch). Use maipa_books_schedules first and tell the person what you are drafting.', 'inputSchema': obj({'book_id': identifier, 'through': {'type': 'string', 'format': 'date'}}, ['book_id', 'through'])},
         {'name': 'maipa_books_releases', 'description': 'Read-only: the released statements of a book, newest first. A release is the income statement, balance sheet and cash flow of a closed period, kept exactly as the person approved releasing them. Each has unchanged (the books still give the same figures today) and latest (no newer release of the same range). With release_id: the kept statements and every total that differs today (changes). To release statements request report.release with maipa_action_request; this tool cannot.',
          'inputSchema': obj({'book_id': identifier, 'release_id': identifier}, ['book_id'])},
+        {'name': 'maipa_books_groups', 'description': 'Read-only. With no arguments: the person\'s entity groups (books read together) with their member books. With group_id, from and to (YYYY-MM-DD): the combined income statement, balance sheet and cash totals for that range, each row with one amount per member book in the listed order and their total. eliminated is false: balances and sales between the entities are NOT removed, so say so when reporting group totals. To create or remove a group request group.create or group.remove with maipa_action_request; this tool cannot.',
+         'inputSchema': obj({'group_id': identifier, 'from': {'type': 'string', 'format': 'date'}, 'to': {'type': 'string', 'format': 'date'}}, [])},
         {'name': 'maipa_books_reconcile', 'description': 'Bank reconciliation. With only book_id: list the imported statements with their bank account, stated opening and closing balance, dates and can_reconcile. With import_id: compare that statement\'s closing balance with the books at its last date. unrecorded_lines are statement lines not yet posted; outstanding_entries are posted entries on the account that no statement line has cleared; reconciled is true only when books plus unrecorded lines equal the bank balance plus outstanding entries. Report the exact difference and what explains it; never adjust a figure to make it reconcile. A statement needs a bank account and both balances.', 'inputSchema': obj({'book_id': identifier, 'import_id': identifier}, ['book_id'])},
         {'name': 'maipa_books_report', 'description': 'Read the income statement and cash flow for a date range and the balance sheet as of its end date, from posted entries only (exact decimal strings). cash_flow gives the opening and closing balance of each account marked as a bank or cash account, and what moved cash in the range by the other account of each entry (positive received, negative paid); transfers between marked accounts and unpaid bills move no cash; it is empty when no account is marked. cash_flow.bridge explains why cash changed by a different amount than profit: net_income, plus not_in_cash (income and expenses not yet received or paid), plus other_accounts (cash moved by asset, liability and equity accounts), equals net_change. With a comparison, change.net_cash_change is the difference in the change in cash. Dates must be inside the book period. Use this for profit, totals and balances; never compute them yourself. To compare two periods (for example this month against last month), also give compare_from and compare_to together: the result adds the same statements for that range and the exact change in each total, requested range minus compared range.', 'inputSchema': obj({'book_id': identifier, 'from': {'type': 'string', 'format': 'date'}, 'to': {'type': 'string', 'format': 'date'}, 'compare_from': {'type': 'string', 'format': 'date'}, 'compare_to': {'type': 'string', 'format': 'date'}}, ['book_id', 'from', 'to'])},
         {'name': 'maipa_journal_propose', 'description': 'Save an exact balanced journal proposal for the currently visible Maipa.Books component. Requires the just-read book revision and original account IDs. Use decimal strings, original user-supplied references and a stable operation UUID. This never posts; the human reviews the exact entry in the shared UI.', 'inputSchema': obj({'book_id': identifier, 'entry': entry})},
@@ -58,6 +60,13 @@ class LedgerBroker:
             if name == 'maipa_books_list':
                 services.fields(arguments, ())
                 value = services.list_books(actor)
+            elif name == 'maipa_books_groups':
+                from . import groups
+                if arguments:
+                    services.fields(arguments, ('group_id', 'from', 'to'))
+                    value = groups.combined_report(actor, arguments['group_id'], {'from': arguments['from'], 'to': arguments['to']})
+                else:
+                    value = groups.list_groups(actor)
             else:
                 services.fields(arguments, ('book_id', 'entry') if name == 'maipa_journal_propose'
                                else ('book_id', 'account_id') if name == 'maipa_books_activity'

@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import services as ledger
+from backend.maipa.ledger import groups as ledger_groups, services as ledger
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -230,6 +230,9 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'group.create': (('name', 'book_ids'), lambda user, p: ledger_groups.group_check(user, p), lambda user, p: ledger_groups.create_group(user, p)),
+    'group.remove': (('group_id',), lambda user, p: ledger_groups.remove_check(user, p['group_id']),
+        lambda user, p: ledger_groups.remove_group(user, p['group_id'])),
     'report.release': (('book_id', 'from', 'to', 'title'), _check_release,
         lambda user, p: ledger.release_report(user, p['book_id'], {'expected_revision': _revision(p['book_id']),
                                               **{k: v for k, v in p.items() if k != 'book_id'}})),
@@ -266,6 +269,10 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation == 'group.create':
+            return ledger_groups.describe(row.user, row.payload)
+        if row.operation == 'group.remove':
+            return ledger_groups.describe_remove(row.user, row.payload['group_id'])
         if row.operation == 'report.release':
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             checked = ledger.release_check(row.user, book, {key: value for key, value in row.payload.items() if key != 'book_id'})

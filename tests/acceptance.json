@@ -8424,6 +8424,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "C03-ENTITY-GROUPS",
+      "risk": "A combined report that mixes currencies, includes books the person cannot read, merges unrelated accounts, changes a book, or passes for an eliminated consolidation would misstate a group of businesses.",
+      "scenarios": [
+        {
+          "id": "C03-ENTITY-GROUPS.combined",
+          "kind": "positive",
+          "given": "Two books of one owner in the same currency with posted entries, and a request to group them",
+          "when": "Read its card, approve it, list the groups, read the combined report for two ranges, and approve again",
+          "then": "The card names both businesses and the currency; approval saves the group and changes no entry; each row and total shows one amount per business and their exact sum; every column equals that business's own report; entries outside the range are excluded; the report says nothing is eliminated; the repeat changes nothing.",
+          "tests": [
+            "tests.test_entity_groups.EntityGroupTests.test_an_approved_group_combines_its_books_with_each_entity_beside_the_total"
+          ]
+        },
+        {
+          "id": "C03-ENTITY-GROUPS.account-identity",
+          "kind": "negative",
+          "given": "Grouped books where an account exists in only one book and where one code has different names in each",
+          "when": "Read the combined report",
+          "then": "The account in one book shows zero for the other; same code with different names stays on separate rows; totals still add up.",
+          "tests": [
+            "tests.test_entity_groups.EntityGroupTests.test_accounts_that_exist_in_only_one_book_or_differ_by_name_are_kept_apart_and_shown"
+          ]
+        },
+        {
+          "id": "C03-ENTITY-GROUPS.refusals",
+          "kind": "negative",
+          "given": "One book, a repeated book, mixed currencies, another person's book, unknown and malformed books and names, padded requests, another person, unknown groups, ranges outside a member's period, and an existing identical group",
+          "when": "Request, list or read them",
+          "then": "Each is refused with its code where one applies and nothing is saved; another person sees no groups and cannot read or remove this one; an identical group is refused.",
+          "tests": [
+            "tests.test_entity_groups.EntityGroupTests.test_groups_of_other_people_mixed_currencies_and_malformed_requests_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "C03-ENTITY-GROUPS.remove",
+          "kind": "negative",
+          "given": "A saved group and a request to remove it",
+          "when": "Read the report before approval, approve the removal, read again, ask to remove again, and group the same books again",
+          "then": "The group works until removal is approved; afterwards it is not listed or readable, a second removal is refused, no entry changed, and the books can be grouped again.",
+          "tests": [
+            "tests.test_entity_groups.EntityGroupTests.test_a_group_is_removed_only_by_approval_and_its_books_are_untouched"
+          ]
+        },
+        {
+          "id": "C03-ENTITY-GROUPS.agent-tool",
+          "kind": "positive",
+          "given": "A saved group and the agent tools",
+          "when": "List groups and read the combined report through the tool, and pass incomplete, unknown or changing arguments",
+          "then": "The tool results equal the service results; every other form returns an error; no group is made or removed.",
+          "tests": [
+            "tests.test_entity_groups.EntityGroupTests.test_the_agent_tool_lists_groups_and_reads_the_combined_report_but_cannot_change_a_group"
+          ]
+        }
+      ]
     }
   ]
 }
