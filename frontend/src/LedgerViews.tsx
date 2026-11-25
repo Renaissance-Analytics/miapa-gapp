@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Badge, Button, Callout, Table } from '@particle-academy/react-fancy';
-import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readForecast, readReleases, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CashForecast, type CloseReview, type ReleaseList, type FinancialReport, type LedgerSnapshot, type ReportRow,
+import { displayMoney, displaySigned, readAccountActivity, readCloseReview, readForecast, readPayables, readReleases, readFinancialReport, readLedger, readReconciliation, readStatements, type AccountActivity, type CloseItemDraft, type CloseItemLine, type CloseItemStatement, type CashForecast, type CloseReview, type Payables, type ReleaseList, type FinancialReport, type LedgerSnapshot, type ReportRow,
   type Reconciliation, type StatementList, type StatementSummary } from './bookkeeping-client.js';
 
 export type JournalFilter = 'all' | 'posted' | 'pending';
@@ -335,4 +335,30 @@ export function ForecastView({ forecast }: { forecast: CashForecast }) {
 export function LedgerForecast({ userId, bookId, from, scenario }: { userId: string; bookId: string; from: string; scenario: string | null }) {
   const live = useLive(signal => readForecast(userId, bookId, from, scenario, signal), `${userId}:${bookId}:${from}:${scenario ?? ''}:forecast`);
   return <Frame label="Cash forecast" phase={live.phase} reload={live.reload}>{live.value && <ForecastView forecast={live.value} />}</Frame>;
+}
+
+export function PayablesView({ payables }: { payables: Payables }) {
+  const { bills, claims } = payables;
+  const nothing = !bills.bills.length && !claims.people.length;
+  return <div data-payables-as-of={bills.as_of} data-bill-count={bills.bills.length} data-claim-people={claims.people.length}>
+    <p>What the business owes as of {bills.as_of} · {bills.currency}</p>
+    {bills.overdue_total !== '0.0000' ? <Callout color="amber">Overdue: <span className="figure">{displaySigned(bills.overdue_total)}</span> in bills past their due date.</Callout>
+      : nothing ? <Callout color="green">Nothing is owed to vendors or to people for expenses.</Callout> : null}
+    {bills.difference !== '0.0000' && <Callout color="blue">The payable accounts show <span className="figure">{displaySigned(bills.ledger_payable)}</span>, which is <span className="figure">{displaySigned(bills.difference)}</span> more than the open bills. Something was entered on a payable account outside a bill; ask Maipa what it is.</Callout>}
+    <section aria-label="Unpaid bills"><p><strong>Unpaid bills</strong> · <span className="figure">{displaySigned(bills.open_total)}</span></p>
+      {bills.bills.length ? <div className="release-list">{bills.bills.map(item => <section key={item.id} className="release-item" data-bill-id={item.id} data-bill-state={item.state}>
+        <p><strong>{item.vendor}</strong> · {item.reference}</p><p>{item.description}</p>
+        <p>Due {item.due_date} · <span className="figure">{displaySigned(item.amount)}</span></p>
+        {item.state === 'overdue' && <p><Badge color="amber" variant="soft">{item.days_overdue} {item.days_overdue === 1 ? 'day' : 'days'} overdue</Badge></p>}
+      </section>)}</div> : <p>No unpaid bills.</p>}</section>
+    <section aria-label="Owed to people for expenses"><p><strong>Owed to people for expenses</strong> · <span className="figure">{displaySigned(claims.total)}</span></p>
+      {claims.people.length ? <ul>{claims.people.map(person => <li key={person.claimant} data-claimant={person.claimant}>{person.claimant} · <span className="figure">{displaySigned(person.total)}</span>
+        {' '}({person.claims.length} {person.claims.length === 1 ? 'claim' : 'claims'})</li>)}</ul> : <p>No open expense claims.</p>}</section>
+    <p className="forecast-note">Maipa records payments you make; it does not send money. Ask Maipa to propose a payment run to settle several of these with one approval.</p>
+  </div>;
+}
+
+export function LedgerPayables({ userId, bookId, asOf }: { userId: string; bookId: string; asOf: string }) {
+  const live = useLive(signal => readPayables(userId, bookId, asOf, signal), `${userId}:${bookId}:${asOf}:payables`);
+  return <Frame label="What you owe" phase={live.phase} reload={live.reload}>{live.value && <PayablesView payables={live.value} />}</Frame>;
 }

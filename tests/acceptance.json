@@ -3026,6 +3026,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_forecast_view_accepts_only_an_exact_book_a_real_date_and_an_optional_scenario_name"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.payables-view",
+          "kind": "negative",
+          "given": "A payables view naming one book and a date, and views with missing, malformed, foreign-looking or extra props, or two such views",
+          "when": "Present or update the composition",
+          "then": "Only an exact book and a real date are accepted; every other form is refused and the saved composition is unchanged.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_payables_view_accepts_only_an_exact_book_and_a_real_date"
+          ]
         }
       ]
     },
