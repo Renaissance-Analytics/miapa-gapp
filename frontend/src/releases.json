@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-95",
+    "label": "Development update 95",
+    "cards": [
+      {
+        "title": "Updated workflow and form tooling",
+        "description": "Maipa now uses the latest published version of the toolkit that lets it edit workflows and forms with you. Nothing changes in how you work; workflow lists Maipa reads are now in the format current AI tools expect."
+      }
+    ]
+  },
+  {
     "id": "development-94",
     "label": "Development update 94",
     "cards": [
@@ -186,20 +196,6 @@
       {
         "title": "Maipa’s building blocks are up to date",
         "description": "The published components Maipa is built from, including the one that connects your Claude or Codex account, were updated to their latest releases. Nothing changes in how you work."
-      }
-    ]
-  },
-  {
-    "id": "development-75",
-    "label": "Development update 75",
-    "cards": [
-      {
-        "title": "See your income statement and balance sheet beside the chat",
-        "description": "Ask Maipa to show your results for any dates. The income statement and balance sheet open beside the conversation and always read the current posted figures from your books."
-      },
-      {
-        "title": "Keep a report as a pinned view",
-        "description": "Ask Maipa to keep a report, such as this year’s results, and it is pinned for you. A pinned view remembers only the books and the dates, so it shows current figures each time you open it."
       }
     ]
   }

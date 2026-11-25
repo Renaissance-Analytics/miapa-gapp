@@ -1,5 +1,19 @@
 [
   {
+    "id": "development-75",
+    "label": "Development update 75",
+    "cards": [
+      {
+        "title": "See your income statement and balance sheet beside the chat",
+        "description": "Ask Maipa to show your results for any dates. The income statement and balance sheet open beside the conversation and always read the current posted figures from your books."
+      },
+      {
+        "title": "Keep a report as a pinned view",
+        "description": "Ask Maipa to keep a report, such as this year’s results, and it is pinned for you. A pinned view remembers only the books and the dates, so it shows current figures each time you open it."
+      }
+    ]
+  },
+  {
     "id": "development-74",
     "label": "Development update 74",
     "cards": [
