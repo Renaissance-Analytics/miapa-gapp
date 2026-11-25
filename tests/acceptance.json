@@ -8804,6 +8804,16 @@
           "tests": [
             "tests.test_decision_follow_up.DecisionFollowUpTests.test_the_agent_tool_lists_decisions_and_cannot_record_or_close_one"
           ]
+        },
+        {
+          "id": "F04-DECISION-FOLLOW-UP.local-today",
+          "kind": "negative",
+          "given": "A machine whose own clock reads late evening, with the UTC clock made unusable",
+          "when": "Ask what today is, and request decisions to review today and yesterday",
+          "then": "Today is the date on the machine; a review date of today is accepted and recorded as decided today; yesterday is refused as past; the UTC date is never consulted.",
+          "tests": [
+            "tests.test_decision_follow_up.DecisionFollowUpTests.test_today_is_the_date_on_this_machine_not_the_date_in_utc"
+          ]
         }
       ]
     }
