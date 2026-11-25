@@ -233,3 +233,43 @@ export async function readReleases(user:string,bookId:string,signal:AbortSignal,
  if(!uuid(bookId))throw unavailable();
  return parseReleases(await request(user,`/api/books/${bookId}/releases/`,signal,undefined,fetcher),bookId);
 }
+
+export interface ForecastItem {date:string;description:string;amount:string;source:'posted'|'draft'|'recurring'}
+export interface ForecastWeek {week:number;start:string;end:string;in:string;out:string;net:string;closing:string;items:ForecastItem[]}
+export interface PlanMove {date:string;description:string;amount:string;scenario:string|null}
+export interface PlanWeek {week:number;start:string;end:string;planned_in:string;planned_out:string;closing:string;items:PlanMove[]}
+export interface PlanItem {id:string;description:string;amount:string;date:string;every:'week'|'month'|null;until:string|null;scenario:string|null}
+export interface CashForecast {book_id:string;currency:string;revision:number;from:string;through:string;period_end:string;
+ cash_accounts:{id:string;code:string;name:string;restricted:boolean;balance:string}[];opening_usable:string;restricted_cash:string;weeks:ForecastWeek[];closing_usable:string;
+ lowest:{week:number;closing:string};sources:{posted:number;draft:number;recurring:number};
+ plan:{scenario:string|null;opening_usable:string;weeks:PlanWeek[];closing_usable:string;lowest:{week:number;closing:string}}|null;plan_items:PlanItem[];scenarios:{name:string;items:number}[]}
+const label=(v:unknown,max:number):v is string=>typeof v==='string'&&v.length>0&&v.length<=max;
+const lowestOf=(v:unknown,weeks:{week:number;closing:string}[])=>object(v)&&exact(v,['week','closing'])&&weeks.some(w=>w.week===v.week&&w.closing===v.closing);
+/** A forecast is accepted only for this book, start and scenario, with 13 numbered weeks and totals that agree with them. */
+export function parseForecast(v:unknown,bookId:string,from:string,scenario:string|null):CashForecast{
+ if(!object(v)||!exact(v,['book_id','currency','revision','from','through','period_end','cash_accounts','opening_usable','restricted_cash','weeks','closing_usable','lowest','sources','plan','plan_items','scenarios'])
+  ||v.book_id!==bookId||v.from!==from||!currency(v.currency)||!integer(v.revision)||!day(v.through)||!day(v.period_end)||!signed(v.opening_usable)||!signed(v.restricted_cash)||!signed(v.closing_usable)
+  ||!Array.isArray(v.cash_accounts)||v.cash_accounts.length>200||!Array.isArray(v.weeks)||v.weeks.length!==13||!Array.isArray(v.plan_items)||v.plan_items.length>200
+  ||!Array.isArray(v.scenarios)||v.scenarios.length>200||!object(v.sources)||!exact(v.sources,['posted','draft','recurring'])||!Object.values(v.sources).every(integer))throw unavailable();
+ if(!v.cash_accounts.every(a=>object(a)&&exact(a,['id','code','name','restricted','balance'])&&uuid(a.id)&&label(a.code,16)&&label(a.name,128)&&typeof a.restricted==='boolean'&&signed(a.balance)))throw unavailable();
+ const week=(w:unknown,n:number,keys:string[],item:(i:unknown)=>boolean)=>object(w)&&exact(w,['week','start','end',...keys,'closing','items'])&&w.week===n+1&&day(w.start)&&day(w.end)&&w.start<=w.end
+  &&keys.every(key=>signed(w[key]))&&signed(w.closing)&&Array.isArray(w.items)&&w.items.length<=100&&w.items.every(item);
+ const weeks=v.weeks as ForecastWeek[];
+ if(!v.weeks.every((w,n)=>week(w,n,['in','out','net'],i=>object(i)&&exact(i,['date','description','amount','source'])&&day(i.date)&&label(i.description,500)&&signed(i.amount)
+   &&['posted','draft','recurring'].includes(String(i.source))))||weeks[0].start!==from||weeks[12].end!==v.through||weeks[12].closing!==v.closing_usable||!lowestOf(v.lowest,weeks))throw unavailable();
+ if(v.plan!==null){
+  const p=v.plan;
+  if(!object(p)||!exact(p,['scenario','opening_usable','weeks','closing_usable','lowest'])||p.scenario!==scenario||p.opening_usable!==v.opening_usable||!Array.isArray(p.weeks)||p.weeks.length!==13
+   ||!p.weeks.every((w,n)=>week(w,n,['planned_in','planned_out'],i=>object(i)&&exact(i,['date','description','amount','scenario'])&&day(i.date)&&label(i.description,200)&&signed(i.amount)
+     &&(i.scenario===null||(scenario!==null&&i.scenario===scenario)))&&(w as PlanWeek).start===weeks[n].start&&(w as PlanWeek).end===weeks[n].end)
+   ||(p.weeks as PlanWeek[])[12].closing!==p.closing_usable||!lowestOf(p.lowest,p.weeks as PlanWeek[]))throw unavailable();
+ }else if(scenario!==null)throw unavailable();
+ if(!v.plan_items.every(i=>object(i)&&exact(i,['id','description','amount','date','every','until','scenario'])&&uuid(i.id)&&label(i.description,200)&&signed(i.amount)&&day(i.date)
+   &&(i.every===null||i.every==='week'||i.every==='month')&&(i.until===null||(day(i.until)&&i.every!==null))&&(i.scenario===null||label(i.scenario,60)))
+  ||!v.scenarios.every(s=>object(s)&&exact(s,['name','items'])&&label(s.name,60)&&integer(s.items)&&s.items>0))throw unavailable();
+ return v as unknown as CashForecast;
+}
+export async function readForecast(user:string,bookId:string,from:string,scenario:string|null,signal:AbortSignal,fetcher:typeof fetch=fetch){
+ if(!uuid(bookId)||!day(from)||(scenario!==null&&!label(scenario,60)))throw unavailable();
+ return parseForecast(await request(user,`/api/books/${bookId}/forecast/?from=${from}${scenario===null?'':`&scenario=${encodeURIComponent(scenario)}`}`,signal,undefined,fetcher),bookId,from,scenario);
+}

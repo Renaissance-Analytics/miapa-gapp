@@ -1137,6 +1137,26 @@
           "tests": [
             "component-palette.test.mjs#released statements are accepted only when consistent, and each says whether it still matches the books"
           ]
+        },
+        {
+          "id": "A07-PALETTE.forecast-definition",
+          "kind": "negative",
+          "given": "A forecast definition naming one book and start date, the same with a scenario, and definitions with missing, malformed or extra props, or two of them",
+          "when": "Validate and render it",
+          "then": "Only the exact book, a real date and an optional well-formed scenario name are accepted; figures and other props are refused; the panel renders loading with its label.",
+          "tests": [
+            "component-palette.test.mjs#a forecast definition holds only its book, a real start date and an optional scenario name, never figures"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.forecast-figures",
+          "kind": "negative",
+          "given": "A forecast with a plan and a what-if that goes below zero, a books-only forecast, one where the books go below zero, one with nothing moving, and inconsistent forecasts",
+          "when": "Parse and render them",
+          "then": "Thirteen weeks show the books beside the plan in at most three columns with dates on one line; the lowest week of each is marked; the warning names the track and week that go below zero, the books first; each moving item shows its source; the plan lists its items; books-only says so and invites planning; markup is inert; a wrong book, start or scenario, missing or misnumbered weeks, bad amounts or sources, totals or lowest weeks that disagree, shifted plan weeks, foreign scenario items and extra keys are refused.",
+          "tests": [
+            "component-palette.test.mjs#a forecast is accepted only when consistent, and shows the books beside the plan with the lowest week"
+          ]
         }
       ]
     },

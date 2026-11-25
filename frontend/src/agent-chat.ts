@@ -83,6 +83,17 @@ export function compositionSchema(input: unknown): ScreenSchema {
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || !day(v.props.through) || controls.has(v.type)) return fail();
       controls.add(v.type); return { id: v.id, type: v.type, props: { book_id: v.props.book_id, through: v.props.through } };
     }
+    if (v.type === 'Maipa.Forecast') {
+      const day = (value: unknown): value is string => typeof value === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)
+        && !Number.isNaN(Date.parse(value + 'T00:00:00Z')) && new Date(value + 'T00:00:00Z').toISOString().slice(0, 10) === value;
+      const named = object(v.props) && 'scenario' in v.props;
+      if (!object(v.props) || !closed(v.props, named ? ['book_id', 'from', 'scenario'] : ['book_id', 'from']) || typeof v.props.book_id !== 'string'
+        || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || !day(v.props.from) || controls.has(v.type)
+        || (named && (typeof v.props.scenario !== 'string' || !v.props.scenario || v.props.scenario.length > 60 || v.props.scenario !== v.props.scenario.trim()
+          || /[\x00-\x1f\x7f]/.test(v.props.scenario)))) return fail();
+      controls.add(v.type);
+      return { id: v.id, type: v.type, props: { book_id: v.props.book_id, from: v.props.from, ...(named ? { scenario: v.props.scenario } : {}) } };
+    }
     if (v.type === 'Maipa.Workflow') {
       if (!object(v.props) || Object.keys(v.props).length !== 1 || typeof v.props.draft_id !== 'string'
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.draft_id) || controls.has(v.type)) return fail();

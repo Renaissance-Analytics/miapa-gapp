@@ -304,3 +304,9 @@ h2 { font-size: 19px; letter-spacing: -0.4px; margin: 6px 0 0; font-weight: 650;
 .release-item{border:1px solid var(--border);border-radius:.5rem;padding:.6rem .75rem}
 .release-item p{margin:.15rem 0}
 .figure{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.forecast-week{margin:.35rem 0}
+.forecast-week ul,[aria-label="Your cash plan"] ul{margin:.15rem 0 .35rem;padding-left:1.1rem}
+.forecast-week p{margin:.15rem 0;font-weight:600}
+.forecast-note{font-size:.85rem;opacity:.8}
+.nowrap{white-space:nowrap}
+[data-lowest="true"] td:nth-child(2),[data-plan-lowest="true"] td:nth-child(3){font-weight:700}

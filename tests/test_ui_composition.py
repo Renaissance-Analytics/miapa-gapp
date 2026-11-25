@@ -61,7 +61,7 @@ class UiCompositionTests(TestCase):
         catalog = self.call(lease, 'maipa_ui_catalog', {})
         self.assertEqual(catalog['revision'], 0)
         self.assertEqual([item['type'] for item in catalog['components']],
-                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Books', 'Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation', 'Maipa.Report', 'Maipa.CloseReview', 'Maipa.Releases', 'Maipa.Workflow'])
+                         ['Maipa.Stack', 'Maipa.Note', 'Maipa.Heading', 'Maipa.Callout', 'Maipa.ClientTable', 'Maipa.ClientFacts', 'Maipa.ClientCatalog', 'Maipa.AgentSettings', 'Maipa.Books', 'Maipa.Accounts', 'Maipa.Journal', 'Maipa.AccountActivity', 'Maipa.Statements', 'Maipa.Reconciliation', 'Maipa.Report', 'Maipa.CloseReview', 'Maipa.Releases', 'Maipa.Forecast', 'Maipa.Workflow'])
         self.assertNotIn('synthetic-private-provider-handle', json.dumps(catalog))
         presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Review', 'schema': SCHEMA})
         self.assertEqual(presented['composition'], {'title': 'Review', 'schema': SCHEMA})
@@ -264,3 +264,22 @@ class UiCompositionTests(TestCase):
         twice = {'id': 'twice', 'type': 'Maipa.Stack', 'children': [{'id': 'a', 'type': 'Maipa.Releases', 'props': {'book_id': book}}, {'id': 'b', 'type': 'Maipa.Releases', 'props': {'book_id': book}}]}
         self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 1, 'title': 'Rejected', 'schema': twice}))
         self.assertEqual(self.snapshot(lease)['composition']['schema'], schema)
+
+    def test_forecast_view_accepts_only_an_exact_book_a_real_date_and_an_optional_scenario_name(self):
+        lease = self.lease()
+        book = '7ca83106-36ad-444e-bf05-75e8bba58852'
+        schema = {'id': 'cash-ahead', 'type': 'Maipa.Forecast', 'props': {'book_id': book, 'from': '2026-08-03'}}
+        presented = self.call(lease, 'maipa_ui_present', {'revision': 0, 'title': 'Cash ahead', 'schema': schema})
+        self.assertEqual((presented['revision'], presented['composition']['schema']), (1, schema))
+        what_if = {'id': 'cash-ahead', 'type': 'Maipa.Forecast', 'props': {'book_id': book, 'from': '2026-08-03', 'scenario': 'Hire an assistant'}}
+        updated = self.call(lease, 'maipa_ui_update', {'revision': 1, 'title': 'Cash ahead with a hire', 'schema': what_if})
+        self.assertEqual((updated['revision'], updated['composition']['schema']), (2, what_if))
+        good = {'book_id': book, 'from': '2026-08-03'}
+        for props in ({}, {'book_id': book}, {'from': '2026-08-03'}, good | {'book_id': 'books'}, good | {'book_id': book.upper()}, good | {'from': '2026-02-30'},
+                      good | {'from': '2026-8-3'}, good | {'from': 20260803}, good | {'scenario': ''}, good | {'scenario': ' padded '}, good | {'scenario': 'x' * 61},
+                      good | {'scenario': 7}, good | {'weeks': []}, good | {'opening_usable': '5000'}, good | {'user_id': str(self.other.pk)}):
+            self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': {'id': 'x', 'type': 'Maipa.Forecast', 'props': props}}))
+        self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': {'id': 'x', 'type': 'Maipa.Forecast'}}))
+        twice = {'id': 'twice', 'type': 'Maipa.Stack', 'children': [{'id': 'a', 'type': 'Maipa.Forecast', 'props': good}, {'id': 'b', 'type': 'Maipa.Forecast', 'props': good}]}
+        self.refused(lambda: self.call(lease, 'maipa_ui_update', {'revision': 2, 'title': 'Rejected', 'schema': twice}))
+        self.assertEqual(self.snapshot(lease)['composition']['schema'], what_if)
