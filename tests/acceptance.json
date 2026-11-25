@@ -8826,7 +8826,7 @@
           "kind": "positive",
           "given": "A request to add a vendor and a request to set its first payment details",
           "when": "Read the cards, approve both, list the vendors and request lists, and approve again",
-          "then": "The vendor card names it; the payment card shows the new details, how they were verified and that nothing is replaced; approval saves version 1 and changes no entry or book revision; vendor and request lists show account numbers masked to their last four digits; the repeat changes nothing.",
+          "then": "The vendor card names it; the payment card shows the new details, how they were verified and that nothing is replaced; approval saves version 1 and changes no entry or book revision; vendor and request lists, including the summary written by whoever asked, show account numbers masked to their last four digits; the repeat changes nothing.",
           "tests": [
             "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_a_vendor_and_its_first_payment_details_are_added_by_approval_and_read_back_masked"
           ]
@@ -8869,6 +8869,62 @@
           "then": "The tool results equal the service results and contain no full account or routing number; the other forms return an error; nothing changes.",
           "tests": [
             "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_the_agent_tool_lists_vendors_masked_and_cannot_change_them"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V02-BILLS",
+      "risk": "A bill entered twice, paid twice, posted without approval, recorded into a closed month, or listed as owed when the ledger says otherwise would make the business pay or report the wrong amount.",
+      "scenarios": [
+        {
+          "id": "V02-BILLS.record-and-pay",
+          "kind": "positive",
+          "given": "A vendor and a request to record its bill",
+          "when": "Read the card, approve, list payables, request the payment, read its card, approve, list again, read the report and verify the books, and approve both again",
+          "then": "The card shows the vendor, reference, dates, amount and both accounts; approval posts one balanced entry and keeps the bill open; payables show it with its total equal to the ledger payable; the payment card shows its entry; approval posts it and marks the bill paid; the payable is cleared, cash and expenses are right and the books verify; repeats change nothing; paying again is refused.",
+          "tests": [
+            "tests.test_bills.BillTests.test_a_bill_is_recorded_and_paid_by_approval_and_the_payables_tie_to_the_ledger"
+          ]
+        },
+        {
+          "id": "V02-BILLS.duplicates",
+          "kind": "negative",
+          "given": "A recorded bill",
+          "when": "Request the same reference in other spellings, the same reference from another vendor, a look-alike a week later, and an ordinary repeat two months later",
+          "then": "The same reference from the same vendor is refused however it is written; another vendor may use it; the look-alike is allowed and its card names the earlier bill; the later repeat is not flagged.",
+          "tests": [
+            "tests.test_bills.BillTests.test_the_same_bill_is_not_entered_twice_and_a_look_alike_is_pointed_out"
+          ]
+        },
+        {
+          "id": "V02-BILLS.overdue-and-void",
+          "kind": "negative",
+          "given": "An overdue bill, a bill not yet due, and a manual entry on the payable account",
+          "when": "List payables, void the overdue bill, list again, try to pay or void it again, reuse its number, and list after the manual entry",
+          "then": "The overdue bill comes first with its days overdue; voiding reverses its entry and removes it from what is owed; it cannot be paid or voided again; its number is free; the manual entry shows as a difference between the bills and the ledger.",
+          "tests": [
+            "tests.test_bills.BillTests.test_overdue_bills_come_first_and_a_wrong_bill_is_voided_by_reversing_its_entry"
+          ]
+        },
+        {
+          "id": "V02-BILLS.refusals",
+          "kind": "negative",
+          "given": "Unknown vendors, bad amounts and dates, income, payable and cash accounts in the wrong places, unknown accounts, malformed text, padded requests, another person, bad payments, malformed listings, and a month closed after the requests",
+          "when": "Request, list or approve them",
+          "then": "Each is refused with its code where one applies and nothing is posted; the approvals after the close fail and post nothing.",
+          "tests": [
+            "tests.test_bills.BillTests.test_malformed_bills_wrong_accounts_closed_months_and_other_people_are_refused_and_nothing_is_posted"
+          ]
+        },
+        {
+          "id": "V02-BILLS.agent-tool",
+          "kind": "positive",
+          "given": "A recorded bill and the agent tools",
+          "when": "List payables through the tool and pass missing, malformed, paying or recording arguments",
+          "then": "The tool result equals the service result; the other forms return an error; the bill is unchanged.",
+          "tests": [
+            "tests.test_bills.BillTests.test_the_agent_tool_lists_payables_and_cannot_record_or_pay"
           ]
         }
       ]

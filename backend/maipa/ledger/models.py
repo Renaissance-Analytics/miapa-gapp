@@ -333,3 +333,29 @@ class VendorPayment(AppendOnly):
         constraints = [models.UniqueConstraint(fields=('vendor', 'version'), name='ledger_vendor_payment_version'),
                        models.CheckConstraint(condition=models.Q(version__gte=1), name='ledger_vendor_payment_first'),
                        models.CheckConstraint(condition=models.Q(method__in=('bank_transfer', 'check', 'card', 'cash', 'other')), name='ledger_vendor_payment_method')]
+
+
+class Bill(models.Model):
+    """What a vendor billed the business. Its amounts live in the journal entries it points to; this row tracks what is still owed."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='bills', on_delete=models.PROTECT)
+    vendor = models.ForeignKey(Vendor, related_name='bills', on_delete=models.PROTECT)
+    reference = models.CharField(max_length=100)
+    description = models.CharField(max_length=200)
+    bill_date = models.DateField()
+    due_date = models.DateField()
+    amount_units = models.BigIntegerField()
+    account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    payable_account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    state = models.CharField(max_length=4, default='open')
+    paid_on = models.DateField(null=True)
+    journal = models.ForeignKey(Journal, related_name='+', on_delete=models.PROTECT)
+    payment_journal = models.ForeignKey(Journal, related_name='+', null=True, on_delete=models.PROTECT)
+    void_journal = models.ForeignKey(Journal, related_name='+', null=True, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(state__in=('open', 'paid', 'void')), name='ledger_bill_state'),
+                       models.CheckConstraint(condition=models.Q(amount_units__gt=0), name='ledger_bill_amount'),
+                       models.CheckConstraint(condition=models.Q(due_date__gte=models.F('bill_date')), name='ledger_bill_due')]

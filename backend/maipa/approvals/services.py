@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger, vendors as ledger_vendors
+from backend.maipa.ledger import bills as ledger_bills, budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger, vendors as ledger_vendors
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -249,6 +249,12 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'bill.record': (('book_id', 'vendor_id', 'reference', 'bill_date', 'due_date', 'amount', 'description', 'account_id', 'payable_account_id'),
+        lambda user, p: ledger_bills.record_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_bills.record(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'bill.pay': (('book_id', 'bill_id', 'date', 'cash_account_id'),
+        lambda user, p: ledger_bills.pay_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_bills.pay(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'bill.void': (('book_id', 'bill_id', 'date'),
+        lambda user, p: ledger_bills.void_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_bills.void(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'vendor.add': (('book_id', 'name'), lambda user, p: ledger_vendors.add_check(_plan_book(user, p), {'name': p['name']}),
         lambda user, p: ledger_vendors.add(user, p['book_id'], {'name': p['name']})),
     'vendor.payment': (('book_id', 'vendor_id', 'method', 'details', 'verified_by', 'expected_version'),
@@ -308,6 +314,10 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('bill.record', 'bill.pay', 'bill.void'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
+            return {'bill.record': ledger_bills.describe, 'bill.pay': ledger_bills.describe_pay, 'bill.void': ledger_bills.describe_void}[row.operation](book, rest)
         if row.operation in ('vendor.add', 'vendor.payment'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
@@ -510,8 +520,9 @@ def request_action(user, value):
         raise
     except DOMAIN_ERRORS as problem:
         raise ApprovalError(_code(problem)) from None
+    kept = ledger_vendors.masked(summary.strip()) if operation == 'vendor.payment' else summary.strip()
     row = ActionRequest.objects.create(user=user, operation=operation, payload=payload, payload_hash=_digest(
-        {'operation': operation, 'payload': payload}), summary=summary.strip(), batch=batch)
+        {'operation': operation, 'payload': payload}), summary=kept, batch=batch)
     return _value(row)
 
 

@@ -497,3 +497,33 @@ test('a payment-detail change card shows the old details beside the new, how it 
   assert.match(approvalContent(add), /Add Synthetic Paper Supply to the vendors of the Synthetic Co books\. No entry or balance changes\./);
   assert.match(approvalContent({ ...add, detail: null }), /can no longer be added as asked\. Approving will fail/);
 });
+
+test('bill cards show the entry, point out a possible duplicate, and say a payment is only recorded', () => {
+  const detail = { books: 'Synthetic Co', currency: 'USD', vendor: 'Synthetic <b>Paper</b> Supply', reference: 'INV-1042-B', bill_date: '2026-03-10', due_date: '2026-04-09', amount: '480.5000',
+    description: 'March paper order', account: '6200 Office expenses', payable: '2000 Accounts payable', current: true,
+    possible_duplicates: [{ reference: 'INV-1042', bill_date: '2026-03-03', amount: '480.5000', state: 'open' }] };
+  const bill = { ...post, operation: 'bill.record', summary: 'Record the paper bill', payload: { book_id: id(2), vendor_id: id(3), reference: 'INV-1042-B' }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [bill], recent: [] }, '1').pending[0].operation, 'bill.record');
+  assert.equal(approvalMessage(bill).proposal.title, 'Record a bill');
+  const content = approvalContent(bill);
+  assert.match(content, /Bill INV-1042-B from Synthetic .*Paper.* Supply · 480\.5000 USD · dated 2026-03-10, due 2026-04-09/); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /\| 6200 Office expenses \| 480\.5000 \| \|/); assert.match(content, /\| 2000 Accounts payable \| \| 480\.5000 \|/);
+  assert.match(content, /Possible duplicate: Synthetic .*Paper.* Supply already has a bill for the same amount within ten days: INV-1042 dated 2026-03-03 \(open\)\. Check this is a different bill before approving\./);
+  assert.match(content, /Approving posts this entry in the Synthetic Co books and keeps the bill as owed until you record its payment\./);
+  assert.doesNotMatch(approvalContent({ ...bill, detail: { ...detail, possible_duplicates: [] } }), /Possible duplicate/);
+  assert.match(approvalContent({ ...bill, detail: null }), /can no longer be recorded as asked\. Approving will fail/);
+  const pay = { ...post, operation: 'bill.pay', summary: 'Record the payment', payload: { book_id: id(2), bill_id: id(4), date: '2026-03-28', cash_account_id: id(5) },
+    detail: { books: 'Synthetic Co', currency: 'USD', vendor: 'Synthetic Paper Supply', reference: 'INV-1042', amount: '480.5000', date: '2026-03-28', cash_account: '1000 Checking',
+      payable: '2000 Accounts payable', due_date: '2026-04-02', current: true } };
+  assert.equal(approvalMessage(pay).proposal.title, 'Record a bill payment');
+  const paying = approvalContent(pay);
+  assert.match(paying, /Record that bill INV-1042 from Synthetic Paper Supply \(480\.5000 USD, due 2026-04-02\) was paid on 2026-03-28\./);
+  assert.match(paying, /\| 2000 Accounts payable \| 480\.5000 \| \|/); assert.match(paying, /\| 1000 Checking \| \| 480\.5000 \|/);
+  assert.match(paying, /This records a payment you made\. Maipa does not send money\./);
+  assert.match(approvalContent({ ...pay, detail: null }), /may already be paid or cancelled\. Approving will fail\./);
+  const cancel = { ...post, operation: 'bill.void', summary: 'Cancel the wrong bill', payload: { book_id: id(2), bill_id: id(4), date: '2026-03-21' },
+    detail: { books: 'Synthetic Co', currency: 'USD', vendor: 'Synthetic Paper Supply', reference: 'INV-0900', amount: '120.0000', bill_date: '2026-02-15', date: '2026-03-21', current: true } };
+  assert.equal(approvalMessage(cancel).proposal.title, 'Cancel a bill');
+  assert.match(approvalContent(cancel), /Cancel unpaid bill INV-0900 from Synthetic Paper Supply \(120\.0000 USD, dated 2026-02-15\) by posting the exact opposite of its entry on 2026-03-21\. The original entry stays in your records\./);
+  assert.match(approvalContent({ ...cancel, detail: null }), /can no longer be cancelled as asked/);
+});

@@ -65,6 +65,10 @@ class VendorPaymentDetailTests(TestCase):
                                            'verified_by': CALLED, 'previous': None, 'current': True})
         self.assertEqual(VendorPayment.objects.count(), 0)
         self.assertEqual(first['payload']['details'], 'Synthetic Bank, account ••••••••6789, routing •••••0000')     # Lists never echo the numbers.
+        told = approvals.request_action(self.user, {'operation': 'vendor.payment', 'summary': 'Pay to account 000123456789, routing 110000000',
+            'payload': {'book_id': self.book['id'], 'vendor_id': vendor, 'method': 'check', 'details': 'By check to their office', 'verified_by': CALLED, 'expected_version': 0}})
+        self.assertEqual(told['summary'], 'Pay to account ••••••••6789, routing •••••0000')                       # Nor does the agent's own summary.
+        approvals.decide(self.user, told['id'], {'decision': 'reject', 'payload_hash': told['payload_hash']})
         done = self.approve(first)
         self.assertNotIn('000123456789', json.dumps(approvals.list_requests(self.user)))
         self.assertEqual((done['state'], done['result']), ('approved', {'vendor_id': vendor, 'version': 1}))
