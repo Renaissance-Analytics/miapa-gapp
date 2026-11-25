@@ -125,3 +125,11 @@ expense account with a budget or activity has `budget` (null when unbudgeted, ne
 `actual`, `variance` (actual minus budget), `percent` of budget (two decimals, half up; null when the budget is zero)
 and `favourable` (income at or above budget, expense at or below). Totals cover budgeted accounts; unbudgeted amounts
 are listed separately, and `net_actual` equals the income statement's net income.
+
+## Decision follow-up
+
+`decision.record {book_id, title, note, review_on}` records something the person decided and wants to look at again,
+with their reasoning and a review date (today up to ten years ahead; a request approved after its review date fails).
+`decision.close {book_id, decision_id, outcome}` closes it with what came of it. `maipa_books_decisions {book_id,
+as_of}` lists them: due ones first (review date reached, not closed), then open ones by review date, then closed ones,
+with a count of those due. A decision is a note beside the books and changes no entry, balance, revision or statement.

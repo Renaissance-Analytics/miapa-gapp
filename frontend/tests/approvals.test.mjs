@@ -456,3 +456,22 @@ test('a budget card lists each account and amount and says the books do not chan
   assert.match(approvalContent(clear), /Remove all 2 budget amounts for the Synthetic Co books, 2026-03\. Your books, balances and statements do not change\./);
   assert.match(approvalContent({ ...clear, detail: null }), /There is no budget to clear for these months\. Approving will fail\./);
 });
+
+test('a decision card shows what was decided, why, and when it comes up again', () => {
+  const detail = { books: 'Synthetic <b>Co</b>', title: 'Hold off <i>hiring</i>', note: 'Cash goes below zero with the hire.', review_on: '2026-04-15', decided_on: '2026-03-10', current: true };
+  const decision = { ...post, operation: 'decision.record', summary: 'Record the decision to wait on hiring', payload: { book_id: id(2), title: 'Hold off hiring', note: 'Cash goes below zero with the hire.', review_on: '2026-04-15' }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [decision], recent: [] }, '1').pending[0].operation, 'decision.record');
+  assert.equal(approvalMessage(decision).proposal.title, 'Record a decision to revisit');
+  const content = approvalContent(decision);
+  assert.match(content, /Decision for the Synthetic .*Co.* books: Hold off .*hiring/); assert.doesNotMatch(content, /<b>|<i>/);
+  assert.match(content, /Why: Cash goes below zero with the hire\./); assert.match(content, /Maipa will bring this up again from 2026-04-15\./);
+  assert.match(content, /This is a note beside your books\. No entry, balance or statement changes\./);
+  assert.match(approvalContent({ ...decision, detail: null }), /can no longer be recorded as asked\. Approving will fail/);
+  const close = { ...post, operation: 'decision.close', summary: 'Close the hiring decision', payload: { book_id: id(2), decision_id: id(5), outcome: 'Hired in May.' },
+    detail: { books: 'Synthetic Co', title: 'Hold off hiring', review_on: '2026-04-15', outcome: 'Hired in <b>May</b>.', current: true } };
+  assert.equal(approvalMessage(close).proposal.title, 'Close a decision');
+  const closing = approvalContent(close);
+  assert.match(closing, /Close the decision "Hold off hiring" \(due for review 2026-04-15\) for the Synthetic Co books\./); assert.match(closing, /What came of it: Hired in .*May/);
+  assert.match(closing, /It stays in your list as closed\. No entry, balance or statement changes\./); assert.doesNotMatch(closing, /<b>/);
+  assert.match(approvalContent({ ...close, detail: null }), /could not be found or is already closed\. Approving will fail\./);
+});

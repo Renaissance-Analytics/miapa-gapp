@@ -8760,6 +8760,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "F04-DECISION-FOLLOW-UP",
+      "risk": "A decision recorded or closed without approval, shown as due at the wrong time, lost once closed, or written into the books would mislead the person about what they agreed to revisit.",
+      "scenarios": [
+        {
+          "id": "F04-DECISION-FOLLOW-UP.due-and-closed",
+          "kind": "positive",
+          "given": "A request to record a decision with a review date five weeks ahead",
+          "when": "Read its card, approve, list the decisions before and on the review date, request closing with an outcome, approve it later, list again, approve the record again and ask to close again",
+          "then": "The card shows the title, reasoning, review date and the day it was decided; the decision is open before its review date and due from that date until closing is approved; once closed it shows its outcome and closing date; no entry or book revision changes; the repeat changes nothing; a second close is refused.",
+          "tests": [
+            "tests.test_decision_follow_up.DecisionFollowUpTests.test_a_recorded_decision_comes_due_on_its_review_date_and_is_closed_with_its_outcome"
+          ]
+        },
+        {
+          "id": "F04-DECISION-FOLLOW-UP.order",
+          "kind": "positive",
+          "given": "Four decisions with different review dates, one of them closed",
+          "when": "List them as of a date after two review dates",
+          "then": "The two due decisions come first by review date, then the open one, then the closed one, and the due count is two.",
+          "tests": [
+            "tests.test_decision_follow_up.DecisionFollowUpTests.test_due_decisions_come_first_then_open_ones_by_date_then_closed_ones"
+          ]
+        },
+        {
+          "id": "F04-DECISION-FOLLOW-UP.refusals",
+          "kind": "negative",
+          "given": "Review dates in the past or more than ten years ahead, malformed dates, titles and notes, padded requests, another person, unknown or malformed decisions and outcomes, malformed listings, and a record approved after its review date",
+          "when": "Request, list or approve them",
+          "then": "Each is refused with its code where one applies and nothing is saved; the late approval fails and records nothing.",
+          "tests": [
+            "tests.test_decision_follow_up.DecisionFollowUpTests.test_malformed_decisions_past_review_dates_and_other_people_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "F04-DECISION-FOLLOW-UP.agent-tool",
+          "kind": "positive",
+          "given": "A recorded decision and the agent tools",
+          "when": "List decisions through the tool and pass missing, malformed, recording or closing arguments",
+          "then": "The tool result equals the service result; the other forms return an error; no decision is recorded or closed.",
+          "tests": [
+            "tests.test_decision_follow_up.DecisionFollowUpTests.test_the_agent_tool_lists_decisions_and_cannot_record_or_close_one"
+          ]
+        }
+      ]
     }
   ]
 }

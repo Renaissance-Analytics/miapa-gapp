@@ -2435,6 +2435,16 @@
           "tests": [
             "approvals.test.mjs#a budget card lists each account and amount and says the books do not change"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.decision-cards",
+          "kind": "negative",
+          "given": "Requests to record a decision and to close one, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The record card shows the decision, the reasoning and the date it comes up again; the close card shows the decision, its review date and what came of it; both say it is a note and that no entry, balance or statement changes; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a decision card shows what was decided, why, and when it comes up again"
+          ]
         }
       ]
     }

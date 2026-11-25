@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import budgets as ledger_budgets, groups as ledger_groups, plans as ledger_plans, services as ledger
+from backend.maipa.ledger import budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -249,6 +249,10 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'decision.record': (('book_id', 'title', 'note', 'review_on'), lambda user, p: ledger_decisions.record_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
+        lambda user, p: ledger_decisions.record(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'decision.close': (('book_id', 'decision_id', 'outcome'), lambda user, p: ledger_decisions.close_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
+        lambda user, p: ledger_decisions.close(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'budget.set': (('book_id', 'month', 'lines'), lambda user, p: ledger_budgets.set_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
         lambda user, p: ledger_budgets.set_budget(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'budget.clear': (('book_id', 'month'), lambda user, p: ledger_budgets.clear_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
@@ -299,6 +303,10 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('decision.record', 'decision.close'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
+            return ledger_decisions.describe(book, rest) if row.operation == 'decision.record' else ledger_decisions.describe_close(book, rest)
         if row.operation in ('budget.set', 'budget.clear'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
