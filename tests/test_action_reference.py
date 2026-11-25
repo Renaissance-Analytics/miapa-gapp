@@ -41,7 +41,8 @@ class ActionReferenceTests(TestCase):
         for tool in tools:
             self.assertLessEqual(len(tool['description']), action_reference.DESCRIPTION_LIMIT, tool['name'])
         # A long description would have hidden the last operations; the old text was over 5,000 characters.
-        self.assertLess(len(action_reference.description()), 2500)
+        # The list grows by about 60 characters per operation; keep well under the hard limit above.
+        self.assertLess(len(action_reference.description()), 3000)
 
     def test_a_request_with_the_wrong_fields_is_refused_and_told_the_expected_ones(self):
         AgentApprovalToolTests.setUp(self)

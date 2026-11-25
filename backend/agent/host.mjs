@@ -20,7 +20,7 @@ export function claudeUiTools(enabled) {
     ...['list', 'describe', 'get_value', 'get_values', 'set_value', 'set_values', 'focus', 'submit'].map(operation => `mcp__maipa_ui__form_${operation}`),
     ...['get_state','list_nodes','get_node','list_edges','get_node_schema','add_node','update_node','delete_node','connect','disconnect','run','cancel'].map(operation=>`mcp__maipa_ui__flow_${operation}`),
     ...['list','create','publish','runs','select_run'].map(operation=>`mcp__maipa_ui__maipa_workflow_${operation}`),
-    ...['maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_books_report','maipa_books_verify','maipa_books_reconcile','maipa_books_close_review','maipa_books_schedules','maipa_books_prepare_due','maipa_books_releases','maipa_books_groups','maipa_books_forecast','maipa_books_metrics','maipa_books_budget','maipa_books_decisions','maipa_books_vendors','maipa_books_payables','maipa_journal_propose'].map(name=>`mcp__maipa_ui__${name}`)] : [];
+    ...['maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_books_report','maipa_books_verify','maipa_books_reconcile','maipa_books_close_review','maipa_books_schedules','maipa_books_prepare_due','maipa_books_releases','maipa_books_groups','maipa_books_forecast','maipa_books_metrics','maipa_books_budget','maipa_books_decisions','maipa_books_vendors','maipa_books_payables','maipa_books_claims','maipa_journal_propose'].map(name=>`mcp__maipa_ui__${name}`)] : [];
 }
 
 export function validateProfile(value) {

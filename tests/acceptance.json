@@ -8928,6 +8928,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "V03-EXPENSE-CLAIMS",
+      "risk": "A cost claimed twice, a claim posted or paid back without approval, posted to a cash or income account, or listed as owed when it was already paid would reimburse people the wrong amount or misstate expenses.",
+      "scenarios": [
+        {
+          "id": "V03-EXPENSE-CLAIMS.record-and-reimburse",
+          "kind": "positive",
+          "given": "A request to record two costs someone paid personally",
+          "when": "Read the card, approve, list what is owed, request the reimbursement, approve, list again, read the report and verify the books, and approve both again",
+          "then": "The card lists each cost with its account and receipt and the total owed to the person; approval posts one balanced entry and keeps the claim open; the person is listed with what is owed; the reimbursement posts its entry and closes the claim; expenses, cash and liabilities are right and the books verify; repeats change nothing; reimbursing again is refused.",
+          "tests": [
+            "tests.test_expense_claims.ExpenseClaimTests.test_a_claim_is_recorded_as_owed_to_the_person_and_reimbursed_by_approval"
+          ]
+        },
+        {
+          "id": "V03-EXPENSE-CLAIMS.duplicates",
+          "kind": "negative",
+          "given": "A recorded claim with receipts",
+          "when": "Claim the same receipt written differently, the same receipt twice in one claim, a matching cost without a receipt, and the same cost for someone else",
+          "then": "A receipt already claimed or repeated is refused; the matching cost from the same person is allowed and its card names the earlier one; another person's identical cost is not flagged.",
+          "tests": [
+            "tests.test_expense_claims.ExpenseClaimTests.test_a_receipt_is_claimed_once_and_a_look_alike_line_is_pointed_out"
+          ]
+        },
+        {
+          "id": "V03-EXPENSE-CLAIMS.people-and-void",
+          "kind": "negative",
+          "given": "Open claims from two people",
+          "when": "List them, void one, list again, and try to reimburse or void it again",
+          "then": "Claims are grouped by person with each person's total; voiding reverses the entry and removes it from what is owed; a voided claim cannot be reimbursed or voided again.",
+          "tests": [
+            "tests.test_expense_claims.ExpenseClaimTests.test_claims_are_grouped_by_person_and_a_wrong_claim_is_voided_by_reversing_it"
+          ]
+        },
+        {
+          "id": "V03-EXPENSE-CLAIMS.refusals",
+          "kind": "negative",
+          "given": "Malformed names and lines, zero or non-text amounts, lines after the claim date or outside the book period, income and cash accounts, a non-liability payable, padded requests, another person, bad reimbursements, and a month closed after the request",
+          "when": "Request, list or approve them",
+          "then": "Each is refused with its code where one applies and nothing is posted; the approval after the close fails and the claim stays open.",
+          "tests": [
+            "tests.test_expense_claims.ExpenseClaimTests.test_malformed_claims_wrong_accounts_and_other_people_are_refused_and_nothing_is_posted"
+          ]
+        },
+        {
+          "id": "V03-EXPENSE-CLAIMS.agent-tool",
+          "kind": "positive",
+          "given": "A recorded claim and the agent tools",
+          "when": "List claims through the tool and pass claim-changing arguments",
+          "then": "The tool result equals the service result; the other forms return an error; the claim is unchanged.",
+          "tests": [
+            "tests.test_expense_claims.ExpenseClaimTests.test_the_agent_tool_lists_outstanding_claims_and_cannot_change_them"
+          ]
+        }
+      ]
     }
   ]
 }

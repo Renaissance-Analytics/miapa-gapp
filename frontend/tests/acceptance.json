@@ -2465,6 +2465,16 @@
           "tests": [
             "approvals.test.mjs#bill cards show the entry, point out a possible duplicate, and say a payment is only recorded"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.claim-cards",
+          "kind": "negative",
+          "given": "Requests to record an expense claim with and without a look-alike, to record its reimbursement, to cancel one, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The claim card lists each cost with its date, account, receipt or none, and amount, the total owed to the person, and names a possible duplicate only when there is one; the reimbursement card shows its entry and says Maipa does not send money; the cancel card says the original entry stays; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#expense claim cards list each cost, point out a possible duplicate, and say a reimbursement is only recorded"
+          ]
         }
       ]
     }

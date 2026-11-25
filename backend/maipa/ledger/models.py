@@ -359,3 +359,25 @@ class Bill(models.Model):
         constraints = [models.CheckConstraint(condition=models.Q(state__in=('open', 'paid', 'void')), name='ledger_bill_state'),
                        models.CheckConstraint(condition=models.Q(amount_units__gt=0), name='ledger_bill_amount'),
                        models.CheckConstraint(condition=models.Q(due_date__gte=models.F('bill_date')), name='ledger_bill_due')]
+
+
+class ExpenseClaim(models.Model):
+    """Business costs someone paid personally. Its amounts live in the journal entries it points to; this row tracks what is still owed to them."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='claims', on_delete=models.PROTECT)
+    claimant = models.CharField(max_length=100)
+    claim_date = models.DateField()
+    lines = models.JSONField()
+    total_units = models.BigIntegerField()
+    payable_account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    state = models.CharField(max_length=4, default='open')
+    paid_on = models.DateField(null=True)
+    journal = models.ForeignKey(Journal, related_name='+', on_delete=models.PROTECT)
+    payment_journal = models.ForeignKey(Journal, related_name='+', null=True, on_delete=models.PROTECT)
+    void_journal = models.ForeignKey(Journal, related_name='+', null=True, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(state__in=('open', 'paid', 'void')), name='ledger_claim_state'),
+                       models.CheckConstraint(condition=models.Q(total_units__gt=0), name='ledger_claim_total')]

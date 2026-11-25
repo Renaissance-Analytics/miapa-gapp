@@ -527,3 +527,32 @@ test('bill cards show the entry, point out a possible duplicate, and say a payme
   assert.match(approvalContent(cancel), /Cancel unpaid bill INV-0900 from Synthetic Paper Supply \(120\.0000 USD, dated 2026-02-15\) by posting the exact opposite of its entry on 2026-03-21\. The original entry stays in your records\./);
   assert.match(approvalContent({ ...cancel, detail: null }), /can no longer be cancelled as asked/);
 });
+
+test('expense claim cards list each cost, point out a possible duplicate, and say a reimbursement is only recorded', () => {
+  const detail = { books: 'Synthetic Co', currency: 'USD', claimant: 'Sam <b>Rivera</b>', date: '2026-03-06', total: '100.0000', payable: '2100 Owed to staff', current: true,
+    lines: [{ date: '2026-03-04', description: 'Train to client site', amount: '64.2000', account: '6400 Travel', receipt: 'RAIL-88213' },
+            { date: '2026-03-04', description: 'Printer ink', amount: '35.8000', account: '6200 Office expenses', receipt: null }],
+    possible_duplicates: [{ claimant: 'Sam Rivera', date: '2026-03-04', description: 'Train ticket', amount: '64.2000', state: 'open' }] };
+  const claim = { ...post, operation: 'claim.record', summary: 'Record the claim', payload: { book_id: id(2), claimant: 'Sam Rivera' }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [claim], recent: [] }, '1').pending[0].operation, 'claim.record');
+  assert.equal(approvalMessage(claim).proposal.title, 'Record an expense claim');
+  const content = approvalContent(claim);
+  assert.match(content, /Expense claim from Sam .*Rivera.* dated 2026-03-06 · 100\.0000 USD owed to them in 2100 Owed to staff/); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /\| 2026-03-04 \| Train to client site \| 6400 Travel \| RAIL-88213 \| 64\.2000 \|/); assert.match(content, /\| Printer ink \| 6200 Office expenses \| none \| 35\.8000 \|/);
+  assert.match(content, /Possible duplicate: Sam .*Rivera.* already claimed Train ticket on 2026-03-04 for 64\.2000 \(open\)\. Check this is a different cost before approving\./);
+  assert.match(content, /keeps the total as owed to Sam .*Rivera.* until you record the reimbursement\./);
+  assert.doesNotMatch(approvalContent({ ...claim, detail: { ...detail, possible_duplicates: [] } }), /Possible duplicate/);
+  assert.match(approvalContent({ ...claim, detail: null }), /can no longer be recorded as asked\. Approving will fail/);
+  const back = { ...post, operation: 'claim.reimburse', summary: 'Pay Sam back', payload: { book_id: id(2), claim_id: id(4) },
+    detail: { books: 'Synthetic Co', currency: 'USD', claimant: 'Sam Rivera', claim_date: '2026-03-06', total: '100.0000', date: '2026-03-20', cash_account: '1000 Checking', payable: '2100 Owed to staff', current: true } };
+  assert.equal(approvalMessage(back).proposal.title, 'Record a reimbursement');
+  const paying = approvalContent(back);
+  assert.match(paying, /Record that Sam Rivera was paid back 100\.0000 USD for the claim of 2026-03-06 on 2026-03-20\./);
+  assert.match(paying, /\| 2100 Owed to staff \| 100\.0000 \| \|/); assert.match(paying, /\| 1000 Checking \| \| 100\.0000 \|/); assert.match(paying, /Maipa does not send money\./);
+  assert.match(approvalContent({ ...back, detail: null }), /may already be paid or cancelled\. Approving will fail\./);
+  const cancel = { ...post, operation: 'claim.void', summary: 'Cancel the wrong claim', payload: { book_id: id(2), claim_id: id(4) },
+    detail: { books: 'Synthetic Co', currency: 'USD', claimant: 'Sam Rivera', claim_date: '2026-03-12', total: '48.0000', date: '2026-03-13', current: true } };
+  assert.equal(approvalMessage(cancel).proposal.title, 'Cancel an expense claim');
+  assert.match(approvalContent(cancel), /Cancel the open expense claim from Sam Rivera of 2026-03-12 \(48\.0000 USD\) by posting the exact opposite of its entry on 2026-03-13\. The original entry stays in your records\./);
+  assert.match(approvalContent({ ...cancel, detail: null }), /can no longer be cancelled as asked/);
+});
