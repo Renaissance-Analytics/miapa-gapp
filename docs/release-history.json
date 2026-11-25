@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-77",
+    "label": "Development update 77",
+    "cards": [
+      {
+        "title": "See where your cash went",
+        "description": "Your financial statements now include a cash flow: what your bank and cash accounts held at the start and end of the dates you choose, and what was received and paid in between, by account. Ask Maipa where the money went."
+      }
+    ]
+  },
+  {
     "id": "development-76",
     "label": "Development update 76",
     "cards": [

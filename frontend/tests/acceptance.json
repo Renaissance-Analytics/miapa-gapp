@@ -2425,6 +2425,16 @@
           "tests": [
             "approvals.test.mjs#a cash plan card says what is planned, when, and that the books do not change"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.budget-cards",
+          "kind": "negative",
+          "given": "Requests to set a budget for a run of months and for one month, to clear a budget, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The card names the books, months and currency, lists each account with its kind and monthly amount, and says earlier amounts are replaced and that a budget is a plan and the books do not change; the clear card says how many amounts go; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a budget card lists each account and amount and says the books do not change"
+          ]
         }
       ]
     }

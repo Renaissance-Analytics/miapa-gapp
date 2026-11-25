@@ -8704,6 +8704,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "F04-BUDGET-VARIANCE",
+      "risk": "A budget set without approval, leaking into the books, read as zero where none was set, or compared with the wrong actual figures would tell the person they are on track when they are not.",
+      "scenarios": [
+        {
+          "id": "F04-BUDGET-VARIANCE.compared",
+          "kind": "positive",
+          "given": "Books with sales and costs, and a request to budget one income and one expense account for two months",
+          "when": "Read the variance before, read the card, approve, read the variance and the income statement, and approve again",
+          "then": "Before approval nothing is budgeted; the card lists each account and amount; approval changes no entry or book revision; each budgeted account shows budget, actual, variance, percentage and whether it is favourable; an account with spending and no budget is unbudgeted, not zero; totals separate budgeted from unbudgeted; net actual equals the statement; the repeat changes nothing.",
+          "tests": [
+            "tests.test_budget_variance.BudgetVarianceTests.test_an_approved_budget_is_compared_with_the_books_account_by_account"
+          ]
+        },
+        {
+          "id": "F04-BUDGET-VARIANCE.partial-and-favourable",
+          "kind": "positive",
+          "given": "A budget for two of three months, then one account re-budgeted and another budgeted at zero for one month",
+          "when": "Read the variance for the wider range and for that month",
+          "then": "The number of budgeted months is shown; only the re-budgeted account changes; spending under and income over budget are favourable; a zero budget is a real budget with no percentage.",
+          "tests": [
+            "tests.test_budget_variance.BudgetVarianceTests.test_months_without_a_budget_are_counted_and_a_better_result_is_marked_favourable"
+          ]
+        },
+        {
+          "id": "F04-BUDGET-VARIANCE.clear",
+          "kind": "negative",
+          "given": "A two-month budget and a request to clear one month",
+          "when": "Read the variance before approval, approve, read again and ask to clear the same month again",
+          "then": "The budget stands until clearing is approved; afterwards only the other month is budgeted and a second clear is refused.",
+          "tests": [
+            "tests.test_budget_variance.BudgetVarianceTests.test_a_budget_is_cleared_only_by_approval"
+          ]
+        },
+        {
+          "id": "F04-BUDGET-VARIANCE.refusals",
+          "kind": "negative",
+          "given": "Budgets for asset or liability accounts, repeated or unknown accounts, negative, non-text or padded amounts, empty lists, months outside the book period, reversed or malformed months, padded requests, another person, and malformed variance requests",
+          "when": "Request them",
+          "then": "Each is refused with its code where one applies and nothing is saved.",
+          "tests": [
+            "tests.test_budget_variance.BudgetVarianceTests.test_budgets_for_other_account_kinds_bad_months_and_other_people_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "F04-BUDGET-VARIANCE.agent-tool",
+          "kind": "positive",
+          "given": "An approved budget and the agent tools",
+          "when": "Read the variance through the tool and pass missing, malformed or budget-setting arguments",
+          "then": "The tool result equals the service result; the other forms return an error; no budget amount changes.",
+          "tests": [
+            "tests.test_budget_variance.BudgetVarianceTests.test_the_agent_tool_reads_the_variance_and_cannot_set_a_budget"
+          ]
+        }
+      ]
     }
   ]
 }

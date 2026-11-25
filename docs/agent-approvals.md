@@ -112,3 +112,16 @@ revision and no statement. `maipa_books_forecast` keeps its books-only weeks exa
 `scenarios` and `plan`: the same 13 weeks with the approved plan on top (`planned_in`, `planned_out`, `closing`,
 `items`, its own `lowest`). Items with a scenario name count only when that scenario is passed, on top of the plan.
 Repeats fall every 7 days, or on the same day of each month with month ends clamped, up to `until`.
+
+## Budgets and variance
+
+`budget.set {book_id, month, lines[, through]}` saves the person's budget: one non-negative amount per income or
+expense account for a month (`YYYY-MM`), optionally the same amounts for every month through another. It replaces
+earlier amounts for the same accounts and months. `budget.clear {book_id, month[, through]}` removes every amount for
+those months. A budget is not an entry: it changes no balance, book revision or statement.
+
+`maipa_books_budget {book_id, from, to}` compares posted entries with the budget for whole months. Each income or
+expense account with a budget or activity has `budget` (null when unbudgeted, never assumed zero), `budget_months`,
+`actual`, `variance` (actual minus budget), `percent` of budget (two decimals, half up; null when the budget is zero)
+and `favourable` (income at or above budget, expense at or below). Totals cover budgeted accounts; unbudgeted amounts
+are listed separately, and `net_actual` equals the income statement's net income.

@@ -268,3 +268,20 @@ class CashPlanItem(models.Model):
         constraints = [models.CheckConstraint(condition=~models.Q(amount_units=0), name='ledger_plan_amount'),
                        models.CheckConstraint(condition=models.Q(every__isnull=True) | models.Q(every__in=('week', 'month')), name='ledger_plan_every'),
                        models.CheckConstraint(condition=models.Q(until__isnull=True) | models.Q(until__gte=models.F('date')), name='ledger_plan_until')]
+
+
+class BudgetLine(models.Model):
+    """What the person planned to earn or spend on one account in one month. A plan, never an entry."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='budget_lines', on_delete=models.PROTECT)
+    account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    month = models.DateField()
+    amount_units = models.BigIntegerField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('book', 'account', 'month'), name='ledger_budget_line'),
+                       # No constraint on the day of `month`: a date-part lookup compiles to a Django-only SQLite function,
+                       # which a plain SQLite reader (the install backup's integrity check) cannot evaluate. The service sets day 1.
+                       models.CheckConstraint(condition=models.Q(amount_units__gte=0), name='ledger_budget_amount')]
