@@ -199,3 +199,18 @@ class BillTests(TestCase):
         for bad in ({}, {'as_of': 'today'}, {'as_of': '2026-03-20', 'bill_id': bill, 'date': '2026-03-21'}, {'as_of': '2026-03-20', 'reference': 'INV-9'}):
             self.assertTrue(tool(bad)['isError'], bad)
         self.assertEqual((Bill.objects.count(), Bill.objects.get(pk=bill).state), (1, 'open'))
+
+    def test_the_panel_endpoint_reads_bills_and_claims_for_the_owner_only_and_changes_nothing(self):
+        from backend.maipa.ledger import claims
+        self.recorded()
+        self.client.force_login(self.user)
+        actor = {'HTTP_X_MAIPA_AGENT_ACTOR': str(self.user.pk)}
+        url = f"/api/books/{self.book['id']}/payables/"
+        revision = self.revision()
+        answer = self.client.get(url + '?as_of=2026-03-20', secure=True, **actor)
+        self.assertEqual((answer.status_code, answer.json()), (200, {'bills': self.payables(), 'claims': claims.outstanding(self.user, self.book['id'])}))
+        for bad in ('', '?as_of=today', '?as_of=2026-03-20&vendor=x'):
+            self.assertEqual(self.client.get(url + bad, secure=True, **actor).status_code, 400, bad)
+        self.assertEqual(self.client.get(url + '?as_of=2026-03-20', secure=True).status_code, 409)
+        self.assertEqual(self.client.post(url + '?as_of=2026-03-20', data='{}', content_type='application/json', secure=True, **actor).status_code, 405)
+        self.assertEqual((self.revision(), Bill.objects.count()), (revision, 1))
