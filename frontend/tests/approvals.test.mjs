@@ -475,3 +475,25 @@ test('a decision card shows what was decided, why, and when it comes up again', 
   assert.match(closing, /It stays in your list as closed\. No entry, balance or statement changes\./); assert.doesNotMatch(closing, /<b>/);
   assert.match(approvalContent({ ...close, detail: null }), /could not be found or is already closed\. Approving will fail\./);
 });
+
+test('a payment-detail change card shows the old details beside the new, how it was verified, and a fraud warning', () => {
+  const detail = { books: 'Synthetic Co', vendor: 'Synthetic <b>Paper</b> Supply', version: 2, method: 'bank_transfer', details: 'Other Synthetic Bank, account 000987654321', current: true,
+    verified_by: 'Called the number on our 2025 contract', previous: { version: 1, method: 'check', details: 'Synthetic Bank, account ••••••••6789', set_on: '2026-03-10' } };
+  const change = { ...post, operation: 'vendor.payment', summary: 'Change how the paper supplier is paid', payload: { book_id: id(2), vendor_id: id(3), method: 'bank_transfer', details: 'x', verified_by: 'y', expected_version: 1 }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [change], recent: [] }, '1').pending[0].operation, 'vendor.payment');
+  assert.equal(approvalMessage(change).proposal.title, 'Set how a vendor is paid');
+  const content = approvalContent(change);
+  assert.match(content, /Change how Synthetic .*Paper.* Supply is paid \(Synthetic Co books\)\. This replaces version 1, set on 2026-03-10\./); assert.doesNotMatch(content, /<b>/);
+  assert.match(content, /\| Now \| Check \| Synthetic Bank, account ••••••••6789 \|/); assert.match(content, /\| New \| Bank transfer \| Other Synthetic Bank, account 000987654321 \|/);
+  assert.match(content, /How this was verified: Called the number on our 2025 contract/);
+  assert.match(content, /Requests to change payment details are a common fraud\. Approve only if you confirmed this with the vendor using contact details you already had, not ones from the message that asked for the change\./);
+  assert.match(content, /Earlier versions are kept\. No entry or balance changes\./);
+  const first = approvalContent({ ...change, detail: { ...detail, version: 1, previous: null } });
+  assert.match(first, /Set how Synthetic .*Paper.* Supply is paid \(Synthetic Co books\)\. No payment details are saved for this vendor yet\./); assert.match(first, /\| To save \| Bank transfer \|/);
+  assert.doesNotMatch(first, /common fraud/); assert.doesNotMatch(first, /\| Now \|/);
+  assert.match(approvalContent({ ...change, detail: null }), /can no longer be saved as asked: the vendor or its current details have changed\. Approving will fail/);
+  const add = { ...post, operation: 'vendor.add', summary: 'Add the paper supplier', payload: { book_id: id(2), name: 'Synthetic Paper Supply' }, detail: { books: 'Synthetic Co', name: 'Synthetic Paper Supply', current: true } };
+  assert.equal(approvalMessage(add).proposal.title, 'Add a vendor');
+  assert.match(approvalContent(add), /Add Synthetic Paper Supply to the vendors of the Synthetic Co books\. No entry or balance changes\./);
+  assert.match(approvalContent({ ...add, detail: null }), /can no longer be added as asked\. Approving will fail/);
+});

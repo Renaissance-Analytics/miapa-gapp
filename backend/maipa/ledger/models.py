@@ -303,3 +303,33 @@ class Decision(models.Model):
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(closed_on__isnull=True, outcome__isnull=True) | models.Q(closed_on__isnull=False, outcome__isnull=False),
                                               name='ledger_decision_outcome')]
+
+
+class Vendor(models.Model):
+    """Someone the business pays."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='vendors', on_delete=models.PROTECT)
+    name = models.CharField(max_length=200)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('book', 'name'), name='ledger_vendor_name')]
+
+
+class VendorPayment(AppendOnly):
+    """One approved version of how a vendor is paid. Versions are never edited or removed; a change adds the next one."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vendor = models.ForeignKey(Vendor, related_name='payments', on_delete=models.PROTECT)
+    version = models.PositiveIntegerField()
+    method = models.CharField(max_length=16)
+    details = models.CharField(max_length=500)
+    verified_by = models.CharField(max_length=300)
+    set_on = models.DateField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('vendor', 'version'), name='ledger_vendor_payment_version'),
+                       models.CheckConstraint(condition=models.Q(version__gte=1), name='ledger_vendor_payment_first'),
+                       models.CheckConstraint(condition=models.Q(method__in=('bank_transfer', 'check', 'card', 'cash', 'other')), name='ledger_vendor_payment_method')]

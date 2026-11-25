@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-100",
+    "label": "Development update 100",
+    "cards": [
+      {
+        "title": "Vendors, with guarded payment details",
+        "description": "Maipa can keep a list of who you pay and how. Changing where a vendor is paid is a common fraud, so every change is its own approval: you see the details it replaces beside the new ones and how the change was verified, and every earlier version is kept. Saved account numbers are shown with only their last four digits."
+      }
+    ]
+  },
+  {
     "id": "development-99",
     "label": "Development update 99",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "A month-end checklist before you close",
         "description": "Ask Maipa whether a month is ready to close. It checks for draft entries, statement lines without a posted entry, bank statements that are not reconciled, and the soundness of every entry, and tells you exactly what is outstanding. Closing the books stays your decision."
-      }
-    ]
-  },
-  {
-    "id": "development-80",
-    "label": "Development update 80",
-    "cards": [
-      {
-        "title": "Long conversations keep working",
-        "description": "A conversation used to stop accepting messages once it grew very long. Now the oldest messages move to a stored archive and you can keep talking to Maipa. Nothing is deleted. A line above the conversation says how many earlier messages are stored; viewing them in the app is not available yet."
       }
     ]
   }

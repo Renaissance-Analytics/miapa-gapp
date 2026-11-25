@@ -133,3 +133,15 @@ with their reasoning and a review date (today up to ten years ahead; a request a
 `decision.close {book_id, decision_id, outcome}` closes it with what came of it. `maipa_books_decisions {book_id,
 as_of}` lists them: due ones first (review date reached, not closed), then open ones by review date, then closed ones,
 with a count of those due. A decision is a note beside the books and changes no entry, balance, revision or statement.
+
+## Vendors and payment details
+
+`vendor.add {book_id, name}` adds someone the business pays. `vendor.payment {book_id, vendor_id, method, details,
+verified_by, expected_version}` sets or changes how that vendor is paid. A change is prepared against the version it
+replaces: if the current version differs from `expected_version` at request or approval time it fails, so a change is
+never applied over details the person did not see. `verified_by` (at least ten characters, in the person's words)
+records how the details were confirmed with the vendor. Versions are append-only.
+
+The exact details are stored locally. Everywhere they are read back (`maipa_books_vendors`, request lists, the
+"now" row of a change card) runs of five or more digits keep only their last four. The pending card shows the new
+details in full so the person can check them. The change card warns that such requests are a common fraud.

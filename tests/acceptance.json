@@ -8816,6 +8816,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "V01-VENDOR-PAYMENT-DETAILS",
+      "risk": "Payment details changed without approval, without verification, over details the person did not see, with history lost, or with account numbers echoed back to the agent would let a fraudulent change of bank account redirect payments.",
+      "scenarios": [
+        {
+          "id": "V01-VENDOR-PAYMENT-DETAILS.first-set",
+          "kind": "positive",
+          "given": "A request to add a vendor and a request to set its first payment details",
+          "when": "Read the cards, approve both, list the vendors and request lists, and approve again",
+          "then": "The vendor card names it; the payment card shows the new details, how they were verified and that nothing is replaced; approval saves version 1 and changes no entry or book revision; vendor and request lists show account numbers masked to their last four digits; the repeat changes nothing.",
+          "tests": [
+            "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_a_vendor_and_its_first_payment_details_are_added_by_approval_and_read_back_masked"
+          ]
+        },
+        {
+          "id": "V01-VENDOR-PAYMENT-DETAILS.change",
+          "kind": "positive",
+          "given": "A vendor with saved payment details and a request to change them",
+          "when": "Read the card, approve, list the vendor and its history, and try to edit or delete a saved version",
+          "then": "The card shows the version it replaces with its masked details and date beside the new details and the verification; the current details change only on approval; both versions remain in order; the stored record is exact; a saved version cannot be edited or deleted.",
+          "tests": [
+            "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_a_change_of_payment_details_shows_what_it_replaces_and_every_version_is_kept"
+          ]
+        },
+        {
+          "id": "V01-VENDOR-PAYMENT-DETAILS.stale-change",
+          "kind": "negative",
+          "given": "Two change requests prepared against the same version",
+          "when": "Approve the second, then the first",
+          "then": "The second is saved; the first fails because the details it would replace have changed, and nothing more is saved.",
+          "tests": [
+            "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_a_change_prepared_against_older_details_fails_when_they_have_changed_since"
+          ]
+        },
+        {
+          "id": "V01-VENDOR-PAYMENT-DETAILS.refusals",
+          "kind": "negative",
+          "given": "A duplicate vendor name in another spelling, malformed names, a verification too short to mean anything, unknown methods, empty or oversized details, a wrong or malformed expected version, another person, unknown vendors, and details identical to the current ones",
+          "when": "Request or read them",
+          "then": "Each is refused with its code where one applies and nothing is saved; another person cannot list the vendors or read a history.",
+          "tests": [
+            "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_unverified_unchanged_malformed_and_foreign_changes_are_refused_before_anything_is_saved"
+          ]
+        },
+        {
+          "id": "V01-VENDOR-PAYMENT-DETAILS.agent-tool",
+          "kind": "negative",
+          "given": "A vendor with saved payment details and the agent tools",
+          "when": "List vendors and read the history through the tool, and pass unknown vendors or changing arguments",
+          "then": "The tool results equal the service results and contain no full account or routing number; the other forms return an error; nothing changes.",
+          "tests": [
+            "tests.test_vendor_payment_details.VendorPaymentDetailTests.test_the_agent_tool_lists_vendors_masked_and_cannot_change_them"
+          ]
+        }
+      ]
     }
   ]
 }
