@@ -1157,6 +1157,26 @@
           "tests": [
             "component-palette.test.mjs#a forecast is accepted only when consistent, and shows the books beside the plan with the lowest week"
           ]
+        },
+        {
+          "id": "A07-PALETTE.payables-definition",
+          "kind": "negative",
+          "given": "A payables definition naming one book and a date, and definitions with missing, malformed or extra props, or two of them",
+          "when": "Validate and render it",
+          "then": "Only the exact book and a real date are accepted; figures and other props are refused; the panel renders loading with its label.",
+          "tests": [
+            "component-palette.test.mjs#a payables definition holds only its book and a real date, never figures"
+          ]
+        },
+        {
+          "id": "A07-PALETTE.payables-figures",
+          "kind": "negative",
+          "given": "Payables with an overdue and an open bill, two people owed, a ledger difference, an empty case, and inconsistent payables",
+          "when": "Parse and render them",
+          "then": "Overdue bills come first with days overdue and an overdue callout; people owed are listed with totals and claim counts; a ledger difference is explained; the empty case says nothing is owed; markup is inert; a wrong book or date, overdue after open, totals or states that disagree, empty people, paid rows without a date, another currency and extra keys are refused.",
+          "tests": [
+            "component-palette.test.mjs#payables are accepted only when consistent, and show overdue bills, people owed and a ledger difference"
+          ]
         }
       ]
     },

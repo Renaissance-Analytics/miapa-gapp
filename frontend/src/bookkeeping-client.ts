@@ -273,3 +273,44 @@ export async function readForecast(user:string,bookId:string,from:string,scenari
  if(!uuid(bookId)||!day(from)||(scenario!==null&&!label(scenario,60)))throw unavailable();
  return parseForecast(await request(user,`/api/books/${bookId}/forecast/?from=${from}${scenario===null?'':`&scenario=${encodeURIComponent(scenario)}`}`,signal,undefined,fetcher),bookId,from,scenario);
 }
+
+export interface PayableBill {id:string;vendor:string;reference:string;description:string;bill_date:string;due_date:string;amount:string;state:'open'|'overdue';days_overdue:number}
+export interface OpenClaim {id:string;date:string;total:string;lines:number}
+export interface Payables {bills:{book_id:string;currency:string;as_of:string;bills:PayableBill[];open_total:string;overdue_total:string;ledger_payable:string;difference:string;
+ recent:{id:string;vendor:string;reference:string;amount:string;state:'paid'|'void';paid_on:string|null}[]};
+ claims:{book_id:string;currency:string;total:string;people:{claimant:string;total:string;claims:OpenClaim[]}[];recent:{id:string;claimant:string;total:string;state:'paid'|'void';paid_on:string|null}[]}}
+const text1=(v:unknown,max:number):v is string=>typeof v==='string'&&v.length>0&&v.length<=max;
+/** What the business owes, accepted only for this book and date, with overdue bills before the rest and totals that agree. */
+export function parsePayables(v:unknown,bookId:string,asOf:string):Payables{
+ if(!object(v)||!exact(v,['bills','claims']))throw unavailable();
+ const b=v.bills,c=v.claims;
+ if(!object(b)||!exact(b,['book_id','currency','as_of','bills','open_total','overdue_total','ledger_payable','difference','recent'])||b.book_id!==bookId||b.as_of!==asOf||!currency(b.currency)
+  ||!amount(b.open_total)||!amount(b.overdue_total)||!signed(b.ledger_payable)||!signed(b.difference)||!Array.isArray(b.bills)||b.bills.length>1000||!Array.isArray(b.recent)||b.recent.length>10)throw unavailable();
+ let late=true,sum=0,lateSum=0;
+ for(const r of b.bills){
+  if(!object(r)||!exact(r,['id','vendor','reference','description','bill_date','due_date','amount','state','days_overdue'])||!uuid(r.id)||!text1(r.vendor,200)||!text1(r.reference,100)
+   ||!text1(r.description,200)||!day(r.bill_date)||!day(r.due_date)||!amount(r.amount)||!integer(r.days_overdue)||(r.state!=='open'&&r.state!=='overdue')
+   ||(r.state==='overdue')!==(r.days_overdue>0)||(r.state==='overdue'&&!late))throw unavailable();
+  if(r.state==='open')late=false;
+  const units=Math.round(Number(r.amount)*10000);sum+=units;if(r.state==='overdue')lateSum+=units;
+ }
+ if(Math.round(Number(b.open_total)*10000)!==sum||Math.round(Number(b.overdue_total)*10000)!==lateSum)throw unavailable();
+ if(!b.recent.every(r=>object(r)&&exact(r,['id','vendor','reference','amount','state','paid_on'])&&uuid(r.id)&&text1(r.vendor,200)&&text1(r.reference,100)&&amount(r.amount)
+   &&((r.state==='paid'&&day(r.paid_on))||(r.state==='void'&&r.paid_on===null))))throw unavailable();
+ if(!object(c)||!exact(c,['book_id','currency','total','people','recent'])||c.book_id!==bookId||c.currency!==b.currency||!amount(c.total)||!Array.isArray(c.people)||c.people.length>500
+  ||!Array.isArray(c.recent)||c.recent.length>10)throw unavailable();
+ let owed=0;
+ for(const p of c.people){
+  if(!object(p)||!exact(p,['claimant','total','claims'])||!text1(p.claimant,100)||!amount(p.total)||!Array.isArray(p.claims)||!p.claims.length
+   ||!p.claims.every(x=>object(x)&&exact(x,['id','date','total','lines'])&&uuid(x.id)&&day(x.date)&&amount(x.total)&&integer(x.lines)&&x.lines>0))throw unavailable();
+  const mine=(p.claims as OpenClaim[]).reduce((t,x)=>t+Math.round(Number(x.total)*10000),0);
+  if(mine!==Math.round(Number(p.total)*10000))throw unavailable();owed+=mine;
+ }
+ if(owed!==Math.round(Number(c.total)*10000)||!c.recent.every(r=>object(r)&&exact(r,['id','claimant','total','state','paid_on'])&&uuid(r.id)&&text1(r.claimant,100)&&amount(r.total)
+   &&((r.state==='paid'&&day(r.paid_on))||(r.state==='void'&&r.paid_on===null))))throw unavailable();
+ return v as unknown as Payables;
+}
+export async function readPayables(user:string,bookId:string,asOf:string,signal:AbortSignal,fetcher:typeof fetch=fetch){
+ if(!uuid(bookId)||!day(asOf))throw unavailable();
+ return parsePayables(await request(user,`/api/books/${bookId}/payables/?as_of=${asOf}`,signal,undefined,fetcher),bookId,asOf);
+}

@@ -100,6 +100,17 @@ def reconciliation(request, book_id):
 
 
 @endpoint
+def payables(request, book_id):
+    """Open bills and open expense claims together, for the payables panel. Read-only."""
+    if request.method != 'GET':
+        return method_not_allowed('GET')
+    if set(request.GET) != {'as_of'}:
+        return error('invalid_ledger_request', 400)
+    from . import bills, claims
+    return JsonResponse({'bills': bills.payables(request.user, str(book_id), {'as_of': request.GET['as_of']}), 'claims': claims.outstanding(request.user, str(book_id))})
+
+
+@endpoint
 def forecast(request, book_id):
     if request.method != 'GET':
         return method_not_allowed('GET')

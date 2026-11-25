@@ -76,6 +76,13 @@ export function compositionSchema(input: unknown): ScreenSchema {
         || v.props.from > v.props.to || controls.has(v.type)) return fail();
       controls.add(v.type); return { id: v.id, type: v.type, props: { book_id: v.props.book_id, from: v.props.from, to: v.props.to } };
     }
+    if (v.type === 'Maipa.Payables') {
+      const day = (value: unknown): value is string => typeof value === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)
+        && !Number.isNaN(Date.parse(value + 'T00:00:00Z')) && new Date(value + 'T00:00:00Z').toISOString().slice(0, 10) === value;
+      if (!object(v.props) || !closed(v.props, ['book_id', 'as_of']) || typeof v.props.book_id !== 'string'
+        || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v.props.book_id) || !day(v.props.as_of) || controls.has(v.type)) return fail();
+      controls.add(v.type); return { id: v.id, type: v.type, props: { book_id: v.props.book_id, as_of: v.props.as_of } };
+    }
     if (v.type === 'Maipa.CloseReview') {
       const day = (value: unknown): value is string => typeof value === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)
         && !Number.isNaN(Date.parse(value + 'T00:00:00Z')) && new Date(value + 'T00:00:00Z').toISOString().slice(0, 10) === value;

@@ -4,8 +4,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AgentSurface } from '../.test-build/AgentSurface.js';
 import { compositionSchema } from '../.test-build/agent-chat.js';
-import { AccountsTable, ActivityTable, CloseReviewView, ForecastView, ReleasesView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
-import { parseCloseReview, parseForecast, parseReleases, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
+import { AccountsTable, ActivityTable, CloseReviewView, ForecastView, PayablesView, ReleasesView, JournalTable, ReconciliationView, ReportView, StatementsTable } from '../.test-build/LedgerViews.js';
+import { parseCloseReview, parseForecast, parsePayables, parseReleases, parseFinancialReport, parseReconciliation, parseStatements } from '../.test-build/bookkeeping-client.js';
 
 test('fine-grained Fancy heading and callout render inert commentary with stable handles', () => {
   const schema = compositionSchema({ id: 'overview', type: 'Maipa.Stack', children: [
@@ -393,4 +393,46 @@ test('a forecast is accepted only when consistent, and shows the books beside th
     assert.throws(() => parseForecast(bad, BOOK, '2026-03-02', 'Hire an assistant'), undefined, name);
   assert.throws(() => parseForecast(structuredClone(forecast), BOOK, '2026-03-02', null));                    // A scenario nobody asked for.
   assert.throws(() => parseForecast(structuredClone(plain), BOOK, '2026-03-02', 'Hire an assistant'));        // An asked scenario with no plan track.
+});
+
+const payables = { bills: { book_id: BOOK, currency: 'USD', as_of: '2026-03-20', open_total: '600.5000', overdue_total: '120.0000', ledger_payable: '640.5000', difference: '40.0000',
+    bills: [{ id: RENT, vendor: 'Synthetic <b>Paper</b> Supply', reference: 'INV-0900', description: 'February order', bill_date: '2026-02-15', due_date: '2026-03-01', amount: '120.0000', state: 'overdue', days_overdue: 19 },
+            { id: CASH, vendor: 'Synthetic Paper Supply', reference: 'INV-1042', description: 'March order', bill_date: '2026-03-03', due_date: '2026-04-02', amount: '480.5000', state: 'open', days_overdue: 0 }],
+    recent: [{ id: STATEMENT, vendor: 'Synthetic Power Company', reference: 'P-77', amount: '90.0000', state: 'paid', paid_on: '2026-03-10' }] },
+  claims: { book_id: BOOK, currency: 'USD', total: '170.5000', recent: [],
+    people: [{ claimant: 'Alex Chen', total: '22.5000', claims: [{ id: RENT, date: '2026-03-10', total: '22.5000', lines: 1 }]},
+             { claimant: 'Sam Rivera', total: '148.0000', claims: [{ id: CASH, date: '2026-03-06', total: '100.0000', lines: 2 }, { id: STATEMENT, date: '2026-03-12', total: '48.0000', lines: 1 }] }] } };
+
+test('a payables definition holds only its book and a real date, never figures', () => {
+  const good = { book_id: BOOK, as_of: '2026-03-20' };
+  const one = { id: 'owed', type: 'Maipa.Payables', props: good };
+  assert.deepEqual(compositionSchema(one), one);
+  for (const props of [undefined, {}, { book_id: BOOK }, { ...good, book_id: 'books' }, { ...good, as_of: '2026-02-30' }, { ...good, as_of: 20260320 }, { ...good, bills: [] }])
+    assert.throws(() => compositionSchema({ id: 'bad', type: 'Maipa.Payables', ...(props ? { props } : {}) }), undefined, JSON.stringify(props));
+  assert.throws(() => compositionSchema({ id: 'twice', type: 'Maipa.Stack', children: [{ id: 'a', type: 'Maipa.Payables', props: good }, { id: 'b', type: 'Maipa.Payables', props: good }] }));
+  const html = renderToStaticMarkup(React.createElement(AgentSurface, { userId: '1', ui: { composition: { title: 'What you owe', schema: compositionSchema(one) } } }));
+  assert.match(html, /aria-label="What you owe"[^>]*aria-busy="true"/);
+});
+
+test('payables are accepted only when consistent, and show overdue bills, people owed and a ledger difference', () => {
+  assert.deepEqual(parsePayables(structuredClone(payables), BOOK, '2026-03-20'), payables);
+  const html = renderToStaticMarkup(React.createElement(PayablesView, { payables }));
+  assert.match(html, /data-payables-as-of="2026-03-20" data-bill-count="2" data-claim-people="2"/);
+  assert.match(html, /data-bill-state="overdue"[\s\S]*data-bill-state="open"/);
+  for (const text of ['What the business owes as of 2026-03-20', 'Overdue:', '120.00', '19 days overdue', 'INV-1042', '600.50', 'which is <span class="figure">40.00</span> more than the open bills',
+    'Owed to people for expenses', 'Alex Chen', 'Sam Rivera', '148.00', '(2 claims)', '(1 claim)', 'Maipa records payments you make; it does not send money.'])
+    assert.equal(html.includes(text), true, text);
+  assert.doesNotMatch(html, /<b>Paper/);
+  const none = { bills: { ...payables.bills, bills: [], open_total: '0.0000', overdue_total: '0.0000', ledger_payable: '0.0000', difference: '0.0000' }, claims: { ...payables.claims, people: [], total: '0.0000' } };
+  const calm = renderToStaticMarkup(React.createElement(PayablesView, { payables: parsePayables(structuredClone(none), BOOK, '2026-03-20') }));
+  assert.match(calm, /Nothing is owed to vendors or to people for expenses\./); assert.match(calm, /No unpaid bills\./); assert.match(calm, /No open expense claims\./);
+  assert.doesNotMatch(calm, /more than the open bills/);
+  const change = (edit) => { const copy = structuredClone(payables); edit(copy); return copy; };
+  for (const [name, bad] of Object.entries({
+    otherBook: change(c => { c.bills.book_id = RENT; }), otherDate: change(c => { c.bills.as_of = '2026-03-21'; }), overdueAfterOpen: change(c => { c.bills.bills.reverse(); }),
+    totalDisagrees: change(c => { c.bills.open_total = '1.0000'; }), overdueTotalDisagrees: change(c => { c.bills.overdue_total = '0.0000'; }),
+    stateDisagreesWithDays: change(c => { c.bills.bills[0].days_overdue = 0; }), personTotal: change(c => { c.claims.people[1].total = '1.0000'; }),
+    claimsTotal: change(c => { c.claims.total = '1.0000'; }), emptyPerson: change(c => { c.claims.people[0].claims = []; c.claims.people[0].total = '0.0000'; c.claims.total = '148.0000'; }),
+    paidWithoutDate: change(c => { c.bills.recent[0].paid_on = null; }), otherCurrency: change(c => { c.claims.currency = 'EUR'; }), extraKey: change(c => { c.extra = 1; }) }))
+    assert.throws(() => parsePayables(bad, BOOK, '2026-03-20'), undefined, name);
 });

@@ -3026,6 +3026,16 @@
           "tests": [
             "tests.test_ui_composition.UiCompositionTests.test_forecast_view_accepts_only_an_exact_book_a_real_date_and_an_optional_scenario_name"
           ]
+        },
+        {
+          "id": "A01-UI-AUTHORITY.payables-view",
+          "kind": "negative",
+          "given": "A payables view naming one book and a date, and views with missing, malformed, foreign-looking or extra props, or two such views",
+          "when": "Present or update the composition",
+          "then": "Only an exact book and a real date are accepted; every other form is refused and the saved composition is unchanged.",
+          "tests": [
+            "tests.test_ui_composition.UiCompositionTests.test_payables_view_accepts_only_an_exact_book_and_a_real_date"
+          ]
         }
       ]
     },
@@ -8925,6 +8935,16 @@
           "then": "The tool result equals the service result; the other forms return an error; the bill is unchanged.",
           "tests": [
             "tests.test_bills.BillTests.test_the_agent_tool_lists_payables_and_cannot_record_or_pay"
+          ]
+        },
+        {
+          "id": "V02-BILLS.panel-endpoint",
+          "kind": "negative",
+          "given": "A recorded bill, its owner signed in, malformed queries, a request without the actor header and a write attempt",
+          "when": "Read the payables endpoint",
+          "then": "The owner gets exactly the open bills and open expense claims as the services return them; missing or malformed dates and extra arguments are refused; the missing header conflicts; writing is not allowed; nothing changes.",
+          "tests": [
+            "tests.test_bills.BillTests.test_the_panel_endpoint_reads_bills_and_claims_for_the_owner_only_and_changes_nothing"
           ]
         }
       ]
