@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-101",
+    "label": "Development update 101",
+    "cards": [
+      {
+        "title": "Bills you owe, tracked until paid",
+        "description": "Give Maipa a vendor's bill and approve recording it: the expense is posted and the bill stays on your list of what you owe until you tell Maipa it was paid. Maipa will not let the same invoice number from a vendor be entered twice, and points out a bill that looks like one you already have. Ask what is owed and it lists what is overdue first."
+      }
+    ]
+  },
+  {
     "id": "development-100",
     "label": "Development update 100",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "See the month-end checklist beside the chat",
         "description": "Maipa can open the close checklist next to the conversation: which months are closed, and for the date you want to close, every draft, unposted statement line and unreconciled statement still open. It reads your books live and changes nothing."
-      }
-    ]
-  },
-  {
-    "id": "development-81",
-    "label": "Development update 81",
-    "cards": [
-      {
-        "title": "A month-end checklist before you close",
-        "description": "Ask Maipa whether a month is ready to close. It checks for draft entries, statement lines without a posted entry, bank statements that are not reconciled, and the soundness of every entry, and tells you exactly what is outstanding. Closing the books stays your decision."
       }
     ]
   }

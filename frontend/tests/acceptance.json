@@ -2455,6 +2455,16 @@
           "tests": [
             "approvals.test.mjs#a payment-detail change card shows the old details beside the new, how it was verified, and a fraud warning"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.bill-cards",
+          "kind": "negative",
+          "given": "Requests to record a bill with and without a look-alike, to record its payment, to cancel one, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The bill card shows the vendor, reference, dates, amount and its entry, and names a possible duplicate only when there is one; the payment card shows its entry and says Maipa does not send money; the cancel card says the original entry stays; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#bill cards show the entry, point out a possible duplicate, and say a payment is only recorded"
+          ]
         }
       ]
     }

@@ -314,7 +314,7 @@ def propose_journal(user, book_id, value, _kind=None):
     description = text(value['description'], 500)
     fields(value['source'], ('kind', 'reference'))
     # Reversal, opening and recurring entries are only ever built by their own services.
-    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening', 'schedule', 'accrual') and value['source']['kind'] == _kind))
+    require(value['source']['kind'] in ('manual', 'csv') or (_kind in ('reversal', 'opening', 'schedule', 'accrual', 'bill', 'billpay') and value['source']['kind'] == _kind))
     reference = text(value['source']['reference'], 256)
     require(type(value['evidence']) is list and 1 <= len(value['evidence']) <= 20)
     for item in value['evidence']:

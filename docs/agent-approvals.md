@@ -145,3 +145,17 @@ records how the details were confirmed with the vendor. Versions are append-only
 The exact details are stored locally. Everywhere they are read back (`maipa_books_vendors`, request lists, the
 "now" row of a change card) runs of five or more digits keep only their last four. The pending card shows the new
 details in full so the person can check them. The change card warns that such requests are a common fraud.
+
+## Bills
+
+`bill.record` posts a vendor bill (debit the expense or non-cash asset account, credit a liability account) through
+the normal journal path, source kind `bill`, and keeps the bill as open. `bill.pay` records a payment the person made
+(debit the payable, credit a bank or cash account; source kind `billpay`) and marks it paid. `bill.void` cancels an
+open bill by reversing its entry. Period locks apply to every date.
+
+Duplicates: the same vendor reference (compared without case, spaces or punctuation) is refused while the earlier bill
+is not void. A bill from the same vendor for the same amount within ten days is allowed but listed on the approval card
+as a possible duplicate. `maipa_books_payables {book_id, as_of}` lists open bills, overdue first, with their total
+beside the posted balance of the payable accounts; any difference is reported, never adjusted.
+
+The summary of a `vendor.payment` request is stored with long digit runs masked, like the details themselves.

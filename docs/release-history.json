@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-81",
+    "label": "Development update 81",
+    "cards": [
+      {
+        "title": "A month-end checklist before you close",
+        "description": "Ask Maipa whether a month is ready to close. It checks for draft entries, statement lines without a posted entry, bank statements that are not reconciled, and the soundness of every entry, and tells you exactly what is outstanding. Closing the books stays your decision."
+      }
+    ]
+  },
+  {
     "id": "development-80",
     "label": "Development update 80",
     "cards": [
