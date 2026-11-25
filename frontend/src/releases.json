@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-103",
+    "label": "Development update 103",
+    "cards": [
+      {
+        "title": "See what you owe, and pay several things in one approval",
+        "description": "Ask Maipa what you owe and a panel beside the chat lists unpaid bills, overdue ones first, and what is owed to people for expenses, with totals. Ask what to pay this week and Maipa proposes a payment run: what to settle, the total, and the cash left after it. You approve the whole run in one click. Maipa records payments you make; it never sends money."
+      }
+    ]
+  },
+  {
     "id": "development-102",
     "label": "Development update 102",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "Accruals that undo themselves",
         "description": "For a cost or income that belongs to one month but is billed in the next, Maipa can ask you once to post the entry at month end and its exact opposite on the date you choose. Each month then shows only what belongs to it."
-      }
-    ]
-  },
-  {
-    "id": "development-83",
-    "label": "Development update 83",
-    "cards": [
-      {
-        "title": "Recurring entries",
-        "description": "Tell Maipa about an entry that repeats every month, such as rent or a subscription, and approve it once. When a month comes due, Maipa drafts that month's entry and asks you to approve posting it. Nothing posts by itself, and the same month is never entered twice."
       }
     ]
   }

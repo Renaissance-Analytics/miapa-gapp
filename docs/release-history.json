@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-83",
+    "label": "Development update 83",
+    "cards": [
+      {
+        "title": "Recurring entries",
+        "description": "Tell Maipa about an entry that repeats every month, such as rent or a subscription, and approve it once. When a month comes due, Maipa drafts that month's entry and asks you to approve posting it. Nothing posts by itself, and the same month is never entered twice."
+      }
+    ]
+  },
+  {
     "id": "development-82",
     "label": "Development update 82",
     "cards": [
