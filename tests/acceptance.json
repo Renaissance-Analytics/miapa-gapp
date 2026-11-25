@@ -8926,6 +8926,16 @@
           "tests": [
             "tests.test_bills.BillTests.test_the_agent_tool_lists_payables_and_cannot_record_or_pay"
           ]
+        },
+        {
+          "id": "V02-BILLS.panel-endpoint",
+          "kind": "negative",
+          "given": "A recorded bill, its owner signed in, malformed queries, a request without the actor header and a write attempt",
+          "when": "Read the payables endpoint",
+          "then": "The owner gets exactly the open bills and open expense claims as the services return them; missing or malformed dates and extra arguments are refused; the missing header conflicts; writing is not allowed; nothing changes.",
+          "tests": [
+            "tests.test_bills.BillTests.test_the_panel_endpoint_reads_bills_and_claims_for_the_owner_only_and_changes_nothing"
+          ]
         }
       ]
     },
