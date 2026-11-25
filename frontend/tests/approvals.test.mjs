@@ -437,3 +437,22 @@ test('a cash plan card says what is planned, when, and that the books do not cha
   assert.match(approvalContent(remove), /Stop planning: Payroll .*run.* · money out 1200\.0000 USD on 2026-03-27, then every month until 2026-05-31\.[\s\S]*Your books, balances and statements do not change\./);
   assert.match(approvalContent({ ...remove, detail: null }), /could not be found\. Approving will fail\./);
 });
+
+test('a budget card lists each account and amount and says the books do not change', () => {
+  const detail = { books: 'Synthetic <b>Co</b>', currency: 'USD', month: '2026-02', through: '2026-03', months: 2, current: true,
+    lines: [{ account: '4000 Sales', category: 'income', amount: '4500.0000' }, { account: '6200 Office <i>expenses</i>', category: 'expense', amount: '1000.0000' }] };
+  const budget = { ...post, operation: 'budget.set', summary: 'Set the February and March budget', payload: { book_id: id(2), month: '2026-02', through: '2026-03', lines: [] }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [budget], recent: [] }, '1').pending[0].operation, 'budget.set');
+  assert.equal(approvalMessage(budget).proposal.title, 'Set your budget');
+  const content = approvalContent(budget);
+  assert.match(content, /Budget for the Synthetic .*Co.* books, 2026-02 to 2026-03 \(2 months\), in USD, the same amounts each month:/);
+  assert.match(content, /\| 4000 Sales \| income \| 4500\.0000 \|/); assert.match(content, /\| 6200 Office .*expenses.* \| expense \| 1000\.0000 \|/); assert.doesNotMatch(content, /<b>|<i>/);
+  assert.match(content, /This replaces earlier budget amounts for these accounts and months\. A budget is a plan, not an entry: your books, balances and statements do not change\./);
+  assert.match(approvalContent({ ...budget, detail: { ...detail, through: '2026-02', months: 1 } }), /books, 2026-02, in USD:/);
+  assert.match(approvalContent({ ...budget, detail: null }), /can no longer be set as asked\. Approving will fail/);
+  const clear = { ...post, operation: 'budget.clear', summary: 'Drop the March budget', payload: { book_id: id(2), month: '2026-03' },
+    detail: { books: 'Synthetic Co', month: '2026-03', through: '2026-03', months: 1, lines: 2, current: true } };
+  assert.equal(approvalMessage(clear).proposal.title, 'Clear a budget');
+  assert.match(approvalContent(clear), /Remove all 2 budget amounts for the Synthetic Co books, 2026-03\. Your books, balances and statements do not change\./);
+  assert.match(approvalContent({ ...clear, detail: null }), /There is no budget to clear for these months\. Approving will fail\./);
+});

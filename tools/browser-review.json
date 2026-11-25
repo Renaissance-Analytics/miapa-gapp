@@ -6,7 +6,7 @@
     "tools/browser.mjs": "891069659def59f6a2917a993e61eb9522a59c82854f8164453effe6402c3e8b",
     "tools/check_browser.py": "fc480ca6821653d6229b5879280c2642c8277d4976c770936bd0340605a94844",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
-    "tests/fixtures/agent_chat_peer.py": "14c426bdb54e981c8f33f63ec2813eb4117269ede2d29b2145ce11e9cc77935c"
+    "tests/fixtures/agent_chat_peer.py": "39f115d31240f4ff958a2cda8e0f1233c45fd9be58f8fbc819d56edc5843f414"
   },
   "cases": [
     {
@@ -394,5 +394,6 @@
   "release_tool_review": "The finite peer exact startup catalog adds maipa_books_releases (read-only). No browser action, assertion or deadline changed.",
   "groups_tool_review": "The finite peer exact startup catalog adds maipa_books_groups (read-only). No browser action, assertion or deadline changed.",
   "forecast_tool_review": "The finite peer exact startup catalog adds maipa_books_forecast (read-only). No browser action, assertion or deadline changed.",
-  "metrics_tool_review": "The finite peer exact startup catalog adds maipa_books_metrics (read-only). No browser action, assertion or deadline changed."
+  "metrics_tool_review": "The finite peer exact startup catalog adds maipa_books_metrics (read-only). No browser action, assertion or deadline changed.",
+  "budget_tool_review": "The finite peer exact startup catalog adds maipa_books_budget (read-only). No browser action, assertion or deadline changed."
 }

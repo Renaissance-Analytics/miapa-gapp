@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-97",
+    "label": "Development update 97",
+    "cards": [
+      {
+        "title": "Budgets, and how you are doing against them",
+        "description": "Tell Maipa what you expect to earn and spend each month and approve it as your budget. Ask how you are doing and Maipa compares your books with the budget account by account: what is over, what is under and by how much. Accounts you set no budget for are shown as unbudgeted, not as zero. A budget never changes your books."
+      }
+    ]
+  },
+  {
     "id": "development-96",
     "label": "Development update 96",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "Why cash and profit differ",
         "description": "The cash flow now explains the gap between your profit and the change in your bank balance: what you have earned or owe but not yet received or paid, and cash moved by things like equipment, loans and owner money. Comparing two periods also shows the difference in cash."
-      }
-    ]
-  },
-  {
-    "id": "development-77",
-    "label": "Development update 77",
-    "cards": [
-      {
-        "title": "See where your cash went",
-        "description": "Your financial statements now include a cash flow: what your bank and cash accounts held at the start and end of the dates you choose, and what was received and paid in between, by account. Ask Maipa where the money went."
       }
     ]
   }
