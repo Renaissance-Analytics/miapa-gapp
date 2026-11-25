@@ -3,7 +3,7 @@
   "decision": "aligned",
   "reviewer": "Maipa independent expected-outcome browser review; no external reviewer or real-model acceptance claimed",
   "source_sha256": {
-    "tools/browser.mjs": "891069659def59f6a2917a993e61eb9522a59c82854f8164453effe6402c3e8b",
+    "tools/browser.mjs": "4a87c1cb71dc48d1349ae20d93129483e165326304abb8b9f698f6cb39d9a947",
     "tools/check_browser.py": "fc480ca6821653d6229b5879280c2642c8277d4976c770936bd0340605a94844",
     "tools/browser-profile.mjs": "f58974e329faeee19ab50d3baba85b052aea21fc45362d5c4d933ff942e39ebc",
     "tests/fixtures/agent_chat_peer.py": "beb8bf4e971116e7fa85d61bc2d376d5e329a9df892e4c467c163c0915c658f2"
@@ -396,5 +396,6 @@
   "forecast_tool_review": "The finite peer exact startup catalog adds maipa_books_forecast (read-only). No browser action, assertion or deadline changed.",
   "metrics_tool_review": "The finite peer exact startup catalog adds maipa_books_metrics (read-only). No browser action, assertion or deadline changed.",
   "budget_tool_review": "The finite peer exact startup catalog adds maipa_books_budget (read-only). No browser action, assertion or deadline changed.",
-  "decisions_tool_review": "The finite peer exact startup catalog adds maipa_books_decisions (read-only). No browser action, assertion or deadline changed."
+  "decisions_tool_review": "The finite peer exact startup catalog adds maipa_books_decisions (read-only). No browser action, assertion or deadline changed.",
+  "reconnect_precondition_review": "Observed defect in the case, three failed CI runs on the idle VM (agent_shell, Timeout: Visible enabled button Send, server phase offline, alert shown): the case clicked Reconnect as soon as the browser showed the dropped stream. reconnectChat sends connect only when the saved phase is offline or unavailable, so a click before the server recorded the stopped worker did nothing, the stale Ready status let the case continue, and the agent then went offline for good. The case now waits for the server to report the stopped worker before clicking. No assertion, deadline or case was removed or weakened; the reconnect, the kept draft, the unchanged transcript and the note after reconnect are all still asserted."
 }

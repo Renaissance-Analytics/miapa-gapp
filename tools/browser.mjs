@@ -1071,6 +1071,9 @@ try {
   await until(() => evaluate("document.querySelector('.chat-controls [role=alert]')?.textContent.includes('disconnected')"), 'deliberate owned transport interruption');
   const interruptedChat = await evaluate("(async()=>{const s=await(await fetch('/api/session/')).json();return(await(await fetch('/api/agent/chat/',{headers:{'X-Maipa-Agent-Actor':s.user.id}})).json()).messages;})()");
   await typeChat('Unsent reconnect draft');
+  // Reconnect restarts a STOPPED worker: the client sends connect only when the server already reports the agent offline.
+  // The browser sees the dropped stream first, so wait for the server to record the stop before clicking.
+  await until(() => evaluate("(async()=>{const s=await(await fetch('/api/session/',{cache:'no-store'})).json();const c=await(await fetch('/api/agent/chat/',{cache:'no-store',headers:{'X-Maipa-Agent-Actor':s.user.id}})).json();return ['offline','unavailable'].includes(c.phase);})()"), 'server recorded the stopped worker');
   await click('Reconnect');
   await until(() => evaluate("document.querySelector('.chat-status [role=status]')?.textContent==='Ready'"), 'explicit reconnect restarts stopped worker');
   assert.equal(await evaluate("document.querySelector('#maipa-chat-message').value"), 'Unsent reconnect draft');
