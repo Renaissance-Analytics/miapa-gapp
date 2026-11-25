@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-99",
+    "label": "Development update 99",
+    "cards": [
+      {
+        "title": "Fix: \"today\" means your today when recording a decision",
+        "description": "Late in the day, asking Maipa to record a decision to review today was refused as being in the past, because the date was taken from a clock set to a different time zone. The date now comes from your own computer."
+      }
+    ]
+  },
+  {
     "id": "development-98",
     "label": "Development update 98",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "Long conversations keep working",
         "description": "A conversation used to stop accepting messages once it grew very long. Now the oldest messages move to a stored archive and you can keep talking to Maipa. Nothing is deleted. A line above the conversation says how many earlier messages are stored; viewing them in the app is not available yet."
-      }
-    ]
-  },
-  {
-    "id": "development-79",
-    "label": "Development update 79",
-    "cards": [
-      {
-        "title": "Discard a draft entry",
-        "description": "A draft entry you do not want no longer lingers in your books. Ask Maipa to discard it, or Maipa will ask when you decline one. After you approve, the draft is set aside, nothing is posted, and the statement line it came from is free for the corrected entry."
       }
     ]
   }

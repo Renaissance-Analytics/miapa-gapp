@@ -9095,7 +9095,7 @@
       "scenario": "F04-DECISION-FOLLOW-UP.due-and-closed",
       "test": "tests.test_decision_follow_up.DecisionFollowUpTests.test_a_recorded_decision_comes_due_on_its_review_date_and_is_closed_with_its_outcome",
       "scenario_sha256": "8509eea46f1a594e7bd8b08e8c743c0b49ad816eb725668553a6e3a30fe9c7c7",
-      "source_sha256": "e3a2538c84e4d1f1e1db74bbf577e73f351cd4ff79586d71dd6e22161c6e66fb",
+      "source_sha256": "974a20eb67ba5794249d09a9068da383211b21af86003e32a3158021d8b9e5da",
       "expected_observation": "The card shows the title, reasoning, review date and the day it was decided; the decision is open before its review date and due from that date until closing is approved; once closed it shows its outcome and closing date; no entry or book revision changes; the repeat changes nothing; a second close is refused.",
       "decision": "aligned",
       "reason": "Cards, exact listings on each date, unchanged counts and refusal code asserted as described.",
@@ -9105,7 +9105,7 @@
       "scenario": "F04-DECISION-FOLLOW-UP.order",
       "test": "tests.test_decision_follow_up.DecisionFollowUpTests.test_due_decisions_come_first_then_open_ones_by_date_then_closed_ones",
       "scenario_sha256": "b504394b5c874eb24fe0615153788ffc651e17dade67c6d016cc2de21ed87f5c",
-      "source_sha256": "e3a2538c84e4d1f1e1db74bbf577e73f351cd4ff79586d71dd6e22161c6e66fb",
+      "source_sha256": "974a20eb67ba5794249d09a9068da383211b21af86003e32a3158021d8b9e5da",
       "expected_observation": "The two due decisions come first by review date, then the open one, then the closed one, and the due count is two.",
       "decision": "aligned",
       "reason": "Order, states and due count asserted as described.",
@@ -9115,7 +9115,7 @@
       "scenario": "F04-DECISION-FOLLOW-UP.refusals",
       "test": "tests.test_decision_follow_up.DecisionFollowUpTests.test_malformed_decisions_past_review_dates_and_other_people_are_refused_before_anything_is_saved",
       "scenario_sha256": "c284bfeb740136c88bb94559c6c181984534478ba01ad72899bd63b8fee2e457",
-      "source_sha256": "e3a2538c84e4d1f1e1db74bbf577e73f351cd4ff79586d71dd6e22161c6e66fb",
+      "source_sha256": "974a20eb67ba5794249d09a9068da383211b21af86003e32a3158021d8b9e5da",
       "expected_observation": "Each is refused with its code where one applies and nothing is saved; the late approval fails and records nothing.",
       "decision": "aligned",
       "reason": "Each refusal, the unchanged counts and the failed late approval asserted as described.",
@@ -9125,10 +9125,20 @@
       "scenario": "F04-DECISION-FOLLOW-UP.agent-tool",
       "test": "tests.test_decision_follow_up.DecisionFollowUpTests.test_the_agent_tool_lists_decisions_and_cannot_record_or_close_one",
       "scenario_sha256": "4f9f42c0d4a3dc859ca305850809178e7ba388d47b940dfb25e2ae89e64b5f18",
-      "source_sha256": "e3a2538c84e4d1f1e1db74bbf577e73f351cd4ff79586d71dd6e22161c6e66fb",
+      "source_sha256": "974a20eb67ba5794249d09a9068da383211b21af86003e32a3158021d8b9e5da",
       "expected_observation": "The tool result equals the service result; the other forms return an error; no decision is recorded or closed.",
       "decision": "aligned",
       "reason": "Tool result, errors and unchanged counts asserted as described.",
+      "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
+    },
+    {
+      "scenario": "F04-DECISION-FOLLOW-UP.local-today",
+      "test": "tests.test_decision_follow_up.DecisionFollowUpTests.test_today_is_the_date_on_this_machine_not_the_date_in_utc",
+      "scenario_sha256": "1a603442e60f1bfadd7d5008eacc81dfffda88c24c5ba12fd6205e3d8068fb17",
+      "source_sha256": "974a20eb67ba5794249d09a9068da383211b21af86003e32a3158021d8b9e5da",
+      "expected_observation": "Today is the date on the machine; a review date of today is accepted and recorded as decided today; yesterday is refused as past; the UTC date is never consulted.",
+      "decision": "aligned",
+      "reason": "Local date, accepted and refused requests and the unused UTC date asserted as described.",
       "reviewer": "Maipa acceptance-to-test review; independent expected outcomes, no external reviewer claimed"
     }
   ]

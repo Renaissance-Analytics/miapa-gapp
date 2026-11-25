@@ -4,11 +4,10 @@ A decision is a note the person approved recording beside one set of books: what
 look at it again. It becomes due on that date and stays due until the person approves closing it with what came of
 it. It is not an entry and changes no balance, book revision or statement.
 """
-from datetime import timedelta
+from datetime import datetime, timedelta
 import uuid
 
 from django.db import transaction
-from django.utils import timezone
 
 from .models import Decision
 from .services import day, fields, guarded, owned, require, text
@@ -18,7 +17,9 @@ MAX_LISTED = 200
 
 
 def today():
-    return timezone.localdate()
+    """Today on the machine Maipa runs on. The site keeps its clock in UTC, where the date changes hours before or
+    after it does for the person; a review date of "today" must mean their today."""
+    return datetime.now().date()
 
 
 def record_check(book, value):

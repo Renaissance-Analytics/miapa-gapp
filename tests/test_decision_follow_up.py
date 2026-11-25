@@ -1,5 +1,5 @@
 """Decision follow-up: a decision the person asked to be reminded of, with a review date and, later, what came of it."""
-from datetime import date
+from datetime import date, datetime
 import json
 from unittest.mock import patch
 import uuid
@@ -16,6 +16,7 @@ from backend.maipa.workspace.models import Installation, Membership
 from tests.test_bookkeeping_posting import BookkeepingPostingTests
 
 PERIOD = {'currency': 'USD', 'period_start': '2026-01-01', 'period_end': '2026-12-31'}
+REAL_TODAY = decisions.today          # Captured before any test replaces it with a fixed date.
 
 
 class DecisionFollowUpTests(TestCase):
@@ -128,3 +129,19 @@ class DecisionFollowUpTests(TestCase):
         for bad in ({}, {'as_of': 'today'}, {'as_of': '2026-04-15', 'decision_id': decision, 'outcome': 'Done'}, {'as_of': '2026-04-15', 'title': 'New decision'}):
             self.assertTrue(tool(bad)['isError'], bad)
         self.assertEqual((Decision.objects.count(), Decision.objects.filter(closed_on__isnull=False).count()), (1, 0))
+
+    def test_today_is_the_date_on_this_machine_not_the_date_in_utc(self):
+        # Late evening here is already tomorrow in UTC, where the site keeps its clock; the person's date is what counts.
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return datetime(2026, 11, 24, 23, 30)
+        refuse_utc = AssertionError('The UTC clock was used')
+        with (patch('backend.maipa.ledger.decisions.today', REAL_TODAY), patch('backend.maipa.ledger.decisions.datetime', Clock),
+              patch('django.utils.timezone.localdate', side_effect=refuse_utc)):
+            self.assertEqual(decisions.today(), date(2026, 11, 24))
+            item = self.ask(review_on='2026-11-24')
+            self.assertEqual(item['detail']['decided_on'], '2026-11-24')
+            with self.assertRaises(approvals.ApprovalError) as refused:
+                self.ask(review_on='2026-11-23')
+            self.assertEqual(refused.exception.code, 'decision_review_in_past')
