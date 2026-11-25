@@ -159,3 +159,16 @@ as a possible duplicate. `maipa_books_payables {book_id, as_of}` lists open bill
 beside the posted balance of the payable accounts; any difference is reported, never adjusted.
 
 The summary of a `vendor.payment` request is stored with long digit runs masked, like the details themselves.
+
+## Expense claims
+
+`claim.record {book_id, claimant, date, lines, payable_account_id}` records costs someone paid personally: each line
+`{date, description, amount, account_id[, receipt]}` is debited to its expense (or non-cash asset) account and the
+total credited to a liability account for what is owed to people; source kind `claim`. `claim.reimburse` records the
+payment back from a bank or cash account (source kind `claimpay`); `claim.void` reverses an open claim's entry. Only the
+person's name is stored.
+
+A receipt number (compared without case, spaces or punctuation) can be claimed once, by anyone, while the earlier claim
+is not void, and only once within a claim. A line from the same person with the same date and amount as an earlier
+line is allowed but listed on the card as a possible duplicate. `maipa_books_claims {book_id}` lists open claims by
+person with what is owed to each.

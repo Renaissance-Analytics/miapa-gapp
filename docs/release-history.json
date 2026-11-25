@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-82",
+    "label": "Development update 82",
+    "cards": [
+      {
+        "title": "See the month-end checklist beside the chat",
+        "description": "Maipa can open the close checklist next to the conversation: which months are closed, and for the date you want to close, every draft, unposted statement line and unreconciled statement still open. It reads your books live and changes nothing."
+      }
+    ]
+  },
+  {
     "id": "development-81",
     "label": "Development update 81",
     "cards": [
