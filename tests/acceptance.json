@@ -8648,6 +8648,62 @@
           ]
         }
       ]
+    },
+    {
+      "id": "F03-METRIC-DICTIONARY",
+      "risk": "A key figure that does not tie to the statements, hides how it was computed, is estimated when its inputs are missing, or is rounded inconsistently would be repeated to the person as fact.",
+      "scenarios": [
+        {
+          "id": "F03-METRIC-DICTIONARY.ties",
+          "kind": "positive",
+          "given": "Books with sales, paid and unpaid costs and cash set aside",
+          "when": "Read the metric dictionary and the financial report for the same range",
+          "then": "The metrics come in a fixed order; every money metric equals its statement line; margin, usable cash and net worth equal their stated inputs; every metric has a name, definition, source and inputs, and a value exactly when it is available.",
+          "tests": [
+            "tests.test_metric_dictionary.MetricDictionaryTests.test_every_money_metric_ties_to_its_statement_line_and_shows_its_inputs"
+          ]
+        },
+        {
+          "id": "F03-METRIC-DICTIONARY.not-available",
+          "kind": "negative",
+          "given": "A range with no earlier period in the books, a range where cash rose, a range with no revenue, and books with no cash accounts",
+          "when": "Read the metric dictionary",
+          "then": "Revenue change, cash runway, net margin and the four cash metrics are each not available with their reason and no value, while the other metrics still have theirs.",
+          "tests": [
+            "tests.test_metric_dictionary.MetricDictionaryTests.test_metrics_that_cannot_be_computed_say_why_instead_of_guessing"
+          ]
+        },
+        {
+          "id": "F03-METRIC-DICTIONARY.arithmetic",
+          "kind": "positive",
+          "given": "A month against the equal period before it, a month in which usable cash fell, the first month of the books, and a month after a period with no revenue",
+          "when": "Read the metric dictionary",
+          "then": "Revenue change is the exact percentage rounded to two decimals and names the earlier period; runway is usable cash divided by the average weekly decrease, to one decimal, with both inputs shown; a period with no earlier books or no earlier revenue gives no percentage.",
+          "tests": [
+            "tests.test_metric_dictionary.MetricDictionaryTests.test_changes_and_runway_use_exact_rounded_arithmetic_on_stated_inputs"
+          ]
+        },
+        {
+          "id": "F03-METRIC-DICTIONARY.refusals",
+          "kind": "negative",
+          "given": "Ranges outside the book period, reversed and malformed ranges, extra arguments and another person",
+          "when": "Read the metric dictionary",
+          "then": "Each is refused, and no entry, revision or account mark changes.",
+          "tests": [
+            "tests.test_metric_dictionary.MetricDictionaryTests.test_bad_ranges_and_other_people_are_refused_and_reading_changes_nothing"
+          ]
+        },
+        {
+          "id": "F03-METRIC-DICTIONARY.agent-tool",
+          "kind": "positive",
+          "given": "The agent tools",
+          "when": "Read the dictionary through the tool and pass missing, malformed or extra arguments",
+          "then": "The tool result equals the service result; the other forms return an error.",
+          "tests": [
+            "tests.test_metric_dictionary.MetricDictionaryTests.test_the_agent_tool_returns_the_dictionary"
+          ]
+        }
+      ]
     }
   ]
 }

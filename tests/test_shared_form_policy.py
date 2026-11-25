@@ -35,8 +35,8 @@ class SharedFormPolicyTests(unittest.TestCase):
             'flow_add_node','flow_update_node','flow_delete_node','flow_connect','flow_disconnect',
             'maipa_workflow_list','maipa_workflow_create','maipa_workflow_publish',
             'flow_run','flow_cancel','maipa_workflow_runs','maipa_workflow_select_run',
-            'maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_books_report','maipa_books_verify','maipa_books_reconcile','maipa_books_close_review','maipa_books_schedules','maipa_books_prepare_due','maipa_books_releases','maipa_books_groups','maipa_books_forecast','maipa_journal_propose')}
+            'maipa_books_list','maipa_books_read','maipa_books_activity','maipa_books_imports','maipa_books_report','maipa_books_verify','maipa_books_reconcile','maipa_books_close_review','maipa_books_schedules','maipa_books_prepare_due','maipa_books_releases','maipa_books_groups','maipa_books_forecast','maipa_books_metrics','maipa_journal_propose')}
         self.assertEqual(set(observed['enabled']),expected)
-        self.assertEqual(len(observed['enabled']),52)
+        self.assertEqual(len(observed['enabled']),53)
         self.assertEqual(observed['disabled'],[])
         self.assertFalse(any('*' in name or name=='exec' for name in observed['enabled']))

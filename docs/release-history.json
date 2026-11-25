@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-76",
+    "label": "Development update 76",
+    "cards": [
+      {
+        "title": "Maipa’s building blocks are up to date",
+        "description": "The published components Maipa is built from, including the one that connects your Claude or Codex account, were updated to their latest releases. Nothing changes in how you work."
+      }
+    ]
+  },
+  {
     "id": "development-75",
     "label": "Development update 75",
     "cards": [
