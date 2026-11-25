@@ -2445,6 +2445,16 @@
           "tests": [
             "approvals.test.mjs#a decision card shows what was decided, why, and when it comes up again"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.vendor-cards",
+          "kind": "negative",
+          "given": "Requests to change a vendor's payment details, to set them for the first time, to add a vendor, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "A change shows the current details beside the new ones, the version and date it replaces, how it was verified and a fraud warning; a first set shows no warning or current row; both say earlier versions are kept and no entry changes; the add card names the vendor; invalid ones say approving will fail; markup is inert.",
+          "tests": [
+            "approvals.test.mjs#a payment-detail change card shows the old details beside the new, how it was verified, and a fraud warning"
+          ]
         }
       ]
     }

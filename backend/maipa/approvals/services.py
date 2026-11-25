@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger
+from backend.maipa.ledger import budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger, vendors as ledger_vendors
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -249,6 +249,11 @@ OPERATIONS = {
                                                **{k: v for k, v in p.items() if k != 'book_id'}})),
     'schedule.stop': (('book_id', 'schedule_id'), _check_schedule_stop,
         lambda user, p: ledger.stop_schedule(user, p['book_id'], {'expected_revision': _revision(p['book_id']), 'schedule_id': p['schedule_id']})),
+    'vendor.add': (('book_id', 'name'), lambda user, p: ledger_vendors.add_check(_plan_book(user, p), {'name': p['name']}),
+        lambda user, p: ledger_vendors.add(user, p['book_id'], {'name': p['name']})),
+    'vendor.payment': (('book_id', 'vendor_id', 'method', 'details', 'verified_by', 'expected_version'),
+        lambda user, p: ledger_vendors.payment_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
+        lambda user, p: ledger_vendors.set_payment(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'decision.record': (('book_id', 'title', 'note', 'review_on'), lambda user, p: ledger_decisions.record_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
         lambda user, p: ledger_decisions.record(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'decision.close': (('book_id', 'decision_id', 'outcome'), lambda user, p: ledger_decisions.close_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}),
@@ -303,6 +308,12 @@ def _detail(row):
                     'lines': [{'account': f'{line.account.code} {line.account.name}', 'debit': ledger.money(line.debit_units),
                                'credit': ledger.money(line.credit_units)}
                               for line in journal.lines.select_related('account').order_by('position')]}
+        if row.operation in ('vendor.add', 'vendor.payment'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
+            if row.operation == 'vendor.payment':
+                return ledger_vendors.describe_payment(book, rest)
+            return {'books': book.entity.name, 'name': ledger_vendors.add_check(book, rest), 'current': True}
         if row.operation in ('decision.record', 'decision.close'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
@@ -463,6 +474,9 @@ def _value(row):
         payload.update(content_bytes=len(content.encode('utf-8')),
                        content_sha256=hashlib.sha256(content.encode('utf-8')).hexdigest(),
                        content_preview=content[:2000])
+    if row.operation == 'vendor.payment' and type(payload.get('details')) is str:
+        # The exact details stay in the stored request; lists show them masked. The pending card's detail carries the new details for review.
+        payload['details'] = ledger_vendors.masked(payload['details'])
     return {'id': str(row.pk), 'operation': row.operation, 'summary': row.summary, 'payload': payload,
             'payload_hash': row.payload_hash, 'batch_id': str(row.batch) if row.batch else None, 'state': row.state,
             'detail': _detail(row) if row.state == 'pending' else None, 'result': row.result, 'error': row.error, 'created_at': row.created_at.isoformat(),

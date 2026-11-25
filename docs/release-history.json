@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-80",
+    "label": "Development update 80",
+    "cards": [
+      {
+        "title": "Long conversations keep working",
+        "description": "A conversation used to stop accepting messages once it grew very long. Now the oldest messages move to a stored archive and you can keep talking to Maipa. Nothing is deleted. A line above the conversation says how many earlier messages are stored; viewing them in the app is not available yet."
+      }
+    ]
+  },
+  {
     "id": "development-79",
     "label": "Development update 79",
     "cards": [
