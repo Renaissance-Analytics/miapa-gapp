@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-98",
+    "label": "Development update 98",
+    "cards": [
+      {
+        "title": "Decisions you want to come back to",
+        "description": "When you decide something that should be looked at again, such as holding off on a hire or revisiting prices, Maipa can record it with your reasons and a review date. Ask what needs your attention and Maipa tells you which decisions are due. When one is settled, you approve closing it with what came of it. Decisions are notes beside your books and change no record."
+      }
+    ]
+  },
+  {
     "id": "development-97",
     "label": "Development update 97",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "Discard a draft entry",
         "description": "A draft entry you do not want no longer lingers in your books. Ask Maipa to discard it, or Maipa will ask when you decline one. After you approve, the draft is set aside, nothing is posted, and the statement line it came from is free for the corrected entry."
-      }
-    ]
-  },
-  {
-    "id": "development-78",
-    "label": "Development update 78",
-    "cards": [
-      {
-        "title": "Why cash and profit differ",
-        "description": "The cash flow now explains the gap between your profit and the change in your bank balance: what you have earned or owe but not yet received or paid, and cash moved by things like equipment, loans and owner money. Comparing two periods also shows the difference in cash."
       }
     ]
   }

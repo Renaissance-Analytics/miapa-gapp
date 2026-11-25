@@ -285,3 +285,21 @@ class BudgetLine(models.Model):
                        # No constraint on the day of `month`: a date-part lookup compiles to a Django-only SQLite function,
                        # which a plain SQLite reader (the install backup's integrity check) cannot evaluate. The service sets day 1.
                        models.CheckConstraint(condition=models.Q(amount_units__gte=0), name='ledger_budget_amount')]
+
+
+class Decision(models.Model):
+    """Something the person decided and asked to look at again on a date. A note beside the books, never an entry."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='decisions', on_delete=models.PROTECT)
+    title = models.CharField(max_length=200)
+    note = models.CharField(max_length=1000)
+    decided_on = models.DateField()
+    review_on = models.DateField()
+    outcome = models.CharField(max_length=1000, null=True)
+    closed_on = models.DateField(null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(closed_on__isnull=True, outcome__isnull=True) | models.Q(closed_on__isnull=False, outcome__isnull=False),
+                                              name='ledger_decision_outcome')]

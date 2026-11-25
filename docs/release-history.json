@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-78",
+    "label": "Development update 78",
+    "cards": [
+      {
+        "title": "Why cash and profit differ",
+        "description": "The cash flow now explains the gap between your profit and the change in your bank balance: what you have earned or owe but not yet received or paid, and cash moved by things like equipment, loans and owner money. Comparing two periods also shows the difference in cash."
+      }
+    ]
+  },
+  {
     "id": "development-77",
     "label": "Development update 77",
     "cards": [
