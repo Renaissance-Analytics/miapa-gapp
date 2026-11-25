@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-96",
+    "label": "Development update 96",
+    "cards": [
+      {
+        "title": "Key figures that explain themselves",
+        "description": "Ask Maipa how the business is doing and it now answers from a fixed set of key figures: revenue, expenses, net income, margin, revenue change, cash, usable cash, cash runway, assets, liabilities and net worth. Each comes with what it means and the statement line it ties to. When a figure cannot be worked out from your books, Maipa says so and why instead of estimating."
+      }
+    ]
+  },
+  {
     "id": "development-95",
     "label": "Development update 95",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "See where your cash went",
         "description": "Your financial statements now include a cash flow: what your bank and cash accounts held at the start and end of the dates you choose, and what was received and paid in between, by account. Ask Maipa where the money went."
-      }
-    ]
-  },
-  {
-    "id": "development-76",
-    "label": "Development update 76",
-    "cards": [
-      {
-        "title": "Maipa’s building blocks are up to date",
-        "description": "The published components Maipa is built from, including the one that connects your Claude or Codex account, were updated to their latest releases. Nothing changes in how you work."
       }
     ]
   }
