@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-104",
+    "label": "Development update 104",
+    "cards": [
+      {
+        "title": "Invoices to your customers",
+        "description": "Tell Maipa who you bill and what for, and it records the invoice for your approval: each line is quantity times price, worked out to the cent and shown before you approve, posted to what customers owe you and to sales. An invoice number is used once, even if the invoice is cancelled. Ask what customers owe and Maipa lists unpaid invoices, overdue ones first, and checks the total against your receivables account. Recording a customer's payment against an invoice comes next; Maipa does not send invoices or handle sales tax."
+      }
+    ]
+  },
+  {
     "id": "development-103",
     "label": "Development update 103",
     "cards": [
@@ -186,16 +196,6 @@
       {
         "title": "Workflows on a schedule",
         "description": "Ask Maipa to run a published workflow every day, every week or every month at an hour you choose. You approve the schedule once; Maipa then starts each run by itself, once per time, and stops if your access is removed. Workflows still cannot change your books."
-      }
-    ]
-  },
-  {
-    "id": "development-84",
-    "label": "Development update 84",
-    "cards": [
-      {
-        "title": "Accruals that undo themselves",
-        "description": "For a cost or income that belongs to one month but is billed in the next, Maipa can ask you once to post the entry at month end and its exact opposite on the date you choose. Each month then shows only what belongs to it."
       }
     ]
   }

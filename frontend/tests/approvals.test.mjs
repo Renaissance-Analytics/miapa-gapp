@@ -556,3 +556,26 @@ test('expense claim cards list each cost, point out a possible duplicate, and sa
   assert.match(approvalContent(cancel), /Cancel the open expense claim from Sam Rivera of 2026-03-12 \(48\.0000 USD\) by posting the exact opposite of its entry on 2026-03-13\. The original entry stays in your records\./);
   assert.match(approvalContent({ ...cancel, detail: null }), /can no longer be cancelled as asked/);
 });
+
+test('invoice and customer approvals show the priced lines, the receivable and what cancelling keeps', () => {
+  const detail = { books: 'Synthetic Co', currency: 'USD', customer: 'Harbor Labs', number: 'INV-0042', invoice_date: '2026-03-02', due_date: '2026-04-01', total: '1012.5000',
+    receivable: '1100 Accounts receivable', current: true, lines: [{ description: 'Design work', quantity: '7.5000', unit_price: '135.0000', amount: '1012.5000', account: '4000 Sales' }] };
+  const invoice = { ...post, operation: 'invoice.record', summary: 'Invoice Harbor', payload: { book_id: id(2) }, detail };
+  assert.equal(parseApprovalList({ actor_id: '1', pending: [invoice], recent: [] }, '1').pending[0].operation, 'invoice.record');
+  assert.equal(approvalMessage(invoice).proposal.title, 'Record an invoice');
+  const content = approvalContent(invoice);
+  assert.match(content, /Invoice INV-0042 to Harbor Labs · 1012\.5000 USD · dated 2026-03-02, due 2026-04-01/);
+  assert.match(content, /\| Design work \| 7\.5000 \| 135\.0000 \| 4000 Sales \| 1012\.5000 \|/);
+  assert.match(content, /\| \*\*Total\*\* \| \| \| 1100 Accounts receivable \(debit\) \| 1012\.5000 \|/);
+  assert.match(content, /Maipa does not send the invoice\./);
+  assert.match(approvalContent({ ...invoice, detail: null }), /its number may already be used\. Approving will fail/);
+  const cancel = { ...post, operation: 'invoice.void', summary: 'Cancel', payload: { book_id: id(2) },
+    detail: { books: 'Synthetic Co', currency: 'USD', customer: 'Harbor Labs', number: 'INV-0042', total: '1012.5000', invoice_date: '2026-03-02', date: '2026-03-05', current: true } };
+  assert.equal(approvalMessage(cancel).proposal.title, 'Cancel an invoice');
+  assert.match(approvalContent(cancel), /Cancel unpaid invoice INV-0042 to Harbor Labs \(1012\.5000 USD, dated 2026-03-02\) by posting the exact opposite of its entry on 2026-03-05\. .*the number is not used again\./);
+  assert.match(approvalContent({ ...cancel, detail: null }), /can no longer be cancelled as asked/);
+  const customer = { ...post, operation: 'customer.add', summary: 'Add Harbor', payload: { book_id: id(2) }, detail: { books: 'Synthetic Co', name: 'Harbor Labs', current: true } };
+  assert.equal(approvalMessage(customer).proposal.title, 'Add a customer');
+  assert.match(approvalContent(customer), /Add Harbor Labs to the customers of the Synthetic Co books\. No entry or balance changes\./);
+  assert.match(approvalContent({ ...customer, detail: null }), /can no longer be added as asked/);
+});

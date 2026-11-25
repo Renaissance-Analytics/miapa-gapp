@@ -9004,6 +9004,72 @@
           ]
         }
       ]
+    },
+    {
+      "id": "R01-INVOICES",
+      "risk": "An invoice priced wrongly, numbered twice, posted without approval, recorded into a closed month, or listed as owed when the ledger says otherwise would misstate sales and what customers owe.",
+      "scenarios": [
+        {
+          "id": "R01-INVOICES.record",
+          "kind": "positive",
+          "given": "A customer added by approval and a request to invoice them for two priced lines",
+          "when": "Add the same name again, read the card, approve, list receivables, read the report and verify the books, and approve again",
+          "then": "The same customer name is refused; the card shows the customer, number, dates, each line with quantity, unit price, computed amount and income account, the total and the receivable; approval posts one balanced entry debiting the receivable and crediting each line; receivables list the open invoice with its total equal to the ledger receivable and the next number; income and integrity are right; the repeat changes nothing.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_a_customer_and_an_invoice_are_recorded_by_approval_and_the_receivables_tie_to_the_ledger"
+          ]
+        },
+        {
+          "id": "R01-INVOICES.pricing",
+          "kind": "positive",
+          "given": "Lines with fractional quantities and prices",
+          "when": "Price them and request an invoice, and one whose line rounds to nothing",
+          "then": "Each amount is quantity times unit price rounded half up to the cent and the total is their sum; a line that rounds to zero is refused.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_each_line_is_quantity_times_price_rounded_half_up_to_the_cent"
+          ]
+        },
+        {
+          "id": "R01-INVOICES.numbers-overdue-void",
+          "kind": "negative",
+          "given": "An overdue invoice, one not yet due, and a manual entry on the receivable account",
+          "when": "Reuse a number written differently, list receivables, void the overdue invoice, list again, void it again, reuse its number, and list after the manual entry",
+          "then": "A used number is refused however it is written; the overdue invoice comes first with its days overdue; voiding reverses its entry and removes it from what is owed; it cannot be voided again; its number stays used; the manual entry shows as a difference.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_a_number_is_used_once_even_after_a_void_and_an_overdue_invoice_comes_first"
+          ]
+        },
+        {
+          "id": "R01-INVOICES.refusals",
+          "kind": "negative",
+          "given": "Unknown customers, malformed numbers, dates and lines, cash, liability and expense accounts in the wrong places, padded requests, another person, bad voids, malformed listings, and a month closed after the request",
+          "when": "Request, list or approve them",
+          "then": "Each is refused with its code where one applies and nothing is posted; the approval after the close fails and posts nothing.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_malformed_invoices_wrong_accounts_closed_months_and_other_people_are_refused_and_nothing_is_posted"
+          ]
+        },
+        {
+          "id": "R01-INVOICES.next-number",
+          "kind": "positive",
+          "given": "Lists of invoice numbers, newest first",
+          "when": "Work out the next number",
+          "then": "The newest number ending in digits is incremented keeping its prefix and width; with none, there is no suggestion.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_next_number_keeps_the_prefix_and_width_of_the_latest_number"
+          ]
+        },
+        {
+          "id": "R01-INVOICES.agent-tool",
+          "kind": "positive",
+          "given": "A recorded invoice and the agent tools",
+          "when": "List receivables through the tool and pass invoice-changing arguments",
+          "then": "The tool result equals the service result; the other forms return an error; the invoice is unchanged.",
+          "tests": [
+            "tests.test_invoices.InvoiceTests.test_the_agent_tool_lists_receivables_and_cannot_record_or_void"
+          ]
+        }
+      ]
     }
   ]
 }

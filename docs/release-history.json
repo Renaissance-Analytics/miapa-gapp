@@ -1,5 +1,15 @@
 [
   {
+    "id": "development-84",
+    "label": "Development update 84",
+    "cards": [
+      {
+        "title": "Accruals that undo themselves",
+        "description": "For a cost or income that belongs to one month but is billed in the next, Maipa can ask you once to post the entry at month end and its exact opposite on the date you choose. Each month then shows only what belongs to it."
+      }
+    ]
+  },
+  {
     "id": "development-83",
     "label": "Development update 83",
     "cards": [

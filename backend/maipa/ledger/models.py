@@ -381,3 +381,38 @@ class ExpenseClaim(models.Model):
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(state__in=('open', 'paid', 'void')), name='ledger_claim_state'),
                        models.CheckConstraint(condition=models.Q(total_units__gt=0), name='ledger_claim_total')]
+
+
+class Customer(models.Model):
+    """Someone the business bills. Only a name is kept."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='customers', on_delete=models.PROTECT)
+    name = models.CharField(max_length=200)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('book', 'name'), name='ledger_customer_name')]
+
+
+class Invoice(models.Model):
+    """What the business billed a customer. Its amounts live in the journal entries it points to; this row tracks what is still to be received."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, related_name='invoices', on_delete=models.PROTECT)
+    customer = models.ForeignKey(Customer, related_name='invoices', on_delete=models.PROTECT)
+    number = models.CharField(max_length=40)
+    invoice_date = models.DateField()
+    due_date = models.DateField()
+    lines = models.JSONField()
+    total_units = models.BigIntegerField()
+    receivable_account = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    state = models.CharField(max_length=4, default='open')
+    journal = models.ForeignKey(Journal, related_name='+', on_delete=models.PROTECT)
+    void_journal = models.ForeignKey(Journal, related_name='+', null=True, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(state__in=('open', 'paid', 'void')), name='ledger_invoice_state'),
+                       models.CheckConstraint(condition=models.Q(total_units__gt=0), name='ledger_invoice_total'),
+                       models.CheckConstraint(condition=models.Q(due_date__gte=models.F('invoice_date')), name='ledger_invoice_due')]

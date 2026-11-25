@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from backend.maipa.intake import services as intake
 from backend.maipa.intake.schema import InvalidFact
-from backend.maipa.ledger import bills as ledger_bills, claims as ledger_claims, budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, services as ledger, vendors as ledger_vendors
+from backend.maipa.ledger import bills as ledger_bills, claims as ledger_claims, budgets as ledger_budgets, decisions as ledger_decisions, groups as ledger_groups, plans as ledger_plans, receivables as ledger_receivables, services as ledger, vendors as ledger_vendors
 from backend.maipa.ledger.models import Book
 from backend.maipa.workflows import schedules as flow_schedules
 from .models import ActionRequest
@@ -261,6 +261,12 @@ OPERATIONS = {
         lambda user, p: ledger_bills.pay_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_bills.pay(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'bill.void': (('book_id', 'bill_id', 'date'),
         lambda user, p: ledger_bills.void_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_bills.void(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'customer.add': (('book_id', 'name'), lambda user, p: ledger_receivables.add_check(_plan_book(user, p), {'name': p['name']}),
+        lambda user, p: ledger_receivables.add(user, p['book_id'], {'name': p['name']})),
+    'invoice.record': (('book_id', 'customer_id', 'number', 'invoice_date', 'due_date', 'lines', 'receivable_account_id'),
+        lambda user, p: ledger_receivables.record_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_receivables.record(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
+    'invoice.void': (('book_id', 'invoice_id', 'date'),
+        lambda user, p: ledger_receivables.void_check(_plan_book(user, p), {key: value for key, value in p.items() if key != 'book_id'}), lambda user, p: ledger_receivables.void(user, p['book_id'], {key: value for key, value in p.items() if key != 'book_id'})),
     'vendor.add': (('book_id', 'name'), lambda user, p: ledger_vendors.add_check(_plan_book(user, p), {'name': p['name']}),
         lambda user, p: ledger_vendors.add(user, p['book_id'], {'name': p['name']})),
     'vendor.payment': (('book_id', 'vendor_id', 'method', 'details', 'verified_by', 'expected_version'),
@@ -328,6 +334,12 @@ def _detail(row):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
             return {'bill.record': ledger_bills.describe, 'bill.pay': ledger_bills.describe_pay, 'bill.void': ledger_bills.describe_void}[row.operation](book, rest)
+        if row.operation in ('customer.add', 'invoice.record', 'invoice.void'):
+            book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
+            rest = {key: value for key, value in row.payload.items() if key != 'book_id'}
+            if row.operation == 'customer.add':
+                return {'books': book.entity.name, 'name': ledger_receivables.add_check(book, rest), 'current': True}
+            return {'invoice.record': ledger_receivables.describe, 'invoice.void': ledger_receivables.describe_void}[row.operation](book, rest)
         if row.operation in ('vendor.add', 'vendor.payment'):
             book = Book.objects.select_related('entity').get(pk=row.payload['book_id'])
             rest = {key: value for key, value in row.payload.items() if key != 'book_id'}

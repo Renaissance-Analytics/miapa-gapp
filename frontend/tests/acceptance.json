@@ -2495,6 +2495,16 @@
           "tests": [
             "approvals.test.mjs#expense claim cards list each cost, point out a possible duplicate, and say a reimbursement is only recorded"
           ]
+        },
+        {
+          "id": "A03-APPROVALS-UI.invoice-cards",
+          "kind": "negative",
+          "given": "Requests to record an invoice, cancel one and add a customer, and ones no longer valid",
+          "when": "Parse and render their cards",
+          "then": "The invoice card lists each line with quantity, unit price, account and amount, the total against the receivable, and says Maipa does not send the invoice; the cancel card says the original entry stays and the number is not used again; the customer card says no entry changes; invalid ones say approving will fail.",
+          "tests": [
+            "approvals.test.mjs#invoice and customer approvals show the priced lines, the receivable and what cancelling keeps"
+          ]
         }
       ]
     }

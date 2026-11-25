@@ -172,3 +172,20 @@ A receipt number (compared without case, spaces or punctuation) can be claimed o
 is not void, and only once within a claim. A line from the same person with the same date and amount as an earlier
 line is allowed but listed on the card as a possible duplicate. `maipa_books_claims {book_id}` lists open claims by
 person with what is owed to each.
+
+## Customers and invoices
+
+`customer.add {book_id, name}` adds someone the business bills; only the name is kept and the same name (ignoring case
+and spacing) is refused. `invoice.record {book_id, customer_id, number, invoice_date, due_date, lines,
+receivable_account_id}` posts an invoice through the normal journal path, source kind `invoice`: the total is debited
+to a non-cash asset account such as 1100 Accounts receivable and each line `{description, quantity, unit_price,
+account_id}` is credited to its income account. Maipa computes each line as quantity times unit price, rounded half up
+to the cent, and shows it on the approval card; a line that rounds to zero is refused. `invoice.void` cancels an open
+invoice by reversing its entry. Period locks apply to every date.
+
+An invoice number (compared without case, spaces or punctuation) is used once per book, and stays used after the
+invoice is voided, so a number always points to one document. `maipa_books_receivables {book_id, as_of}` lists the
+customers and their open invoices, overdue first, with the total beside the posted balance of the receivable accounts
+(any difference is reported, never adjusted) and `next_number`, the number after the latest one that ends in digits.
+
+Not handled yet: receipts against invoices, partial payments, credit notes, sales tax and sending invoices.

@@ -8,7 +8,7 @@ from django.db import DatabaseError, transaction
 from backend.maipa.agent_accounts import ui
 from . import services
 
-NAMES = frozenset(('maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_books_releases', 'maipa_books_groups', 'maipa_books_forecast', 'maipa_books_metrics', 'maipa_books_budget', 'maipa_books_decisions', 'maipa_books_vendors', 'maipa_books_payables', 'maipa_books_claims', 'maipa_journal_propose'))
+NAMES = frozenset(('maipa_books_list', 'maipa_books_read', 'maipa_books_activity', 'maipa_books_imports', 'maipa_books_report', 'maipa_books_verify', 'maipa_books_reconcile', 'maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due', 'maipa_books_releases', 'maipa_books_groups', 'maipa_books_forecast', 'maipa_books_metrics', 'maipa_books_budget', 'maipa_books_decisions', 'maipa_books_vendors', 'maipa_books_payables', 'maipa_books_claims', 'maipa_books_receivables', 'maipa_journal_propose'))
 
 
 def tool_definitions():
@@ -48,6 +48,8 @@ def tool_definitions():
          'inputSchema': obj({'book_id': identifier, 'as_of': {'type': 'string', 'format': 'date'}})},
         {'name': 'maipa_books_vendors', 'description': 'Read-only: the vendors of a book, each with its current payment details (version, method, details with account numbers masked to their last four digits, how they were verified, and the date set) and how many versions exist. With vendor_id: every version of that vendor\'s payment details, newest first. To add a vendor or set or change payment details request vendor.add or vendor.payment with maipa_action_request, passing the current version as expected_version.',
          'inputSchema': obj({'book_id': identifier, 'vendor_id': identifier}, ['book_id'])},
+        {'name': 'maipa_books_receivables', 'description': 'Read-only: the customers of a book and their unpaid invoices as of a date (as_of, YYYY-MM-DD, normally today), overdue ones first with days_overdue, then by due date. open_total and overdue_total add them up; ledger_receivable is the posted balance of the receivable accounts the invoices use and difference is ledger_receivable minus open_total, which is not zero when something was entered on a receivable account outside an invoice: report it, do not explain it away. next_number follows the latest invoice number; recent lists the last invoices paid or voided. To add a customer or record or void an invoice request customer.add, invoice.record or invoice.void with maipa_action_request.',
+         'inputSchema': obj({'book_id': identifier, 'as_of': {'type': 'string', 'format': 'date'}})},
         {'name': 'maipa_books_payables', 'description': 'Read-only: unpaid vendor bills as of a date (as_of, YYYY-MM-DD, normally today), overdue ones first with days_overdue, then by due date. open_total and overdue_total add them up; ledger_payable is the posted balance of the payable accounts the bills use and difference is ledger_payable minus open_total, which is not zero when something was entered on a payable account outside a bill: report it, do not explain it away. recent lists the last bills paid or voided. To record, pay or void a bill request bill.record, bill.pay or bill.void with maipa_action_request.',
          'inputSchema': obj({'book_id': identifier, 'as_of': {'type': 'string', 'format': 'date'}})},
         {'name': 'maipa_books_claims', 'description': 'Read-only: open expense claims grouped by person, with what the business owes each and the total, and the last claims reimbursed or voided. To record, reimburse or void a claim request claim.record, claim.reimburse or claim.void with maipa_action_request.',
@@ -88,7 +90,7 @@ class LedgerBroker:
                                if name == 'maipa_books_report'
                                else ('book_id', *(('import_id',) if 'import_id' in arguments else ()))
                                if name == 'maipa_books_reconcile' else ('book_id', *(('release_id',) if 'release_id' in arguments else ()))
-                               if name == 'maipa_books_releases' else ('book_id', *(('vendor_id',) if 'vendor_id' in arguments else ())) if name == 'maipa_books_vendors' else ('book_id', 'from', 'to') if name in ('maipa_books_metrics', 'maipa_books_budget') else ('book_id', 'as_of') if name in ('maipa_books_decisions', 'maipa_books_payables') else ('book_id', 'from', *(('scenario',) if 'scenario' in arguments else ())) if name == 'maipa_books_forecast' else ('book_id', 'through') if name in ('maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due') else ('book_id',))
+                               if name == 'maipa_books_releases' else ('book_id', *(('vendor_id',) if 'vendor_id' in arguments else ())) if name == 'maipa_books_vendors' else ('book_id', 'from', 'to') if name in ('maipa_books_metrics', 'maipa_books_budget') else ('book_id', 'as_of') if name in ('maipa_books_decisions', 'maipa_books_payables', 'maipa_books_receivables') else ('book_id', 'from', *(('scenario',) if 'scenario' in arguments else ())) if name == 'maipa_books_forecast' else ('book_id', 'through') if name in ('maipa_books_close_review', 'maipa_books_schedules', 'maipa_books_prepare_due') else ('book_id',))
                 book_id = arguments['book_id']
                 if name == 'maipa_books_report':
                     value = services.financial_report(actor, book_id, {key: item for key, item in arguments.items() if key != 'book_id'})
@@ -101,6 +103,9 @@ class LedgerBroker:
                 elif name == 'maipa_books_claims':
                     from . import claims
                     value = claims.outstanding(actor, book_id)
+                elif name == 'maipa_books_receivables':
+                    from . import receivables
+                    value = receivables.receivables(actor, book_id, {'as_of': arguments['as_of']})
                 elif name == 'maipa_books_payables':
                     from . import bills
                     value = bills.payables(actor, book_id, {'as_of': arguments['as_of']})
